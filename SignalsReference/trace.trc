@@ -1,0 +1,13 @@
+Temps_sec;Variable;Valeur
+0000.005;PosX_robot;10
+0000.005;PosY_robot;23
+0000.007;PosTeta_robot;50
+0001.005;PosX_robot;120
+0001.005;PosY_robot;123
+0001.007;PosTeta_robot;350
+0001.008;PosX_robot;351
+0001.008;PosY_robot;352
+0003.008;PosX_robot;1351
+0003.508;PosY_robot;1352
+
+

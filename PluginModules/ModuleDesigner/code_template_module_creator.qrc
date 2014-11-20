@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Templates/BasicModuleAvecIHM/CModuleTemplate.tpl.h</file>
+        <file>Templates/BasicModuleAvecIHM/CModuleTemplate.tpl.cpp</file>
+        <file>Templates/BasicModuleAvecIHM/ihm_ModuleTemplate.tpl.ui</file>
+        <file>Templates/BasicModuleSansIHM/CModuleTemplate.tpl.cpp</file>
+        <file>Templates/BasicModuleSansIHM/CModuleTemplate.tpl.h</file>
+        <file>Templates/PluginModuleAvecIHM/CModuleTemplate.tpl.cpp</file>
+        <file>Templates/PluginModuleAvecIHM/CModuleTemplate.tpl.h</file>
+        <file>Templates/PluginModuleAvecIHM/ihm_ModuleTemplate.tpl.ui</file>
+        <file>Templates/PluginModuleSansIHM/CModuleTemplate.tpl.cpp</file>
+        <file>Templates/PluginModuleSansIHM/CModuleTemplate.tpl.h</file>
+    </qresource>
+</RCC>

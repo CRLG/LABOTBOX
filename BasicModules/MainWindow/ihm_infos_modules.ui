@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_infos_module</class>
+ <widget class="QDialog" name="ihm_infos_module">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>568</width>
+    <height>167</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Infos modules</string>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTableWidget" name="table_modules">
+     <column>
+      <property name="text">
+       <string>NOM</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>VERSION</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>DESCRIPTION</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
