@@ -24,6 +24,9 @@ class CDataPlayer;
 
 
 class CModuleDesigner;
+class CDataGraph;
+class CSimuBot;
+class CStrategyDesigner;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -58,6 +61,9 @@ public:
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
    CModuleDesigner       *m_module_creator;
+   CDataGraph     *m_DataGraph;
+   CSimuBot     *m_SimuBot;
+   CStrategyDesigner     *m_StrategyDesigner;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

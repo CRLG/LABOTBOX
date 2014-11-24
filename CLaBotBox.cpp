@@ -20,6 +20,9 @@
 
 
 #include "CModuleDesigner.h"
+#include "CDataGraph.h"
+#include "CSimuBot.h"
+#include "CStrategyDesigner.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CLaBotBox.h"
@@ -149,6 +152,18 @@ void CLaBotBox::createPluginModules(void)
   m_module_creator    = new CModuleDesigner("ModuleDesigner");
   m_list_plugin_modules.append(m_module_creator);
   m_list_modules.append(m_module_creator);
+
+  m_DataGraph     = new CDataGraph("DataGraph");
+  m_list_plugin_modules.append(m_DataGraph);
+  m_list_modules.append(m_DataGraph);
+
+  m_SimuBot     = new CSimuBot("SimuBot");
+  m_list_plugin_modules.append(m_SimuBot);
+  m_list_modules.append(m_SimuBot);
+
+  m_StrategyDesigner     = new CStrategyDesigner("StrategyDesigner");
+  m_list_plugin_modules.append(m_StrategyDesigner);
+  m_list_modules.append(m_StrategyDesigner);
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

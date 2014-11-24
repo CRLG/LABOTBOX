@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Templates/Stateflow_script.m</file>
+    </qresource>
+</RCC>

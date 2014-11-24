@@ -42,6 +42,9 @@
         <file>icons/signal.png</file>
         <file>icons/bloc_note.png</file>
         <file>icons/designer.png</file>
+        <file>icons/terminal.png</file>
+        <file>icons/cursor.png</file>
+        <file>icons/plot.png</file>
         <file>icons/terrain_2015_simubot.png</file>
         <file>icons/matlab.png</file>
     </qresource>

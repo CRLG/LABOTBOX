@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_SimuBot</class>
+ <widget class="QMainWindow" name="ihm_SimuBot">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>678</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ManipBotBox</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" rowspan="9" colspan="4">
+     <widget class="QGraphicsView" name="simuGraphicsView"/>
+    </item>
+    <item row="0" column="4">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Simu</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5" colspan="2">
+     <widget class="QSlider" name="horizontalSlider_toggle_simu">
+      <property name="maximum">
+       <number>1</number>
+      </property>
+      <property name="pageStep">
+       <number>1</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="8">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Visu</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QPushButton" name="pushButton_init">
+      <property name="text">
+       <string>INIT</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8" rowspan="2">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>178</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="4" colspan="3">
+     <widget class="QGroupBox" name="groupBox_coord_relative">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Coordonnées relatives au</string>
+      </property>
+      <widget class="QRadioButton" name="radioButton_robot_relative">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>82</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Robot</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_terrain_relative">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>82</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Terrain</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="6">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="4" colspan="2">
+     <widget class="QLineEdit" name="lineEdit_X_init"/>
+    </item>
+    <item row="4" column="6" colspan="3">
+     <widget class="QLineEdit" name="lineEdit_Y_init"/>
+    </item>
+    <item row="5" column="4" rowspan="3">
+     <widget class="QGroupBox" name="groupBox_equipe">
+      <property name="title">
+       <string>Equipe</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QRadioButton" name="radioButton_couleur_1">
+         <property name="text">
+          <string>Jaune</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_couleur_2">
+         <property name="text">
+          <string>Vert</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="5" column="6">
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>Theta</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="6" colspan="3">
+     <widget class="QLineEdit" name="lineEdit_Theta_init"/>
+    </item>
+    <item row="7" column="7">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>25</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="8" column="4" colspan="5">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" rowspan="2">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1" rowspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_x"/>
+    </item>
+    <item row="9" column="3" rowspan="2">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Distance</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="4" rowspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_distance"/>
+    </item>
+    <item row="10" column="2">
+     <widget class="QLineEdit" name="lineEdit_x">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="5" rowspan="3" colspan="3">
+     <widget class="QGroupBox" name="groupBox_angles">
+      <property name="title">
+       <string>Angles en</string>
+      </property>
+      <widget class="QRadioButton" name="radioButton_radian">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>82</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Radians</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_degre">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>82</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Degrés</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QLCDNumber" name="lcdNumber_y"/>
+    </item>
+    <item row="11" column="2">
+     <widget class="QLineEdit" name="lineEdit_y">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="3">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Angle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="4">
+     <widget class="QLCDNumber" name="lcdNumber_angle"/>
+    </item>
+    <item row="12" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Theta</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1">
+     <widget class="QLCDNumber" name="lcdNumber_theta"/>
+    </item>
+    <item row="12" column="2">
+     <widget class="QLineEdit" name="lineEdit_theta">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>678</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

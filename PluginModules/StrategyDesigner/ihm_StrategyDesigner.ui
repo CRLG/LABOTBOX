@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_StrategyDesigner</class>
+ <widget class="QMainWindow" name="ihm_StrategyDesigner">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>831</width>
+    <height>388</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="7">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="14" colspan="2">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Theta</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="18" rowspan="14">
+     <widget class="QTableWidget" name="tableWidget_SM"/>
+    </item>
+    <item row="1" column="0" colspan="7">
+     <widget class="QLineEdit" name="lineEdit_x"/>
+    </item>
+    <item row="1" column="7" colspan="4">
+     <widget class="QLineEdit" name="lineEdit_y"/>
+    </item>
+    <item row="1" column="11" colspan="6">
+     <widget class="QLineEdit" name="lineEdit_theta"/>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>Distance</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="8">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Angle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="7">
+     <widget class="QLineEdit" name="lineEdit_distance"/>
+    </item>
+    <item row="3" column="8" colspan="4">
+     <widget class="QLineEdit" name="lineEdit_angle"/>
+    </item>
+    <item row="4" column="0" colspan="7">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Commentaires globaux</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="18">
+     <widget class="QTextEdit" name="textEdit_comment"/>
+    </item>
+    <item row="6" column="0" colspan="4">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Déplacement</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="4">
+     <widget class="QComboBox" name="comboBox_Deplacement">
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="9">
+     <widget class="QPushButton" name="pushButton_deplacement_plus">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="11" colspan="3">
+     <widget class="QPushButton" name="pushButton_deplacement_remplace">
+      <property name="text">
+       <string>Remplace</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="14" rowspan="5">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0" colspan="2">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Action</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="15" rowspan="2" colspan="2">
+     <widget class="QPushButton" name="pushButton_moins">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" colspan="4">
+     <widget class="QComboBox" name="comboBox_Action"/>
+    </item>
+    <item row="9" column="4" colspan="3">
+     <widget class="QComboBox" name="comboBox_Action_name"/>
+    </item>
+    <item row="9" column="7" colspan="2">
+     <widget class="QComboBox" name="comboBox_Action_value"/>
+    </item>
+    <item row="9" column="9">
+     <widget class="QPushButton" name="pushButton_action_plus">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="11" colspan="3">
+     <widget class="QPushButton" name="pushButton_action_remplace">
+      <property name="text">
+       <string>Remplace</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0" colspan="3">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Transition</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0" colspan="4">
+     <widget class="QComboBox" name="comboBox_Transition"/>
+    </item>
+    <item row="11" column="9">
+     <widget class="QPushButton" name="pushButton_transition_plus">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="11" colspan="3">
+     <widget class="QPushButton" name="pushButton_transition_remplace">
+      <property name="text">
+       <string>Remplace</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1" colspan="16">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>418</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="13" column="0" colspan="2">
+     <widget class="QPushButton" name="pushButton_play">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="3" colspan="2">
+     <widget class="QPushButton" name="pushButton_resume">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="6">
+     <widget class="QPushButton" name="pushButton_stop">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="10">
+     <widget class="QPushButton" name="pushButton_save">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="12">
+     <widget class="QPushButton" name="pushButton_load">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="16" colspan="2">
+     <widget class="QPushButton" name="pushButton_generate">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>831</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
