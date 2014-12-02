@@ -10,7 +10,11 @@
    *  @{
    */
 
-	   
+// _____________________________________________________________________
+/*!
+* Constructeurs
+*
+*/
 CData::CData()
 {
  m_data.clear();
@@ -24,9 +28,15 @@ CData::CData(QString name, QVariant val)
 }
 
 
+// _____________________________________________________________________
+/*!
+* Destructeur
+*
+*/
 CData::~CData()
 {
   m_data.clear();
+  m_properties.clear();
 }
 
 // _____________________________________________________________________
@@ -60,5 +70,67 @@ QVariant CData::read(void)
 {
   return(m_data);
 }
+
+
+
+// _____________________________________________________________________
+/*!
+*  Fixe la valeur d'une propriété
+*  \param [in] name le nom de la propiete
+*  \param [in] value valeur de la propriété
+*  \remarks si la propriété existe déjà, sa valeur est écrasée
+*  \remarks si la propriété n'existe pas, elle est créée
+*  \return --
+*/
+void CData::setProperty(QString name, QVariant value)
+{
+  m_properties[name] = value;
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Lit la valeur d'une propriété
+*  \param [in] name le nom de la propiete
+*  \remarks si la propriété n'existe pas, une valeur par défaut est renvoyée (QVariant "Invalid" qui conduit à une valeur nulle sur un toInt() ou à une chaine vide sur un toString())
+*  \return la valeur de la propriété
+*/
+QVariant CData::getProperty(QString name)
+{
+ return(m_properties.value(name));
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Lit la valeur d'une propriété
+*  \param [in] name le nom de la propiete
+*  \remarks si la propriété n'existe pas, une valeur par défaut est renvoyée (QVariant "Invalid" qui conduit à une valeur nulle sur un toInt() ou à une chaine vide sur un toString())
+*  \return la valeur de la propriété
+*/
+void CData::getPropertiesList(QStringList &list)
+{
+ list = m_properties.keys();
+}
+
+// _____________________________________________________________________
+/*!
+*  COnstruit une liste de type propriété=valeur
+*  \return une chaine de caractère prêt à afficher
+*/
+QString CData::getPropertiesString(void)
+{
+  t_map_properties::const_iterator it;
+  QString ret = "";
+
+  for (it=m_properties.constBegin();  it!=m_properties.constEnd(); it++) {
+     ret += it.key();
+     ret += "=";
+     ret += it.value().toString();
+     ret += "\n";
+  }
+  return(ret);
+}
+
 
 /*! @} */

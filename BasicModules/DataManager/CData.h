@@ -9,11 +9,14 @@
 #include <QObject>
 #include <QVariant>
 #include <QMutex>
+#include <QHash>
 
 /*! \addtogroup DataManager
    *  Additional documentation for group DataManager
    *  @{
    */
+
+typedef QHash<QString, QVariant>t_map_properties;
 
 /*! @brief class CData in @link DataManager.
  */	   
@@ -30,6 +33,12 @@ public:
     QVariant read(void);
     QString getName(void) { return(m_name); }
 
+    // Accesseurs sur les propriétés
+    void setProperty(QString name, QVariant value);
+    QVariant getProperty(QString name);
+    void getPropertiesList(QStringList &list);
+    QString getPropertiesString(void);
+
 private:
 	//! Stockage de la valeur de la data
 	QVariant m_data;
@@ -37,6 +46,8 @@ private:
     QString m_name;
     //! Mutex pour l'accès concurrentiel à la data
     QMutex m_mutex;
+    //! Liste d'options associées à la data (QString = nom de la propriété / QVariant = valeur de la propriété)
+    t_map_properties m_properties;
 
 signals:
     //! Signal emis par la donnee lorsqu'une ecriture est faite

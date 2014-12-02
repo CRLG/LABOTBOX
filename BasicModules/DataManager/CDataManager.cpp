@@ -3,6 +3,7 @@
  * A more elaborated file description.
  */
 #include <QDebug>
+#include <QSettings>
 #include "CDataManager.h"
 
 /*! \addtogroup DataManager
@@ -31,6 +32,29 @@ CDataManager::~CDataManager()
 {
   m_map_data.clear();
 }
+
+// _____________________________________________________________________
+/*!
+*  Initialisation du module
+*
+*  \remarks le nom du fichier est le nom du module .ini
+*/
+void CDataManager::init(CLaBotBox *application)
+{
+  CBasicModule::init(application);
+  loadDataProperties();
+}
+
+// _____________________________________________________________________
+/*!
+*  Fermeture du module
+*
+*/
+void CDataManager::close(void)
+{
+  saveDataProperties();
+}
+
 
 // _____________________________________________________________________
 /*!
@@ -181,6 +205,105 @@ void CDataManager::getListeVariablesName(QStringList &var_list)
  }
 
 }
+
+// _____________________________________________________________________
+/*!
+*  Charge un fichier de configuration des propriétés de chaque variable
+*/
+void CDataManager::loadDataProperties(void)
+{
+ QString pathfilename;
+ QSettings *settings;
+ pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
+ settings = new QSettings(pathfilename, QSettings::IniFormat);
+ settings->setIniCodec("ISO 8859-1");
+
+ QStringList keys = settings->childGroups();
+ qDebug() << keys;
+ for (int i=0; i<keys.size(); i++) {
+     QString var_name = keys.at(i);
+     if (m_application->m_data_center->isExist(var_name) == false) {
+        m_application->m_data_center->write(var_name, ""); // crée la variable si elle n'existe pas
+     }
+     // récupère la liste des propriétés de cette variable
+     settings->beginGroup(var_name);
+     QStringList liste_proprietes = settings->childKeys();
+     for (int j=0; j<liste_proprietes.size(); j++) {
+        QString prop_name = liste_proprietes.at(j);
+        QVariant prop_value = settings->value(prop_name);
+        setDataProperty(var_name, prop_name, prop_value);
+     }
+     settings->endGroup();
+ }
+
+ delete settings;
+}
+// _____________________________________________________________________
+/*!
+*  Charge un fichier de configuration des propriétés de chaque variable
+*/
+void CDataManager::saveDataProperties(void)
+{
+ QString pathfilename;
+ QSettings *settings;
+ pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
+ settings = new QSettings(pathfilename, QSettings::IniFormat);
+ settings->setIniCodec("ISO 8859-1");
+
+ t_map_data::const_iterator it;
+ for (it=m_map_data.constBegin();  it!=m_map_data.constEnd(); it++) {
+     QStringList list_properties;
+     it.value()->getPropertiesList(list_properties);
+     for (int i=0; i<list_properties.size(); i++) {
+         QString prop_name =list_properties.at(i);
+         QVariant prop_value = it.value()->getProperty(prop_name);
+         QString section_prop_name = it.key() + "/" + prop_name;
+         settings->setValue(section_prop_name, prop_value);
+     } // for toutes les propriétés de la variale
+ } // for toutes les variables
+
+ delete settings;
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Positionne la valeur d'une propriété d'une variable
+*
+* \param [in] varname nom de la variable à tester
+* \param [in] prop_name nom de la propriété à affecter (ou à créer si elle n'existe pas déjà)
+* \param [in] val valeur de la propriété
+* \remarks si la propriété n'existe pas déjà, elle est créée
+* \remarks si la data n'existe pas, la fonction ne fait rien
+*/
+void CDataManager::setDataProperty(QString varname, QString prop_name, QVariant val)
+{
+  CData *data = getData(varname);
+  if (data != NULL) {
+    data->setProperty(prop_name, val);
+  }
+}
+
+// _____________________________________________________________________
+/*!
+*  Lit la valeur d'une propriété d'une variable
+*
+* \param [in] varname nom de la variable à tester
+* \param [in] prop_name nom de la propriété à affecter (ou à créer si elle n'existe pas déjà)
+* \param [in] val valeur de la propriété
+* \return la valeur de la propriété
+* \remarks si la data ou la propriété n'existe pas, la fonction renvoie un QVariant vide
+*/
+QVariant CDataManager::getDataProperty(QString varname, QString prop_name)
+{
+  QVariant val = QVariant("");
+  CData *data = getData(varname);
+  if (data != NULL) {
+    val = data->getProperty(prop_name);
+  }
+  return(val);
+}
+
 
 
 /*! @} */
