@@ -7,6 +7,14 @@ QT       += core gui testlib xml printsupport serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG(debug, debug|release){
+    LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugind
+}
+else{
+    LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugin
+}
+#LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugin
+
 TARGET = LaBotBox
 TEMPLATE = app
 
@@ -18,9 +26,10 @@ HEADERS  += CLaBotBox.h \
             CModule.h
 
 RESOURCES+= icons.qrc \
-    code_template.qrc
+    code_template.qrc \
+    PluginModules/SensorView/SensorView.qrc
 # __________________________________________________
-# Ajouter ici les basic modules (nom des répertoires)
+# Ajouter ici les basic modules (nom des rÃ©pertoires)
 LIST_BASIC_MODULES+= \
         DataManager \
         MainWindow \
@@ -31,16 +40,17 @@ LIST_BASIC_MODULES+= \
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les plugin modules (nom des répertoires)
+# Ajouter ici les plugin modules (nom des rÃ©pertoires)
 LIST_PLUGIN_MODULES+= \
         ModuleDesigner \
         DataGraph \ 
         SimuBot \ 
         StrategyDesigner \ 
+        SensorView \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
+# Ajouter ici les utilitaires communs "Tools" (nom des rÃ©pertoires)
 LIST_TOOLS+= CustomPlot
 
 		

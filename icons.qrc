@@ -47,5 +47,10 @@
         <file>icons/plot.png</file>
         <file>icons/terrain_2015_simubot.png</file>
         <file>icons/matlab.png</file>
+        <file>icons/mime_actuator.png</file>
+        <file>icons/mime_computed_signal.png</file>
+        <file>icons/mime_default.png</file>
+        <file>icons/mime_sensor_ana.png</file>
+        <file>icons/mime_sensor_tor.png</file>
     </qresource>
 </RCC>

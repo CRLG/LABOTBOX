@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/grosbot_2014.jpg</file>
+    </qresource>
+</RCC>

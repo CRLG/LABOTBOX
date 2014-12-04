@@ -27,6 +27,7 @@ class CModuleDesigner;
 class CDataGraph;
 class CSimuBot;
 class CStrategyDesigner;
+class CSensorView;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -64,6 +65,7 @@ public:
    CDataGraph     *m_DataGraph;
    CSimuBot     *m_SimuBot;
    CStrategyDesigner     *m_StrategyDesigner;
+   CSensorView     *m_SensorView;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
