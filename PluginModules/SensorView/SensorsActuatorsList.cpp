@@ -47,10 +47,8 @@
 SensorsActuatorsList::SensorsActuatorsList(QWidget *parent)
     : QListWidget(parent)
 {
+    setViewMode(QListView::ListMode);
     setDragEnabled(true);
-    setViewMode(QListView::IconMode);
-    setIconSize(QSize(32, 32));
-    //setSpacing(10);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
 }
@@ -95,10 +93,12 @@ void SensorsActuatorsList::dropEvent(QDropEvent *event)
         dataStream >> pixmap >> name_var;
 
         //on ajoute l'élément
-        addElement(pixmap,name_var);
+        emit refreshList(name_var);
+        //addElement(pixmap,name_var);
 
         event->setDropAction(Qt::MoveAction);
         event->accept();
+        //emit start();
     } else {
         event->ignore();
     }
@@ -114,11 +114,14 @@ void SensorsActuatorsList::addElement(QPixmap pixmap, QString name_var)
     pieceItem->setData(Qt::UserRole, QVariant(pixmap));
     //pieceItem->setData(Qt::UserRole+1, location);
     pieceItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+
+    sortItems(Qt::AscendingOrder);
 }
 
 
 void SensorsActuatorsList::startDrag(Qt::DropActions /*supportedActions*/)
 {
+    //emit resume();
     QListWidgetItem *item = currentItem();
 
     QByteArray itemData;

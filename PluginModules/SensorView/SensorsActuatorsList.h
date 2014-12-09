@@ -4,12 +4,7 @@
 #include <QListWidget>
 #include <CEEPROM.h>
 
-typedef enum {
-    mime_sensor_tor,
-    mime_sensor_ana,
-    mime_computed_signal,
-    mime_sensor_actuator
-} eLBB_typeMime;
+
 
 class SensorsActuatorsList : public QListWidget
 {
@@ -29,6 +24,10 @@ protected:
     void startDrag(Qt::DropActions supportedActions);
 
     int m_type;
+signals:
+    void refreshList(QString var_name);
+    void resume(void);
+    void start(void);
 };
 
 #endif // SENSORSACTUATORSLIST_H

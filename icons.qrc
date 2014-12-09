@@ -52,5 +52,7 @@
         <file>icons/mime_default.png</file>
         <file>icons/mime_sensor_ana.png</file>
         <file>icons/mime_sensor_tor.png</file>
+        <file>icons/locked.png</file>
+        <file>icons/unlocked.png</file>
     </qresource>
 </RCC>

@@ -20,6 +20,7 @@ class SensorsActuatorsPlace : public QWidget
 
 public:
     explicit SensorsActuatorsPlace(QWidget *parent = 0);
+    void setDragEnabled(bool value);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
@@ -27,9 +28,12 @@ protected:
     void dropEvent(QDropEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *e);
+    bool isDragEnabled;
 
 signals:
     void addWidget(QString var_Name,QPoint var_pos);
+    void resume(void);
+    void start(void);
 };
 
 #endif // SensorsActuatorsPlace_H
