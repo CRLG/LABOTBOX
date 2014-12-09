@@ -7,13 +7,7 @@ QT       += core gui testlib xml printsupport serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG(debug, debug|release){
-    LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugind
-}
-else{
-    LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugin
-}
-#LIBS += -LC:/Qt/Qt5.2.1/5.2.1/mingw48_32/plugins/designer -lqledplugin
+CONFIG += plugins_designer
 
 TARGET = LaBotBox
 TEMPLATE = app
