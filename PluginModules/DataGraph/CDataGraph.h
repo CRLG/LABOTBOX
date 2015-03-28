@@ -84,7 +84,7 @@ private:
     bool cursorEnabled;
     QHash<QString, int> m_liste_graph;
     uint graphColor;
-    QColor const t_predefinedColor[8]={Qt::black,Qt::red,Qt::green,Qt::blue,Qt::cyan,Qt::magenta,Qt::yellow,Qt::gray};
+    const QColor t_predefinedColor[8]={Qt::black,Qt::red,Qt::green,Qt::blue,Qt::cyan,Qt::magenta,Qt::yellow,Qt::gray};
     QStringList t_predefinedColorName;
     QCPRange* storedRange;
     int dureeObservee;

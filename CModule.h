@@ -33,8 +33,8 @@ public:
 
     CModule(const char *name, const char *version, const char *auteur, const char *description)
         :   m_niveau_trace(0),
-            m_application(NULL),
-            m_GUI(NULL)
+            m_GUI(NULL),
+            m_application(NULL)
     {
         m_name          = QString(name);
         m_version       = QString(version);

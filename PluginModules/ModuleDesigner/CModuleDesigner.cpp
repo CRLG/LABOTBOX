@@ -414,7 +414,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
 QString CModuleDesigner::readFile(QString pathfilename)
 {
   QFile file(pathfilename);
-  if (file.open(QFile::ReadOnly) == NULL) {
+  if (file.open(QFile::ReadOnly) == false) {
       m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
   }
   QTextStream txtstream(&file);
@@ -442,7 +442,7 @@ void CModuleDesigner::writeFile(QString path, QString filename, const QString &v
 void CModuleDesigner::writeFile(QString pathfilename, const QString &value)
 {
   QFile file(pathfilename);
-  if (file.open(QFile::WriteOnly) == NULL) {
+  if (file.open(QFile::WriteOnly) == false) {
       m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
   }
   QTextStream txtstream(&file);

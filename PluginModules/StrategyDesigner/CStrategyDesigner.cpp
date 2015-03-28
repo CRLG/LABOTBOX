@@ -555,7 +555,7 @@ void CStrategyDesigner::Slot_GenerateMFile(){
  */
 void CStrategyDesigner::cellEnteredSlot(int row, int column)
 {
-
+  Q_UNUSED(column)
     int colCount=tableWidget_SM->columnCount();
 
     int rowsel;

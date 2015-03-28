@@ -7,8 +7,6 @@ QT       += core gui testlib xml printsupport serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += plugins_designer
-
 TARGET = LaBotBox
 TEMPLATE = app
 
@@ -20,10 +18,9 @@ HEADERS  += CLaBotBox.h \
             CModule.h
 
 RESOURCES+= icons.qrc \
-    code_template.qrc \
-    PluginModules/SensorView/SensorView.qrc
+    code_template.qrc
 # __________________________________________________
-# Ajouter ici les basic modules (nom des rÃ©pertoires)
+# Ajouter ici les basic modules (nom des répertoires)
 LIST_BASIC_MODULES+= \
         DataManager \
         MainWindow \
@@ -31,20 +28,26 @@ LIST_BASIC_MODULES+= \
         EEPROM \
         DataView \ 
         DataPlayer \ 
+        RS232 \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les plugin modules (nom des rÃ©pertoires)
+# Ajouter ici les plugin modules (nom des répertoires)
 LIST_PLUGIN_MODULES+= \
         ModuleDesigner \
+        TestUnitaire \ 
         DataGraph \ 
         SimuBot \ 
         StrategyDesigner \ 
+        MessagerieBot \ 
+        SensorElectroBot \ 
+        ActuatorElectrobot \ 
         SensorView \ 
+        Asserv \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les utilitaires communs "Tools" (nom des rÃ©pertoires)
+# Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
 LIST_TOOLS+= CustomPlot
 
 		
@@ -85,4 +88,4 @@ for(i, LIST_TOOLS) {
     RESOURCES+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.qrc)
 }
 
-
+CONFIG += plugins_designer

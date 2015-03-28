@@ -47,7 +47,7 @@ CSensorView::~CSensorView()
 void CSensorView::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique �  la classe de base l'IHM
 
   // Restore la taille de la fenêtre
   QVariant val;
@@ -61,7 +61,7 @@ void CSensorView::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
   setNiveauTrace(val.toUInt());
 
-  //récupération des signaux déjà placés sur la vue
+  //récupération des signaux déj�  placés sur la vue
   val=m_application->m_eeprom->read(getName(),"signalsPlacement",QStringList());
   QStringList listePointsWidget_=val.toStringList();
   val=m_application->m_eeprom->read(getName(),"signalsAdded",QStringList());
@@ -144,7 +144,7 @@ void CSensorView::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la liste des variables dans la fenêtre de gauche
+*  Met �  jour la liste des variables dans la fenêtre de gauche
 *
 */
 void CSensorView::refreshListeVariables(void)
@@ -174,8 +174,8 @@ void CSensorView::refreshListeVariables(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la valeur de chaque variable contenu dans la liste des variables à surveiller
-* Traces les courbes à chaque pas de temps
+*  Met �  jour la valeur de chaque variable contenu dans la liste des variables �  surveiller
+* Traces les courbes �  chaque pas de temps
 *
 */
 //void CSensorView::refreshValeursVariables(QVariant var_value)
@@ -207,7 +207,7 @@ void CSensorView::start(bool value)
 {
     if (value)
     {
-        m_timer_lecture_variables.start(PERIODE_ECHANTILLONNAGE_VARIABLES);
+        m_timer_lecture_variables.start(SV_PERIODE_ECHANTILLONNAGE_VARIABLES);
         m_ihm.ui.pb_lockGUI->setChecked(true);
     }
     else

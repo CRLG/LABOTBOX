@@ -76,7 +76,7 @@ class CSensorView : public CPluginModule
 #define     AUTEUR_SensorView    "Laguiche"
 #define     INFO_SensorView      "Visualise l'état des capteurs"
 
-#define     PERIODE_ECHANTILLONNAGE_VARIABLES   100 // msec
+#define     SV_PERIODE_ECHANTILLONNAGE_VARIABLES   100 // msec
 
 public:
     CSensorView(const char *plugin_name);

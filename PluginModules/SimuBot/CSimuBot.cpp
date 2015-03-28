@@ -238,6 +238,7 @@ void CSimuBot::close(void)
  */
 void CSimuBot::viewChanged(QList<QRectF> regions)
 {
+  Q_UNUSED(regions)
     qreal x_view=GrosBot->getX();
     qreal y_view=GrosBot->getY();
     qreal x_graphic=GrosBot->x();

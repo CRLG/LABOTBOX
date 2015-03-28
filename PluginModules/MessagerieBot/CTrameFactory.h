@@ -1,0 +1,733 @@
+// FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
+// Date de génération : Mon Feb 23 22:46:02 2015
+// PLATEFORME CIBLE : LABOTBOX
+/*! \file CTrameFactory.h
+ * A brief file description header.
+ * A more elaborated file description.
+ */
+
+#ifndef _CTRAME_FACTORY_H_
+#define _CTRAME_FACTORY_H_
+
+#include <QObject>
+#include <QVector>
+#include <QVariant>
+#include "CTrameBot.h"
+
+/*! \addtogroup TrameFactory
+   *  Additional documentation for group TrameFactory
+   *  @{
+   */
+
+typedef QVector<CTrameBot *>tListeTrames;
+
+class CMessagerieBot;
+class CDataManager;
+
+/*! @brief class CTrameFactory in @link TrameFactory.
+ */
+class CTrameFactory : public QObject
+{
+    Q_OBJECT
+
+public:
+    CTrameFactory(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrameFactory();
+
+    void create(void);
+
+private :
+    CMessagerieBot *m_messagerie_bot;
+    CDataManager *m_data_manager;
+    //! Liste des trames
+    tListeTrames m_liste_trames;
+    //! Liste des trames en émission
+    tListeTrames m_liste_trames_tx;
+    //! Liste des trames en réception
+    tListeTrames m_liste_trames_rx;
+
+public slots :
+    void Decode(tStructTrameBrute trame);
+
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_CDE_MOTEURS
+// ========================================================
+#define ID_ELECTROBOT_CDE_MOTEURS 0x50
+#define DLC_ELECTROBOT_CDE_MOTEURS 6
+#define BRUTE2PHYS_cde_moteur_6(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_6(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_5(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_5(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_4(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_3(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_2(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_1(val) (char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_CDE_MOTEURS : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_CDE_MOTEURS(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CDE_MOTEURS() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    char cde_moteur_6;
+    char cde_moteur_5;
+    char cde_moteur_4;
+    char cde_moteur_3;
+    char cde_moteur_2;
+    char cde_moteur_1;
+    bool m_synchro_tx;
+
+private slots :
+    void cde_moteur_6_changed(QVariant val);
+    void cde_moteur_5_changed(QVariant val);
+    void cde_moteur_4_changed(QVariant val);
+    void cde_moteur_3_changed(QVariant val);
+    void cde_moteur_2_changed(QVariant val);
+    void cde_moteur_1_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_MVT_XY
+// ========================================================
+#define ID_COMMANDE_MVT_XY 0x102
+#define DLC_COMMANDE_MVT_XY 5
+#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_MVT_XY : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_MVT_XY(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_MVT_XY() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short Y_consigne;
+    short X_consigne;
+    unsigned char Type_mouvement;
+    bool m_synchro_tx;
+
+private slots :
+    void Y_consigne_changed(QVariant val);
+    void X_consigne_changed(QVariant val);
+    void Type_mouvement_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME ASSERV_RESET
+// ========================================================
+#define ID_ASSERV_RESET 0x132
+#define DLC_ASSERV_RESET 1
+#define BRUTE2PHYS_SECURITE_RESET(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_SECURITE_RESET(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ASSERV_RESET : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ASSERV_RESET(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ASSERV_RESET() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned char SECURITE_RESET;
+    bool m_synchro_tx;
+
+private slots :
+    void SECURITE_RESET_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_REINIT_XY_TETA
+// ========================================================
+#define ID_COMMANDE_REINIT_XY_TETA 0x106
+#define DLC_COMMANDE_REINIT_XY_TETA 6
+#define BRUTE2PHYS_reinit_teta_pos(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_reinit_teta_pos(val) (short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_reinit_y_pos(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_reinit_y_pos(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_reinit_x_pos(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_reinit_x_pos(val) (short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_REINIT_XY_TETA : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_REINIT_XY_TETA(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_REINIT_XY_TETA() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short reinit_teta_pos;
+    short reinit_y_pos;
+    short reinit_x_pos;
+    bool m_synchro_tx;
+
+private slots :
+    void reinit_teta_pos_changed(QVariant val);
+    void reinit_y_pos_changed(QVariant val);
+    void reinit_x_pos_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_VITESSE_MVT
+// ========================================================
+#define ID_COMMANDE_VITESSE_MVT 0x105
+#define DLC_COMMANDE_VITESSE_MVT 6
+#define BRUTE2PHYS_indice_sportivite_decel(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_indice_sportivite_decel(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_indice_sportivite_accel(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_indice_sportivite_accel(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_vitesse_rotation_max(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_vitesse_rotation_max(val) (unsigned short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_vitesse_avance_max(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_vitesse_avance_max(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_VITESSE_MVT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_VITESSE_MVT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_VITESSE_MVT() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned char indice_sportivite_decel;
+    unsigned char indice_sportivite_accel;
+    unsigned short vitesse_rotation_max;
+    unsigned short vitesse_avance_max;
+    bool m_synchro_tx;
+
+private slots :
+    void indice_sportivite_decel_changed(QVariant val);
+    void indice_sportivite_accel_changed(QVariant val);
+    void vitesse_rotation_max_changed(QVariant val);
+    void vitesse_avance_max_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_REGUL_VITESSE
+// ========================================================
+#define ID_COMMANDE_REGUL_VITESSE 0x104
+#define DLC_COMMANDE_REGUL_VITESSE 4
+#define BRUTE2PHYS_consigne_vitesse_roue_D(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_consigne_vitesse_roue_D(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_consigne_vitesse_roue_G(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_consigne_vitesse_roue_G(val) (short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_REGUL_VITESSE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_REGUL_VITESSE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_REGUL_VITESSE() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short consigne_vitesse_roue_D;
+    short consigne_vitesse_roue_G;
+    bool m_synchro_tx;
+
+private slots :
+    void consigne_vitesse_roue_D_changed(QVariant val);
+    void consigne_vitesse_roue_G_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_DISTANCE_ANGLE
+// ========================================================
+#define ID_COMMANDE_DISTANCE_ANGLE 0x103
+#define DLC_COMMANDE_DISTANCE_ANGLE 5
+#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_distance_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_distance_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_priorite_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_priorite_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_DISTANCE_ANGLE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_DISTANCE_ANGLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_DISTANCE_ANGLE() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short angle_consigne;
+    short distance_consigne;
+    unsigned char priorite_mouvement;
+    bool m_synchro_tx;
+
+private slots :
+    void angle_consigne_changed(QVariant val);
+    void distance_consigne_changed(QVariant val);
+    void priorite_mouvement_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_MVT_XY_TETA
+// ========================================================
+#define ID_COMMANDE_MVT_XY_TETA 0x101
+#define DLC_COMMANDE_MVT_XY_TETA 7
+#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_MVT_XY_TETA : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_MVT_XY_TETA(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_MVT_XY_TETA() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short angle_consigne;
+    short Y_consigne;
+    short X_consigne;
+    unsigned char Type_mouvement;
+    bool m_synchro_tx;
+
+private slots :
+    void angle_consigne_changed(QVariant val);
+    void Y_consigne_changed(QVariant val);
+    void X_consigne_changed(QVariant val);
+    void Type_mouvement_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_CDE_SERVOS
+// ========================================================
+#define ID_ELECTROBOT_CDE_SERVOS 0x51
+#define DLC_ELECTROBOT_CDE_SERVOS 8
+#define BRUTE2PHYS_PositionServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PositionServoMoteur2(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_VitesseServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_VitesseServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_NumeroServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_NumeroServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PositionServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PositionServoMoteur1(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_VitesseServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_VitesseServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_NumeroServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_NumeroServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_CDE_SERVOS : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_CDE_SERVOS(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CDE_SERVOS() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned short PositionServoMoteur2;
+    unsigned char VitesseServoMoteur2;
+    unsigned char NumeroServoMoteur2;
+    unsigned short PositionServoMoteur1;
+    unsigned char VitesseServoMoteur1;
+    unsigned char NumeroServoMoteur1;
+    bool m_synchro_tx;
+
+private slots :
+    void PositionServoMoteur2_changed(QVariant val);
+    void VitesseServoMoteur2_changed(QVariant val);
+    void NumeroServoMoteur2_changed(QVariant val);
+    void PositionServoMoteur1_changed(QVariant val);
+    void VitesseServoMoteur1_changed(QVariant val);
+    void NumeroServoMoteur1_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME COMMANDE_MVT_MANUEL
+// ========================================================
+#define ID_COMMANDE_MVT_MANUEL 0x100
+#define DLC_COMMANDE_MVT_MANUEL 4
+#define BRUTE2PHYS_PuissanceMotD(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PuissanceMotD(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PuissanceMotG(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PuissanceMotG(val) (short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_COMMANDE_MVT_MANUEL : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_MVT_MANUEL(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_MVT_MANUEL() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short PuissanceMotD;
+    short PuissanceMotG;
+    bool m_synchro_tx;
+
+private slots :
+    void PuissanceMotD_changed(QVariant val);
+    void PuissanceMotG_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME ETAT_PID_ASSERVISSEMENT
+// ========================================================
+#define ID_ETAT_PID_ASSERVISSEMENT 0x153
+#define DLC_ETAT_PID_ASSERVISSEMENT 8
+#define BRUTE2PHYS_consigne_vitesse_rotation_filt(val) ( ((float)val * (0.000100)) + (0.000000) ) 
+#define PHYS2BRUTE_consigne_vitesse_rotation_filt(val) (short)( (val - (0.000000)) / (0.000100) ) 
+#define BRUTE2PHYS_vitesse_rotation_robot_filt(val) ( ((float)val * (0.000100)) + (0.000000) ) 
+#define PHYS2BRUTE_vitesse_rotation_robot_filt(val) (short)( (val - (0.000000)) / (0.000100) ) 
+#define BRUTE2PHYS_consigne_vitesse_avance_filt(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_consigne_vitesse_avance_filt(val) (short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_vitesse_avance_robot_filt(val) ( ((float)val * (0.001000)) + (0.000000) ) 
+#define PHYS2BRUTE_vitesse_avance_robot_filt(val) (short)( (val - (0.000000)) / (0.001000) ) 
+class CTrame_ETAT_PID_ASSERVISSEMENT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_PID_ASSERVISSEMENT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_PID_ASSERVISSEMENT() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short consigne_vitesse_rotation_filt;
+    short vitesse_rotation_robot_filt;
+    short consigne_vitesse_avance_filt;
+    short vitesse_avance_robot_filt;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ETAT_ASSERVISSEMENT
+// ========================================================
+#define ID_ETAT_ASSERVISSEMENT 0x150
+#define DLC_ETAT_ASSERVISSEMENT 8
+#define BRUTE2PHYS_compteur_diag_blocage(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_compteur_diag_blocage(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_ModeAsservissement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_ModeAsservissement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_D(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_D(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_G(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_cde_moteur_G(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Convergence(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Convergence(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ETAT_ASSERVISSEMENT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_ASSERVISSEMENT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_ASSERVISSEMENT() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned short compteur_diag_blocage;
+    unsigned char ModeAsservissement;
+    short cde_moteur_D;
+    short cde_moteur_G;
+    unsigned char Convergence;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME POSITION_CODEURS
+// ========================================================
+#define ID_POSITION_CODEURS 0x152
+#define DLC_POSITION_CODEURS 8
+#define BRUTE2PHYS_PosCodeurG(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PosCodeurG(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PosCodeurD(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_PosCodeurD(val) (short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_POSITION_CODEURS : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_POSITION_CODEURS(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_POSITION_CODEURS() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short PosCodeurG;
+    short PosCodeurD;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME POSITION_ABSOLUE_XY_TETA
+// ========================================================
+#define ID_POSITION_ABSOLUE_XY_TETA 0x151
+#define DLC_POSITION_ABSOLUE_XY_TETA 6
+#define BRUTE2PHYS_teta_pos(val) ( ((float)val * (0.000100)) + (0.000000) ) 
+#define PHYS2BRUTE_teta_pos(val) (short)( (val - (0.000000)) / (0.000100) ) 
+#define BRUTE2PHYS_y_pos(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_y_pos(val) (short)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_x_pos(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_x_pos(val) (short)( (val - (0.000000)) / (0.100000) ) 
+class CTrame_POSITION_ABSOLUE_XY_TETA : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_POSITION_ABSOLUE_XY_TETA(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_POSITION_ABSOLUE_XY_TETA() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short teta_pos;
+    short y_pos;
+    short x_pos;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_ETAT_CODEURS_1_2
+// ========================================================
+#define ID_ELECTROBOT_ETAT_CODEURS_1_2 0x30
+#define DLC_ELECTROBOT_ETAT_CODEURS_1_2 8
+#define BRUTE2PHYS_Codeur_2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Codeur_2(val) (long)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Codeur_1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Codeur_1(val) (long)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_ETAT_CODEURS_1_2 : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_ETAT_CODEURS_1_2(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_ETAT_CODEURS_1_2() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    int Codeur_2;
+    int Codeur_1;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_ETAT_TELEMETRES
+// ========================================================
+#define ID_ELECTROBOT_ETAT_TELEMETRES 0x40
+#define DLC_ELECTROBOT_ETAT_TELEMETRES 4
+#define BRUTE2PHYS_Telemetre4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Telemetre4(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Telemetre3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Telemetre3(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Telemetre2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Telemetre2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Telemetre1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Telemetre1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_ETAT_TELEMETRES : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_ETAT_TELEMETRES(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_ETAT_TELEMETRES() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned char Telemetre4;
+    unsigned char Telemetre3;
+    unsigned char Telemetre2;
+    unsigned char Telemetre1;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_ETAT_CODEURS_3_4
+// ========================================================
+#define ID_ELECTROBOT_ETAT_CODEURS_3_4 0x31
+#define DLC_ELECTROBOT_ETAT_CODEURS_3_4 8
+#define BRUTE2PHYS_Codeur_4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Codeur_4(val) (long)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Codeur_3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Codeur_3(val) (long)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_ETAT_CODEURS_3_4 : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_ETAT_CODEURS_3_4(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_ETAT_CODEURS_3_4() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    int Codeur_4;
+    int Codeur_3;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_ETAT_CAPTEURS_2
+// ========================================================
+#define ID_ELECTROBOT_ETAT_CAPTEURS_2 0x20
+#define DLC_ELECTROBOT_ETAT_CAPTEURS_2 8
+#define BRUTE2PHYS_Etor_PGED1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_PGED1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_PGED1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_PGED1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_PGEC1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_PGEC1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_PGEC1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_PGEC1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_Codeur4_B(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_Codeur4_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_Codeur4_A(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_Codeur4_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_Codeur3_B(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_Codeur3_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_Codeur3_A(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_Codeur3_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_CAN_TX(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_CAN_TX(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor_CAN_RX(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor_CAN_RX(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor6(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor6(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor5(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor5(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor4(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor3(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Etor1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Etor1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Vbat(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Vbat(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana13(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana13(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana12(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana12(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana11(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana11(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana10(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana10(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana9(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana9(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+class CTrame_ELECTROBOT_ETAT_CAPTEURS_2 : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_ETAT_CAPTEURS_2(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_ETAT_CAPTEURS_2() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned char Etor_PGED1_dsPIC2;
+    unsigned char Etor_PGED1_dsPIC1;
+    unsigned char Etor_PGEC1_dsPIC2;
+    unsigned char Etor_PGEC1_dsPIC1;
+    unsigned char Etor_Codeur4_B;
+    unsigned char Etor_Codeur4_A;
+    unsigned char Etor_Codeur3_B;
+    unsigned char Etor_Codeur3_A;
+    unsigned char Etor_CAN_TX;
+    unsigned char Etor_CAN_RX;
+    unsigned char Etor6;
+    unsigned char Etor5;
+    unsigned char Etor4;
+    unsigned char Etor3;
+    unsigned char Etor2;
+    unsigned char Etor1;
+    unsigned char Vbat;
+    unsigned char Eana13;
+    unsigned char Eana12;
+    unsigned char Eana11;
+    unsigned char Eana10;
+    unsigned char Eana9;
+
+private slots :
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_ETAT_CAPTEURS_1
+// ========================================================
+#define ID_ELECTROBOT_ETAT_CAPTEURS_1 0x10
+#define DLC_ELECTROBOT_ETAT_CAPTEURS_1 8
+#define BRUTE2PHYS_Eana8(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana8(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana7(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana7(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana6(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana6(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana5(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana5(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana4(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana4(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana3(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana3(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana2(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana2(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana1(val) ( ((float)val * (0.100000)) + (0.000000) ) 
+#define PHYS2BRUTE_Eana1(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+class CTrame_ELECTROBOT_ETAT_CAPTEURS_1 : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_ETAT_CAPTEURS_1(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_ETAT_CAPTEURS_1() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned char Eana8;
+    unsigned char Eana7;
+    unsigned char Eana6;
+    unsigned char Eana5;
+    unsigned char Eana4;
+    unsigned char Eana3;
+    unsigned char Eana2;
+    unsigned char Eana1;
+
+private slots :
+};
+
+
+
+
+#endif // _CTRAME_FACTORY_H_
+
+/*! @} */
+

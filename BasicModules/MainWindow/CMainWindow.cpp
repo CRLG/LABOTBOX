@@ -106,7 +106,7 @@ void  CMainWindow::InfoModules(void)
   dlg->ui.table_modules->setColumnWidth(1, 40);
   dlg->ui.table_modules->setColumnWidth(2, 300);
 
-  for (unsigned int i=0; i<m_application->m_list_modules.size(); i++) {
+  for (int i=0; i<m_application->m_list_modules.size(); i++) {
     dlg->ui.table_modules->setItem(i, 0, new QTableWidgetItem(m_application->m_list_modules[i]->getName()));
     dlg->ui.table_modules->setItem(i, 1, new QTableWidgetItem(m_application->m_list_modules[i]->getVersion()));
     dlg->ui.table_modules->setItem(i, 2, new QTableWidgetItem(m_application->m_list_modules[i]->getDescription()));

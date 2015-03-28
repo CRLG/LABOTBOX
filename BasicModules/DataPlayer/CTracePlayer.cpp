@@ -22,8 +22,8 @@
 *
 */
 CTracePlayer::CTracePlayer(CDataManager *data_manager, QString player_name/*=""*/)
-    :   m_data_manager(data_manager),
-        m_player_name(player_name),
+    :   m_player_name(player_name),
+        m_data_manager(data_manager),
         m_trace_filename(""),
         m_common_step_duration(C_STEP_DURATION_IN_FILE),
         m_step_index(-1),

@@ -106,6 +106,9 @@ void CDataPlayer::init(CLaBotBox *application)
   // Crée un player par défaut pour qu'il y en ai au moins 1 de base
   newPlayer("Player1");
 
+  QIcon icon = QIcon(":/icons/signal.png");
+  m_ihm.ui.toolBar->addAction(icon, "Action!");
+
 }
 
 
@@ -603,6 +606,7 @@ void CDataPlayer::on_nombreCyclesTrace_editingFinished(void)
 */
 void CDataPlayer::on_playerNameListe_changed(QString player_name)
 {
+ Q_UNUSED(player_name)
  refreshIHMGenerateur();
 }
 

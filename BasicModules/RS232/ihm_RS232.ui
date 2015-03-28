@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_RS232</class>
+ <widget class="QMainWindow" name="ihm_RS232">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>585</width>
+    <height>447</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>3</number>
+      </property>
+      <widget class="QWidget" name="Terminal">
+       <attribute name="title">
+        <string>Terminal</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="console_terminal"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="HexEditorRxTx">
+       <attribute name="title">
+        <string>HexEdit</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0" colspan="2">
+           <widget class="QHexEdit" name="hexEdit">
+            <property name="toolTip">
+             <string>HexEdit</string>
+            </property>
+            <property name="whatsThis">
+             <string>HexEdit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="TX_select_String">
+            <property name="text">
+             <string>String</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="TX_select_Values">
+            <property name="text">
+             <string>Valeurs</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLineEdit" name="TX_value"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="TX_send">
+            <property name="text">
+             <string>Send</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="SimuRxTx">
+       <attribute name="title">
+        <string>Simu RxTx</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBoxSimuDonneesEntrantes">
+          <property name="title">
+           <string>SIMULE DES DONNES ENTRANTES</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="SimuRX_select_String">
+             <property name="text">
+              <string>String</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="SimuRX_select_Values">
+             <property name="text">
+              <string>Valeurs</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLineEdit" name="SimuRX_value"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="SimuRX_send">
+             <property name="text">
+              <string>Send</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBoxVisuDonneesSortantes">
+          <property name="title">
+           <string>VISUALISE LES DONNEES SORTANTES</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QHexEdit" name="simuTx_hexEdit">
+             <property name="toolTip">
+              <string>HexEdit</string>
+             </property>
+             <property name="whatsThis">
+              <string>HexEdit</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Config</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="0">
+         <widget class="QPushButton" name="CloseButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>255</red>
+                <green>170</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>255</red>
+                <green>170</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>255</red>
+                <green>170</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Close</string>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="OpenButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>255</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>255</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>255</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Open</string>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupConfigPortCom">
+          <property name="title">
+           <string/>
+          </property>
+          <widget class="QWidget" name="layoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>221</width>
+             <height>241</height>
+            </rect>
+           </property>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="Label7">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Port COMx</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="portCOM"/>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLineEdit" name="portDescription">
+              <property name="palette">
+               <palette>
+                <active>
+                 <colorrole role="Base">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>219</red>
+                    <green>215</green>
+                    <blue>226</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </active>
+                <inactive>
+                 <colorrole role="Base">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>219</red>
+                    <green>215</green>
+                    <blue>226</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </inactive>
+                <disabled>
+                 <colorrole role="Base">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>127</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </disabled>
+               </palette>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>7</pointsize>
+                <italic>false</italic>
+               </font>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="Label1">
+              <property name="text">
+               <string>Baud rate:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="baudBox"/>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="Label2">
+              <property name="text">
+               <string>Data bits:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QComboBox" name="dataBox"/>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="Label3">
+              <property name="text">
+               <string>Parity:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QComboBox" name="parityBox"/>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="Label4">
+              <property name="text">
+               <string>Stop bits:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QComboBox" name="stopBox"/>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="Label5">
+              <property name="text">
+               <string>Flow control:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QComboBox" name="flowBox"/>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="Label6">
+              <property name="text">
+               <string>Policy:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QComboBox" name="policyBox"/>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="Label6_2">
+              <property name="text">
+               <string>Echo</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QComboBox" name="echoBox">
+              <property name="toolTip">
+               <string>Renvoie chaque octet reçu</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>585</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuTerminal">
+    <property name="title">
+     <string>Terminal</string>
+    </property>
+    <addaction name="actionTerminal_OnOff"/>
+    <addaction name="actionTerminal_EchoLocal"/>
+    <addaction name="separator"/>
+    <addaction name="actionTerminal_Clear"/>
+    <addaction name="actionTerminal_Sauvegarder"/>
+    <addaction name="actionTerminal_EnvoyerFichierTexte"/>
+   </widget>
+   <widget class="QMenu" name="menuHexEdit">
+    <property name="title">
+     <string>HexEdit</string>
+    </property>
+    <widget class="QMenu" name="menuSauvegarder">
+     <property name="title">
+      <string>Sauvegarder</string>
+     </property>
+     <addaction name="actionHexEdit_SauvegarderBrut"/>
+     <addaction name="actionHexEdit_SauvegarderHexASCII"/>
+    </widget>
+    <widget class="QMenu" name="menuCopier">
+     <property name="title">
+      <string>Copier selection</string>
+     </property>
+     <addaction name="actionHexEdit_CopyBrut"/>
+     <addaction name="actionHexEdit_CopyHexASCII"/>
+    </widget>
+    <widget class="QMenu" name="menuEnvoyer_un_fichier">
+     <property name="title">
+      <string>Envoyer un fichier</string>
+     </property>
+     <addaction name="actionHexEdit_EnvoyerFichierFormatBrut"/>
+     <addaction name="actionHexEdit_EnvoyerFichierFormatHexASCII"/>
+    </widget>
+    <addaction name="actionHexEdit_OnOff"/>
+    <addaction name="separator"/>
+    <addaction name="actionHexEdit_Clear"/>
+    <addaction name="menuCopier"/>
+    <addaction name="menuSauvegarder"/>
+    <addaction name="menuEnvoyer_un_fichier"/>
+   </widget>
+   <widget class="QMenu" name="menuSimulation">
+    <property name="title">
+     <string>Simulation</string>
+    </property>
+    <widget class="QMenu" name="menuEnvoyer_fichier">
+     <property name="title">
+      <string>Fichier de donnees entrantes</string>
+     </property>
+     <addaction name="actionSimuRx_DonneesEntrantesFichierBrut"/>
+     <addaction name="actionSimuRx_DonneesEntrantesFichierHexASCII"/>
+    </widget>
+    <widget class="QMenu" name="menuSauvegarder_donnees_sortantes">
+     <property name="title">
+      <string>Sauvegarder donnees sortantes</string>
+     </property>
+     <addaction name="actionVisuTx_SauvegarderBrut"/>
+     <addaction name="actionVisuTx_SauvegarderHexASCII"/>
+    </widget>
+    <addaction name="actionSimuRxTx_OnOff"/>
+    <addaction name="separator"/>
+    <addaction name="menuEnvoyer_fichier"/>
+    <addaction name="separator"/>
+    <addaction name="actionVisuTx_Clear"/>
+    <addaction name="menuSauvegarder_donnees_sortantes"/>
+   </widget>
+   <addaction name="menuTerminal"/>
+   <addaction name="menuHexEdit"/>
+   <addaction name="menuSimulation"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionTerminal_OnOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>On / Off</string>
+   </property>
+  </action>
+  <action name="actionTerminal_Clear">
+   <property name="text">
+    <string>Effacer</string>
+   </property>
+  </action>
+  <action name="actionTerminal_Sauvegarder">
+   <property name="text">
+    <string>Sauvegarder</string>
+   </property>
+  </action>
+  <action name="actionTerminal_Copier">
+   <property name="text">
+    <string>Copier</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_OnOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>On / Off</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_Clear">
+   <property name="text">
+    <string>Effacer</string>
+   </property>
+  </action>
+  <action name="actionSauvegarder_Hex">
+   <property name="text">
+    <string>Sauvegarder Hex</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_SauvegarderBrut">
+   <property name="text">
+    <string>Format Brut</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_SauvegarderHexASCII">
+   <property name="text">
+    <string>Format Hex ASCII</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_CopyBrut">
+   <property name="text">
+    <string>ASCII</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_CopyHexASCII">
+   <property name="text">
+    <string>Hex</string>
+   </property>
+  </action>
+  <action name="actionSimuRx_DonneesEntrantesFichierBrut">
+   <property name="text">
+    <string>Format Brut</string>
+   </property>
+  </action>
+  <action name="actionSimuRx_DonneesEntrantesFichierHexASCII">
+   <property name="text">
+    <string>Format Hex ASCII</string>
+   </property>
+  </action>
+  <action name="actionVisuTx_Clear">
+   <property name="text">
+    <string>Effacer données sortantes</string>
+   </property>
+  </action>
+  <action name="actionSimuRxTx_OnOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>On / Off</string>
+   </property>
+  </action>
+  <action name="actionTerminal_EchoLocal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Echo local On / Off</string>
+   </property>
+  </action>
+  <action name="actionTerminal_EnvoyerFichierTexte">
+   <property name="text">
+    <string>Envoyer fichier texte</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_SauvegarderBinaire">
+   <property name="text">
+    <string>Binaire</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_EnvoyerFichierFormatBrut">
+   <property name="text">
+    <string>Format Brut</string>
+   </property>
+  </action>
+  <action name="actionHexEdit_EnvoyerFichierFormatHexASCII">
+   <property name="text">
+    <string>Format Hex ASCII</string>
+   </property>
+  </action>
+  <action name="actionVisuTx_SauvegarderBrut">
+   <property name="text">
+    <string>Format Brut</string>
+   </property>
+  </action>
+  <action name="actionVisuTx_SauvegarderHexASCII">
+   <property name="text">
+    <string>Format Hex ASCII</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QHexEdit</class>
+   <extends>QFrame</extends>
+   <header>qhexedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

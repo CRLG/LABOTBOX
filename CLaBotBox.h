@@ -20,14 +20,20 @@ class CPrintView;
 class CEEPROM;
 class CDataView;
 class CDataPlayer;
+class CRS232;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
 class CModuleDesigner;
+class CTestUnitaire;
 class CDataGraph;
 class CSimuBot;
 class CStrategyDesigner;
+class CMessagerieBot;
+class CSensorElectroBot;
+class CActuatorElectrobot;
 class CSensorView;
+class CAsserv;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -59,13 +65,20 @@ public:
    CEEPROM              *m_eeprom;
    CDataView     *m_DataView;
    CDataPlayer     *m_DataPlayer;
+   CRS232     *m_RS232_robot;
+   CRS232     *m_RS232_cmucam;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
    CModuleDesigner       *m_module_creator;
+   CTestUnitaire     *m_TestUnitaire;
    CDataGraph     *m_DataGraph;
    CSimuBot     *m_SimuBot;
    CStrategyDesigner     *m_StrategyDesigner;
+   CMessagerieBot     *m_MessagerieBot;
+   CSensorElectroBot     *m_SensorElectroBot;
+   CActuatorElectrobot     *m_ActuatorElectrobot;
    CSensorView     *m_SensorView;
+   CAsserv     *m_Asserv;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

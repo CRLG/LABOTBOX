@@ -133,6 +133,8 @@ void CNiveauTraceModules::unselectAll(void)
 */
 void CNiveauTraceModules::refreshMemory(int row, int column)
 {
+ Q_UNUSED(column)
+
  QString module_name;
  unsigned long niveau;
 
@@ -140,15 +142,15 @@ void CNiveauTraceModules::refreshMemory(int row, int column)
 
  module_name = ui.table_niveau_aff_modules->item(row, 0)->text();
  niveau = (
-          ((ui.table_niveau_aff_modules->item(row, 1)->checkState()==Qt::Checked?MSG_WARNING_N1:0))
-        | ((ui.table_niveau_aff_modules->item(row, 2)->checkState()==Qt::Checked?MSG_WARNING_N2:0))
-        | ((ui.table_niveau_aff_modules->item(row, 3)->checkState()==Qt::Checked?MSG_WARNING_N3:0))
-        | ((ui.table_niveau_aff_modules->item(row, 4)->checkState()==Qt::Checked?MSG_INFO_N1:0))
-        | ((ui.table_niveau_aff_modules->item(row, 5)->checkState()==Qt::Checked?MSG_INFO_N2:0))
-        | ((ui.table_niveau_aff_modules->item(row, 6)->checkState()==Qt::Checked?MSG_INFO_N3:0))
-        | ((ui.table_niveau_aff_modules->item(row, 7)->checkState()==Qt::Checked?MSG_DEBUG_N1:0))
-        | ((ui.table_niveau_aff_modules->item(row, 8)->checkState()==Qt::Checked?MSG_DEBUG_N2:0))
-        | ((ui.table_niveau_aff_modules->item(row, 9)->checkState()==Qt::Checked?MSG_DEBUG_N3:0))
+          ((ui.table_niveau_aff_modules->item(row, 1)->checkState()==Qt::Checked?(int)MSG_WARNING_N1:0))
+        | ((ui.table_niveau_aff_modules->item(row, 2)->checkState()==Qt::Checked?(int)MSG_WARNING_N2:0))
+        | ((ui.table_niveau_aff_modules->item(row, 3)->checkState()==Qt::Checked?(int)MSG_WARNING_N3:0))
+        | ((ui.table_niveau_aff_modules->item(row, 4)->checkState()==Qt::Checked?(int)MSG_INFO_N1:0))
+        | ((ui.table_niveau_aff_modules->item(row, 5)->checkState()==Qt::Checked?(int)MSG_INFO_N2:0))
+        | ((ui.table_niveau_aff_modules->item(row, 6)->checkState()==Qt::Checked?(int)MSG_INFO_N3:0))
+        | ((ui.table_niveau_aff_modules->item(row, 7)->checkState()==Qt::Checked?(int)MSG_DEBUG_N1:0))
+        | ((ui.table_niveau_aff_modules->item(row, 8)->checkState()==Qt::Checked?(int)MSG_DEBUG_N2:0))
+        | ((ui.table_niveau_aff_modules->item(row, 9)->checkState()==Qt::Checked?(int)MSG_DEBUG_N3:0))
       );
 
  m_liste_modules_niveaux->insert(module_name, niveau);
@@ -162,7 +164,6 @@ void CNiveauTraceModules::refreshMemory(int row, int column)
 void CNiveauTraceModules::refreshLine(int row, int column)
 {
  QString module_name;
- unsigned long niveau;
  unsigned long cpt_checked=0;
 
  if (m_table_created == false) { return; }

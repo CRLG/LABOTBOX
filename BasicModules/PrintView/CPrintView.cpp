@@ -121,8 +121,9 @@ void CPrintView::print(CModule *module, QString msg, unsigned long type_trace)
      m_ihm_print_view->liste_trace->setTextColor(couleur);
      m_ihm_print_view->liste_trace->setFontItalic(false);
      m_ihm_print_view->liste_trace->insertPlainText(msg + "\n");
+
+     m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur à la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
   }
-  m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur à la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
 }
 
 

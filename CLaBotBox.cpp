@@ -16,14 +16,20 @@
 #include "CEEPROM.h"
 #include "CDataView.h"
 #include "CDataPlayer.h"
+#include "CRS232.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 
 #include "CModuleDesigner.h"
+#include "CTestUnitaire.h"
 #include "CDataGraph.h"
 #include "CSimuBot.h"
 #include "CStrategyDesigner.h"
+#include "CMessagerieBot.h"
+#include "CSensorElectroBot.h"
+#include "CActuatorElectrobot.h"
 #include "CSensorView.h"
+#include "CAsserv.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CLaBotBox.h"
@@ -98,6 +104,13 @@ void CLaBotBox::createBasicModules(void)
   m_list_basic_modules.append(m_DataPlayer);
   m_list_modules.append(m_DataPlayer);
 
+  m_RS232_robot   = new CRS232("RS232_robot");
+  m_list_basic_modules.append(m_RS232_robot);
+  m_list_modules.append(m_RS232_robot);
+
+  m_RS232_cmucam   = new CRS232("RS232_cmucam");
+  m_list_basic_modules.append(m_RS232_cmucam);
+  m_list_modules.append(m_RS232_cmucam);
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }
 
@@ -154,6 +167,10 @@ void CLaBotBox::createPluginModules(void)
   m_list_plugin_modules.append(m_module_creator);
   m_list_modules.append(m_module_creator);
 
+  m_TestUnitaire     = new CTestUnitaire("TestUnitaire");
+  m_list_plugin_modules.append(m_TestUnitaire);
+  m_list_modules.append(m_TestUnitaire);
+
   m_DataGraph     = new CDataGraph("DataGraph");
   m_list_plugin_modules.append(m_DataGraph);
   m_list_modules.append(m_DataGraph);
@@ -166,9 +183,25 @@ void CLaBotBox::createPluginModules(void)
   m_list_plugin_modules.append(m_StrategyDesigner);
   m_list_modules.append(m_StrategyDesigner);
 
+  m_MessagerieBot     = new CMessagerieBot("MessagerieBot");
+  m_list_plugin_modules.append(m_MessagerieBot);
+  m_list_modules.append(m_MessagerieBot);
+
+  m_SensorElectroBot     = new CSensorElectroBot("SensorElectroBot");
+  m_list_plugin_modules.append(m_SensorElectroBot);
+  m_list_modules.append(m_SensorElectroBot);
+
+  m_ActuatorElectrobot     = new CActuatorElectrobot("ActuatorElectrobot");
+  m_list_plugin_modules.append(m_ActuatorElectrobot);
+  m_list_modules.append(m_ActuatorElectrobot);
+
   m_SensorView     = new CSensorView("SensorView");
   m_list_plugin_modules.append(m_SensorView);
   m_list_modules.append(m_SensorView);
+
+  m_Asserv     = new CAsserv("Asserv");
+  m_list_plugin_modules.append(m_Asserv);
+  m_list_modules.append(m_Asserv);
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
