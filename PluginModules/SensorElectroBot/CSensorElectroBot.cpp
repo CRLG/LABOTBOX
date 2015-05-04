@@ -61,6 +61,23 @@ void CSensorElectroBot::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
   setNiveauTrace(val.toUInt());
 
+//  m_ihm.setStyleSheet("background-color: lightgreen");
+
+  m_ihm.setStyleSheet("\
+      QMainWindow > .QWidget {\
+         background-color: lightgreen;\
+      }\
+       ");
+
+/*
+  QMainWindow > .QWidget {
+      background-color: gainsboro;
+      background-image: url(:/images/pagefold.png);
+      background-position: top right;
+      background-repeat: no-repeat
+  }
+*/
+
 
   // Connexions avec la messagerie
   m_application->m_data_center->write("Etor1", 0);
