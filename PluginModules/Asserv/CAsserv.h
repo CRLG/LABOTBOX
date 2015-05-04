@@ -39,6 +39,22 @@ class CAsserv : public CPluginModule
 #define     AUTEUR_Asserv    "Nico"
 #define     INFO_Asserv      "Pilotage et analyse de l'asservissement robot"
 
+    // Etat asserv
+typedef enum {
+ cMOUVEMENT_EN_COURS = 0,
+ cCONVERGENCE_OK,
+ cBLOCAGE
+}tConvergence;
+
+typedef enum {
+    cMODE_MANUEL = 0,
+    cMODE_XY_AUTO,
+    cMODE_XY_AUTO_A,
+    cMODE_XY_AUTO_B,
+    cMODE_DISTANCE_ANGLE,
+    cMODE_XY_TETA
+} tTypeAsservissement;
+
 public:
     CAsserv(const char *plugin_name);
     ~CAsserv();
@@ -60,6 +76,7 @@ public slots :
     void CdeManuelleSynchroSend_right_clic(QPoint);
     void CdeManuelle_Droit_changed(void);
     void CdeManuelle_Gauche_changed(void);
+    void CdeManuelle_stopAll(void);
 
     // Commande XY
     void CdeXYSynchroSend_left_clic(void);
@@ -82,6 +99,8 @@ public slots :
     void CdeDistAngle_Distance_changed(void);
     void CdeDistAngle_Angle_changed(void);
 
+    void Convergence_changed(int val);
+    void ModeAsservissement_changed(int val);
 
 };
 
