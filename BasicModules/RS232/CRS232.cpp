@@ -3,6 +3,7 @@
  * A more elaborated file description.
  */
 #include <QDebug>
+#include <QDialog>
 #include "CRS232.h"
 #include "CLaBotBox.h"
 #include "CPrintView.h"
@@ -139,7 +140,6 @@ void CRS232::init(CLaBotBox *application)
   connect(m_ihm.ui.actionVisuTx_SauvegarderBrut, SIGNAL(triggered()), this, SLOT(VisuTx_SauvegarderBrut()));
   connect(m_ihm.ui.actionVisuTx_SauvegarderHexASCII, SIGNAL(triggered()), this, SLOT(VisuTx_SauvegarderHexASCII()));
   SimuRxTx_OnOff(false);    // fonction inhibée par défaut
-
 
   // ouvre le port RS232 s'il était ouvert à la précédente session
   val = m_application->m_eeprom->read(getName(), "connected", 0);
@@ -568,7 +568,7 @@ void CRS232::Terminal_OnOff(bool state)
 
  if (state) {
     terminalInit();
-    m_ihm.ui.tabWidget->setCurrentIndex(1);  // se positionne automatiquement sur l'onglet
+    m_ihm.ui.tabWidget->setCurrentIndex(0);  // se positionne automatiquement sur l'onglet
     connect(m_terminal, SIGNAL(getData(QByteArray)), this, SLOT(write(QByteArray)));
  }
  else {
@@ -651,7 +651,7 @@ void CRS232::HexEdit_OnOff(bool state)
 
  if (state) {
     hexEditInit();
-    m_ihm.ui.tabWidget->setCurrentIndex(2);  // se positionne automatiquement sur l'onglet
+    m_ihm.ui.tabWidget->setCurrentIndex(1);  // se positionne automatiquement sur l'onglet
  }
 
  m_application->m_print_view->print_warning(this, "HexEdit_OnOff");
@@ -859,7 +859,7 @@ void CRS232::SimuRxTx_OnOff(bool state)
 
   if (state) {
     simuRxTxInit();
-    m_ihm.ui.tabWidget->setCurrentIndex(3);  // se positionne automatiquement sur l'onglet Simu
+    m_ihm.ui.tabWidget->setCurrentIndex(2);  // se positionne automatiquement sur l'onglet Simu
   }
 }
 
@@ -1002,7 +1002,5 @@ void CRS232::SimuRX_send(void)
   } // if la ligne doit être considérée comme valeur numérique
   emit readyBytes(byteArray); // simule les données entrantes vers l'applicatif
 }
-
-
 
 

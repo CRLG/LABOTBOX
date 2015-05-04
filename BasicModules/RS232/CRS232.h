@@ -175,7 +175,6 @@ private slots :
 
     // Bouton
     void SimuRX_send(void); // Simule une donnée entrante vers l'applicatif
-
 };
 
 
