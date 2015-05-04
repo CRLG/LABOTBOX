@@ -52,6 +52,14 @@ private:
 signals:
     //! Signal emis par la donnee lorsqu'une ecriture est faite
     void valueChanged(QVariant value);
+    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    void valueChanged(bool value);
+    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    void valueChanged(int value);
+    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    void valueChanged(double value);
+    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    void valueChanged(QString value);
 };
 
 

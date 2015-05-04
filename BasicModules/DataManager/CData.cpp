@@ -52,7 +52,12 @@ void CData::write(QVariant data)
   m_mutex.lock();
   if (data != m_data) {
     m_data = data;
+    // Emet le signal dans différent format pour faciliter l'utilisations et la mise à jour des IHM
     emit valueChanged(data);
+    emit valueChanged(data.toInt());
+    emit valueChanged(data.toBool() );
+    emit valueChanged(data.toDouble());
+    emit valueChanged(data.toString());
   }
   else {
     m_data = data;
