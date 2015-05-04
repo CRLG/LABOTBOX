@@ -56,7 +56,6 @@ private:
 
     void updateAliasLabels(void);
     void updateMotorsTooltips(void);
-    void updateButeesServos(void);
 
 // ____________________________________________________Moteurs
 private slots :
@@ -73,21 +72,47 @@ private slots :
     void Moteurs_StopAll_clicked(void);
 
 // ____________________________________________________Servo-moteurs
-private slots :
-    void CdeServoMoteur1_changed(int val);
-    void CdeServoMoteur2_changed(int val);
-    void CdeServoMoteur3_changed(int val);
-    void CdeServoMoteur4_changed(int val);
-    void CdeServoMoteur5_changed(int val);
-    void CdeServoMoteur6_changed(int val);
-    void CdeServoMoteur7_changed(int val);
-    void CdeServoMoteur8_changed(int val);
-
-    void ButeeServo_changed(void);
+private :
+    //! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
+    // (enum commun MBED<->LaBotBox)
+    typedef enum {
+      cSERVO_AX_POSITION = 0,
+      cSERVO_AX_VITESSE,
+      cSERVO_AX_COUPLE,
+      cSERVO_AX_CHANGE_ID,
+      cSERVO_AX_LED_STATE,
+      cSERVO_AX_BUTEE_MIN,
+      cSERVO_AX_BUTEE_MAX,
+    }eCOMMANDES_SERVOS_AX;
 
 private :
-    QVector<unsigned char> m_butees_min;
-    QVector<unsigned char> m_butees_max;
+    void PosServoMoteur_changed(int id, int position);
+private slots :
+    void CdeServoMoteur20_changed(int val);
+    void CdeServoMoteur19_changed(int val);
+    void CdeServoMoteur18_changed(int val);
+    void CdeServoMoteur17_changed(int val);
+    void CdeServoMoteur16_changed(int val);
+    void CdeServoMoteur15_changed(int val);
+    void CdeServoMoteur14_changed(int val);
+    void CdeServoMoteur13_changed(int val);
+
+// ____________________________________________________Servo-moteurs AX
+private :
+    void PosServoMoteurAX_changed(int id, int position);
+    void initList_ActionsServosAX(void);
+
+private slots :
+    void CdeServoMoteurAX0_changed(int val);
+    void CdeServoMoteurAX1_changed(int val);
+    void CdeServoMoteurAX2_changed(int val);
+    void CdeServoMoteurAX3_changed(int val);
+    void CdeServoMoteurAX4_changed(int val);
+    void CdeServoMoteurAX5_changed(int val);
+    void CdeServoMoteurAX6_changed(int val);
+    void CdeServoMoteurAX7_changed(int val);
+
+    void ServosAXConfig_Send_clicked(void);
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorElectrobot_H_

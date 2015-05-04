@@ -61,14 +61,6 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
   setNiveauTrace(val.toUInt());
 
-  // Restore les butées
-  for (unsigned int i=0; i<8; i++) {
-    m_butees_min.append(m_application->m_eeprom->read(getName(), "butee_min_servo_"+ QString::number(i+1), QVariant(0)).toInt());
-  }
-  for (unsigned int i=0; i<8; i++) {
-    m_butees_max.append(m_application->m_eeprom->read(getName(), "butee_max_servo_"+ QString::number(i+1), QVariant(0)).toInt());
-  }
-
   // _____________________________________________ Moteurs
   connect(m_ihm.ui.Moteurs_StopAll, SIGNAL(clicked()), this, SLOT(Moteurs_StopAll_clicked()));
 
@@ -92,55 +84,65 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   updateAliasLabels();
 
   // _____________________________________________ Servo moteurs
-  connect(m_ihm.ui.Servo_num_1, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_1, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_2, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_2, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_3, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_3, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_4, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_4, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_5, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_5, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_6, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_6, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_7, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_7, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_8, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_8, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_20, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_20, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_19, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_19, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_18, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_18, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_17, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_17, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_16, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_16, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_15, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_15, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_14, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_14, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_13, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_13, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_slide_1, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_1, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_2, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_2, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_3, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_3, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_4, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_4, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_5, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_5, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_6, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_6, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_7, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_7, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_8, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_8, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_20, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_20, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_19, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_19, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_18, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_18, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_17, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_17, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_16, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_16, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_15, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_15, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_14, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_14, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_13, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_13, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_slide_1, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur1_changed(int)));
-  connect(m_ihm.ui.Servo_slide_2, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur2_changed(int)));
-  connect(m_ihm.ui.Servo_slide_3, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur3_changed(int)));
-  connect(m_ihm.ui.Servo_slide_4, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur4_changed(int)));
-  connect(m_ihm.ui.Servo_slide_5, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur5_changed(int)));
-  connect(m_ihm.ui.Servo_slide_6, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur6_changed(int)));
-  connect(m_ihm.ui.Servo_slide_7, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur7_changed(int)));
-  connect(m_ihm.ui.Servo_slide_8, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur8_changed(int)));
+  connect(m_ihm.ui.Servo_slide_20, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur20_changed(int)));
+  connect(m_ihm.ui.Servo_slide_19, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur19_changed(int)));
+  connect(m_ihm.ui.Servo_slide_18, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur18_changed(int)));
+  connect(m_ihm.ui.Servo_slide_17, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur17_changed(int)));
+  connect(m_ihm.ui.Servo_slide_16, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur16_changed(int)));
+  connect(m_ihm.ui.Servo_slide_15, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur15_changed(int)));
+  connect(m_ihm.ui.Servo_slide_14, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur14_changed(int)));
+  connect(m_ihm.ui.Servo_slide_13, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur13_changed(int)));
 
-  connect(m_ihm.ui.ButeeMin_Servo_1, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_2, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_3, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_4, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_5, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_6, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_7, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMin_Servo_8, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
+  // _____________________________________________ Servo moteurs AX
+  connect(m_ihm.ui.ServoAX_num_0, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_0, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_1, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_1, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_2, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_2, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_3, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_3, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_4, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_4, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_5, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_5, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_6, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_6, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_num_7, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_7, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.ButeeMax_Servo_1, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_2, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_3, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_4, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_5, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_6, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_7, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
-  connect(m_ihm.ui.ButeeMax_Servo_8, SIGNAL(editingFinished()), this, SLOT(ButeeServo_changed()));
+  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_0, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_1, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_2, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_3, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_4, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_5, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_6, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_7, SLOT(setValue(int)));
 
+  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX0_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX1_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX2_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX3_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX4_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX5_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX6_changed(int)));
+  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX7_changed(int)));
 
-  // Lit les données mémorisées dans le data center sur les butées hautes et basses de chaque servo
-  // et met à jour l'IHM
-  updateButeesServos();
+  connect(m_ihm.ui.ServosAXConfig_Send, SIGNAL(clicked()), this, SLOT(ServosAXConfig_Send_clicked()));
+
+  // met à jour la liste des commandes possibles sur les servos AX
+  initList_ActionsServosAX();
 }
 
 
@@ -155,14 +157,6 @@ void CActuatorElectrobot::close(void)
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
-
-  for (unsigned int i=0; i<8; i++) {
-    m_application->m_eeprom->write(getName(), "butee_min_servo_"+ QString::number(i+1), QVariant(m_butees_min.at(i)));
-  }
-  for (unsigned int i=0; i<8; i++) {
-      m_application->m_eeprom->write(getName(), "butee_max_servo_"+ QString::number(i+1), QVariant(m_butees_max.at(i)));
-  }
-
 }
 
 
@@ -191,28 +185,6 @@ void CActuatorElectrobot::updateAliasLabels(void)
 }
 
 
-// _____________________________________________________________________
-void CActuatorElectrobot::updateButeesServos(void)
-{
- m_ihm.ui.ButeeMax_Servo_1->setValue(m_butees_max.at(0));
- m_ihm.ui.ButeeMax_Servo_2->setValue(m_butees_max.at(1));
- m_ihm.ui.ButeeMax_Servo_3->setValue(m_butees_max.at(2));
- m_ihm.ui.ButeeMax_Servo_4->setValue(m_butees_max.at(3));
- m_ihm.ui.ButeeMax_Servo_5->setValue(m_butees_max.at(4));
- m_ihm.ui.ButeeMax_Servo_6->setValue(m_butees_max.at(5));
- m_ihm.ui.ButeeMax_Servo_7->setValue(m_butees_max.at(6));
- m_ihm.ui.ButeeMax_Servo_8->setValue(m_butees_max.at(7));
-
- m_ihm.ui.ButeeMin_Servo_1->setValue(m_butees_min.at(0));
- m_ihm.ui.ButeeMin_Servo_2->setValue(m_butees_min.at(1));
- m_ihm.ui.ButeeMin_Servo_3->setValue(m_butees_min.at(2));
- m_ihm.ui.ButeeMin_Servo_4->setValue(m_butees_min.at(3));
- m_ihm.ui.ButeeMin_Servo_5->setValue(m_butees_min.at(4));
- m_ihm.ui.ButeeMin_Servo_6->setValue(m_butees_min.at(5));
- m_ihm.ui.ButeeMin_Servo_7->setValue(m_butees_min.at(6));
- m_ihm.ui.ButeeMin_Servo_8->setValue(m_butees_min.at(7));
-
-}
 
 // _____________________________________________________________________
 void CActuatorElectrobot::updateMotorsTooltips(void)
@@ -296,159 +268,101 @@ void CActuatorElectrobot::Moteurs_StopAll_clicked(void)
 
 
 
+// _____________________________________________________________
+void CActuatorElectrobot::PosServoMoteur_changed(int id, int position)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+    m_application->m_data_center->write("NumeroServoMoteur1", id);
+    m_application->m_data_center->write("PositionServoMoteur1", position);
+    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+}
+
 // _____________________________________________________________________
-void CActuatorElectrobot::CdeServoMoteur1_changed(int val)
-{
- if      (val < m_butees_min[0]) {
-  val = m_butees_min[0];
-  m_ihm.ui.Servo_num_1->setValue(val);
-  m_ihm.ui.Servo_slide_1->setValue(val);
- }
- else if (val > m_butees_max[0]) {
-  val = m_butees_max[0];
-  m_ihm.ui.Servo_num_1->setValue(val);
-  m_ihm.ui.Servo_slide_1->setValue(val);
- }
- m_application->m_data_center->write("NumeroServoMoteur1", 20);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur2_changed(int val)
-{
-    if      (val < m_butees_min[1]) {
-     val = m_butees_min[1];
-     m_ihm.ui.Servo_num_2->setValue(val);
-     m_ihm.ui.Servo_slide_2->setValue(val);
-    }
-    else if (val > m_butees_max[1]) {
-     val = m_butees_max[1];
-     m_ihm.ui.Servo_num_2->setValue(val);
-     m_ihm.ui.Servo_slide_2->setValue(val);
-    }
- m_application->m_data_center->write("NumeroServoMoteur1", 19);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur3_changed(int val)
-{
- if      (val < m_butees_min[2]) {
-  val = m_butees_min[2];
-  m_ihm.ui.Servo_num_3->setValue(val);
-  m_ihm.ui.Servo_slide_3->setValue(val);
- }
-else if (val > m_butees_max[2]) {
- val = m_butees_max[2];
- m_ihm.ui.Servo_num_3->setValue(val);
- m_ihm.ui.Servo_slide_3->setValue(val);
-}
- m_application->m_data_center->write("NumeroServoMoteur1", 18);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur4_changed(int val)
-{
-    if      (val < m_butees_min[3]) {
-     val = m_butees_min[3];
-     m_ihm.ui.Servo_num_4->setValue(val);
-     m_ihm.ui.Servo_slide_4->setValue(val);
-    }
-   else if (val > m_butees_max[3]) {
-    val = m_butees_max[3];
-    m_ihm.ui.Servo_num_4->setValue(val);
-    m_ihm.ui.Servo_slide_4->setValue(val);
-   }
- m_application->m_data_center->write("NumeroServoMoteur1", 17);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur5_changed(int val)
-{
-    if      (val < m_butees_min[4]) {
-     val = m_butees_min[4];
-     m_ihm.ui.Servo_num_5->setValue(val);
-     m_ihm.ui.Servo_slide_5->setValue(val);
-    }
-   else if (val > m_butees_max[4]) {
-    val = m_butees_max[4];
-    m_ihm.ui.Servo_num_5->setValue(val);
-    m_ihm.ui.Servo_slide_5->setValue(val);
-   }
+void CActuatorElectrobot::CdeServoMoteur20_changed(int val)
+{ PosServoMoteur_changed(20, val); }
 
- m_application->m_data_center->write("NumeroServoMoteur1", 16);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur6_changed(int val)
-{
-    if      (val < m_butees_min[5]) {
-     val = m_butees_min[5];
-     m_ihm.ui.Servo_num_6->setValue(val);
-     m_ihm.ui.Servo_slide_6->setValue(val);
-    }
-   else if (val > m_butees_max[5]) {
-    val = m_butees_max[5];
-    m_ihm.ui.Servo_num_6->setValue(val);
-    m_ihm.ui.Servo_slide_6->setValue(val);
-   }
+void CActuatorElectrobot::CdeServoMoteur19_changed(int val)
+{ PosServoMoteur_changed(19, val); }
 
- m_application->m_data_center->write("NumeroServoMoteur1", 15);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur7_changed(int val)
-{
-    if      (val < m_butees_min[6]) {
-     val = m_butees_min[6];
-     m_ihm.ui.Servo_num_7->setValue(val);
-     m_ihm.ui.Servo_slide_7->setValue(val);
-    }
-   else if (val > m_butees_max[6]) {
-    val = m_butees_max[6];
-    m_ihm.ui.Servo_num_7->setValue(val);
-    m_ihm.ui.Servo_slide_7->setValue(val);
-   }
+void CActuatorElectrobot::CdeServoMoteur18_changed(int val)
+{ PosServoMoteur_changed(18, val); }
 
- m_application->m_data_center->write("NumeroServoMoteur1", 14);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
-}
-void CActuatorElectrobot::CdeServoMoteur8_changed(int val)
-{
-    if      (val < m_butees_min[7]) {
-     val = m_butees_min[7];
-     m_ihm.ui.Servo_num_8->setValue(val);
-     m_ihm.ui.Servo_slide_8->setValue(val);
-    }
-   else if (val > m_butees_max[7]) {
-    val = m_butees_max[7];
-    m_ihm.ui.Servo_num_8->setValue(val);
-    m_ihm.ui.Servo_slide_8->setValue(val);
-   }
+void CActuatorElectrobot::CdeServoMoteur17_changed(int val)
+{ PosServoMoteur_changed(17, val); }
 
- m_application->m_data_center->write("NumeroServoMoteur1", 13);
- m_application->m_data_center->write("PositionServoMoteur1", val);
- m_application->m_data_center->write("VitesseServoMoteur1", 0);
+void CActuatorElectrobot::CdeServoMoteur16_changed(int val)
+{ PosServoMoteur_changed(16, val); }
+
+void CActuatorElectrobot::CdeServoMoteur15_changed(int val)
+{ PosServoMoteur_changed(15, val); }
+
+void CActuatorElectrobot::CdeServoMoteur14_changed(int val)
+{ PosServoMoteur_changed(14, val); }
+
+void CActuatorElectrobot::CdeServoMoteur13_changed(int val)
+{ PosServoMoteur_changed(13, val); }
+
+
+
+// _____________________________________________________________
+void CActuatorElectrobot::PosServoMoteurAX_changed(int id, int position)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
+    m_application->m_data_center->write("num_servo_ax", id);
+    m_application->m_data_center->write("commande_ax", cSERVO_AX_POSITION);
+    m_application->m_data_center->write("valeur_commande_ax", position);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
 }
+
+
+void CActuatorElectrobot::CdeServoMoteurAX0_changed(int val)
+{ PosServoMoteurAX_changed(0, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX1_changed(int val)
+{ PosServoMoteurAX_changed(1, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX2_changed(int val)
+{ PosServoMoteurAX_changed(2, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX3_changed(int val)
+{ PosServoMoteurAX_changed(3, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX4_changed(int val)
+{ PosServoMoteurAX_changed(4, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX5_changed(int val)
+{ PosServoMoteurAX_changed(5, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX6_changed(int val)
+{ PosServoMoteurAX_changed(6, val); }
+
+void CActuatorElectrobot::CdeServoMoteurAX7_changed(int val)
+{ PosServoMoteurAX_changed(7, val); }
+
 
 
 // ____________________________________________________
-void CActuatorElectrobot::ButeeServo_changed(void)
+void CActuatorElectrobot::initList_ActionsServosAX(void)
 {
-  m_butees_min[0] =m_ihm.ui.ButeeMin_Servo_1->value();
-  m_butees_min[1] =m_ihm.ui.ButeeMin_Servo_2->value();
-  m_butees_min[2] =m_ihm.ui.ButeeMin_Servo_3->value();
-  m_butees_min[3] =m_ihm.ui.ButeeMin_Servo_4->value();
-  m_butees_min[4] =m_ihm.ui.ButeeMin_Servo_5->value();
-  m_butees_min[5] =m_ihm.ui.ButeeMin_Servo_6->value();
-  m_butees_min[6] =m_ihm.ui.ButeeMin_Servo_7->value();
-  m_butees_min[7] =m_ihm.ui.ButeeMin_Servo_8->value();
+  QStringList lst;
+  // à mettre dans le même ordre que l'énuméré "eCOMMANDES_SERVOS_AX" (commun avec le MBED)
+  lst << "POSITION"
+      << "VITESSE"
+      << "COUPLE"
+      << "CHANGE_ID"
+      << "LED_STATE"
+      << "BUTEE_MIN"
+      << "BUTEE_MAX";
+  m_ihm.ui.ServosAXConfig_Action->addItems(lst);
+}
 
-  m_butees_max[0] =m_ihm.ui.ButeeMax_Servo_1->value();
-  m_butees_max[1] =m_ihm.ui.ButeeMax_Servo_2->value();
-  m_butees_max[2] =m_ihm.ui.ButeeMax_Servo_3->value();
-  m_butees_max[3] =m_ihm.ui.ButeeMax_Servo_4->value();
-  m_butees_max[4] =m_ihm.ui.ButeeMax_Servo_5->value();
-  m_butees_max[5] =m_ihm.ui.ButeeMax_Servo_6->value();
-  m_butees_max[6] =m_ihm.ui.ButeeMax_Servo_7->value();
-  m_butees_max[7] =m_ihm.ui.ButeeMax_Servo_8->value();
+// ____________________________________________________
+void CActuatorElectrobot::ServosAXConfig_Send_clicked(void)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
+    m_application->m_data_center->write("num_servo_ax", m_ihm.ui.ServosAXConfig_ID->value());
+    m_application->m_data_center->write("commande_ax", m_ihm.ui.ServosAXConfig_Action->currentIndex());
+    m_application->m_data_center->write("valeur_commande_ax", m_ihm.ui.ServosAXConfig_Value->value());
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
 }
