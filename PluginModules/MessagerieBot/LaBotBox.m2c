@@ -1,0 +1,190 @@
+// FICHIER GENERE PAR L'OUTIL MESS2C V1.0
+// Date de génération : Mon Apr 27 00:31:18 2015
+
+
+[PLATEFORME]= LABOTBOX
+[REPERTOIRE_GEN]= .\\\\\\\\
+
+[MESSAGERIE]= D:\Robotique\Robot2015\006_MESSAGERIE\LaBotBox.dbc
+	[TRAME]= ELECTROBOT_CDE_SERVOS_AX
+		[RX_TX]= TX
+		[SIGNAL]= valeur_commande_ax
+		[SIGNAL]= commande_ax
+		[SIGNAL]= num_servo_ax
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_CDE_MOTEURS
+		[RX_TX]= TX
+		[SIGNAL]= cde_moteur_6
+		[SIGNAL]= cde_moteur_5
+		[SIGNAL]= cde_moteur_4
+		[SIGNAL]= cde_moteur_3
+		[SIGNAL]= cde_moteur_2
+		[SIGNAL]= cde_moteur_1
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_MVT_XY
+		[RX_TX]= TX
+		[SIGNAL]= Y_consigne
+		[SIGNAL]= X_consigne
+		[SIGNAL]= Type_mouvement
+	[END_TRAME]
+
+	[TRAME]= ASSERV_RESET
+		[RX_TX]= TX
+		[SIGNAL]= SECURITE_RESET
+	[END_TRAME]
+
+	[TRAME]= AUTOAPPRENTISSAGE_ASSERV
+		[RX_TX]= TX
+		[SIGNAL]= Type_autoapprentissage
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_REINIT_XY_TETA
+		[RX_TX]= TX
+		[SIGNAL]= reinit_teta_pos
+		[SIGNAL]= reinit_y_pos
+		[SIGNAL]= reinit_x_pos
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_VITESSE_MVT
+		[RX_TX]= TX
+		[SIGNAL]= indice_sportivite_decel
+		[SIGNAL]= indice_sportivite_accel
+		[SIGNAL]= vitesse_rotation_max
+		[SIGNAL]= vitesse_avance_max
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_REGUL_VITESSE
+		[RX_TX]= TX
+		[SIGNAL]= consigne_vitesse_roue_D
+		[SIGNAL]= consigne_vitesse_roue_G
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_DISTANCE_ANGLE
+		[RX_TX]= TX
+		[SIGNAL]= angle_consigne
+		[SIGNAL]= distance_consigne
+		[SIGNAL]= priorite_mouvement
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_MVT_XY_TETA
+		[RX_TX]= TX
+		[SIGNAL]= angle_consigne
+		[SIGNAL]= Y_consigne
+		[SIGNAL]= X_consigne
+		[SIGNAL]= Type_mouvement
+	[END_TRAME]
+
+	[TRAME]= ASSERV_DIAG_WRITE_PARAM
+		[RX_TX]= TX
+		[SIGNAL]= ASSERV_DIAG_WRITE_VALUE
+		[SIGNAL]= ASSERV_DIAG_WRITE_PARAM
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_CDE_SERVOS
+		[RX_TX]= TX
+		[SIGNAL]= PositionServoMoteur2
+		[SIGNAL]= VitesseServoMoteur2
+		[SIGNAL]= NumeroServoMoteur2
+		[SIGNAL]= PositionServoMoteur1
+		[SIGNAL]= VitesseServoMoteur1
+		[SIGNAL]= NumeroServoMoteur1
+	[END_TRAME]
+
+	[TRAME]= COMMANDE_MVT_MANUEL
+		[RX_TX]= TX
+		[SIGNAL]= PuissanceMotD
+		[SIGNAL]= PuissanceMotG
+	[END_TRAME]
+
+	[TRAME]= ETAT_PID_ASSERVISSEMENT
+		[RX_TX]= RX
+		[SIGNAL]= consigne_vitesse_rotation_filt
+		[SIGNAL]= vitesse_rotation_robot_filt
+		[SIGNAL]= consigne_vitesse_avance_filt
+		[SIGNAL]= vitesse_avance_robot_filt
+	[END_TRAME]
+
+	[TRAME]= ETAT_ASSERVISSEMENT
+		[RX_TX]= RX
+		[SIGNAL]= compteur_diag_blocage
+		[SIGNAL]= ModeAsservissement
+		[SIGNAL]= cde_moteur_D
+		[SIGNAL]= cde_moteur_G
+		[SIGNAL]= Convergence
+	[END_TRAME]
+
+	[TRAME]= POSITION_CODEURS
+		[RX_TX]= RX
+		[SIGNAL]= PosCodeurG
+		[SIGNAL]= PosCodeurD
+	[END_TRAME]
+
+	[TRAME]= POSITION_ABSOLUE_XY_TETA
+		[RX_TX]= RX
+		[SIGNAL]= teta_pos
+		[SIGNAL]= y_pos
+		[SIGNAL]= x_pos
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_ETAT_CODEURS_1_2
+		[RX_TX]= RX
+		[SIGNAL]= Codeur_2
+		[SIGNAL]= Codeur_1
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_ETAT_TELEMETRES
+		[RX_TX]= RX
+		[SIGNAL]= Telemetre4
+		[SIGNAL]= Telemetre3
+		[SIGNAL]= Telemetre2
+		[SIGNAL]= Telemetre1
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_ETAT_CODEURS_3_4
+		[RX_TX]= RX
+		[SIGNAL]= Codeur_4
+		[SIGNAL]= Codeur_3
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_ETAT_CAPTEURS_2
+		[RX_TX]= RX
+		[SIGNAL]= Etor_PGED1_dsPIC2
+		[SIGNAL]= Etor_PGED1_dsPIC1
+		[SIGNAL]= Etor_PGEC1_dsPIC2
+		[SIGNAL]= Etor_PGEC1_dsPIC1
+		[SIGNAL]= Etor_Codeur4_B
+		[SIGNAL]= Etor_Codeur4_A
+		[SIGNAL]= Etor_Codeur3_B
+		[SIGNAL]= Etor_Codeur3_A
+		[SIGNAL]= Etor_CAN_TX
+		[SIGNAL]= Etor_CAN_RX
+		[SIGNAL]= Etor6
+		[SIGNAL]= Etor5
+		[SIGNAL]= Etor4
+		[SIGNAL]= Etor3
+		[SIGNAL]= Etor2
+		[SIGNAL]= Etor1
+		[SIGNAL]= Vbat
+		[SIGNAL]= Eana13
+		[SIGNAL]= Eana12
+		[SIGNAL]= Eana11
+		[SIGNAL]= Eana10
+		[SIGNAL]= Eana9
+	[END_TRAME]
+
+	[TRAME]= ELECTROBOT_ETAT_CAPTEURS_1
+		[RX_TX]= RX
+		[SIGNAL]= Eana8
+		[SIGNAL]= Eana7
+		[SIGNAL]= Eana6
+		[SIGNAL]= Eana5
+		[SIGNAL]= Eana4
+		[SIGNAL]= Eana3
+		[SIGNAL]= Eana2
+		[SIGNAL]= Eana1
+	[END_TRAME]
+
+[END_MESSAGERIE]
+

@@ -1,5 +1,5 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
-// Date de génération : Mon Feb 23 22:46:02 2015
+// Date de génération : Mon Apr 27 00:31:19 2015
 // PLATEFORME CIBLE : LABOTBOX
 /*! \file CTrameFactory.cpp
  * A brief file description CPP.
@@ -83,14 +83,17 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_2(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_1(m_messagerie_bot, m_data_manager));
   // Trames en émission
+ m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_XY(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ASSERV_RESET(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_AUTOAPPRENTISSAGE_ASSERV(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_REINIT_XY_TETA(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_VITESSE_MVT(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_REGUL_VITESSE(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_DISTANCE_ANGLE(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_XY_TETA(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ASSERV_DIAG_WRITE_PARAM(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_MANUEL(m_messagerie_bot, m_data_manager));
 
@@ -103,6 +106,110 @@ void CTrameFactory::create(void)
  }
 
 }
+// ========================================================
+//             TRAME ELECTROBOT_CDE_SERVOS_AX
+// ========================================================
+CTrame_ELECTROBOT_CDE_SERVOS_AX::CTrame_ELECTROBOT_CDE_SERVOS_AX(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ELECTROBOT_CDE_SERVOS_AX";
+ m_id = ID_ELECTROBOT_CDE_SERVOS_AX;
+ m_dlc = DLC_ELECTROBOT_CDE_SERVOS_AX;
+ m_liste_noms_signaux.append("valeur_commande_ax");
+ m_liste_noms_signaux.append("commande_ax");
+ m_liste_noms_signaux.append("num_servo_ax");
+
+ // Initialise les données de la messagerie
+ valeur_commande_ax = 0;
+ commande_ax = 0;
+ num_servo_ax = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("valeur_commande_ax",  valeur_commande_ax);
+ data_manager->write("commande_ax",  commande_ax);
+ data_manager->write("num_servo_ax",  num_servo_ax);
+ data_manager->write("ELECTROBOT_CDE_SERVOS_AX_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("valeur_commande_ax"), SIGNAL(valueChanged(QVariant)), this, SLOT(valeur_commande_ax_changed(QVariant)));
+ connect(data_manager->getData("commande_ax"), SIGNAL(valueChanged(QVariant)), this, SLOT(commande_ax_changed(QVariant)));
+ connect(data_manager->getData("num_servo_ax"), SIGNAL(valueChanged(QVariant)), this, SLOT(num_servo_ax_changed(QVariant)));
+ connect(data_manager->getData("ELECTROBOT_CDE_SERVOS_AX_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_SERVOS_AX::valeur_commande_ax_changed(QVariant val)
+{
+  valeur_commande_ax = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_SERVOS_AX::commande_ax_changed(QVariant val)
+{
+  commande_ax = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_SERVOS_AX::num_servo_ax_changed(QVariant val)
+{
+  num_servo_ax = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_SERVOS_AX::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ELECTROBOT_CDE_SERVOS_AX::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ELECTROBOT_CDE_SERVOS_AX;
+  trame.DLC = DLC_ELECTROBOT_CDE_SERVOS_AX;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[4] |= (unsigned char)( ( (valeur_commande_ax) & 0xFF) );
+    trame.Data[3] |= (unsigned char)( ( (valeur_commande_ax >> 8) & 0xFF) );
+
+    trame.Data[2] |= (unsigned char)( ( (commande_ax) & 0xFF) );
+    trame.Data[1] |= (unsigned char)( ( (commande_ax >> 8) & 0xFF) );
+
+    trame.Data[0] |= (unsigned char)( ( (num_servo_ax) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
 // ========================================================
 //             TRAME ELECTROBOT_CDE_MOTEURS
 // ========================================================
@@ -419,6 +526,76 @@ void CTrame_ASSERV_RESET::Encode(void)
  }
   // Encode chacun des signaux de la trame
     trame.Data[0] |= (unsigned char)( ( (SECURITE_RESET) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME AUTOAPPRENTISSAGE_ASSERV
+// ========================================================
+CTrame_AUTOAPPRENTISSAGE_ASSERV::CTrame_AUTOAPPRENTISSAGE_ASSERV(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "AUTOAPPRENTISSAGE_ASSERV";
+ m_id = ID_AUTOAPPRENTISSAGE_ASSERV;
+ m_dlc = DLC_AUTOAPPRENTISSAGE_ASSERV;
+ m_liste_noms_signaux.append("Type_autoapprentissage");
+
+ // Initialise les données de la messagerie
+ Type_autoapprentissage = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("Type_autoapprentissage",  Type_autoapprentissage);
+ data_manager->write("AUTOAPPRENTISSAGE_ASSERV_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("Type_autoapprentissage"), SIGNAL(valueChanged(QVariant)), this, SLOT(Type_autoapprentissage_changed(QVariant)));
+ connect(data_manager->getData("AUTOAPPRENTISSAGE_ASSERV_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_AUTOAPPRENTISSAGE_ASSERV::Type_autoapprentissage_changed(QVariant val)
+{
+  Type_autoapprentissage = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_AUTOAPPRENTISSAGE_ASSERV::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_AUTOAPPRENTISSAGE_ASSERV::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_AUTOAPPRENTISSAGE_ASSERV;
+  trame.DLC = DLC_AUTOAPPRENTISSAGE_ASSERV;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[0] |= (unsigned char)( ( (Type_autoapprentissage) & 0xFF) );
 
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
@@ -957,6 +1134,94 @@ void CTrame_COMMANDE_MVT_XY_TETA::Encode(void)
     trame.Data[0] |= (unsigned char)( ( (X_consigne >> 8) & 0xFF) );
 
     trame.Data[6] |= (unsigned char)( ( (Type_mouvement) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME ASSERV_DIAG_WRITE_PARAM
+// ========================================================
+CTrame_ASSERV_DIAG_WRITE_PARAM::CTrame_ASSERV_DIAG_WRITE_PARAM(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ASSERV_DIAG_WRITE_PARAM";
+ m_id = ID_ASSERV_DIAG_WRITE_PARAM;
+ m_dlc = DLC_ASSERV_DIAG_WRITE_PARAM;
+ m_liste_noms_signaux.append("ASSERV_DIAG_WRITE_VALUE");
+ m_liste_noms_signaux.append("ASSERV_DIAG_WRITE_PARAM");
+
+ // Initialise les données de la messagerie
+ ASSERV_DIAG_WRITE_VALUE = 0;
+ ASSERV_DIAG_WRITE_PARAM = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("ASSERV_DIAG_WRITE_VALUE",  ASSERV_DIAG_WRITE_VALUE);
+ data_manager->write("ASSERV_DIAG_WRITE_PARAM",  ASSERV_DIAG_WRITE_PARAM);
+ data_manager->write("ASSERV_DIAG_WRITE_PARAM_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("ASSERV_DIAG_WRITE_VALUE"), SIGNAL(valueChanged(QVariant)), this, SLOT(ASSERV_DIAG_WRITE_VALUE_changed(QVariant)));
+ connect(data_manager->getData("ASSERV_DIAG_WRITE_PARAM"), SIGNAL(valueChanged(QVariant)), this, SLOT(ASSERV_DIAG_WRITE_PARAM_changed(QVariant)));
+ connect(data_manager->getData("ASSERV_DIAG_WRITE_PARAM_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_VALUE_changed(QVariant val)
+{
+  ASSERV_DIAG_WRITE_VALUE = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_PARAM_changed(QVariant val)
+{
+  ASSERV_DIAG_WRITE_PARAM = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ASSERV_DIAG_WRITE_PARAM::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ASSERV_DIAG_WRITE_PARAM::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ASSERV_DIAG_WRITE_PARAM;
+  trame.DLC = DLC_ASSERV_DIAG_WRITE_PARAM;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[3] |= (unsigned char)( ( (ASSERV_DIAG_WRITE_VALUE) & 0xFF) );
+    trame.Data[2] |= (unsigned char)( ( (ASSERV_DIAG_WRITE_VALUE >> 8) & 0xFF) );
+
+    trame.Data[1] |= (unsigned char)( ( (ASSERV_DIAG_WRITE_PARAM) & 0xFF) );
+    trame.Data[0] |= (unsigned char)( ( (ASSERV_DIAG_WRITE_PARAM >> 8) & 0xFF) );
 
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);

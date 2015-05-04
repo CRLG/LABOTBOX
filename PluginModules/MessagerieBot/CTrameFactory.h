@@ -1,5 +1,5 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
-// Date de génération : Mon Feb 23 22:46:02 2015
+// Date de génération : Mon Apr 27 00:31:19 2015
 // PLATEFORME CIBLE : LABOTBOX
 /*! \file CTrameFactory.h
  * A brief file description header.
@@ -49,6 +49,39 @@ private :
 public slots :
     void Decode(tStructTrameBrute trame);
 
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_CDE_SERVOS_AX
+// ========================================================
+#define ID_ELECTROBOT_CDE_SERVOS_AX 0x52
+#define DLC_ELECTROBOT_CDE_SERVOS_AX 5
+#define BRUTE2PHYS_valeur_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_valeur_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_num_servo_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_num_servo_ax(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_CDE_SERVOS_AX : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_CDE_SERVOS_AX(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CDE_SERVOS_AX() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned short valeur_commande_ax;
+    unsigned short commande_ax;
+    unsigned char num_servo_ax;
+    bool m_synchro_tx;
+
+private slots :
+    void valeur_commande_ax_changed(QVariant val);
+    void commande_ax_changed(QVariant val);
+    void num_servo_ax_changed(QVariant val);
+    void Synchro_changed(QVariant val);
 };
 
 
@@ -151,6 +184,31 @@ public :
 
 private slots :
     void SECURITE_RESET_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME AUTOAPPRENTISSAGE_ASSERV
+// ========================================================
+#define ID_AUTOAPPRENTISSAGE_ASSERV 0x107
+#define DLC_AUTOAPPRENTISSAGE_ASSERV 1
+#define BRUTE2PHYS_Type_autoapprentissage(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_Type_autoapprentissage(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_AUTOAPPRENTISSAGE_ASSERV : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_AUTOAPPRENTISSAGE_ASSERV(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_AUTOAPPRENTISSAGE_ASSERV() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned char Type_autoapprentissage;
+    bool m_synchro_tx;
+
+private slots :
+    void Type_autoapprentissage_changed(QVariant val);
     void Synchro_changed(QVariant val);
 };
 
@@ -320,6 +378,35 @@ private slots :
     void Y_consigne_changed(QVariant val);
     void X_consigne_changed(QVariant val);
     void Type_mouvement_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
+//             TRAME ASSERV_DIAG_WRITE_PARAM
+// ========================================================
+#define ID_ASSERV_DIAG_WRITE_PARAM 0x131
+#define DLC_ASSERV_DIAG_WRITE_PARAM 4
+#define BRUTE2PHYS_ASSERV_DIAG_WRITE_VALUE(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_ASSERV_DIAG_WRITE_VALUE(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_ASSERV_DIAG_WRITE_PARAM(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_ASSERV_DIAG_WRITE_PARAM(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ASSERV_DIAG_WRITE_PARAM : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ASSERV_DIAG_WRITE_PARAM(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ASSERV_DIAG_WRITE_PARAM() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short ASSERV_DIAG_WRITE_VALUE;
+    unsigned short ASSERV_DIAG_WRITE_PARAM;
+    bool m_synchro_tx;
+
+private slots :
+    void ASSERV_DIAG_WRITE_VALUE_changed(QVariant val);
+    void ASSERV_DIAG_WRITE_PARAM_changed(QVariant val);
     void Synchro_changed(QVariant val);
 };
 
