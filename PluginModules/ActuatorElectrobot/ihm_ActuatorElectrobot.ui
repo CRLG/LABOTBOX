@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>350</height>
+    <width>296</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -185,9 +185,9 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="Servos">
+      <widget class="QWidget" name="ServosSD20">
        <attribute name="title">
-        <string>Servos</string>
+        <string>ServosSD20</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -404,6 +404,83 @@
            <size>
             <width>226</width>
             <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="ConfigServosSD20">
+       <attribute name="title">
+        <string>Config ServosSD20</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>num servo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QSpinBox" name="ServosSD20Config_ID">
+          <property name="toolTip">
+           <string>ID [1 ; 20]</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>91</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Action</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="3">
+         <widget class="QComboBox" name="ServosSD20Config_Action"/>
+        </item>
+        <item row="1" column="4">
+         <widget class="QSpinBox" name="ServosSD20Config_Value">
+          <property name="maximum">
+           <number>1023</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" colspan="3">
+         <widget class="QPushButton" name="ServosSD20Config_Send">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="2">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>143</height>
            </size>
           </property>
          </spacer>
@@ -719,7 +796,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>340</width>
+     <width>296</width>
      <height>18</height>
     </rect>
    </property>

@@ -1,5 +1,5 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
-// Date de génération : Mon Apr 27 00:31:19 2015
+// Date de génération : Tue May 05 22:41:21 2015
 // PLATEFORME CIBLE : LABOTBOX
 /*! \file CTrameFactory.h
  * A brief file description header.
@@ -49,6 +49,39 @@ private :
 public slots :
     void Decode(tStructTrameBrute trame);
 
+};
+
+
+// ========================================================
+//             TRAME ELECTROBOT_CDE_SERVOS_SD20
+// ========================================================
+#define ID_ELECTROBOT_CDE_SERVOS_SD20 0x53
+#define DLC_ELECTROBOT_CDE_SERVOS_SD20 5
+#define BRUTE2PHYS_valeur_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_valeur_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_num_servo_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
+#define PHYS2BRUTE_num_servo_sd20(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+class CTrame_ELECTROBOT_CDE_SERVOS_SD20 : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CDE_SERVOS_SD20() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned short valeur_commande_sd20;
+    unsigned short commande_sd20;
+    unsigned char num_servo_sd20;
+    bool m_synchro_tx;
+
+private slots :
+    void valeur_commande_sd20_changed(QVariant val);
+    void commande_sd20_changed(QVariant val);
+    void num_servo_sd20_changed(QVariant val);
+    void Synchro_changed(QVariant val);
 };
 
 

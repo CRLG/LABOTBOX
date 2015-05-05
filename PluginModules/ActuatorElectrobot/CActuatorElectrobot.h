@@ -71,7 +71,33 @@ private slots :
 
     void Moteurs_StopAll_clicked(void);
 
-// ____________________________________________________Servo-moteurs
+// ____________________________________________________Servo-moteurs SD20
+private :
+    //! La liste des codes possibles dans le champ "commande_sd20" de la trame ELECTROBOT_CDE_SERVOS_SD20
+    // (enum commun MBED<->LaBotBox)
+    typedef enum {
+      cSERVO_SD20_POSITION = 0,
+      cSERVO_SD20_BUTEE_MIN,
+      cSERVO_SD20_BUTEE_MAX,
+      cSERVO_SD20_POSITION_INIT
+    }eCOMMANDES_SERVOS_SD20;
+
+    void PosServoMoteur_changed(int id, int position);
+    void initList_ActionsServosSD20(void);
+
+private slots :
+    void CdeServoMoteur20_changed(int val);
+    void CdeServoMoteur19_changed(int val);
+    void CdeServoMoteur18_changed(int val);
+    void CdeServoMoteur17_changed(int val);
+    void CdeServoMoteur16_changed(int val);
+    void CdeServoMoteur15_changed(int val);
+    void CdeServoMoteur14_changed(int val);
+    void CdeServoMoteur13_changed(int val);
+
+    void ServosSD20Config_Send_clicked(void);
+
+// ____________________________________________________Servo-moteurs AX
 private :
     //! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
     // (enum commun MBED<->LaBotBox)
@@ -83,22 +109,9 @@ private :
       cSERVO_AX_LED_STATE,
       cSERVO_AX_BUTEE_MIN,
       cSERVO_AX_BUTEE_MAX,
+      cSERVO_AX_POSITION_INIT
     }eCOMMANDES_SERVOS_AX;
 
-private :
-    void PosServoMoteur_changed(int id, int position);
-private slots :
-    void CdeServoMoteur20_changed(int val);
-    void CdeServoMoteur19_changed(int val);
-    void CdeServoMoteur18_changed(int val);
-    void CdeServoMoteur17_changed(int val);
-    void CdeServoMoteur16_changed(int val);
-    void CdeServoMoteur15_changed(int val);
-    void CdeServoMoteur14_changed(int val);
-    void CdeServoMoteur13_changed(int val);
-
-// ____________________________________________________Servo-moteurs AX
-private :
     void PosServoMoteurAX_changed(int id, int position);
     void initList_ActionsServosAX(void);
 

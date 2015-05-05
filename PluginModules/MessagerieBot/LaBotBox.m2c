@@ -1,11 +1,18 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C V1.0
-// Date de génération : Mon Apr 27 00:31:18 2015
+// Date de génération : Tue May 05 22:41:25 2015
 
 
 [PLATEFORME]= LABOTBOX
-[REPERTOIRE_GEN]= .\\\\\\\\
+[REPERTOIRE_GEN]= .\\\\\\\\\\
 
 [MESSAGERIE]= D:\Robotique\Robot2015\006_MESSAGERIE\LaBotBox.dbc
+	[TRAME]= ELECTROBOT_CDE_SERVOS_SD20
+		[RX_TX]= TX
+		[SIGNAL]= valeur_commande_sd20
+		[SIGNAL]= commande_sd20
+		[SIGNAL]= num_servo_sd20
+	[END_TRAME]
+
 	[TRAME]= ELECTROBOT_CDE_SERVOS_AX
 		[RX_TX]= TX
 		[SIGNAL]= valeur_commande_ax

@@ -111,6 +111,11 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   connect(m_ihm.ui.Servo_slide_14, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur14_changed(int)));
   connect(m_ihm.ui.Servo_slide_13, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur13_changed(int)));
 
+  connect(m_ihm.ui.ServosSD20Config_Send, SIGNAL(clicked()), this, SLOT(ServosSD20Config_Send_clicked()));
+
+  // met à jour la liste des commandes possibles sur les servos SD20
+  initList_ActionsServosSD20();
+
   // _____________________________________________ Servo moteurs AX
   connect(m_ihm.ui.ServoAX_num_0, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_0, SLOT(setValue(int)));
   connect(m_ihm.ui.ServoAX_num_1, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_1, SLOT(setValue(int)));
@@ -353,7 +358,8 @@ void CActuatorElectrobot::initList_ActionsServosAX(void)
       << "CHANGE_ID"
       << "LED_STATE"
       << "BUTEE_MIN"
-      << "BUTEE_MAX";
+      << "BUTEE_MAX"
+      << "POSITION_INIT";
   m_ihm.ui.ServosAXConfig_Action->addItems(lst);
 }
 
@@ -365,4 +371,28 @@ void CActuatorElectrobot::ServosAXConfig_Send_clicked(void)
     m_application->m_data_center->write("commande_ax", m_ihm.ui.ServosAXConfig_Action->currentIndex());
     m_application->m_data_center->write("valeur_commande_ax", m_ihm.ui.ServosAXConfig_Value->value());
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
+}
+
+
+
+// ____________________________________________________
+void CActuatorElectrobot::initList_ActionsServosSD20(void)
+{
+  QStringList lst;
+  // à mettre dans le même ordre que l'énuméré "eCOMMANDES_SERVOS_SD20" (commun avec le MBED)
+  lst << "POSITION"
+      << "BUTEE_MIN"
+      << "BUTEE_MAX"
+      << "POSITION_INIT";
+  m_ihm.ui.ServosSD20Config_Action->addItems(lst);
+}
+
+// ____________________________________________________
+void CActuatorElectrobot::ServosSD20Config_Send_clicked(void)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync", true);
+    m_application->m_data_center->write("num_servo_sd20", m_ihm.ui.ServosSD20Config_ID->value());
+    m_application->m_data_center->write("commande_sd20", m_ihm.ui.ServosSD20Config_Action->currentIndex());
+    m_application->m_data_center->write("valeur_commande_sd20", m_ihm.ui.ServosSD20Config_Value->value());
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync", false);
 }
