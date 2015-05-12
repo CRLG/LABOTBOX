@@ -115,6 +115,26 @@ void CSimuBot::init(CLaBotBox *application)
        }
     }
 
+    //récupération des positions d'init
+    /*float X_init_1=24;
+    float Y_init_1=101;
+    float Theta_init_1=0;
+    float X_init_2=265;
+    float Y_init_2=101;
+    float Theta_init_2=180;*/
+    val = m_application->m_eeprom->read(getName(), "X_init_1", QVariant(24.0));
+    float X_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Y_init_1", QVariant(101.0));
+    float Y_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_init_1", QVariant(0.0));
+    float Theta_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "X_init_2", QVariant(265.0));
+    float X_init_2=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Y_init_2", QVariant(101.0));
+    float Y_init_2=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_init_2", QVariant(180.0));
+    float Theta_init_2=val.toFloat();
+
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
     surface->setPixmap(QPixmap(":/icons/terrain_2015_simubot.png"));
@@ -122,6 +142,28 @@ void CSimuBot::init(CLaBotBox *application)
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -202 , 302, 202));
     terrain->addItem(bordures);
     terrain->addItem(surface);
+    QGraphicsEllipseItem *spot[8];
+    spot[0]=new QGraphicsEllipseItem(QRectF(110-3,177-202-3,6,6));
+    spot[1]=new QGraphicsEllipseItem(QRectF(9-3,175-202-3,6,6));
+    spot[2]=new QGraphicsEllipseItem(QRectF(9-3,185-202-3,6,6));
+    spot[3]=new QGraphicsEllipseItem(QRectF(130-3,140-202-3,6,6));
+    spot[4]=new QGraphicsEllipseItem(QRectF(87-3,135.5-202-3,6,6));
+    spot[5]=new QGraphicsEllipseItem(QRectF(85-3,20-202-3,6,6));
+    spot[6]=new QGraphicsEllipseItem(QRectF(85-3,10-202-3,6,6));
+    spot[7]=new QGraphicsEllipseItem(QRectF(9-3,20-202-3,6,6));
+    for(int ind=0;ind<8;ind++){
+        spot[ind]->setBrush(QBrush(QColor(0, 255,255, 255)));
+        terrain->addItem(spot[ind]);
+    }
+    QGraphicsEllipseItem *gobelet[3];
+    gobelet[0]=new QGraphicsEllipseItem(QRectF(150-4.75,165-202-4.75,9.5,9.5));
+    gobelet[1]=new QGraphicsEllipseItem(QRectF(25-4.75,175-202-4.75,9.5,9.5));
+    gobelet[2]=new QGraphicsEllipseItem(QRectF(91-4.75,80-202-4.75,9.5,9.5));
+
+    for(int ind1=0;ind1<3;ind1++){
+        gobelet[ind1]->setBrush(QBrush(QColor(255, 255,255, 255)));
+        terrain->addItem(gobelet[ind1]);
+    }
 
 
     //ajout du robot
@@ -214,7 +256,7 @@ void CSimuBot::init(CLaBotBox *application)
 
 
     //positionnement par défaut
-    changeEquipe();
+    changeEquipe(X_init_1,Y_init_1,Theta_init_1,X_init_2,Y_init_2,Theta_init_2);
     initView();
 }
 
@@ -362,7 +404,8 @@ void CSimuBot::initView(void){
         m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_reel_init/Pi));
 }
 
-void CSimuBot::changeEquipe(void){
+void CSimuBot::changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,float X_init_2,float Y_init_2, float Theta_init_2)
+{
     QLineEdit *lineEdit_X_init=m_ihm.findChild<QLineEdit*>("lineEdit_X_init");
     QLineEdit *lineEdit_Y_init=m_ihm.findChild<QLineEdit*>("lineEdit_Y_init");
     QLineEdit *lineEdit_Theta_init=m_ihm.findChild<QLineEdit*>("lineEdit_Theta_init");
@@ -374,18 +417,18 @@ void CSimuBot::changeEquipe(void){
     else
         name_radio_button="radioButton_couleur_1";
 
-
+    QString texteValue;
     if(name_radio_button.compare("radioButton_couleur_1")==0) //jaune
     {
-        lineEdit_X_init->setText("35");
-        lineEdit_Y_init->setText("101");
-        lineEdit_Theta_init->setText("0");
+        lineEdit_X_init->setText(texteValue.setNum(X_init_1));
+        lineEdit_Y_init->setText(texteValue.setNum(Y_init_1));
+        lineEdit_Theta_init->setText(texteValue.setNum(Theta_init_1));
     }
     else if(name_radio_button.compare("radioButton_couleur_2")==0) //vert
     {
-        lineEdit_X_init->setText("265");
-        lineEdit_Y_init->setText("101");
-        lineEdit_Theta_init->setText("180");
+        lineEdit_X_init->setText(texteValue.setNum(X_init_2));
+        lineEdit_Y_init->setText(texteValue.setNum(Y_init_2));
+        lineEdit_Theta_init->setText(texteValue.setNum(Theta_init_2));
     }
 }
 

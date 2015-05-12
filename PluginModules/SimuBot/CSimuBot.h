@@ -81,7 +81,7 @@ signals:
 public slots:
     void viewChanged(QList<QRectF> regions);
     void initView(void);
-    void changeEquipe(void);
+    void changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,float X_init_2,float Y_init_2, float Theta_init_2);
     void returnCapture_XY();
     void returnCapture_Theta();
     void changeMode(int iMode);
