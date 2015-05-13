@@ -61,6 +61,8 @@ void CAsserv::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
   setNiveauTrace(val.toUInt());
 
+  connect(&m_ihm, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
+
 
   // COMMANDE_MANUELLE
   m_ihm.ui.CdeManuelle_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -124,6 +126,16 @@ void CAsserv::close(void)
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
+}
+
+
+// _____________________________________________________________________
+void CAsserv::keyPressed(int key)
+{
+  switch(key) {
+    case Qt::Key_Escape:    CdeManuelle_stopAll();      break;
+    // default : ne rien faire
+  }
 }
 
 

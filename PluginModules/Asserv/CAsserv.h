@@ -6,6 +6,8 @@
 #define _CPLUGIN_MODULE_Asserv_H_
 
 #include <QMainWindow>
+#include <QDebug>
+#include <QKeyEvent>
 
 #include "CPluginModule.h"
 #include "ui_ihm_Asserv.h"
@@ -20,6 +22,13 @@ public:
     Ui::ihm_Asserv ui;
 
     CLaBotBox *m_application;
+
+    // renvoie les appuis touches
+    void keyReleaseEvent(QKeyEvent * event) { emit keyPressed(event->key()); }
+
+signals :
+    void keyPressed(int key);
+
  };
 
 
@@ -101,6 +110,9 @@ public slots :
 
     void Convergence_changed(int val);
     void ModeAsservissement_changed(int val);
+
+private slots :
+    void keyPressed(int key);
 
 };
 
