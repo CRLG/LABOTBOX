@@ -86,14 +86,15 @@ private :
     void initList_ActionsServosSD20(void);
 
 private slots :
-    void CdeServoMoteur20_changed(int val);
-    void CdeServoMoteur19_changed(int val);
-    void CdeServoMoteur18_changed(int val);
-    void CdeServoMoteur17_changed(int val);
-    void CdeServoMoteur16_changed(int val);
-    void CdeServoMoteur15_changed(int val);
-    void CdeServoMoteur14_changed(int val);
-    void CdeServoMoteur13_changed(int val);
+    //void CdeServoMoteur20_changed(int val);
+    void CdeServoMoteur20_changed();
+    void CdeServoMoteur19_changed();
+    void CdeServoMoteur18_changed();
+    void CdeServoMoteur17_changed();
+    void CdeServoMoteur16_changed();
+    void CdeServoMoteur15_changed();
+    void CdeServoMoteur14_changed();
+    void CdeServoMoteur13_changed();
 
     void ServosSD20Config_Send_clicked(void);
 
@@ -116,14 +117,14 @@ private :
     void initList_ActionsServosAX(void);
 
 private slots :
-    void CdeServoMoteurAX0_changed(int val);
-    void CdeServoMoteurAX1_changed(int val);
-    void CdeServoMoteurAX2_changed(int val);
-    void CdeServoMoteurAX3_changed(int val);
-    void CdeServoMoteurAX4_changed(int val);
-    void CdeServoMoteurAX5_changed(int val);
-    void CdeServoMoteurAX6_changed(int val);
-    void CdeServoMoteurAX7_changed(int val);
+    void CdeServoMoteurAX0_changed();
+    void CdeServoMoteurAX1_changed();
+    void CdeServoMoteurAX2_changed();
+    void CdeServoMoteurAX3_changed();
+    void CdeServoMoteurAX4_changed();
+    void CdeServoMoteurAX5_changed();
+    void CdeServoMoteurAX6_changed();
+    void CdeServoMoteurAX7_changed();
 
     void ServosAXConfig_Send_clicked(void);
 };

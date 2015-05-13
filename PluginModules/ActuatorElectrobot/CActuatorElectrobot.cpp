@@ -93,23 +93,32 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   connect(m_ihm.ui.Servo_num_14, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_14, SLOT(setValue(int)));
   connect(m_ihm.ui.Servo_num_13, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_13, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_slide_20, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_20, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_19, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_19, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_18, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_18, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_17, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_17, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_16, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_16, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_15, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_15, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_14, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_14, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_13, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_num_13, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_20, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_20, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_19, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_19, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_18, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_18, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_17, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_17, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_16, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_16, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_15, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_15, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_14, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_14, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_13, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_13, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_slide_20, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur20_changed(int)));
-  connect(m_ihm.ui.Servo_slide_19, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur19_changed(int)));
-  connect(m_ihm.ui.Servo_slide_18, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur18_changed(int)));
-  connect(m_ihm.ui.Servo_slide_17, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur17_changed(int)));
-  connect(m_ihm.ui.Servo_slide_16, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur16_changed(int)));
-  connect(m_ihm.ui.Servo_slide_15, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur15_changed(int)));
-  connect(m_ihm.ui.Servo_slide_14, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur14_changed(int)));
-  connect(m_ihm.ui.Servo_slide_13, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteur13_changed(int)));
+  connect(m_ihm.ui.Servo_num_20, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur20_changed()));
+  connect(m_ihm.ui.Servo_num_19, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur19_changed()));
+  connect(m_ihm.ui.Servo_num_18, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur18_changed()));
+  connect(m_ihm.ui.Servo_num_17, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur17_changed()));
+  connect(m_ihm.ui.Servo_num_16, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur16_changed()));
+  connect(m_ihm.ui.Servo_num_15, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur15_changed()));
+  connect(m_ihm.ui.Servo_num_14, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur14_changed()));
+  connect(m_ihm.ui.Servo_num_13, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur13_changed()));
+
+  connect(m_ihm.ui.Servo_slide_20, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur20_changed()));
+  connect(m_ihm.ui.Servo_slide_19, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur19_changed()));
+  connect(m_ihm.ui.Servo_slide_18, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur18_changed()));
+  connect(m_ihm.ui.Servo_slide_17, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur17_changed()));
+  connect(m_ihm.ui.Servo_slide_16, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur16_changed()));
+  connect(m_ihm.ui.Servo_slide_15, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur15_changed()));
+  connect(m_ihm.ui.Servo_slide_14, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur14_changed()));
+  connect(m_ihm.ui.Servo_slide_13, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur13_changed()));
 
   connect(m_ihm.ui.ServosSD20Config_Send, SIGNAL(clicked()), this, SLOT(ServosSD20Config_Send_clicked()));
 
@@ -126,23 +135,32 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   connect(m_ihm.ui.ServoAX_num_6, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_6, SLOT(setValue(int)));
   connect(m_ihm.ui.ServoAX_num_7, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_7, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_0, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_1, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_2, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_3, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_4, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_5, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_6, SLOT(setValue(int)));
-  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_num_7, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_0, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_1, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_2, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_3, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_4, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_5, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_6, SLOT(setValue(int)));
+  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(sliderMoved(int)), m_ihm.ui.ServoAX_num_7, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX0_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX1_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX2_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX3_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX4_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX5_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX6_changed(int)));
-  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(valueChanged(int)), this, SLOT(CdeServoMoteurAX7_changed(int)));
+  connect(m_ihm.ui.ServoAX_num_0, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX0_changed()));
+  connect(m_ihm.ui.ServoAX_num_1, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX1_changed()));
+  connect(m_ihm.ui.ServoAX_num_2, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX2_changed()));
+  connect(m_ihm.ui.ServoAX_num_3, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX3_changed()));
+  connect(m_ihm.ui.ServoAX_num_4, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX4_changed()));
+  connect(m_ihm.ui.ServoAX_num_5, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX5_changed()));
+  connect(m_ihm.ui.ServoAX_num_6, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX6_changed()));
+  connect(m_ihm.ui.ServoAX_num_7, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteurAX7_changed()));
+
+  connect(m_ihm.ui.ServoAX_slide_0, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX0_changed()));
+  connect(m_ihm.ui.ServoAX_slide_1, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX1_changed()));
+  connect(m_ihm.ui.ServoAX_slide_2, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX2_changed()));
+  connect(m_ihm.ui.ServoAX_slide_3, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX3_changed()));
+  connect(m_ihm.ui.ServoAX_slide_4, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX4_changed()));
+  connect(m_ihm.ui.ServoAX_slide_5, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX5_changed()));
+  connect(m_ihm.ui.ServoAX_slide_6, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX6_changed()));
+  connect(m_ihm.ui.ServoAX_slide_7, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteurAX7_changed()));
 
   connect(m_ihm.ui.ServosAXConfig_Send, SIGNAL(clicked()), this, SLOT(ServosAXConfig_Send_clicked()));
 
@@ -284,29 +302,29 @@ void CActuatorElectrobot::PosServoMoteur_changed(int id, int position)
 }
 
 // _____________________________________________________________________
-void CActuatorElectrobot::CdeServoMoteur20_changed(int val)
-{ PosServoMoteur_changed(20, val); }
+void CActuatorElectrobot::CdeServoMoteur20_changed()
+{ PosServoMoteur_changed(20, m_ihm.ui.Servo_slide_20->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur19_changed(int val)
-{ PosServoMoteur_changed(19, val); }
+void CActuatorElectrobot::CdeServoMoteur19_changed()
+{ PosServoMoteur_changed(19, m_ihm.ui.Servo_slide_19->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur18_changed(int val)
-{ PosServoMoteur_changed(18, val); }
+void CActuatorElectrobot::CdeServoMoteur18_changed()
+{ PosServoMoteur_changed(18, m_ihm.ui.Servo_slide_18->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur17_changed(int val)
-{ PosServoMoteur_changed(17, val); }
+void CActuatorElectrobot::CdeServoMoteur17_changed()
+{ PosServoMoteur_changed(17, m_ihm.ui.Servo_slide_17->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur16_changed(int val)
-{ PosServoMoteur_changed(16, val); }
+void CActuatorElectrobot::CdeServoMoteur16_changed()
+{ PosServoMoteur_changed(16, m_ihm.ui.Servo_slide_16->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur15_changed(int val)
-{ PosServoMoteur_changed(15, val); }
+void CActuatorElectrobot::CdeServoMoteur15_changed()
+{ PosServoMoteur_changed(15, m_ihm.ui.Servo_slide_15->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur14_changed(int val)
-{ PosServoMoteur_changed(14, val); }
+void CActuatorElectrobot::CdeServoMoteur14_changed()
+{ PosServoMoteur_changed(14, m_ihm.ui.Servo_slide_14->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur13_changed(int val)
-{ PosServoMoteur_changed(13, val); }
+void CActuatorElectrobot::CdeServoMoteur13_changed()
+{ PosServoMoteur_changed(13, m_ihm.ui.Servo_slide_13->value()); }
 
 
 
@@ -320,30 +338,30 @@ void CActuatorElectrobot::PosServoMoteurAX_changed(int id, int position)
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
 }
 
+// ____________________________________________________
+void CActuatorElectrobot::CdeServoMoteurAX0_changed()
+{ PosServoMoteurAX_changed(0, m_ihm.ui.ServoAX_slide_0->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX0_changed(int val)
-{ PosServoMoteurAX_changed(0, val); }
+void CActuatorElectrobot::CdeServoMoteurAX1_changed()
+{ PosServoMoteurAX_changed(1, m_ihm.ui.ServoAX_slide_1->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX1_changed(int val)
-{ PosServoMoteurAX_changed(1, val); }
+void CActuatorElectrobot::CdeServoMoteurAX2_changed()
+{ PosServoMoteurAX_changed(2, m_ihm.ui.ServoAX_slide_2->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX2_changed(int val)
-{ PosServoMoteurAX_changed(2, val); }
+void CActuatorElectrobot::CdeServoMoteurAX3_changed()
+{ PosServoMoteurAX_changed(3, m_ihm.ui.ServoAX_slide_3->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX3_changed(int val)
-{ PosServoMoteurAX_changed(3, val); }
+void CActuatorElectrobot::CdeServoMoteurAX4_changed()
+{ PosServoMoteurAX_changed(4, m_ihm.ui.ServoAX_slide_4->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX4_changed(int val)
-{ PosServoMoteurAX_changed(4, val); }
+void CActuatorElectrobot::CdeServoMoteurAX5_changed()
+{ PosServoMoteurAX_changed(5, m_ihm.ui.ServoAX_slide_5->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX5_changed(int val)
-{ PosServoMoteurAX_changed(5, val); }
+void CActuatorElectrobot::CdeServoMoteurAX6_changed()
+{ PosServoMoteurAX_changed(6, m_ihm.ui.ServoAX_slide_6->value()); }
 
-void CActuatorElectrobot::CdeServoMoteurAX6_changed(int val)
-{ PosServoMoteurAX_changed(6, val); }
-
-void CActuatorElectrobot::CdeServoMoteurAX7_changed(int val)
-{ PosServoMoteurAX_changed(7, val); }
+void CActuatorElectrobot::CdeServoMoteurAX7_changed()
+{ PosServoMoteurAX_changed(7, m_ihm.ui.ServoAX_slide_7->value()); }
 
 
 
