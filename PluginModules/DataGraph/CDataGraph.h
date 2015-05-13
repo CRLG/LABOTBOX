@@ -87,6 +87,8 @@ private:
     const QColor t_predefinedColor[8]={Qt::black,Qt::red,Qt::green,Qt::blue,Qt::cyan,Qt::magenta,Qt::yellow,Qt::gray};
     QStringList t_predefinedColorName;
     QCPRange* storedRange;
+    QCPRange* storedRangeAxe1;
+    QCPRange* storedRangeAxe2;
     int dureeObservee;
 
 
@@ -101,7 +103,10 @@ public slots :
     //void editingFinishedWriteValueInstantane(void);
     void resumeGraph(bool varToggle);
     void changeGraphCouleur(int indexCouleur);
-    void rescaleGraph(QTableWidgetItem* item);
+    void itemRescaleGraph(QTableWidgetItem* item);
+    void userRescaleGraph(void);
+    void userZoomGraph(int value);
+    void rescaleGraph(double newMaxRange, double newMaxRange2);
 
 private slots:
     void mousePress(QMouseEvent *event);

@@ -47,13 +47,13 @@ CSensorView::~CSensorView()
 void CSensorView::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
+  setGUI(&m_ihm); // indique à la classe de base l'IHM
 
-  // Restore la taille de la fenÃªtre
+  // Restore la taille de la fenêtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenÃªtre est visible ou non
+  // Restore le fait que la fenêtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -61,7 +61,7 @@ void CSensorView::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
   setNiveauTrace(val.toUInt());
 
-  //rÃ©cupÃ©ration des signaux dÃ©jÃ  placÃ©s sur la vue
+  //récupération des signaux déjà placés sur la vue
   val=m_application->m_eeprom->read(getName(),"signalsPlacement",QStringList());
   QStringList listePointsWidget_=val.toStringList();
   val=m_application->m_eeprom->read(getName(),"signalsAdded",QStringList());
@@ -112,6 +112,12 @@ void CSensorView::init(CLaBotBox *application)
   connect(&m_timer_lecture_variables, SIGNAL(timeout()), this, SLOT(refreshValeursVariables()));
   //m_timer_lecture_variables.start(PERIODE_ECHANTILLONNAGE_VARIABLES);
   connect(m_ihm.ui.pb_play,SIGNAL(toggled(bool)),this,SLOT(start(bool)));
+
+  connect(m_ihm.ui.pb_filtering_nothing, SIGNAL(clicked()),this,SLOT(uncheckAllSignals()));
+  connect(m_ihm.ui.pb_filtering_actuator, SIGNAL(clicked()),this,SLOT(refreshListeVariables()));
+  connect(m_ihm.ui.pb_filtering_ana, SIGNAL(clicked()),this,SLOT(refreshListeVariables()));
+  connect(m_ihm.ui.pb_filtering_computed, SIGNAL(clicked()),this,SLOT(refreshListeVariables()));
+  connect(m_ihm.ui.pb_filtering_tor, SIGNAL(clicked()),this,SLOT(refreshListeVariables()));
 }
 
 
@@ -122,7 +128,7 @@ void CSensorView::init(CLaBotBox *application)
 */
 void CSensorView::close(void)
 {
-    // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
+    // Mémorise en EEPROM l'état de la fenêtre
     m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
     m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
     m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -144,38 +150,43 @@ void CSensorView::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Met Ã  jour la liste des variables dans la fenÃªtre de gauche
+*  Met à jour la liste des variables dans la fenêtre de gauche
 *
 */
 void CSensorView::refreshListeVariables(void)
 {
-  QStringList var_list;
-  m_application->m_data_center->getListeVariablesName(var_list);
-  m_ihm.ui.listWidget->clear();
+    QStringList var_list;
+    m_application->m_data_center->getListeVariablesName(var_list);
+    m_ihm.ui.listWidget->clear();
+    bool bFilterTor=m_ihm.ui.pb_filtering_tor->isChecked();
+    bool bFilterAna=m_ihm.ui.pb_filtering_ana->isChecked();
+    bool bFilterComputed=m_ihm.ui.pb_filtering_computed->isChecked();
+    bool bFilterActuator=m_ihm.ui.pb_filtering_actuator->isChecked();
+    bool bFilterNothing= !(bFilterTor || bFilterAna || bFilterComputed || bFilterActuator);
 
-  for (int i=0; i<var_list.count(); i++)
-  {
+    for (int i=0; i<var_list.count(); i++)
+    {
     if (!isAdded(var_list.at(i)))
     {
         QVariant property_value=m_application->m_data_center->getDataProperty(var_list.at(i),"Type");
         QString mime_property=property_value.toString();
 
-        if(mime_property.isEmpty())
+        if((mime_property.isEmpty()) && bFilterNothing)
             m_ihm.ui.listWidget->addElement(QPixmap(":/icons/mime_default.png"), var_list.at(i));
-        else if(mime_property.compare("sensor_tor")==0)
+        else if((mime_property.compare("sensor_tor")==0) && (bFilterTor || bFilterNothing))
             m_ihm.ui.listWidget->addElement(QPixmap(":/icons/mime_sensor_tor.png"), var_list.at(i));
-        else if(mime_property.compare("computed_signal")==0)
+        else if((mime_property.compare("computed_signal")==0) && (bFilterComputed || bFilterNothing))
             m_ihm.ui.listWidget->addElement(QPixmap(":/icons/mime_computed_signal.png"), var_list.at(i));
-        else
+        else if (bFilterNothing)
             m_ihm.ui.listWidget->addElement(QPixmap(":/icons/mime_default.png"), var_list.at(i));
     }
-  }
+    }
 }
 
 // _____________________________________________________________________
 /*!
-*  Met Ã  jour la valeur de chaque variable contenu dans la liste des variables Ã  surveiller
-* Traces les courbes Ã  chaque pas de temps
+*  Met à jour la valeur de chaque variable contenu dans la liste des variables à surveiller
+* Traces les courbes à chaque pas de temps
 *
 */
 //void CSensorView::refreshValeursVariables(QVariant var_value)
@@ -207,7 +218,7 @@ void CSensorView::start(bool value)
 {
     if (value)
     {
-        m_timer_lecture_variables.start(SV_PERIODE_ECHANTILLONNAGE_VARIABLES);
+        m_timer_lecture_variables.start(PERIODE_ECHANTILLONNAGE_VARIABLES);
         m_ihm.ui.pb_lockGUI->setChecked(true);
     }
     else
@@ -230,6 +241,15 @@ void CSensorView::lock(bool value)
         m_ihm.ui.pb_lockGUI->setIcon(QIcon(":/icons/unlocked.png"));
         refreshListeVariables();
     }
+}
+
+void CSensorView::uncheckAllSignals()
+{
+    m_ihm.ui.pb_filtering_actuator->setChecked(false);
+    m_ihm.ui.pb_filtering_ana->setChecked(false);
+    m_ihm.ui.pb_filtering_computed->setChecked(false);
+    m_ihm.ui.pb_filtering_tor->setChecked(false);
+    refreshListeVariables();
 }
 
 void CSensorView::addWidget(QString var_name, QPoint var_pos)
@@ -277,7 +297,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLCDNumber);
-            qDebug() << "LCDNumber" << var_name << "ajoutÃ©";
+            qDebug() << "LCDNumber" << var_name << "ajouté";
             break;
         case mime_sensor_tor:
             newLed = new QLed(m_ihm.ui.viewWidget);
@@ -295,7 +315,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLed);
-            qDebug() << "Led" << var_name << "ajoutÃ©";
+            qDebug() << "Led" << var_name << "ajouté";
             break;
         default:
             break;

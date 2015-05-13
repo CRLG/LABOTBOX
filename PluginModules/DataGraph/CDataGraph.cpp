@@ -31,6 +31,8 @@ CDataGraph::CDataGraph(const char *plugin_name)
     graphColor=-1;
     graphEnabled=true;
     storedRange=new QCPRange(-100,100);
+    storedRangeAxe1=new QCPRange(-350,350);
+    storedRangeAxe2=new QCPRange(-4,4);
     t_predefinedColorName<<"noir"<<"rouge"<<"vert"<<"bleu"<<"cyan"<<"magenta"<<"jaune"<<"gris";
     cursorEnabled=false;
     nearDistanceCursor1=0;
@@ -86,7 +88,7 @@ void CDataGraph::init(CLaBotBox *application)
 
     //On cache les contrôles agissant sur les courbes (réactivés lors de la pause des courbes)
     m_ihm.ui.label_deltaT->setVisible(false);
-    m_ihm.ui.pb_resetZoom->setVisible(false);
+    m_ihm.ui.pb_resetZoom->setVisible(true);
 
     //de même on ne permet pas l'activation des curseurs
     m_ihm.ui.pb_cusor->setEnabled(false);
@@ -127,11 +129,33 @@ void CDataGraph::init(CLaBotBox *application)
     customPlot->xAxis->setAutoTickStep(false);
     customPlot->xAxis->setTickStep(2);
     customPlot->axisRect()->setupFullAxesBox();
-    customPlot->yAxis->setRange(-350,350);
+    //range du premier axe
+    customPlot->yAxis->setRange(-300,300);
+    val = m_application->m_eeprom->read(getName(), "initHighRange", QVariant());
+    customPlot->yAxis->setRange(-fabs(val.toDouble()),fabs(val.toDouble()));
+    //range du deuxième axe
+    customPlot->yAxis2->setRange(-3.5,3.5);
+    val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
+    customPlot->yAxis2->setRange(-fabs(val.toDouble()),fabs(val.toDouble()));
+    customPlot->yAxis2->setAutoTickLabels(true);
+    customPlot->yAxis2->setTickLabels(true);
+    customPlot->yAxis2->setVisible(true);
 
     //uniformisation des ranges entre les axes dessus-dessous et gauche-droite
     connect(customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->xAxis2, SLOT(setRange(QCPRange)));
-    connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+    //gestion des ranges pour les différents zoom
+    storedRange->lower=customPlot->yAxis->range().lower;
+    storedRange->upper=customPlot->yAxis->range().upper;
+    storedRangeAxe1->lower=customPlot->yAxis->range().lower;
+    storedRangeAxe1->upper=customPlot->yAxis->range().upper;
+    storedRangeAxe2->lower=customPlot->yAxis2->range().lower;
+    storedRangeAxe2->upper=customPlot->yAxis2->range().upper;
+    //par sécurité on normalise les ranges
+    storedRange->normalize();storedRangeAxe1->normalize();storedRangeAxe2->normalize();
+    QString str;
+    m_ihm.ui.inputRangeAxe1->setText(str.setNum(storedRangeAxe1->upper));
+    m_ihm.ui.inputRangeAxe2->setText(str.setNum(storedRangeAxe2->upper));
 
     //Interaction avec la souris: défilement de la courbe, zoom, sélection de lignes
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectItems);
@@ -147,12 +171,14 @@ void CDataGraph::init(CLaBotBox *application)
 
     //gestion des interactions des courbes
     connect(m_ihm.ui.pb_resume,SIGNAL(toggled(bool)),this,SLOT(resumeGraph(bool))); //pause des courbes
-    connect(m_ihm.ui.table_variables_valeurs,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),this, SLOT(rescaleGraph(QTableWidgetItem*))); //redimensionnement des axes
+    connect(m_ihm.ui.table_variables_valeurs,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),this, SLOT(itemRescaleGraph(QTableWidgetItem*))); //redimensionnement des axes
     connect(customPlot,SIGNAL(mousePress(QMouseEvent*)),this,SLOT(mousePress(QMouseEvent*))); //gestion des curseurs
     connect(customPlot,SIGNAL(mouseMove(QMouseEvent*)),this,SLOT(mouseMove(QMouseEvent*)));
     connect(customPlot,SIGNAL(mouseRelease(QMouseEvent*)),this,SLOT(mouseRelease(QMouseEvent*)));
     connect(m_ihm.ui.pb_resetZoom, SIGNAL(clicked()),this,SLOT(resetZoom())); //resetZoom (no comment)
     connect(m_ihm.ui.pb_cusor, SIGNAL(toggled(bool)),this, SLOT(enableCursor(bool)));
+    connect(m_ihm.ui.pb_Range,SIGNAL(clicked()),this,SLOT(userRescaleGraph()));
+    connect(m_ihm.ui.sliderZoom,SIGNAL(valueChanged(int)),this,SLOT(userZoomGraph(int)));
 }
 
 
@@ -289,12 +315,22 @@ void CDataGraph::addTraceVariable(QString name, QString value)
  //on crée une courbe et on l'associe à la variable
  int indexGraph=customPlot->graphCount();
 
- customPlot->addGraph(); //ligne
+ QVariant property_value=m_application->m_data_center->getDataProperty(name,"Range");
+ int range_property=property_value.toInt();
+
+ QVariant val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
+ if (range_property>val.toDouble())
+    customPlot->addGraph(customPlot->xAxis,customPlot->yAxis); //ligne
+ else
+    customPlot->addGraph(customPlot->xAxis,customPlot->yAxis2); //ligne
  customPlot->graph(indexGraph)->setName(name);
  m_liste_graph[name]=indexGraph;
  customPlot->graph(indexGraph)->setPen(QPen(randomColor));
 
- customPlot->addGraph(); //Point
+ if (range_property>val.toDouble())
+    customPlot->addGraph(customPlot->xAxis,customPlot->yAxis); //ligne
+ else
+    customPlot->addGraph(customPlot->xAxis,customPlot->yAxis2); //ligne
  customPlot->graph(indexGraph+1)->setPen(QPen(randomColor));
  customPlot->graph(indexGraph+1)->setLineStyle(QCPGraph::lsNone);
  customPlot->graph(indexGraph+1)->setScatterStyle(QCPScatterStyle::ssDisc);
@@ -608,16 +644,89 @@ void CDataGraph::changeGraphCouleur(int indexCouleur)
  * \brief CDataGraph::rescaleGraph redimensionnement des ordonnées en double cliquant sur une variable tracée.
  * \param item référence de l'objet stockant la valeur de la variable tracée.
  */
-void CDataGraph::rescaleGraph(QTableWidgetItem *item)
+void CDataGraph::itemRescaleGraph(QTableWidgetItem *item)
 {
     //valeur absolue de la valeur
     double var_absValue=fabs(m_ihm.ui.table_variables_valeurs->item(item->row(),1)->text().toDouble());
+
+    QVariant property_value=m_application->m_data_center->getDataProperty(m_ihm.ui.table_variables_valeurs->item(item->row(),0)->text(),"Range");
+    int range_property=property_value.toInt();
+    QVariant val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
+
+    QString str;
+    //Le nouveau range correspond à 120% du range [-valeur, +valeur]
+    if (range_property>val.toDouble())
+    {
+        rescaleGraph(var_absValue*1.2,0);
+        m_ihm.ui.inputRangeAxe1->setText(str.setNum(var_absValue*1.2));
+    }
+    else
+    {
+       rescaleGraph(0,var_absValue*1.2);
+       m_ihm.ui.inputRangeAxe2->setText(str.setNum(var_absValue*1.2));
+    }
+}
+
+void CDataGraph::userRescaleGraph()
+{
+    m_ihm.ui.sliderZoom->setValue(0);
+
+    QString newStringMaxRange1=m_ihm.ui.inputRangeAxe1->text();
+    double newMaxRange1=newStringMaxRange1.toDouble();
+    QString newStringMaxRange2=m_ihm.ui.inputRangeAxe2->text();
+    double newMaxRange2=newStringMaxRange2.toDouble();
+
+    if(fabs(newMaxRange1)!=storedRangeAxe1->upper)
+    {
+        storedRangeAxe1->upper=fabs(newMaxRange1);
+        storedRangeAxe1->lower=-fabs(newMaxRange1);
+        rescaleGraph(newMaxRange1,0);
+    }
+    if(fabs(newMaxRange2)!=storedRangeAxe2->upper)
+    {
+        storedRangeAxe2->upper=fabs(newMaxRange2);
+        storedRangeAxe2->lower=-fabs(newMaxRange2);
+        rescaleGraph(0,newMaxRange2);
+    }
+}
+
+void CDataGraph::userZoomGraph(int value)
+{
+    //value 0 do nothing
+    double zoomedRange=0;
+    //zoom out
+    if (value>0)
+    {
+        zoomedRange=(value/20)*(storedRangeAxe1->upper);
+        rescaleGraph(zoomedRange,0);
+    }
+    if (value<0)
+    {
+        zoomedRange=(storedRangeAxe1->upper)/(fabs(value));
+        rescaleGraph(zoomedRange,0);
+    }
+}
+
+void CDataGraph::rescaleGraph(double newMaxRange, double newMaxRange2)
+{
     //Le nouveau range correspond à 120% du range [-valeur, +valeur] ou à [-5, 5] si la valeur est nulle
-    double upperRange=5;
-    if(var_absValue!=0)
-        upperRange=(var_absValue*1.2);
-    double lowerRange=-upperRange;
-    customPlot->yAxis->setRange(lowerRange,upperRange);
+    double upperRange=storedRangeAxe1->upper;
+    double upperRange2=storedRangeAxe2->upper;
+
+    //gestion axe1
+    if(fabs(newMaxRange)!=0)
+    {
+        upperRange=(fabs(newMaxRange));
+        double lowerRange=-upperRange;
+        customPlot->yAxis->setRange(lowerRange,upperRange);
+    }
+    //gestion axe2
+    if(fabs(newMaxRange2)!=0)
+    {
+        upperRange2=(fabs(newMaxRange2));
+        double lowerRange2=-upperRange2;
+        customPlot->yAxis2->setRange(lowerRange2,upperRange2);
+    }
 
     customPlot->replot();
 }
@@ -733,7 +842,8 @@ void CDataGraph::mouseMove(QMouseEvent *event)
  */
 void CDataGraph::resetZoom()
 {
-    QCPRange const restoredRange(storedRange->lower,storedRange->upper);
+    QCPRange const restoredRange(storedRangeAxe1->lower,storedRangeAxe1->upper);
+    m_ihm.ui.sliderZoom->setValue(0);
     customPlot->yAxis->setRange(restoredRange);
     customPlot->replot();
 }
