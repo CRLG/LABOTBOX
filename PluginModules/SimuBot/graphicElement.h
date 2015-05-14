@@ -43,6 +43,8 @@ public:
     qreal getTheta(void);
     qreal getX(void);
     qreal getY(void);
+    qreal getX_terrain(void);
+    qreal getY_terrain(void);
     bool isRelativToBot;
 
 signals:

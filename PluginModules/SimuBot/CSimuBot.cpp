@@ -333,6 +333,9 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
     lcdNumber_X->display(x_view);
     lcdNumber_Y->display(y_view);
 
+    m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
+    m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
+
 
     QLineEdit *lineEdit_x=m_ihm.findChild<QLineEdit*>("lineEdit_x");
     QLineEdit *lineEdit_y=m_ihm.findChild<QLineEdit*>("lineEdit_y");
@@ -402,6 +405,9 @@ void CSimuBot::initView(void){
         m_application->m_data_center->write("PosTeta_robot", theta_reel_init);
     else
         m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_reel_init/Pi));
+
+    m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
+    m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 }
 
 void CSimuBot::changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,float X_init_2,float Y_init_2, float Theta_init_2)

@@ -160,6 +160,14 @@ qreal GraphicElement::getX(void){
 }
 
 /*!
+ * \brief GraphicElement::getX retourne l'abcisse de l'élément toujours relative au terrain
+ * \return
+ */
+qreal GraphicElement::getX_terrain(void){
+    return x();
+}
+
+/*!
  * \brief GraphicElement::getY retourne l'ordonnée de l'élément
  * \return
  */
@@ -169,6 +177,14 @@ qreal GraphicElement::getY(void){
     else
         y_reel=-y();
     return y_reel;
+}
+
+/*!
+ * \brief GraphicElement::getY retourne l'ordonnée de l'élément toujours relative au terrain
+ * \return
+ */
+qreal GraphicElement::getY_terrain(void){
+    return (-y());
 }
 
 /*!
