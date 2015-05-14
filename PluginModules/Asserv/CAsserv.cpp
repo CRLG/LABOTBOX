@@ -63,6 +63,9 @@ void CAsserv::init(CLaBotBox *application)
 
   connect(&m_ihm, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
 
+  initList_ActionsDiagAsserv();
+  connect(m_ihm.ui.DiagAsserv_Send, SIGNAL(clicked()), this, SLOT(DiagAsserv_Send_clicked()));
+
 
   // COMMANDE_MANUELLE
   m_ihm.ui.CdeManuelle_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -287,5 +290,56 @@ void CAsserv::ModeAsservissement_changed(int val)
       m_ihm.ui.EtatModeAsservissement->setText("?");
     break;
   }
+}
+
+// ==================================================
+// DIAG ASSERVISSEMENT
+// ==================================================
+// ____________________________________________________
+void CAsserv::initList_ActionsDiagAsserv(void)
+{
+  QStringList lst;
+  // à mettre dans le même ordre que l'énuméré "eASSERV_WRITE_PARAM" (commun avec le MBED)
+  lst << "SEUIL_CONV_DIST"
+      << "SEUIL_CONV_ANGLE"
+      << "DIAG_WR_KI_ANGLE"
+      << "DIAG_WR_KP_ANGLE"
+      << "DIAG_WR_KI_DISTANCE"
+      << "DIAG_WR_KP_DISTANCE"
+      << "DIAG_WR_CDE_MIN"
+      << "DIAG_WR_CDE_MAX";
+
+  m_ihm.ui.DiagAsserv_Action->addItems(lst);
+}
+
+// ____________________________________________________
+void CAsserv::DiagAsserv_Send_clicked(void)
+{
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM", m_ihm.ui.DiagAsserv_Action->currentIndex());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", (int)(FacteurPhys2Brute_ActionDiagAsserv(m_ihm.ui.DiagAsserv_Action->currentIndex()) * m_ihm.ui.DiagAsserv_Value->value()));
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+}
+
+// ____________________________________________________
+// Les coeficients de l'asserv ne sont pas tous dans le même range
+// Adapte le range au coeficient
+// Attention : doit être en cohérence avec le code côté MBED
+int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
+{
+    switch (param) {
+        case cASSERV_SEUIL_CONV_DIST:
+        case cASSERV_SEUIL_CONV_ANGLE:
+        case cASSERV_DIAG_WR_KI_ANGLE:
+        case cASSERV_DIAG_WR_KP_ANGLE:
+        case cASSERV_DIAG_WR_KI_DISTANCE:
+        case cASSERV_DIAG_WR_KP_DISTANCE:
+            return (100);
+        break;
+
+        default :
+            return (1);
+        break;
+    }
 }
 

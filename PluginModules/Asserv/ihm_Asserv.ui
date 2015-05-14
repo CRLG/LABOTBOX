@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>474</height>
+    <width>636</width>
+    <height>557</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -21,85 +21,326 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_10">
-    <item row="1" column="0" rowspan="2">
-     <widget class="QScrollArea" name="scrollArea">
-      <property name="widgetResizable">
-       <bool>true</bool>
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>274</width>
-         <height>469</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="4" column="0">
-         <widget class="QGroupBox" name="groupBox_7">
-          <property name="enabled">
-           <bool>false</bool>
+      <widget class="QWidget" name="ControleAsserv">
+       <attribute name="title">
+        <string>Contrôle Asserv</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_11">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="stopAll">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touche ESCAPE -&amp;gt; Stop All&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
-          <property name="title">
-           <string>COMMANDE REGUL VITESSE ROUES</string>
+          <property name="text">
+           <string>Stop All</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Roue Gauche</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="CdeRegulVitesse_Gauche">
-             <property name="minimum">
-              <number>-9000000</number>
-             </property>
-             <property name="maximum">
-              <number>9000000</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2" rowspan="2">
-            <widget class="QPushButton" name="CdeRegulVitesse_SendLock">
-             <property name="text">
-              <string>Send/Lock</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_18">
-             <property name="text">
-              <string>Roue Droite</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="CdeRegulVitesse_Droite"/>
-           </item>
-          </layout>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QGroupBox" name="groupBox_3">
+        <item row="1" column="0" rowspan="2">
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>288</width>
+             <height>469</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="4" column="0">
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="title">
+               <string>COMMANDE REGUL VITESSE ROUES</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_15">
+                 <property name="text">
+                  <string>Roue Gauche</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="CdeRegulVitesse_Gauche">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" rowspan="2">
+                <widget class="QPushButton" name="CdeRegulVitesse_SendLock">
+                 <property name="text">
+                  <string>Send/Lock</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_18">
+                 <property name="text">
+                  <string>Roue Droite</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="CdeRegulVitesse_Droite"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QGroupBox" name="groupBox_3">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="title">
+               <string>COMMANDE XY-TETA</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="CdeXYTeta_X">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="CdeXYTeta_Y">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="CdeXYTeta_SendLock">
+                 <property name="text">
+                  <string>Send/Lock</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>TETA</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="CdeXYTeta_Teta">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="title">
+               <string>COMMANDE MANUELLE</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>Gauche</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="CdeManuelle_Gauche">
+                 <property name="minimum">
+                  <number>-100</number>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="CdeManuelle_SendLock">
+                 <property name="text">
+                  <string>Send/Lock</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>Droite</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="CdeManuelle_Droit">
+                 <property name="minimum">
+                  <number>-100</number>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QGroupBox" name="groupBox">
+              <property name="title">
+               <string>COMMANDE XY</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="CdeXY_X">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" rowspan="2">
+                <widget class="QPushButton" name="CdeXY_SendLock">
+                 <property name="text">
+                  <string>Send/Lock</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="CdeXY_Y">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QGroupBox" name="groupBox_4">
+              <property name="title">
+               <string>COMMANDE DISTANCE ANGLE</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>DISTANCE</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="CdeDistAngle_Distance">
+                 <property name="minimum">
+                  <number>-9000000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>9000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" rowspan="2">
+                <widget class="QPushButton" name="CdeDistAngle_SendLock">
+                 <property name="text">
+                  <string>Send/Lock</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_9">
+                 <property name="text">
+                  <string>ANGLE</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="CdeDistAngle_Angle">
+                 <property name="maximum">
+                  <double>999999999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QGroupBox" name="groupBox_6">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="title">
-           <string>COMMANDE XY-TETA</string>
+           <string>VITESSE MOUVEMENT</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3">
+          <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="label_13">
              <property name="text">
-              <string>X</string>
+              <string>vitesse avance max</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="CdeXYTeta_X">
+            <widget class="QSpinBox" name="spinBox_13">
              <property name="minimum">
               <number>-9000000</number>
              </property>
@@ -109,14 +350,14 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>Y</string>
+              <string>vitesse rotation max</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="CdeXYTeta_Y">
+            <widget class="QSpinBox" name="spinBox_14">
              <property name="minimum">
               <number>-9000000</number>
              </property>
@@ -126,21 +367,38 @@
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QPushButton" name="CdeXYTeta_SendLock">
+            <widget class="QPushButton" name="pushButton_7">
              <property name="text">
               <string>Send/Lock</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="label_16">
              <property name="text">
-              <string>TETA</string>
+              <string>indice sportivite accel</string>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QSpinBox" name="CdeXYTeta_Teta">
+            <widget class="QSpinBox" name="spinBox_16">
+             <property name="minimum">
+              <number>-9000000</number>
+             </property>
+             <property name="maximum">
+              <number>9000000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>indice sportivite decel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="spinBox_17">
              <property name="minimum">
               <number>-9000000</number>
              </property>
@@ -152,71 +410,24 @@
           </layout>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>COMMANDE MANUELLE</string>
+        <item row="2" column="1">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Gauche</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="CdeManuelle_Gauche">
-             <property name="minimum">
-              <number>-100</number>
-             </property>
-             <property name="maximum">
-              <number>100</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="CdeManuelle_SendLock">
-             <property name="text">
-              <string>Send/Lock</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Droite</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="CdeManuelle_Droit">
-             <property name="minimum">
-              <number>-100</number>
-             </property>
-             <property name="maximum">
-              <number>100</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox">
           <property name="title">
-           <string>COMMANDE XY</string>
+           <string>REINIT XY-TETA</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_2">
+          <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="label_10">
              <property name="text">
               <string>X</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="CdeXY_X">
+            <widget class="QSpinBox" name="spinBox_10">
              <property name="minimum">
               <number>-9000000</number>
              </property>
@@ -225,72 +436,230 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2" rowspan="2">
-            <widget class="QPushButton" name="CdeXY_SendLock">
-             <property name="text">
-              <string>Send/Lock</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="label_11">
              <property name="text">
               <string>Y</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="CdeXY_Y">
+            <widget class="QSpinBox" name="spinBox_11">
              <property name="minimum">
               <number>-9000000</number>
              </property>
              <property name="maximum">
               <number>9000000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="pushButton_6">
+             <property name="text">
+              <string>Send/Lock</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>TETA</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox_12">
+             <property name="maximum">
+              <double>999999999.000000000000000</double>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QGroupBox" name="groupBox_4">
+        <item row="3" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_8">
           <property name="title">
-           <string>COMMANDE DISTANCE ANGLE</string>
+           <string>ETAT ASSERVISSEMENT</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_8">
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0" rowspan="2">
+            <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>DISTANCE</string>
+              <string>Cde mot G</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="CdeDistAngle_Distance">
+           <item row="0" column="1" rowspan="2">
+            <widget class="QSpinBox" name="Etat_CdeMotGauche">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
+             </property>
              <property name="minimum">
-              <number>-9000000</number>
+              <number>-100</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" rowspan="9" colspan="2">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3" rowspan="2">
+            <widget class="QLabel" name="label_26">
+             <property name="text">
+              <string>X robot</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" rowspan="2">
+            <widget class="QLabel" name="label_20">
+             <property name="text">
+              <string>Cde mot D</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" rowspan="2">
+            <widget class="QSpinBox" name="Etat_CdeMotDroit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
+             </property>
+             <property name="minimum">
+              <number>-100</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3" rowspan="2">
+            <widget class="QLabel" name="label_25">
+             <property name="text">
+              <string>Y robot</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" rowspan="2">
+            <widget class="QLabel" name="label_21">
+             <property name="text">
+              <string>Convergence</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1" rowspan="3">
+            <widget class="QLineEdit" name="EtatConvergence">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3" rowspan="3">
+            <widget class="QLabel" name="label_24">
+             <property name="text">
+              <string>TETA robot</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Mode Asserv</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLineEdit" name="EtatModeAsservissement">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_23">
+             <property name="text">
+              <string>cpt diag blocage</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QSpinBox" name="Etat_Cpt_diag_blocage">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
              </property>
              <property name="maximum">
               <number>9000000</number>
              </property>
             </widget>
            </item>
-           <item row="0" column="2" rowspan="2">
-            <widget class="QPushButton" name="CdeDistAngle_SendLock">
-             <property name="text">
-              <string>Send/Lock</string>
+           <item row="1" column="4" rowspan="2">
+            <widget class="QDoubleSpinBox" name="PosRobot_X">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-999999999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>999999999.000000000000000</double>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>ANGLE</string>
+           <item row="3" column="4" rowspan="2">
+            <widget class="QDoubleSpinBox" name="PosRobot_Y">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-999999999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>999999999.000000000000000</double>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="CdeDistAngle_Angle">
+           <item row="6" column="4" rowspan="2">
+            <widget class="QDoubleSpinBox" name="PosRobot_Teta">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::NoButtons</enum>
+             </property>
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-999999999.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>999999999.000000000000000</double>
              </property>
@@ -301,361 +670,73 @@
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QGroupBox" name="groupBox_6">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="title">
-       <string>VITESSE MOUVEMENT</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_7">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>vitesse avance max</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="spinBox_13">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>vitesse rotation max</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="spinBox_14">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_7">
-         <property name="text">
-          <string>Send/Lock</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>indice sportivite accel</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="spinBox_16">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="text">
-          <string>indice sportivite decel</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="spinBox_17">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="2">
-     <widget class="QGroupBox" name="groupBox_8">
-      <property name="title">
-       <string>ETAT ASSERVISSEMENT</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0" rowspan="2">
-        <widget class="QLabel" name="label_19">
-         <property name="text">
-          <string>Cde mot G</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" rowspan="2">
-        <widget class="QSpinBox" name="Etat_CdeMotGauche">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" rowspan="9" colspan="2">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3" rowspan="2">
-        <widget class="QLabel" name="label_26">
-         <property name="text">
-          <string>X robot</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" rowspan="2">
-        <widget class="QLabel" name="label_20">
-         <property name="text">
-          <string>Cde mot D</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" rowspan="2">
-        <widget class="QSpinBox" name="Etat_CdeMotDroit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3" rowspan="2">
-        <widget class="QLabel" name="label_25">
-         <property name="text">
-          <string>Y robot</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" rowspan="2">
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>Convergence</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" rowspan="3">
-        <widget class="QLineEdit" name="EtatConvergence">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="3" rowspan="3">
-        <widget class="QLabel" name="label_24">
-         <property name="text">
-          <string>TETA robot</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_22">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Mode Asserv</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QLineEdit" name="EtatModeAsservissement">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_23">
-         <property name="text">
-          <string>cpt diag blocage</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QSpinBox" name="Etat_Cpt_diag_blocage">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4" rowspan="2">
-        <widget class="QDoubleSpinBox" name="PosRobot_X">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="minimum">
-          <double>-999999999.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>999999999.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4" rowspan="2">
-        <widget class="QDoubleSpinBox" name="PosRobot_Y">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="minimum">
-          <double>-999999999.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>999999999.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="4" rowspan="2">
-        <widget class="QDoubleSpinBox" name="PosRobot_Teta">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="decimals">
-          <number>4</number>
-         </property>
-         <property name="minimum">
-          <double>-999999999.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>999999999.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QGroupBox" name="groupBox_5">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="title">
-       <string>REINIT XY-TETA</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>X</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="spinBox_10">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Y</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="spinBox_11">
-         <property name="minimum">
-          <number>-9000000</number>
-         </property>
-         <property name="maximum">
-          <number>9000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_6">
-         <property name="text">
-          <string>Send/Lock</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>TETA</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_12">
-         <property name="maximum">
-          <double>999999999.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QPushButton" name="stopAll">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touche ESCAPE -&amp;gt; Stop All&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="text">
-       <string>Stop All</string>
-      </property>
+      <widget class="QWidget" name="CoefAsserv">
+       <attribute name="title">
+        <string>Diag Asserv</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>Action</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="DiagAsserv_Action">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>220</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="DiagAsserv_Send">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>396</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2">
+         <widget class="QDoubleSpinBox" name="DiagAsserv_Value">
+          <property name="decimals">
+           <number>3</number>
+          </property>
+          <property name="maximum">
+           <double>999999999.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -665,7 +746,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>598</width>
+     <width>636</width>
      <height>21</height>
     </rect>
    </property>

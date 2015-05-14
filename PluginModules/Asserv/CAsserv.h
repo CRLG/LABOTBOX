@@ -64,6 +64,20 @@ typedef enum {
     cMODE_XY_TETA
 } tTypeAsservissement;
 
+//! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
+// (enum commun MBED<->LaBotBox)
+typedef enum {
+   cASSERV_SEUIL_CONV_DIST = 0,
+   cASSERV_SEUIL_CONV_ANGLE,
+   cASSERV_DIAG_WR_KI_ANGLE,
+   cASSERV_DIAG_WR_KP_ANGLE,
+   cASSERV_DIAG_WR_KI_DISTANCE,
+   cASSERV_DIAG_WR_KP_DISTANCE,
+   cASSERV_DIAG_WR_CDE_MIN,
+   cASSERV_DIAG_WR_CDE_MAX
+}eASSERV_WRITE_PARAM;
+
+
 public:
     CAsserv(const char *plugin_name);
     ~CAsserv();
@@ -113,6 +127,13 @@ public slots :
 
 private slots :
     void keyPressed(int key);
+
+// ____________________________________ DIAG ASSERV
+private :
+    void initList_ActionsDiagAsserv(void);
+    int FacteurPhys2Brute_ActionDiagAsserv(int param);
+private slots :
+    void DiagAsserv_Send_clicked(void);
 
 };
 
