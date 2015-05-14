@@ -83,6 +83,9 @@ void CActuatorElectrobot::init(CLaBotBox *application)
   // Si la data n'a pas d'Alias dans  le data_center,  le label reste celui par défaut
   updateAliasLabels();
 
+  connect(&m_ihm, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
+
+
   // _____________________________________________ Servo moteurs
   connect(m_ihm.ui.Servo_num_20, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_20, SLOT(setValue(int)));
   connect(m_ihm.ui.Servo_num_19, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_19, SLOT(setValue(int)));
@@ -182,6 +185,15 @@ void CActuatorElectrobot::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
 }
 
+
+// _____________________________________________________________________
+void CActuatorElectrobot::keyPressed(int key)
+{
+  switch(key) {
+    case Qt::Key_Escape:    Moteurs_StopAll_clicked();      break;
+    // default : ne rien faire
+  }
+}
 
 // _____________________________________________________________________
 void CActuatorElectrobot::updateAliasLabels(void)

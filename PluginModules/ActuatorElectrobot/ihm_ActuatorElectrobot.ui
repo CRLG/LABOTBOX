@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>296</width>
-    <height>325</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,6 +90,9 @@
         </item>
         <item row="2" column="2" rowspan="2">
          <widget class="QPushButton" name="Moteurs_StopAll">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touche ESCAPE: RAZ all&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>RAZ ALL</string>
           </property>
@@ -797,7 +800,7 @@
      <x>0</x>
      <y>0</y>
      <width>296</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

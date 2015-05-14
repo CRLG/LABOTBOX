@@ -6,6 +6,7 @@
 #define _CPLUGIN_MODULE_ActuatorElectrobot_H_
 
 #include <QMainWindow>
+#include <QKeyEvent>
 
 #include "CPluginModule.h"
 #include "ui_ihm_ActuatorElectrobot.h"
@@ -20,6 +21,13 @@ public:
     Ui::ihm_ActuatorElectrobot ui;
 
     CLaBotBox *m_application;
+
+    // renvoie les appuis touches
+    void keyReleaseEvent(QKeyEvent * event) { emit keyPressed(event->key()); }
+
+signals :
+    void keyPressed(int key);
+
  };
 
 
@@ -127,6 +135,9 @@ private slots :
     void CdeServoMoteurAX7_changed();
 
     void ServosAXConfig_Send_clicked(void);
+
+private slots :
+    void keyPressed(int key);
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorElectrobot_H_
