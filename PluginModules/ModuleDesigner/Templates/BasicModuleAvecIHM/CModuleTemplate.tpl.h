@@ -53,6 +53,9 @@ public:
 
 private:
     Cihm_ModuleTemplate m_ihm;
+
+private slots :
+    void onRightClicGUI(QPoint pos);
 };
 
 #endif // _CBASIC_MODULE_ModuleTemplate_H_

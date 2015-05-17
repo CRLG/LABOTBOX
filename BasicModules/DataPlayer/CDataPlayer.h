@@ -61,6 +61,9 @@ public:
     virtual QString getMenuName(void)   { return("BasicModule"); }                  // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
     virtual void setVisible(void);
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
 private:
     Cihm_DataPlayer m_ihm;
     tListeVariables m_liste_generateurs;

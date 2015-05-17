@@ -60,6 +60,8 @@ public:
 private:
     Cihm_RS232 m_ihm;
 
+private slots :
+    void onRightClicGUI(QPoint pos);
 
 // =======================================================
 //          MANIPULATION DE LA LIAISON SERIE

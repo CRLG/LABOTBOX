@@ -75,6 +75,9 @@ public:
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/edit_add.png")); }
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
 private:
     Cihm_StrategyDesigner m_ihm;
     QLineEdit *lineEdit_X;

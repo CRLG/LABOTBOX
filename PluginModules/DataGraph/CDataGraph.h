@@ -66,6 +66,8 @@ private :
     QColor variousColor();
     QComboBox* widgetCouleur(int indexRow);
     
+private slots :
+    void onRightClicGUI(QPoint pos);
 
 private:
     Cihm_DataGraph m_ihm;

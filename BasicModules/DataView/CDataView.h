@@ -62,7 +62,9 @@ private :
     void finInspectorInstantane(void);
     void connectDiscconnectVariablesTemporel(bool choix);
     void addTraceVariable(QString name, QString value = "");
-    
+
+private slots :
+    void onRightClicGUI(QPoint pos);
 
 private:
     Cihm_DataView m_ihm;

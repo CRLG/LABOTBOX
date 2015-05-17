@@ -59,6 +59,9 @@ public:
 private:
     Cihm_MessagerieBot m_ihm;
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
 // =======================================================
 //                  GENERALITES
 // =======================================================

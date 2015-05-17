@@ -93,6 +93,9 @@ public:
 private:
     Cihm_Asserv m_ihm;
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
 public slots :
     // Commande manuelle
     void CdeManuelleSynchroSend_left_clic(void);

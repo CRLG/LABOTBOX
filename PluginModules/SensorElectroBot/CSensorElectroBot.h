@@ -54,6 +54,10 @@ public:
 private:
     Cihm_SensorElectroBot m_ihm;
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
+private :
     void updateAliasLabels(void);
 
 private slots :

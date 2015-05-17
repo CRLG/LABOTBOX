@@ -52,6 +52,9 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
 
+private slots :
+    void onRightClicGUI(QPoint pos);
+
 private:
     Cihm_TestUnitaire m_ihm;
 

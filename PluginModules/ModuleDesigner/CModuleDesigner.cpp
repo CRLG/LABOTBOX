@@ -65,6 +65,10 @@ void CModuleDesigner::init(CLaBotBox *application)
   setGUI(&m_ihm); // indique à la classe de base l'IHM
   setNiveauTrace(MSG_TOUS);
 
+  // Gère les actions sur clic droit sur le panel graphique du module
+  m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
+
   // Restore la taille de la fenêtre
 /*  QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", 0);
@@ -74,10 +78,16 @@ void CModuleDesigner::init(CLaBotBox *application)
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
 */
+
   // Restaure le chemin de génération du module
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "repertoire_projet", "./"); 
   m_ihm.ui.repertoire_projet->setText(val.toString());
+
+  // Restore la couleur de fond
+  val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
+  setBackgroundColor(val.value<QColor>());
+
 
   connect(m_ihm.ui.PB_generate, SIGNAL(clicked()), this, SLOT(genererModule()));
   connect(m_ihm.ui.PB_choix_repertoire, SIGNAL(clicked()), this, SLOT(choixRepertoireSortie()));
@@ -102,8 +112,21 @@ void CModuleDesigner::close(void)
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "repertoire_projet", QVariant(m_ihm.ui.repertoire_projet->text()));
+  m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 }
 
+// _____________________________________________________________________
+/*!
+*  Création des menus sur clic droit sur la fenêtre du module
+*
+*/
+void CModuleDesigner::onRightClicGUI(QPoint pos)
+{
+  QMenu *menu = new QMenu();
+
+  menu->addAction("Select background color", this, SLOT(selectBackgroundColor()));
+  menu->exec(m_ihm.mapToGlobal(pos));
+}
 
 
 // _____________________________________________________________________

@@ -8,6 +8,8 @@
 #include <QObject>
 #include <QString>
 #include <QIcon>
+#include <QColor>
+#include <QColorDialog>
 #include <QWidget>
 
 
@@ -25,6 +27,8 @@ class CModule : public QObject
     Q_OBJECT
 
 public:
+#define DEFAULT_MODULE_COLOR QColor(240, 240, 240)
+
     CModule()
         :   m_niveau_trace(0), // active uniquement la remontée des messages d'erreurs par défaut
             m_application(NULL)
@@ -34,6 +38,7 @@ public:
     CModule(const char *name, const char *version, const char *auteur, const char *description)
         :   m_niveau_trace(0),
             m_GUI(NULL),
+            m_background_color(DEFAULT_MODULE_COLOR),
             m_application(NULL)
     {
         m_name          = QString(name);
@@ -82,6 +87,24 @@ public:
             m_GUI->setWindowIcon(getIcon());
         }
     }
+    // _____________________________________________________________________
+    /*!
+    *  Indique la couleur de fond de l'IHM
+    */
+    void setBackgroundColor(QColor bg_color)
+    {
+        if (m_GUI != NULL) {
+            if (bg_color.isValid()) {
+                m_background_color = bg_color;
+                m_GUI->setStyleSheet(QString::fromLatin1("QMainWindow > .QWidget { background-color: %1; }").arg(bg_color.name()));
+            }
+        }
+    }
+    // _____________________________________________________________________
+    /*!
+    *  Récupère la couleur de fond de l'IHM
+    */
+    QColor getBackgroundColor()  { return m_background_color; }
     // _____________________________________________________________________
     /*!
     *  Récupère le nom du menu dans lequel le module doit apparaitre sur l'IHM
@@ -159,6 +182,8 @@ private:
     unsigned long m_niveau_trace;
     //! L'IHM du module s'il en possède (mémoriser l'IHM du module dans un QWidget permet d'accueillir tout type d'IHM qui en hérite (QMainWindow, QDialog, ...)
     QWidget *m_GUI;
+    //! Couleur de fond de l'IHM
+    QColor m_background_color;
 
 protected:
     CLaBotBox *m_application;
@@ -169,7 +194,19 @@ public slots :
     *  Indique si le module doit être visible ou caché (cas des basic module avec une IHM)
     */
     virtual void setVisible(void) { if (m_GUI) { m_GUI->show(); } }
-
+    // _____________________________________________________________________
+    /*!
+    *  Ouvre la popup et sélectionne la couleur de fond de la fenêtre
+    *
+    */
+    void selectBackgroundColor(void)
+    {
+      QColorDialog colordlg;
+      QColor color = colordlg.getColor();
+      if (color.isValid()) {
+        setBackgroundColor(color);
+      }
+    }
 
 };
 

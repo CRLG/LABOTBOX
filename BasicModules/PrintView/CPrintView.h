@@ -60,8 +60,6 @@ public:
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/bloc_note.png")); }
 
-
-
 private:
     Ui::ihm_print_view *m_ihm_print_view;
     QDialog *m_dialog;

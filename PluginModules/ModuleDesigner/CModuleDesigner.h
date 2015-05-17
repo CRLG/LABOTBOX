@@ -53,6 +53,8 @@ public:
     virtual QIcon getIcon(void) { return(QIcon(":/icons/designer.png")); }
     virtual QString getMenuName(void)  { return("Tools"); }
 
+private slots :
+    void onRightClicGUI(QPoint pos);
 
 private:
     Cihm_ModuleDesigner m_ihm;
