@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>460</width>
-    <height>54</height>
+    <height>65</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>460</width>
-     <height>18</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -31,15 +31,7 @@
     </property>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>?</string>
-    </property>
-    <addaction name="actionInfo_modules"/>
-    <addaction name="actionAbout"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionTest">

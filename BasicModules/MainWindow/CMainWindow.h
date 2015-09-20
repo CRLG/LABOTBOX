@@ -91,7 +91,8 @@ private:
 
     tListeMenu m_liste_menu;
 
-    void createMenu(void);
+    void createMenuModules(void);
+    void createMenuHelp(void);
 
 public slots :
     void About(void);

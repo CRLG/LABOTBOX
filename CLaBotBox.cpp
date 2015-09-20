@@ -30,6 +30,7 @@
 #include "CActuatorElectrobot.h"
 #include "CSensorView.h"
 #include "CAsserv.h"
+#include "CUserGuides.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CLaBotBox.h"
@@ -202,6 +203,10 @@ void CLaBotBox::createPluginModules(void)
   m_Asserv     = new CAsserv("Asserv");
   m_list_plugin_modules.append(m_Asserv);
   m_list_modules.append(m_Asserv);
+
+  m_UserGuides     = new CUserGuides("UserGuides");
+  m_list_plugin_modules.append(m_UserGuides);
+  m_list_modules.append(m_UserGuides);
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

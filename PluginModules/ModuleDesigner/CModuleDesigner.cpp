@@ -69,16 +69,6 @@ void CModuleDesigner::init(CLaBotBox *application)
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
-/*  QVariant val;
-  val = m_application->m_eeprom->read(getName(), "geometry", 0);
-  m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
-  val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
-  if (val.toBool()) { m_ihm.show(); }
-  else              { m_ihm.hide(); }
-*/
-
   // Restaure le chemin de génération du module
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "repertoire_projet", "./"); 
@@ -155,9 +145,6 @@ void CModuleDesigner::genererModule(void)
 bool CModuleDesigner::creerModule(void)
 {
   bool status = true;
-  QString module_template_cpp = "";
-  QString module_template_h = "";
-  QString module_template_ui = "";
   QString nom_module_a_generer = m_ihm.ui.nom_module->text();
 
   m_application->m_print_view->print_info(this, "GenererModule");
@@ -177,50 +164,10 @@ bool CModuleDesigner::creerModule(void)
                                                 QString::number(m_ihm.ui.chbx_interface_graphique->isChecked())
                                                );
 
-  // Lit les fichiers templates adaptés au type de module à générer
-  if (m_ihm.ui.ModuleTypeBasic->isChecked()) { // BasicModule
-      if (m_ihm.ui.chbx_interface_graphique->isChecked()) {  // Avec IHM
-        module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/CModuleTemplate.tpl.cpp");
-        module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/CModuleTemplate.tpl.h");
-        module_template_ui = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/ihm_ModuleTemplate.tpl.ui");
-      }
-      else {  // Sans IHM
-        module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleSansIHM/CModuleTemplate.tpl.cpp");
-        module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleSansIHM/CModuleTemplate.tpl.h");
-        module_template_ui = "";
-      }
-  }
-  else { // PluginModule
-      if (m_ihm.ui.chbx_interface_graphique->isChecked()) {  // Avec IHM
-        module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/CModuleTemplate.tpl.cpp");
-        module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/CModuleTemplate.tpl.h");
-        module_template_ui = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/ihm_ModuleTemplate.tpl.ui");
-      }
-      else {  // Sans IHM
-        module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleSansIHM/CModuleTemplate.tpl.cpp");
-        module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleSansIHM/CModuleTemplate.tpl.h");
-        module_template_ui = "";
-      }
-  }
-  
-  // Test sur la cohérence des fichiers templates
-  if ((module_template_cpp.length() == 0) || (module_template_h.length() == 0) ) {
-      m_application->m_print_view->print_error(this, "Probleme d'ouverture des fichiers template");
-      return(false);
-  }
-
-  // Remplace les balises dans les fichiers templates
-  module_template_cpp.replace("ModuleTemplate", nom_module_a_generer);
-  module_template_h.replace("ModuleTemplate", nom_module_a_generer);
-  module_template_ui.replace("ModuleTemplate", nom_module_a_generer);
-  module_template_h.replace("##AUTEUR##", m_ihm.ui.auteur->text());
-  module_template_h.replace("##DESCRIPTION##", m_ihm.ui.description->text());
-
   // Crée le répertoire de sortie
   QString output_dirname; 
   if (m_ihm.ui.ModuleTypeBasic->isChecked())    { output_dirname = m_ihm.ui.repertoire_projet->text() + "/BasicModules/" + nom_module_a_generer; }
   else                                          { output_dirname = m_ihm.ui.repertoire_projet->text() + "/PluginModules/" + nom_module_a_generer; }
-  bool enable_creation=true;
   QDir directory;
   if (directory.exists(output_dirname)) { // Demande confirmation à l'utilisateur si le répertoir existe déjà
      QMessageBox msgBox;
@@ -231,29 +178,156 @@ bool CModuleDesigner::creerModule(void)
      msgBox.setDefaultButton(QMessageBox::Yes);
      int ret = msgBox.exec();  
      if (ret == QMessageBox::No) { 
-         enable_creation = false; 
          m_application->m_print_view->print_warning(this, "Annulation de la création du module: " + nom_module_a_generer);
+         return false;
      }
   }
-  
-  if (enable_creation) {
-      // Crée le répertoire s'il n'existe pas déjà
-      if (directory.exists(output_dirname) == false) {
-          if (directory.mkdir(output_dirname) == false) { 
-              m_application->m_print_view->print_error(this, "Impossible de créer le répertoire: " + output_dirname); 
-              return(false);
-          }
+  // Crée le répertoire s'il n'existe pas déjà
+  if (directory.exists(output_dirname) == false) {
+      if (directory.mkdir(output_dirname) == false) {
+          m_application->m_print_view->print_error(this, "Impossible de créer le répertoire: " + output_dirname);
+          return(false);
       }
-      if (module_template_cpp != "")    { writeFile(output_dirname, "C"+m_ihm.ui.nom_module->text()+".cpp", module_template_cpp); }
-      if (module_template_h != "")      { writeFile(output_dirname, "C"+m_ihm.ui.nom_module->text()+".h", module_template_h); }
-      if (module_template_ui != "")     { writeFile(output_dirname, "ihm_"+m_ihm.ui.nom_module->text()+".ui", module_template_ui); }
-      m_application->m_print_view->print_info(this, "Creation du module: " + nom_module_a_generer);
   }
-  else {
-      status = false;
-  }
-  return(status);
+
+  // Génère les fichiers cpp, h, ui
+  status = genereSources(output_dirname);
+  if (!status) { return false; }
+
+  // Génère les fichiers cpp, h, ui
+  status = genereResources(output_dirname);
+  if (!status) { return false; }
+
+  return(true);
 }
+
+
+// _____________________________________________________________________
+/*!
+*  Crée le fichier de ressources
+*
+*/
+bool CModuleDesigner::genereSources(const QString &output_dirname)
+{
+    bool status = true;
+    QString module_template_cpp = "";
+    QString module_template_h = "";
+    QString module_template_ui = "";
+    QString nom_module_a_generer = m_ihm.ui.nom_module->text();
+
+
+    // Lit les fichiers templates adaptés au type de module à générer
+    if (m_ihm.ui.ModuleTypeBasic->isChecked()) { // BasicModule
+        if (m_ihm.ui.chbx_interface_graphique->isChecked()) {  // Avec IHM
+          module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/CModuleTemplate.tpl.cpp");
+          module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/CModuleTemplate.tpl.h");
+          module_template_ui = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/ihm_ModuleTemplate.tpl.ui");
+        }
+        else {  // Sans IHM
+          module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleSansIHM/CModuleTemplate.tpl.cpp");
+          module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleSansIHM/CModuleTemplate.tpl.h");
+          module_template_ui = "";
+        }
+    }
+    else { // PluginModule
+        if (m_ihm.ui.chbx_interface_graphique->isChecked()) {  // Avec IHM
+          module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/CModuleTemplate.tpl.cpp");
+          module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/CModuleTemplate.tpl.h");
+          module_template_ui = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleAvecIHM/ihm_ModuleTemplate.tpl.ui");
+        }
+        else {  // Sans IHM
+          module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleSansIHM/CModuleTemplate.tpl.cpp");
+          module_template_h = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "PluginModuleSansIHM/CModuleTemplate.tpl.h");
+          module_template_ui = "";
+        }
+    }
+
+
+    // Test sur la cohérence des fichiers templates
+    if ((module_template_cpp.length() == 0) || (module_template_h.length() == 0) ) {
+        m_application->m_print_view->print_error(this, "Probleme d'ouverture des fichiers template");
+        return(false);
+    }
+
+    // Remplace les balises dans les fichiers templates
+    module_template_cpp.replace("ModuleTemplate", nom_module_a_generer);
+    module_template_h.replace("ModuleTemplate", nom_module_a_generer);
+    module_template_ui.replace("ModuleTemplate", nom_module_a_generer);
+    module_template_h.replace("##AUTEUR##", m_ihm.ui.auteur->text());
+    module_template_h.replace("##DESCRIPTION##", m_ihm.ui.description->text());
+
+
+    if (module_template_cpp != "")    { writeFile(output_dirname, "C"+m_ihm.ui.nom_module->text()+".cpp", module_template_cpp); }
+    if (module_template_h != "")      { writeFile(output_dirname, "C"+m_ihm.ui.nom_module->text()+".h", module_template_h); }
+    if (module_template_ui != "")     { writeFile(output_dirname, "ihm_"+m_ihm.ui.nom_module->text()+".ui", module_template_ui); }
+    m_application->m_print_view->print_info(this, "Creation du module: " + nom_module_a_generer);
+    return(status);
+}
+
+// _____________________________________________________________________
+/*!
+*  Crée le fichier de ressources
+*  Le fichier de ressources du module peut contenir :
+*       - Guide d'utilisation du module
+*       - ...
+*/
+bool CModuleDesigner::genereResources(const QString &output_dirname)
+{
+    QString module_template_qrc = "";
+    QString complete_code_resources = "";
+
+    // Lit le fichier template pour les ressources
+    module_template_qrc = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "Resources/resources.tpl.qrc");
+
+    // ressource n°1 : guide d'utilisation
+    if (m_ihm.ui.chbx_guide_utilisation->isChecked()) {
+        QString code_user_guide="";
+        if (getCodeResourceUserGuide(code_user_guide)) {
+            // ajoute le code
+            complete_code_resources+= code_user_guide;
+        }
+        genereResourcesUserGuideHtml(output_dirname);
+    }
+    // ressource n°2 : ...
+
+    // Génère le fichier de ressources s'il y a quelquechose à mettre dedans
+    if (!complete_code_resources.isEmpty()) {
+        module_template_qrc.replace("##ALL_RESOURCES##", complete_code_resources);
+        writeFile(output_dirname, m_ihm.ui.nom_module->text()+".qrc", module_template_qrc);
+    }
+    return true;
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Crée le fichier de ressources pour le user-guide
+*
+*/
+bool CModuleDesigner::getCodeResourceUserGuide(QString &out_code)
+{
+    // Lit les fichiers templates pour les ressources "user guide"
+    out_code = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "Resources/resources_user_guide.tpl.qrc");
+    out_code.replace("ModuleTemplate", m_ihm.ui.nom_module->text());
+    return true;
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Crée le fichier de ressources pour le user-guide
+*
+*/
+bool CModuleDesigner::genereResourcesUserGuideHtml(const QString &output_dirname)
+{
+    QString module_template_user_guide_html = "";
+    module_template_user_guide_html = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "Resources/user_guide.tpl.html");
+    module_template_user_guide_html.replace("ModuleTemplate", m_ihm.ui.nom_module->text());
+    module_template_user_guide_html.replace("##AUTEUR##", m_ihm.ui.auteur->text());
+    if (module_template_user_guide_html != "")    { writeFile(output_dirname, m_ihm.ui.nom_module->text()+".html", module_template_user_guide_html); }
+    return true;
+}
+
 
 
 // _____________________________________________________________________
@@ -427,8 +501,9 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   return(status);
 }
 
-
-
+//==============================================================================
+//                                  TOOLS
+//==============================================================================
 // _____________________________________________________________________
 /*!
 *  Lit le contenu d'un fichier
@@ -439,6 +514,7 @@ QString CModuleDesigner::readFile(QString pathfilename)
   QFile file(pathfilename);
   if (file.open(QFile::ReadOnly) == false) {
       m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
+      return "";
   }
   QTextStream txtstream(&file);
   txtstream.setCodec("ISO 8859-1");
@@ -467,6 +543,7 @@ void CModuleDesigner::writeFile(QString pathfilename, const QString &value)
   QFile file(pathfilename);
   if (file.open(QFile::WriteOnly) == false) {
       m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
+      return;
   }
   QTextStream txtstream(&file);
   txtstream.setCodec("ISO 8859-1");

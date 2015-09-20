@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>372</width>
-    <height>279</height>
+    <width>489</width>
+    <height>339</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,13 +34,10 @@
         <string>Créer un nouveau module</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="ModuleTypeBasic">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
           <property name="text">
-           <string>Basic Module</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
+           <string>Nom du module</string>
           </property>
          </widget>
         </item>
@@ -54,24 +51,13 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="ModuleTypeBasic">
           <property name="text">
-           <string>Nom du module</string>
+           <string>Basic Module</string>
           </property>
-         </widget>
-        </item>
-        <item row="1" column="1" colspan="2">
-         <widget class="QLineEdit" name="nom_module">
-          <property name="text">
-           <string>?</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Auteur</string>
+          <property name="checked">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -82,10 +68,80 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_3">
+        <item row="1" column="1" colspan="2">
+         <widget class="QLineEdit" name="nom_module">
           <property name="text">
-           <string>Description</string>
+           <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="2" rowspan="2">
+         <widget class="QPushButton" name="PB_generate">
+          <property name="toolTip">
+           <string>Crée un répertoire et génère les fichiers dedans</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(0, 255, 127);
+</string>
+          </property>
+          <property name="text">
+           <string>Créer le module</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="chbx_integrer_modume_au_projet">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modifie les fichiers .pro / .cpp / .h du projet pour intégrer automatiquement le nouveau module. Décocher cette case pour que le module soit créé mais que les fichiers du projets ne soient pas modifiés.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Intégrer le module généré au projet</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Auteur</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="3">
+         <widget class="QToolButton" name="PB_choix_repertoire">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="popupMode">
+           <enum>QToolButton::DelayedPopup</enum>
+          </property>
+          <property name="autoRaise">
+           <bool>false</bool>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::NoArrow</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" rowspan="2" colspan="4">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1" colspan="2">
+         <widget class="QLineEdit" name="repertoire_projet">
+          <property name="toolTip">
+           <string>Indique le répertoire du projet LaBotBox (répertoire où se trouve le fichier .pro)</string>
+          </property>
+          <property name="text">
+           <string>./</string>
           </property>
          </widget>
         </item>
@@ -93,6 +149,13 @@
          <widget class="QLineEdit" name="description">
           <property name="text">
            <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Description</string>
           </property>
          </widget>
         </item>
@@ -112,70 +175,17 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Répertoire du projet</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1" colspan="2">
-         <widget class="QLineEdit" name="repertoire_projet">
-          <property name="toolTip">
-           <string>Indique le répertoire du projet LaBotBox (répertoire où se trouve le fichier .pro)</string>
-          </property>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="chbx_guide_utilisation">
           <property name="text">
-           <string>./</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="3">
-         <widget class="QToolButton" name="PB_choix_repertoire">
-          <property name="text">
-           <string>...</string>
-          </property>
-          <property name="popupMode">
-           <enum>QToolButton::DelayedPopup</enum>
-          </property>
-          <property name="autoRaise">
-           <bool>false</bool>
-          </property>
-          <property name="arrowType">
-           <enum>Qt::NoArrow</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0" rowspan="2" colspan="4">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="2" rowspan="2">
-         <widget class="QPushButton" name="PB_generate">
-          <property name="toolTip">
-           <string>Crée un répertoire et génère les fichiers dedans</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(0, 255, 127);
-</string>
-          </property>
-          <property name="text">
-           <string>Créer le module</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QCheckBox" name="chbx_integrer_modume_au_projet">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modifie les fichiers .pro / .cpp / .h du projet pour intégrer automatiquement le nouveau module. Décocher cette case pour que le module soit créé mais que les fichiers du projets ne soient pas modifiés.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Intégrer le module généré au projet</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
+           <string>Guide d'utilisation</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -355,8 +365,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>372</width>
-     <height>18</height>
+     <width>489</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>

@@ -44,11 +44,13 @@ LIST_PLUGIN_MODULES+= \
         ActuatorElectrobot \ 
         SensorView \ 
         Asserv \ 
+        UserGuides \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
 # Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
-LIST_TOOLS+= CustomPlot
+LIST_TOOLS+= CustomPlot\
+             HtmlTextEditor
 
 		
 # __________________________________________________

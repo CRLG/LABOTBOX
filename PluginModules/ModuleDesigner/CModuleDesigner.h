@@ -63,6 +63,10 @@ private:
     void writeFile(QString path, QString filename, const QString &value);
     void writeFile(QString pathfilename, const QString &value);
     bool creerModule(void);
+    bool genereSources(const QString &output_dirname);
+    bool genereResources(const QString &output_dirname);
+    bool genereResourcesUserGuideHtml(const QString &output_dirname);
+    bool getCodeResourceUserGuide(QString &out_code);
     bool integrerNouveauModuleCreeAuProjet(void);
     bool integrerModuleAuProjet(QString type_module, QString repertoire_projet, QString nom_module);
     bool desintegrerModuleDuProjet(QString type_module, QString repertoire_projet, QString nom_module);

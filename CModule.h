@@ -11,6 +11,7 @@
 #include <QColor>
 #include <QColorDialog>
 #include <QWidget>
+#include <QFileInfo>
 
 
 #include "CLaBotBox.h"
@@ -63,6 +64,24 @@ public:
     *  Indique si le module possède une IHM
     */
     virtual bool hasGUI(void) { return(false); }
+    // _____________________________________________________________________
+    /*!
+    *  Indique si le module possède une documentation
+    */
+    virtual bool hasUserGuide(void) {
+        QFileInfo fileInfo("://user_guide/" + getName() + ".html");
+        return(fileInfo.exists());
+    }
+    // _____________________________________________________________________
+    /*!
+    *  Récupère la documentation du module si elle existe
+    */
+    virtual QString getUserGuide(void) {
+        QString filename = "://user_guide/" + getName() + ".html";
+        QFile file(filename);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { return ""; }
+        return file.readAll();
+    }
     // _____________________________________________________________________
     /*!
     *  Renvoie l'icon qui représente le module

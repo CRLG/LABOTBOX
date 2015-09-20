@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/user_guide">
+        <file>UserGuides.html</file>
+    </qresource>
+
+</RCC>

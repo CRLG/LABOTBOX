@@ -10,5 +10,8 @@
         <file>Templates/PluginModuleAvecIHM/ihm_ModuleTemplate.tpl.ui</file>
         <file>Templates/PluginModuleSansIHM/CModuleTemplate.tpl.cpp</file>
         <file>Templates/PluginModuleSansIHM/CModuleTemplate.tpl.h</file>
+        <file>Templates/Resources/resources.tpl.qrc</file>
+        <file>Templates/Resources/resources_user_guide.tpl.qrc</file>
+        <file>Templates/Resources/user_guide.tpl.html</file>
     </qresource>
 </RCC>

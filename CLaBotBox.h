@@ -34,6 +34,7 @@ class CSensorElectroBot;
 class CActuatorElectrobot;
 class CSensorView;
 class CAsserv;
+class CUserGuides;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -79,6 +80,7 @@ public:
    CActuatorElectrobot     *m_ActuatorElectrobot;
    CSensorView     *m_SensorView;
    CAsserv     *m_Asserv;
+   CUserGuides     *m_UserGuides;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
