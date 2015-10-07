@@ -21,6 +21,7 @@ class CEEPROM;
 class CDataView;
 class CDataPlayer;
 class CRS232;
+class CJoystick;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -68,6 +69,7 @@ public:
    CDataPlayer     *m_DataPlayer;
    CRS232     *m_RS232_robot;
    CRS232     *m_RS232_cmucam;
+   CJoystick     *m_Joystick;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
    CModuleDesigner       *m_module_creator;

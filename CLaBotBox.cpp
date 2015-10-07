@@ -17,6 +17,7 @@
 #include "CDataView.h"
 #include "CDataPlayer.h"
 #include "CRS232.h"
+#include "CJoystick.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 
@@ -112,6 +113,10 @@ void CLaBotBox::createBasicModules(void)
   m_RS232_cmucam   = new CRS232("RS232_cmucam");
   m_list_basic_modules.append(m_RS232_cmucam);
   m_list_modules.append(m_RS232_cmucam);
+  m_Joystick     = new CJoystick("Joystick");
+  m_list_basic_modules.append(m_Joystick);
+  m_list_modules.append(m_Joystick);
+
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }
 

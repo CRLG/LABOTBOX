@@ -29,6 +29,7 @@ LIST_BASIC_MODULES+= \
         DataView \ 
         DataPlayer \ 
         RS232 \ 
+        Joystick \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -91,3 +92,4 @@ for(i, LIST_TOOLS) {
 }
 
 CONFIG += plugins_designer
+LIBS += -lsfml-graphics -lsfml-window -lsfml-system
