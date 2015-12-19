@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>636</width>
-    <height>557</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -50,9 +50,9 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>288</width>
-             <height>469</height>
+             <y>-275</y>
+             <width>347</width>
+             <height>555</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_8">
@@ -311,6 +311,9 @@
                </item>
                <item row="1" column="1">
                 <widget class="QDoubleSpinBox" name="CdeDistAngle_Angle">
+                 <property name="minimum">
+                  <double>-999999999.000000000000000</double>
+                 </property>
                  <property name="maximum">
                   <double>999999999.000000000000000</double>
                  </property>
@@ -747,7 +750,7 @@
      <x>0</x>
      <y>0</y>
      <width>636</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
