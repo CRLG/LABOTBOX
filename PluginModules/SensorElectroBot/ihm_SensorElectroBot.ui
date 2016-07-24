@@ -6,1086 +6,1073 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>413</height>
+    <width>537</width>
+    <height>503</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>50</y>
-      <width>231</width>
-      <height>201</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLed" name="Etor_1">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="label_Etor_1">
-       <property name="text">
-        <string>Etor1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2" rowspan="8">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLed" name="Etor_Codeur3_A">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QLabel" name="label_Etor_Codeur3_A">
-       <property name="text">
-        <string>Etor_Codeur3_A</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLed" name="Etor_2">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label_Etor_2">
-       <property name="text">
-        <string>Etor2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLed" name="Etor_Codeur3_B">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QLabel" name="label_Etor_Codeur3_B">
-       <property name="text">
-        <string>Etor_Codeur3_B</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLed" name="Etor_3">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_Etor_3">
-       <property name="text">
-        <string>Etor3</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QLed" name="Etor_Codeur4_A">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="QLabel" name="label_Etor_Codeur4_A">
-       <property name="text">
-        <string>Etor_Codeur4_A</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLed" name="Etor_4">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="label_Etor_4">
-       <property name="text">
-        <string>Etor4</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QLed" name="Etor_Codeur4_B">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="4">
-      <widget class="QLabel" name="label_Etor_Codeur4_B">
-       <property name="text">
-        <string>Etor_Codeur4_B</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLed" name="Etor_5">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="label_Etor_5">
-       <property name="text">
-        <string>Etor5</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="3">
-      <widget class="QLed" name="Etor_PGEC1_dsPIC1">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="4">
-      <widget class="QLabel" name="label_Etor_PGEC1_dsPIC1">
-       <property name="text">
-        <string>Etor_PGEC1_dsPIC1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLed" name="Etor_6">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLabel" name="label_Etor_6">
-       <property name="text">
-        <string>Etor6</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QLed" name="Etor_PGEC1_dsPIC2">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="4">
-      <widget class="QLabel" name="label_Etor_PGEC1_dsPIC2">
-       <property name="text">
-        <string>Etor_PGEC1_dsPIC2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLed" name="Etor_CAN_RX">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLabel" name="label_Etor_CAN_RX">
-       <property name="text">
-        <string>Etor_CAN_RX</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="3">
-      <widget class="QLed" name="Etor_PGED1_dsPIC1">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="4">
-      <widget class="QLabel" name="label_Etor_PGED1_dsPIC1">
-       <property name="text">
-        <string>Etor_PGED1_dsPIC1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLed" name="Etor_CAN_TX">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLabel" name="label_Etor_CAN_TX">
-       <property name="text">
-        <string>Etor_CAN_TX</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="3">
-      <widget class="QLed" name="Etor_PGED1_dsPIC2">
-       <property name="toolTip">
-        <string>Binary Led</string>
-       </property>
-       <property name="whatsThis">
-        <string>Led widget</string>
-       </property>
-       <property name="value">
-        <bool>false</bool>
-       </property>
-       <property name="onColor">
-        <enum>QLed::Red</enum>
-       </property>
-       <property name="offColor">
-        <enum>QLed::Grey</enum>
-       </property>
-       <property name="shape">
-        <enum>QLed::Circle</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="4">
-      <widget class="QLabel" name="label_Etor_PGED1_dsPIC2">
-       <property name="text">
-        <string>Etor_PGED1_dsPIC2</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>10</y>
-      <width>20</width>
-      <height>341</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>9</y>
-      <width>155</width>
-      <height>334</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_Eana_1">
-       <property name="text">
-        <string>Eana1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_1">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_Eana_4">
-       <property name="text">
-        <string>Eana4</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_2">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_Eana_2">
-       <property name="text">
-        <string>Eana2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_4">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_Eana_3">
-       <property name="text">
-        <string>Eana3</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_3">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_5">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_Eana_5">
-       <property name="text">
-        <string>Eana5</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_Eana_6">
-       <property name="text">
-        <string>Eana6</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_6">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_Eana_7">
-       <property name="text">
-        <string>Eana7</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_7">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_Eana_8">
-       <property name="text">
-        <string>Eana8</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_8">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="2">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_Eana_9">
-       <property name="text">
-        <string>Eana9</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_9">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="2">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_Eana_10">
-       <property name="text">
-        <string>Eana10</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_10">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="2">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_Eana_11">
-       <property name="text">
-        <string>Eana11</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_11">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="2">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="label_Eana_12">
-       <property name="text">
-        <string>Eana12</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_12">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="2">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_Eana_13">
-       <property name="text">
-        <string>Eana13</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="1">
-      <widget class="QDoubleSpinBox" name="Eana_13">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="maximum">
-        <double>99999.990000000005239</double>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="2">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>10</y>
-      <width>179</width>
-      <height>37</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_Vbat">
-       <property name="font">
-        <font>
-         <pointsize>15</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>VBat</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="Text_Vbat_2">
-       <property name="text">
-        <string>[Volts]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QDoubleSpinBox" name="Vbat">
-       <property name="font">
-        <font>
-         <pointsize>18</pointsize>
-        </font>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>260</y>
-      <width>142</width>
-      <height>100</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_Codeur_1">
-       <property name="text">
-        <string>Codeur_1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="Codeur_1">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="prefix">
-        <string/>
-       </property>
-       <property name="minimum">
-        <number>-999999999</number>
-       </property>
-       <property name="maximum">
-        <number>999999999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_Codeur_2">
-       <property name="text">
-        <string>Codeur_2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="Codeur_2">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="prefix">
-        <string/>
-       </property>
-       <property name="minimum">
-        <number>-999999999</number>
-       </property>
-       <property name="maximum">
-        <number>999999999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_Codeur_3">
-       <property name="text">
-        <string>Codeur_3</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="Codeur_3">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="prefix">
-        <string/>
-       </property>
-       <property name="minimum">
-        <number>-999999999</number>
-       </property>
-       <property name="maximum">
-        <number>999999999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_Codeur_4">
-       <property name="text">
-        <string>Codeur_4</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSpinBox" name="Codeur_4">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="prefix">
-        <string/>
-       </property>
-       <property name="minimum">
-        <number>-999999999</number>
-       </property>
-       <property name="maximum">
-        <number>999999999</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_Vbat">
+        <property name="font">
+         <font>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>VBat</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="Text_Vbat_2">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="Vbat">
+        <property name="font">
+         <font>
+          <pointsize>18</pointsize>
+         </font>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1" rowspan="3">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2" rowspan="3">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_Eana_1">
+        <property name="text">
+         <string>Eana1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_1">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_Eana_4">
+        <property name="text">
+         <string>Eana4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_2">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_Eana_2">
+        <property name="text">
+         <string>Eana2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_4">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_Eana_3">
+        <property name="text">
+         <string>Eana3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_3">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_5">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_Eana_5">
+        <property name="text">
+         <string>Eana5</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_Eana_6">
+        <property name="text">
+         <string>Eana6</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_6">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_Eana_7">
+        <property name="text">
+         <string>Eana7</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_7">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_Eana_8">
+        <property name="text">
+         <string>Eana8</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_8">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_Eana_9">
+        <property name="text">
+         <string>Eana9</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_9">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_Eana_10">
+        <property name="text">
+         <string>Eana10</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_10">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="label_Eana_11">
+        <property name="text">
+         <string>Eana11</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_11">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="2">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_Eana_12">
+        <property name="text">
+         <string>Eana12</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_12">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="2">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="label_Eana_13">
+        <property name="text">
+         <string>Eana13</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QDoubleSpinBox" name="Eana_13">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <double>99999.990000000005239</double>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="2">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>[Volts]</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLed" name="Etor_1">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_Etor_1">
+        <property name="text">
+         <string>Etor1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="8">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLed" name="Etor_Codeur3_A">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_Etor_Codeur3_A">
+        <property name="text">
+         <string>Etor_Codeur3_A</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLed" name="Etor_2">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_Etor_2">
+        <property name="text">
+         <string>Etor2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLed" name="Etor_Codeur3_B">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_Etor_Codeur3_B">
+        <property name="text">
+         <string>Etor_Codeur3_B</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLed" name="Etor_3">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_Etor_3">
+        <property name="text">
+         <string>Etor3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLed" name="Etor_Codeur4_A">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QLabel" name="label_Etor_Codeur4_A">
+        <property name="text">
+         <string>Etor_Codeur4_A</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLed" name="Etor_4">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_Etor_4">
+        <property name="text">
+         <string>Etor4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLed" name="Etor_Codeur4_B">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QLabel" name="label_Etor_Codeur4_B">
+        <property name="text">
+         <string>Etor_Codeur4_B</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLed" name="Etor_5">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_Etor_5">
+        <property name="text">
+         <string>Etor5</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLed" name="Etor_PGEC1_dsPIC1">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QLabel" name="label_Etor_PGEC1_dsPIC1">
+        <property name="text">
+         <string>Etor_PGEC1_dsPIC1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLed" name="Etor_6">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_Etor_6">
+        <property name="text">
+         <string>Etor6</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLed" name="Etor_PGEC1_dsPIC2">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QLabel" name="label_Etor_PGEC1_dsPIC2">
+        <property name="text">
+         <string>Etor_PGEC1_dsPIC2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLed" name="Etor_CAN_RX">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="label_Etor_CAN_RX">
+        <property name="text">
+         <string>Etor_CAN_RX</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QLed" name="Etor_PGED1_dsPIC1">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="4">
+       <widget class="QLabel" name="label_Etor_PGED1_dsPIC1">
+        <property name="text">
+         <string>Etor_PGED1_dsPIC1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLed" name="Etor_CAN_TX">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="label_Etor_CAN_TX">
+        <property name="text">
+         <string>Etor_CAN_TX</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QLed" name="Etor_PGED1_dsPIC2">
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="4">
+       <widget class="QLabel" name="label_Etor_PGED1_dsPIC2">
+        <property name="text">
+         <string>Etor_PGED1_dsPIC2</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_Codeur_1">
+        <property name="text">
+         <string>Codeur_1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="Codeur_1">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>-999999999</number>
+        </property>
+        <property name="maximum">
+         <number>999999999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_Codeur_2">
+        <property name="text">
+         <string>Codeur_2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="Codeur_2">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>-999999999</number>
+        </property>
+        <property name="maximum">
+         <number>999999999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_Codeur_3">
+        <property name="text">
+         <string>Codeur_3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="Codeur_3">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>-999999999</number>
+        </property>
+        <property name="maximum">
+         <number>999999999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_Codeur_4">
+        <property name="text">
+         <string>Codeur_4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="Codeur_4">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>-999999999</number>
+        </property>
+        <property name="maximum">
+         <number>999999999</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>442</width>
-     <height>18</height>
+     <width>537</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
