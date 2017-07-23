@@ -57,12 +57,12 @@ public slots :
 // ========================================================
 #define ID_ELECTROBOT_CDE_SERVOS_SD20 0x53
 #define DLC_ELECTROBOT_CDE_SERVOS_SD20 5
-#define BRUTE2PHYS_valeur_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_valeur_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_num_servo_sd20(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_num_servo_sd20(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_valeur_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_valeur_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_num_servo_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_num_servo_sd20(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_CDE_SERVOS_SD20 : public CTrameBot
 {
    Q_OBJECT
@@ -90,12 +90,12 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_CDE_SERVOS_AX 0x52
 #define DLC_ELECTROBOT_CDE_SERVOS_AX 5
-#define BRUTE2PHYS_valeur_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_valeur_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_num_servo_ax(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_num_servo_ax(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_valeur_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_valeur_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_commande_ax(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_commande_ax(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_num_servo_ax(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_num_servo_ax(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_CDE_SERVOS_AX : public CTrameBot
 {
    Q_OBJECT
@@ -123,18 +123,18 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_CDE_MOTEURS 0x50
 #define DLC_ELECTROBOT_CDE_MOTEURS 6
-#define BRUTE2PHYS_cde_moteur_6(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_6(val) (char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_5(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_5(val) (char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_4(val) (char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_3(val) (char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_2(val) (char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_1(val) (char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_cde_moteur_6(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_6(val) (char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_5(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_5(val) (char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_4(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_4(val) (char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_3(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_3(val) (char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_2(val) (char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_1(val) (char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_CDE_MOTEURS : public CTrameBot
 {
    Q_OBJECT
@@ -168,12 +168,12 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_MVT_XY 0x102
 #define DLC_COMMANDE_MVT_XY 5
-#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_MVT_XY : public CTrameBot
 {
    Q_OBJECT
@@ -201,8 +201,8 @@ private slots :
 // ========================================================
 #define ID_ASSERV_RESET 0x132
 #define DLC_ASSERV_RESET 1
-#define BRUTE2PHYS_SECURITE_RESET(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_SECURITE_RESET(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_SECURITE_RESET(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_SECURITE_RESET(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ASSERV_RESET : public CTrameBot
 {
    Q_OBJECT
@@ -226,8 +226,8 @@ private slots :
 // ========================================================
 #define ID_AUTOAPPRENTISSAGE_ASSERV 0x107
 #define DLC_AUTOAPPRENTISSAGE_ASSERV 1
-#define BRUTE2PHYS_Type_autoapprentissage(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Type_autoapprentissage(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Type_autoapprentissage(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Type_autoapprentissage(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_AUTOAPPRENTISSAGE_ASSERV : public CTrameBot
 {
    Q_OBJECT
@@ -251,12 +251,12 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_REINIT_XY_TETA 0x106
 #define DLC_COMMANDE_REINIT_XY_TETA 6
-#define BRUTE2PHYS_reinit_teta_pos(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_reinit_teta_pos(val) (short)( (val - (0.000000)) / (0.001000) ) 
-#define BRUTE2PHYS_reinit_y_pos(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_reinit_y_pos(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_reinit_x_pos(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_reinit_x_pos(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_reinit_teta_pos(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_reinit_teta_pos(val) (short)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_reinit_y_pos(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_reinit_y_pos(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_reinit_x_pos(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_reinit_x_pos(val) (short)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_REINIT_XY_TETA : public CTrameBot
 {
    Q_OBJECT
@@ -284,14 +284,14 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_VITESSE_MVT 0x105
 #define DLC_COMMANDE_VITESSE_MVT 6
-#define BRUTE2PHYS_indice_sportivite_decel(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_indice_sportivite_decel(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_indice_sportivite_accel(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_indice_sportivite_accel(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_vitesse_rotation_max(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_vitesse_rotation_max(val) (unsigned short)( (val - (0.000000)) / (0.001000) ) 
-#define BRUTE2PHYS_vitesse_avance_max(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_vitesse_avance_max(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_indice_sportivite_decel(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_indice_sportivite_decel(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_indice_sportivite_accel(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_indice_sportivite_accel(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_vitesse_rotation_max(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_vitesse_rotation_max(val) (unsigned short)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_vitesse_avance_max(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_vitesse_avance_max(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_VITESSE_MVT : public CTrameBot
 {
    Q_OBJECT
@@ -321,10 +321,10 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_REGUL_VITESSE 0x104
 #define DLC_COMMANDE_REGUL_VITESSE 4
-#define BRUTE2PHYS_consigne_vitesse_roue_D(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_consigne_vitesse_roue_D(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_consigne_vitesse_roue_G(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_consigne_vitesse_roue_G(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_consigne_vitesse_roue_D(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_consigne_vitesse_roue_D(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_consigne_vitesse_roue_G(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_consigne_vitesse_roue_G(val) (short)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_REGUL_VITESSE : public CTrameBot
 {
    Q_OBJECT
@@ -350,12 +350,12 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_DISTANCE_ANGLE 0x103
 #define DLC_COMMANDE_DISTANCE_ANGLE 5
-#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) ) 
-#define BRUTE2PHYS_distance_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_distance_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_priorite_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_priorite_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_distance_consigne(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_distance_consigne(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_priorite_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_priorite_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_DISTANCE_ANGLE : public CTrameBot
 {
    Q_OBJECT
@@ -383,14 +383,14 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_MVT_XY_TETA 0x101
 #define DLC_COMMANDE_MVT_XY_TETA 7
-#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) ) 
-#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_angle_consigne(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_angle_consigne(val) (short)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_Y_consigne(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Y_consigne(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_X_consigne(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_X_consigne(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Type_mouvement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Type_mouvement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_MVT_XY_TETA : public CTrameBot
 {
    Q_OBJECT
@@ -420,10 +420,10 @@ private slots :
 // ========================================================
 #define ID_ASSERV_DIAG_WRITE_PARAM 0x131
 #define DLC_ASSERV_DIAG_WRITE_PARAM 4
-#define BRUTE2PHYS_ASSERV_DIAG_WRITE_VALUE(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_ASSERV_DIAG_WRITE_VALUE(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_ASSERV_DIAG_WRITE_PARAM(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_ASSERV_DIAG_WRITE_PARAM(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_ASSERV_DIAG_WRITE_VALUE(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ASSERV_DIAG_WRITE_VALUE(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_ASSERV_DIAG_WRITE_PARAM(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ASSERV_DIAG_WRITE_PARAM(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
 class CTrame_ASSERV_DIAG_WRITE_PARAM : public CTrameBot
 {
    Q_OBJECT
@@ -449,18 +449,18 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_CDE_SERVOS 0x51
 #define DLC_ELECTROBOT_CDE_SERVOS 8
-#define BRUTE2PHYS_PositionServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PositionServoMoteur2(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_VitesseServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_VitesseServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_NumeroServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_NumeroServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_PositionServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PositionServoMoteur1(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_VitesseServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_VitesseServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_NumeroServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_NumeroServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PositionServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PositionServoMoteur2(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_VitesseServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_VitesseServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_NumeroServoMoteur2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_NumeroServoMoteur2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_PositionServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PositionServoMoteur1(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_VitesseServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_VitesseServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_NumeroServoMoteur1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_NumeroServoMoteur1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_CDE_SERVOS : public CTrameBot
 {
    Q_OBJECT
@@ -494,10 +494,10 @@ private slots :
 // ========================================================
 #define ID_COMMANDE_MVT_MANUEL 0x100
 #define DLC_COMMANDE_MVT_MANUEL 4
-#define BRUTE2PHYS_PuissanceMotD(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PuissanceMotD(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_PuissanceMotG(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PuissanceMotG(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PuissanceMotD(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PuissanceMotD(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_PuissanceMotG(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PuissanceMotG(val) (short)( (val - (0.000000)) / (1.000000) )
 class CTrame_COMMANDE_MVT_MANUEL : public CTrameBot
 {
    Q_OBJECT
@@ -523,14 +523,14 @@ private slots :
 // ========================================================
 #define ID_ETAT_PID_ASSERVISSEMENT 0x153
 #define DLC_ETAT_PID_ASSERVISSEMENT 8
-#define BRUTE2PHYS_consigne_vitesse_rotation_filt(val) ( ((float)val * (0.000100)) + (0.000000) ) 
-#define PHYS2BRUTE_consigne_vitesse_rotation_filt(val) (short)( (val - (0.000000)) / (0.000100) ) 
-#define BRUTE2PHYS_vitesse_rotation_robot_filt(val) ( ((float)val * (0.000100)) + (0.000000) ) 
-#define PHYS2BRUTE_vitesse_rotation_robot_filt(val) (short)( (val - (0.000000)) / (0.000100) ) 
-#define BRUTE2PHYS_consigne_vitesse_avance_filt(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_consigne_vitesse_avance_filt(val) (short)( (val - (0.000000)) / (0.001000) ) 
-#define BRUTE2PHYS_vitesse_avance_robot_filt(val) ( ((float)val * (0.001000)) + (0.000000) ) 
-#define PHYS2BRUTE_vitesse_avance_robot_filt(val) (short)( (val - (0.000000)) / (0.001000) ) 
+#define BRUTE2PHYS_consigne_vitesse_rotation_filt(val) ( ((float)val * (0.000100)) + (0.000000) )
+#define PHYS2BRUTE_consigne_vitesse_rotation_filt(val) (short)( (val - (0.000000)) / (0.000100) )
+#define BRUTE2PHYS_vitesse_rotation_robot_filt(val) ( ((float)val * (0.000100)) + (0.000000) )
+#define PHYS2BRUTE_vitesse_rotation_robot_filt(val) (short)( (val - (0.000000)) / (0.000100) )
+#define BRUTE2PHYS_consigne_vitesse_avance_filt(val) ( ((float)val * (0.01000)) + (0.000000) )
+#define PHYS2BRUTE_consigne_vitesse_avance_filt(val) (short)( (val - (0.000000)) / (0.01000) )
+#define BRUTE2PHYS_vitesse_avance_robot_filt(val) ( ((float)val * (0.01000)) + (0.000000) )
+#define PHYS2BRUTE_vitesse_avance_robot_filt(val) (short)( (val - (0.000000)) / (0.01000) )
 class CTrame_ETAT_PID_ASSERVISSEMENT : public CTrameBot
 {
    Q_OBJECT
@@ -554,16 +554,16 @@ private slots :
 // ========================================================
 #define ID_ETAT_ASSERVISSEMENT 0x150
 #define DLC_ETAT_ASSERVISSEMENT 8
-#define BRUTE2PHYS_compteur_diag_blocage(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_compteur_diag_blocage(val) (unsigned short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_ModeAsservissement(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_ModeAsservissement(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_D(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_D(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_cde_moteur_G(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_cde_moteur_G(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Convergence(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Convergence(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_compteur_diag_blocage(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_compteur_diag_blocage(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_ModeAsservissement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ModeAsservissement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_D(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_D(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_cde_moteur_G(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_moteur_G(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Convergence(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Convergence(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ETAT_ASSERVISSEMENT : public CTrameBot
 {
    Q_OBJECT
@@ -588,10 +588,10 @@ private slots :
 // ========================================================
 #define ID_POSITION_CODEURS 0x152
 #define DLC_POSITION_CODEURS 8
-#define BRUTE2PHYS_PosCodeurG(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PosCodeurG(val) (short)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_PosCodeurD(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_PosCodeurD(val) (short)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_PosCodeurG(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PosCodeurG(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_PosCodeurD(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_PosCodeurD(val) (short)( (val - (0.000000)) / (1.000000) )
 class CTrame_POSITION_CODEURS : public CTrameBot
 {
    Q_OBJECT
@@ -613,12 +613,12 @@ private slots :
 // ========================================================
 #define ID_POSITION_ABSOLUE_XY_TETA 0x151
 #define DLC_POSITION_ABSOLUE_XY_TETA 6
-#define BRUTE2PHYS_teta_pos(val) ( ((float)val * (0.000100)) + (0.000000) ) 
-#define PHYS2BRUTE_teta_pos(val) (short)( (val - (0.000000)) / (0.000100) ) 
-#define BRUTE2PHYS_y_pos(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_y_pos(val) (short)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_x_pos(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_x_pos(val) (short)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_teta_pos(val) ( ((float)val * (0.000100)) + (0.000000) )
+#define PHYS2BRUTE_teta_pos(val) (short)( (val - (0.000000)) / (0.000100) )
+#define BRUTE2PHYS_y_pos(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_y_pos(val) (short)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_x_pos(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_x_pos(val) (short)( (val - (0.000000)) / (0.100000) )
 class CTrame_POSITION_ABSOLUE_XY_TETA : public CTrameBot
 {
    Q_OBJECT
@@ -641,10 +641,10 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_ETAT_CODEURS_1_2 0x30
 #define DLC_ELECTROBOT_ETAT_CODEURS_1_2 8
-#define BRUTE2PHYS_Codeur_2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Codeur_2(val) (long)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Codeur_1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Codeur_1(val) (long)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Codeur_2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Codeur_2(val) (long)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Codeur_1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Codeur_1(val) (long)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_ETAT_CODEURS_1_2 : public CTrameBot
 {
    Q_OBJECT
@@ -666,14 +666,14 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_ETAT_TELEMETRES 0x40
 #define DLC_ELECTROBOT_ETAT_TELEMETRES 4
-#define BRUTE2PHYS_Telemetre4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Telemetre4(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Telemetre3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Telemetre3(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Telemetre2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Telemetre2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Telemetre1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Telemetre1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Telemetre4(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre4(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Telemetre3(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre3(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Telemetre2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Telemetre1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_ETAT_TELEMETRES : public CTrameBot
 {
    Q_OBJECT
@@ -697,10 +697,10 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_ETAT_CODEURS_3_4 0x31
 #define DLC_ELECTROBOT_ETAT_CODEURS_3_4 8
-#define BRUTE2PHYS_Codeur_4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Codeur_4(val) (long)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Codeur_3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Codeur_3(val) (long)( (val - (0.000000)) / (1.000000) ) 
+#define BRUTE2PHYS_Codeur_4(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Codeur_4(val) (long)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Codeur_3(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Codeur_3(val) (long)( (val - (0.000000)) / (1.000000) )
 class CTrame_ELECTROBOT_ETAT_CODEURS_3_4 : public CTrameBot
 {
    Q_OBJECT
@@ -722,50 +722,50 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_ETAT_CAPTEURS_2 0x20
 #define DLC_ELECTROBOT_ETAT_CAPTEURS_2 8
-#define BRUTE2PHYS_Etor_PGED1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_PGED1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_PGED1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_PGED1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_PGEC1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_PGEC1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_PGEC1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_PGEC1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_Codeur4_B(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_Codeur4_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_Codeur4_A(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_Codeur4_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_Codeur3_B(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_Codeur3_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_Codeur3_A(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_Codeur3_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_CAN_TX(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_CAN_TX(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor_CAN_RX(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor_CAN_RX(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor6(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor6(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor5(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor5(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor4(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor4(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor3(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor3(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor2(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor2(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Etor1(val) ( ((float)val * (1.000000)) + (0.000000) ) 
-#define PHYS2BRUTE_Etor1(val) (unsigned char)( (val - (0.000000)) / (1.000000) ) 
-#define BRUTE2PHYS_Vbat(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Vbat(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana13(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana13(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana12(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana12(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana11(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana11(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana10(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana10(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana9(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana9(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Etor_PGED1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_PGED1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_PGED1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_PGED1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_PGEC1_dsPIC2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_PGEC1_dsPIC2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_PGEC1_dsPIC1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_PGEC1_dsPIC1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_Codeur4_B(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_Codeur4_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_Codeur4_A(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_Codeur4_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_Codeur3_B(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_Codeur3_B(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_Codeur3_A(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_Codeur3_A(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_CAN_TX(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_CAN_TX(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor_CAN_RX(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor_CAN_RX(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor6(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor6(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor5(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor5(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor4(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor4(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor3(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor3(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor2(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor2(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Etor1(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Etor1(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Vbat(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Vbat(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana13(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana13(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana12(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana12(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana11(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana11(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana10(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana10(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana9(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana9(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
 class CTrame_ELECTROBOT_ETAT_CAPTEURS_2 : public CTrameBot
 {
    Q_OBJECT
@@ -807,22 +807,22 @@ private slots :
 // ========================================================
 #define ID_ELECTROBOT_ETAT_CAPTEURS_1 0x10
 #define DLC_ELECTROBOT_ETAT_CAPTEURS_1 8
-#define BRUTE2PHYS_Eana8(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana8(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana7(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana7(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana6(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana6(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana5(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana5(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana4(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana4(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana3(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana3(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana2(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana2(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
-#define BRUTE2PHYS_Eana1(val) ( ((float)val * (0.100000)) + (0.000000) ) 
-#define PHYS2BRUTE_Eana1(val) (unsigned char)( (val - (0.000000)) / (0.100000) ) 
+#define BRUTE2PHYS_Eana8(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana8(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana7(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana7(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana6(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana6(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana5(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana5(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana4(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana4(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana3(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana3(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana2(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana2(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
+#define BRUTE2PHYS_Eana1(val) ( ((float)val * (0.100000)) + (0.000000) )
+#define PHYS2BRUTE_Eana1(val) (unsigned char)( (val - (0.000000)) / (0.100000) )
 class CTrame_ELECTROBOT_ETAT_CAPTEURS_1 : public CTrameBot
 {
    Q_OBJECT
