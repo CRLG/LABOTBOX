@@ -51,6 +51,10 @@ CLaBotBox::CLaBotBox()
     :   m_pathname_log_file("./Log"),
         m_pathname_config_file("./Config")
 {
+  // S'assure que le répertoire de sortie des logs existe bien
+  QDir dir;
+  dir.mkpath(m_pathname_log_file);
+
   createBasicModules();
   createPluginModules();
 }
