@@ -15,7 +15,14 @@
 {
     Q_OBJECT
 public:
-    Cihm_DataView(QWidget *parent = 0)  : QMainWindow(parent) { ui.setupUi(this); }
+    enum    // Numéro de colonnes dans le widget
+    {
+         COL_TEMPS = 0,
+         COL_NOM,
+         COL_VALEUR
+    };
+
+     Cihm_DataView(QWidget *parent = 0)  : QMainWindow(parent) { ui.setupUi(this); }
     ~Cihm_DataView() { }
 
     Ui::ihm_DataView ui;
@@ -61,7 +68,8 @@ private :
     void finInspectorTemporel(void);
     void finInspectorInstantane(void);
     void connectDiscconnectVariablesTemporel(bool choix);
-    void addTraceVariable(QString name, QString value = "");
+    void addTraceVariable(QString name, QString value = "", quint64 time=0);
+    double normaliseTemps(qint64 ms_epoch);
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -70,6 +78,7 @@ private:
     Cihm_DataView m_ihm;
 
     QTimer m_timer_lecture_variables;
+    qint64 m_start_time;
 
 public slots : 
     void variableChanged(QVariant val);

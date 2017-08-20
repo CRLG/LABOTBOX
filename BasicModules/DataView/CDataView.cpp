@@ -4,6 +4,8 @@
  */
 #include <QDebug>
 #include <QMessageBox>
+#include <QDateTime>
+
 #include "CDataView.h"
 #include "CLaBotBox.h"
 #include "CPrintView.h"
@@ -97,9 +99,9 @@ void CDataView::close(void)
 
   // mémorise en EEPROM la liste des variables sous surveillance
   QStringList liste_variables_observees;
-  for (int i=0; i<m_ihm.ui.lisye_variables->count(); i++) {
-    if (m_ihm.ui.lisye_variables->item(i)->checkState() == Qt::Checked) {
-        liste_variables_observees.append(m_ihm.ui.lisye_variables->item(i)->text());
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+    if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+        liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
     }
   } // for toutes les variables sous surveillances
   m_application->m_eeprom->write(getName(), "liste_variables_observees", QVariant(liste_variables_observees));
@@ -129,8 +131,7 @@ void CDataView::variableChanged(QVariant val)
  CData *data = qobject_cast<CData*>(sender()); // récupère l'objet émetteur du signal (pour pouvoir récupérer son nom)
  if (data) {
     m_application->m_print_view->print_debug(this, "Variable modifiee: " + data->getName() + "=" + val.toString() + "(" +  data->read().toString() + ")");
-    //m_ihm.ui.table_variables_valeurs->insertRow(0);
-    addTraceVariable(data->getName(), data->read().toString()); 
+    addTraceVariable(data->getName(), data->read().toString(), data->getTime());
  }
  else {
     m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la récupération de l'objet a l'origine du signal");
@@ -159,11 +160,11 @@ void CDataView::refreshListeVariables(void)
   QStringList var_list;
   m_application->m_data_center->getListeVariablesName(var_list);
 
-  m_ihm.ui.lisye_variables->clear();
-  m_ihm.ui.lisye_variables->addItems(var_list);
-  for (int i=0; i<m_ihm.ui.lisye_variables->count(); i++) {
-      m_ihm.ui.lisye_variables->item(i)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-      m_ihm.ui.lisye_variables->item(i)->setCheckState(Qt::Unchecked);
+  m_ihm.ui.liste_variables->clear();
+  m_ihm.ui.liste_variables->addItems(var_list);
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+      m_ihm.ui.liste_variables->item(i)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+      m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
   }
 }
 
@@ -176,6 +177,7 @@ void CDataView::refreshListeVariables(void)
 void CDataView::activeInspector(bool state)
 {
   if (state == true) { // activation du suivi des variables
+    m_start_time = QDateTime::currentMSecsSinceEpoch();
     m_ihm.ui.table_variables_valeurs->clearContents();
     m_ihm.ui.table_variables_valeurs->setRowCount(0);
     if (m_ihm.ui.choix_mode_inspection->currentText()=="Temporel") {
@@ -196,8 +198,8 @@ void CDataView::activeInspector(bool state)
 
   // vérouille les objets pendant l'enregistrement
   m_ihm.ui.choix_mode_inspection->setEnabled(!state);
-  m_ihm.ui.lisye_variables->setEnabled(!state);
-  m_ihm.ui.lisye_variables->setEnabled(!state);
+  m_ihm.ui.liste_variables->setEnabled(!state);
+  m_ihm.ui.liste_variables->setEnabled(!state);
   m_ihm.ui.PB_refresh_liste->setEnabled(!state);
 }
 
@@ -258,9 +260,9 @@ void CDataView::finInspectorTemporel(void)
 void CDataView::connectDiscconnectVariablesTemporel(bool choix)
 {
   // Recopie toutes les variables à surveiller
-  for (int i=0; i<m_ihm.ui.lisye_variables->count(); i++) {
-    if (m_ihm.ui.lisye_variables->item(i)->checkState() == Qt::Checked) {
-        CData *_data = m_application->m_data_center->getData(m_ihm.ui.lisye_variables->item(i)->text());
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+    if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+        CData *_data = m_application->m_data_center->getData(m_ihm.ui.liste_variables->item(i)->text());
         if (choix) {
             connect(_data,
                   SIGNAL(valueChanged(QVariant)),
@@ -279,6 +281,17 @@ void CDataView::connectDiscconnectVariablesTemporel(bool choix)
   }
 }
 
+// _____________________________________________________________________
+/*!
+*  Normalise le temps par rapport à l'instant du début de la trace
+*   name = ms_epoch : temps à normaliser (nombre de msec depuis 1970)
+*   Renvoie une valeur en secondes
+*/
+double CDataView::normaliseTemps(qint64 ms_epoch)
+{
+    return (ms_epoch-m_start_time)/1000.0;
+}
+
 
 // _____________________________________________________________________
 /*!
@@ -287,17 +300,20 @@ void CDataView::connectDiscconnectVariablesTemporel(bool choix)
 *   value = valeur de la variable
 *
 */
-void CDataView::addTraceVariable(QString name, QString value)
+void CDataView::addTraceVariable(QString name, QString value, quint64 time)
 {
  unsigned int index = m_ihm.ui.table_variables_valeurs->rowCount();
  m_ihm.ui.table_variables_valeurs->insertRow(index);
- m_ihm.ui.table_variables_valeurs->setItem(index, 0, new QTableWidgetItem());
- m_ihm.ui.table_variables_valeurs->setItem(index, 1, new QTableWidgetItem());
- m_ihm.ui.table_variables_valeurs->item(index, 0)->setText(name);
- m_ihm.ui.table_variables_valeurs->item(index, 1)->setText(value);
+ m_ihm.ui.table_variables_valeurs->setItem(index, Cihm_DataView::COL_TEMPS, new QTableWidgetItem());
+ m_ihm.ui.table_variables_valeurs->setItem(index, Cihm_DataView::COL_NOM, new QTableWidgetItem());
+ m_ihm.ui.table_variables_valeurs->setItem(index, Cihm_DataView::COL_VALEUR, new QTableWidgetItem());
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_TEMPS)->setText(QString::number(normaliseTemps(time)));
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->setText(name);
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_VALEUR)->setText(value);
 
- m_ihm.ui.table_variables_valeurs->item(index, 0)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
- m_ihm.ui.table_variables_valeurs->item(index, 1)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_TEMPS)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+ m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_VALEUR)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 }
 
 
@@ -319,9 +335,9 @@ void CDataView::activeInspectorInstantane(void)
   m_ihm.ui.valueToWrite_label->setEnabled(true);
 
   // Recopie toutes les variables à surveiller
-  for (int i=0; i<m_ihm.ui.lisye_variables->count(); i++) {
-    if (m_ihm.ui.lisye_variables->item(i)->checkState() == Qt::Checked) {
-        addTraceVariable(m_ihm.ui.lisye_variables->item(i)->text());
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+    if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+        addTraceVariable(m_ihm.ui.liste_variables->item(i)->text());
     }
   }
 
@@ -356,9 +372,18 @@ void CDataView::finInspectorInstantane(void)
 void CDataView::refreshValeursVariables(void)
 {
   for (int i=0; i<m_ihm.ui.table_variables_valeurs->rowCount(); i++) {
-    QString var_name = m_ihm.ui.table_variables_valeurs->item(i, 0)->text();
-    QVariant var_value = m_application->m_data_center->read(var_name);
-    m_ihm.ui.table_variables_valeurs->item(i, 1)->setText(var_value.toString());
+    QString var_name = m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_NOM)->text();
+    CData *data = m_application->m_data_center->getData(var_name);
+    if (data)
+    {
+        m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_VALEUR)->setText(data->read().toString());
+        double datatime = normaliseTemps(data->getTime());
+        m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_TEMPS)->setText(QString::number(datatime));
+    }
+    else
+    {
+        m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la récupération de la data " + var_name);
+    }
   }
 }
 
@@ -382,13 +407,14 @@ void CDataView::upVariable()
   }
 
   // Déplace la variable
-  QString var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
+  QString var_name = m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->text();
   m_ihm.ui.table_variables_valeurs->removeRow(index);
   int new_row = index - 1;
   m_ihm.ui.table_variables_valeurs->insertRow(new_row);
-  m_ihm.ui.table_variables_valeurs->setItem(new_row, 0, new QTableWidgetItem());
-  m_ihm.ui.table_variables_valeurs->setItem(new_row, 1, new QTableWidgetItem());
-  m_ihm.ui.table_variables_valeurs->item(new_row, 0)->setText(var_name);
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_NOM, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_VALEUR, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_TEMPS, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->item(new_row, Cihm_DataView::COL_NOM)->setText(var_name);
   m_ihm.ui.table_variables_valeurs->selectRow(new_row);
 
  // Rallume le timer
@@ -417,13 +443,14 @@ void CDataView::downVariable()
   }
 
   // Déplace la variable
-  QString var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
+  QString var_name = m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->text();
   m_ihm.ui.table_variables_valeurs->removeRow(index);
   int new_row = index + 1;
   m_ihm.ui.table_variables_valeurs->insertRow(new_row);
-  m_ihm.ui.table_variables_valeurs->setItem(new_row, 0, new QTableWidgetItem());
-  m_ihm.ui.table_variables_valeurs->setItem(new_row, 1, new QTableWidgetItem());
-  m_ihm.ui.table_variables_valeurs->item(new_row, 0)->setText(var_name);
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_NOM, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_VALEUR, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->setItem(new_row, Cihm_DataView::COL_TEMPS, new QTableWidgetItem());
+  m_ihm.ui.table_variables_valeurs->item(new_row, Cihm_DataView::COL_NOM)->setText(var_name);
   m_ihm.ui.table_variables_valeurs->selectRow(new_row);
 
  // Rallume le timer
@@ -444,8 +471,8 @@ void CDataView::editingFinishedWriteValueInstantane(void)
  unsigned long nbre_variables_ecrites = 0;
 
   for (int i=0; i<m_ihm.ui.table_variables_valeurs->rowCount(); i++) {
-      if (m_ihm.ui.table_variables_valeurs->item(i, 1)->isSelected()) {
-            QString var_name = m_ihm.ui.table_variables_valeurs->item(i, 0)->text();
+      if (m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_VALEUR)->isSelected()) {
+            QString var_name = m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_NOM)->text();
             m_application->m_data_center->write(var_name, valueToWrite);
             nbre_variables_ecrites++;
     } // if l'élément est sélectionné

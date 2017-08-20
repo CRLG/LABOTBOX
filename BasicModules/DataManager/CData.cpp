@@ -2,11 +2,10 @@
  * A brief file description CPP.
  * A more elaborated file description.
  */
-
 #include "CData.h"
 
 /*! \addtogroup DataManager
-   * 
+   *
    *  @{
    */
 
@@ -19,6 +18,7 @@ CData::CData()
 {
  m_data.clear();
  m_name = "";
+ m_update_time = 0;
 }
 
 CData::CData(QString name, QVariant val)
@@ -50,6 +50,7 @@ CData::~CData()
 void CData::write(QVariant data)
 {
   m_mutex.lock();
+  m_update_time = QDateTime::currentMSecsSinceEpoch();
   if (data != m_data) {
     m_data = data;
     // Emet le signal dans différent format pour faciliter l'utilisations et la mise à jour des IHM

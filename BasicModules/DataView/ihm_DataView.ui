@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
+    <width>633</width>
     <height>320</height>
    </rect>
   </property>
@@ -121,7 +121,7 @@
      </widget>
     </item>
     <item row="1" column="0" colspan="4">
-     <widget class="QListWidget" name="lisye_variables">
+     <widget class="QListWidget" name="liste_variables">
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -158,6 +158,11 @@
       <attribute name="horizontalHeaderMinimumSectionSize">
        <number>120</number>
       </attribute>
+      <column>
+       <property name="text">
+        <string>Temps</string>
+       </property>
+      </column>
       <column>
        <property name="text">
         <string>Nom</string>
@@ -243,8 +248,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>498</width>
-     <height>18</height>
+     <width>633</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

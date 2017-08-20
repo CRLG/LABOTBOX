@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QMutex>
 #include <QHash>
+#include <QDateTime>
 
 /*! \addtogroup DataManager
    *  Additional documentation for group DataManager
@@ -19,7 +20,7 @@
 typedef QHash<QString, QVariant>t_map_properties;
 
 /*! @brief class CData in @link DataManager.
- */	   
+ */
 class CData : public QObject
 {
     Q_OBJECT
@@ -32,6 +33,7 @@ public:
     void write(QVariant data);
     QVariant read(void);
     QString getName(void) { return(m_name); }
+    quint64 getTime() { return m_update_time; }
 
     // Accesseurs sur les propriétés
     void setProperty(QString name, QVariant value);
@@ -40,8 +42,10 @@ public:
     QString getPropertiesString(void);
 
 private:
-	//! Stockage de la valeur de la data
-	QVariant m_data;
+    //! Stockage de la valeur de la data
+    QVariant m_data;
+    //! Instant de la dernière mse à à jour (temps absolue en msec)
+    qint64 m_update_time;
     //! Nom de la data
     QString m_name;
     //! Mutex pour l'accès concurrentiel à la data
