@@ -53,6 +53,7 @@ void CUserGuides::init(CLaBotBox *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM
+  m_ihm.ui.menubar->setVisible(true);
 
   // Gère les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
