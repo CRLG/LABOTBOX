@@ -12,6 +12,7 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include "CToolBox.h"
 
 
 
@@ -81,6 +82,7 @@ void CDataView::init(CLaBotBox *application)
   connect(&m_timer_lecture_variables, SIGNAL(timeout()), this, SLOT(refreshValeursVariables()));
 
   connect(m_ihm.ui.valueToWrite, SIGNAL(returnPressed()), this, SLOT(editingFinishedWriteValueInstantane()));
+  connect(m_ihm.ui.pb_enregistrer_trace, SIGNAL(clicked()), this, SLOT(saveToFile()));
 }
 
 
@@ -485,4 +487,49 @@ void CDataView::editingFinishedWriteValueInstantane(void)
     msgBox.setText("Sélectionner une ou plusieurs données à écrire");
     msgBox.exec();
   }
+}
+
+
+// _____________________________________________________________________
+/*!
+*  Enregistre les données dans un fichier texte au format CSV
+*/
+void CDataView::saveToFile()
+{
+    // Construit le chemin du fichier de sortie :
+    //    CheminEnregistrement/<NomModule>_Terminal_<DateHeure>.txt
+    QString pathfilename;
+    pathfilename =    m_application->m_pathname_log_file +
+                        "/" +
+                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                        CToolBox::getDateTime() +
+                        ".trc";
+    // Ouvre et construit le fichier
+    QFile file(pathfilename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+        return;
+    }
+    // Ecrit le fichier
+    QTextStream out(&file);
+    // 1ere ligne du fichier = nom des colonnes
+    for (int col=0; col<m_ihm.ui.table_variables_valeurs->columnCount(); col++)
+    {
+        out << m_ihm.ui.table_variables_valeurs->horizontalHeaderItem(col)->text();
+        if (col != (m_ihm.ui.table_variables_valeurs->columnCount()-1))
+            out << ";";
+    }
+    out << "\n";
+
+    for (int row=0; row<m_ihm.ui.table_variables_valeurs->rowCount(); row++)
+    {
+        for (int col=0; col<m_ihm.ui.table_variables_valeurs->columnCount(); col++)
+        {
+            out << m_ihm.ui.table_variables_valeurs->item(row, col)->text();
+            if (col != (m_ihm.ui.table_variables_valeurs->columnCount()-1))
+                out << ";";
+        }
+        out << "\n";
+    }
+    file.close();
 }

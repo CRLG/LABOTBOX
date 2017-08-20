@@ -89,6 +89,7 @@ public slots :
     void downVariable(void);
     void effacerListeVariablesValues(void);
     void editingFinishedWriteValueInstantane(void);
+    void saveToFile();
 
 
 };
