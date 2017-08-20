@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/user_guide">
+        <file>MessagerieBot.html</file>
+    </qresource>
+
+</RCC>
