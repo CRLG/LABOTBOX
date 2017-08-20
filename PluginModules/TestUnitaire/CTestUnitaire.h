@@ -65,8 +65,7 @@ public slots :
     void connected_rs232(void);
     void disconnected_rs232(void);
 
-    void connected_to_robot(void);
-    void disconnected_from_robot(void);
+    void connected_to_robot(bool state);
 };
 
 

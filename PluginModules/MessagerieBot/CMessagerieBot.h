@@ -14,6 +14,7 @@
 
 class CRS232;
 class CTrameFactory;
+class CData;
 
  class Cihm_MessagerieBot : public QMainWindow
 {
@@ -74,6 +75,7 @@ public :
 private :
     CRS232          *m_rs232;
     CTrameFactory   *m_trame_factory;
+    CData           *m_data_robot_connected;
 
 // =======================================================
 //                  TRAMES EN RECEPTION
@@ -99,7 +101,7 @@ typedef enum {
   cERREUR_DLC_INCORRECT
 }eERREUR_RECONSTITUTION;
 
-#define C_PERIODE_DIAG_PERTE_COM 1000 // [msec]
+#define C_TIMEOUT_PERTE_COM 1000 // [msec]
 
 private slots :
     //! Reconstitue une trame à partir de données entrantes
@@ -107,7 +109,7 @@ private slots :
     //! Reconstitue une trame à partir de données entrantes
     void Reconstitution(unsigned char data);
     //! Diagnostic de perte de communication avec le robot
-    void DiagPerteComm(void);
+    void TimeoutPerteComm(void);
 
 public slots :
     //! Recherche et lance le decodage de la trame arrivee
@@ -115,10 +117,8 @@ public slots :
 signals :
     //! Signal de réception de trame
     void frameReceived(tStructTrameBrute trame);
-    //! Signal de diagnostic de communication avec le robot pour indiquer que la connexion avec le robot est établie
-    void connected(void);
-    //! Signal de diagnostic de communication avec le robot pour indiquer que la connexion avec le robot est perdue
-    void disconnected(void);
+    //! Signal de diagnostic de communication avec le robot pour indiquer que la connexion avec le robot est établie/perdue
+    void connected(bool state);
 
 private :
     //! Initialisation des donnees liees a la reconstitution de la trame
@@ -140,8 +140,6 @@ private :
 
     //! Timer de diagnostic de perte de communication
     QTimer  m_timer_diag_comm;
-    //! Compte le nombre de trames reçues entre 2 tick du timer de diagnostic
-    unsigned long m_cpt_trames_recues_diag;
     //! Indique si la connexion est établie ou non
     bool m_connected_to_robot;
 

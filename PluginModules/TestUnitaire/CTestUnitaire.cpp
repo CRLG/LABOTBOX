@@ -126,8 +126,7 @@ void CTestUnitaire::init(CLaBotBox *application)
  connect(m_application->m_RS232_robot, SIGNAL(connected()), this, SLOT(connected_rs232()));
  connect(m_application->m_RS232_robot, SIGNAL(disconnected()), this, SLOT(disconnected_rs232()));
 
- connect(m_application->m_MessagerieBot, SIGNAL(connected()), this, SLOT(connected_to_robot()));
- connect(m_application->m_MessagerieBot, SIGNAL(disconnected()), this, SLOT(disconnected_from_robot()));
+ connect(m_application->m_MessagerieBot, SIGNAL(connected(bool)), this, SLOT(connected_to_robot(bool)));
 }
 
 
@@ -220,19 +219,9 @@ void CTestUnitaire::disconnected_rs232(void)
 
 // =========================================================
 
-void CTestUnitaire::connected_to_robot(void)
+void CTestUnitaire::connected_to_robot(bool state)
 {
- m_application->m_print_view->print_info(this, "Robot connected");
+ if (state) m_application->m_print_view->print_info(this, "Robot connected");
+ else       m_application->m_print_view->print_info(this, "Robot disconnected");
 }
-
-
-void CTestUnitaire::disconnected_from_robot(void)
-{
-  m_application->m_print_view->print_info(this, "Robot disconnected");
-}
-
-
-
-
-
 

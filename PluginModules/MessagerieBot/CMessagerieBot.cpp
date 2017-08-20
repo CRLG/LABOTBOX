@@ -12,7 +12,7 @@
 #include "CRS232.h"
 #include "CTrameFactory.h"
 
-/*! \addtogroup Module_Test2
+/*! \addtogroup MessagerieBot
    * 
    *  @{
    */
@@ -25,11 +25,9 @@
 CMessagerieBot::CMessagerieBot(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_MessagerieBot, AUTEUR_MessagerieBot, INFO_MessagerieBot),
      m_rs232(NULL),
-    // m_trame_factory(NULL),
      m_etatReconst(cETAT_INIT),
      m_numero_data(0),
      m_transfert_avec_checksum(true),
-     m_cpt_trames_recues_diag(0),
      m_connected_to_robot(false)
 {
 }
@@ -80,6 +78,11 @@ void CMessagerieBot::init(CLaBotBox *application)
   // soit réutilisable si besoin
   setRS232(m_application->m_RS232_robot);
 
+  // Crée une data indiquant la connexion avec le robot
+  QString connect_dataname = "Robot_Connecte";
+  m_application->m_data_center->write(connect_dataname, m_connected_to_robot);
+  m_data_robot_connected = m_application->m_data_center->getData(connect_dataname);
+
   //
   m_trame_factory = new CTrameFactory(this, m_application->m_data_center);
   connect(this, SIGNAL(frameReceived(tStructTrameBrute)), m_trame_factory, SLOT(Decode(tStructTrameBrute)));
@@ -89,7 +92,8 @@ void CMessagerieBot::init(CLaBotBox *application)
 
 
   // Diagnostic de perte de communication
-  connect(&m_timer_diag_comm, SIGNAL(timeout()), this, SLOT(DiagPerteComm()));
+  connect(&m_timer_diag_comm, SIGNAL(timeout()), this, SLOT(TimeoutPerteComm()));
+  connect(this, SIGNAL(connected(bool)), m_ihm.ui.led_connexion_robot, SLOT(setValue(bool)));
 }
 
 
@@ -284,20 +288,17 @@ void CMessagerieBot::DecodeFrame(tStructTrameBrute trameRecue)
 //___________________________________________________________________________
 /*!
    \brief Diagnostic de perte de communication avec le robot.
-    - Fonction appelee périodiquement
-    - Si aucune trame valide n'a été reçue dans l'interval de diagnostic, c'est que la communication est perdue
-   \param trameRecue la trame brute recue
+    - Fonction appellée si aucune trame n'est reçue dans l'interval de diagnostic
+    - Si aucune trame valide n'a été reçue dans l'interval de diagnostic, c'est que la communication avec le robot est perdue
    \return --
 */
-void CMessagerieBot::DiagPerteComm(void)
+void CMessagerieBot::TimeoutPerteComm(void)
 {
- if ( (m_connected_to_robot==true) && (m_cpt_trames_recues_diag==0) ) {
     m_connected_to_robot = false;
     m_application->m_print_view->print_info(this, "Perte de connexion avec le robot");
-    emit disconnected();
+    m_data_robot_connected->write(false);
+    emit connected(false);
     m_timer_diag_comm.stop();  // la connexion étant perdue, pas la peine de poursuivre le diagnostic de perte de communication
- }
- m_cpt_trames_recues_diag = 0;
 }
 
 //___________________________________________________________________________
@@ -310,13 +311,13 @@ void CMessagerieBot::DiagPerteComm(void)
 void CMessagerieBot::GestionConnexionRobot(void)
 {
   // Gestion de la connexion/deconnexion avec le robot
-  m_cpt_trames_recues_diag++;
   if (m_connected_to_robot == false) {
       m_connected_to_robot = true;
-      m_application->m_print_view->print_info(this, "Connextion etablie avec le robot");
-      emit connected();
-      m_timer_diag_comm.start(C_PERIODE_DIAG_PERTE_COM); // la connexion est établie, lance le timer de diagnostic
+      m_application->m_print_view->print_info(this, "Connexion etablie avec le robot");
+      m_data_robot_connected->write(true);
+      emit connected(true);
   }
+  m_timer_diag_comm.start(C_TIMEOUT_PERTE_COM); // la connexion est établie, lance le timer de diagnostic
 }
 
 // =======================================================
