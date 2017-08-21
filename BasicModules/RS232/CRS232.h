@@ -69,7 +69,6 @@ private slots :
 private :
     QList<QSerialPortInfo>  m_list;
 
-
 // =======================================================
 //      RECEPTION ET EMISSION SUR LA LIAISON SERIE
 // =======================================================
@@ -83,6 +82,9 @@ public slots:
 
 public slots :
     void reveive_rx_data(QByteArray data);
+    void closeSerial();
+    void openSerial();
+    void reinitSerial();
 
 signals :
     void dataReceived(QString data);

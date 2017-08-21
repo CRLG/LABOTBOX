@@ -61,11 +61,13 @@ private:
 public slots :
     void cb_Bouton(void);
     void cb_Bouton2(void);
+    void cb_Bouton3(void);
     void receive_rs232(QByteArray data);
     void connected_rs232(void);
     void disconnected_rs232(void);
 
     void connected_to_robot(bool state);
+
 };
 
 

@@ -4,6 +4,8 @@
  */
 #include <QDebug>
 #include <QDialog>
+#include <QThread>
+
 #include "CRS232.h"
 #include "CLaBotBox.h"
 #include "CPrintView.h"
@@ -14,7 +16,7 @@
 #include "console.h"
 
 
-/*! \addtogroup Module_Test2
+/*! \addtogroup RS232
    * 
    *  @{
    */
@@ -261,6 +263,43 @@ void CRS232::reveive_rx_data(QByteArray data)
   if (m_hex_edit_ON)    { m_hex_edit_writer->append(data); }
 }
 
+// _____________________________________________________________
+/*!
+* Ouvre le port de communication série
+*/
+void CRS232::openSerial()
+{
+ tConfigRS232 config;
+ QString portname;
+
+ // récupère la config
+ serialIHMToConfig(portname, config);
+
+ // ouvre le port de communication
+ m_rs232_listener.startCommunication(portname, config);
+}
+
+// _____________________________________________________________
+/*!
+* Ferme le port de communication série
+*/
+void CRS232::closeSerial()
+{
+    m_rs232_listener.stopCommunication();
+}
+
+// _____________________________________________________________________
+/*!
+* Réinitialise le port de communication (ferme+ouvre)
+*/
+void CRS232::reinitSerial()
+{
+    closeSerial();
+    QThread::msleep(1000);
+    openSerial();
+}
+
+
 
 
 // =======================================================
@@ -316,15 +355,12 @@ void CRS232::procFillingOptions(void)
     m_ihm.ui.echoBox->addItem(tr("Off"), 0);
     m_ihm.ui.echoBox->addItem(tr("On"), 1);
 
-
     m_list = QSerialPortInfo::availablePorts();
     foreach(QSerialPortInfo info, m_list) {
          m_ihm.ui.portCOM->addItem(info.portName());
     }
     m_ihm.ui.portCOM->addItem(C_VIRTUAL_PORT_COM); // ajoute un port virtuel pour la simulation
-
 }
-
 
 // _____________________________________________________________________
 /*!
@@ -492,20 +528,13 @@ void CRS232::serialIHMToConfig(QString &portname, tConfigRS232 &config)
 // _____________________________________________________________
 void CRS232::openButtonClick(void)
 {
- tConfigRS232 config;
- QString portname;
-
- // récupère la config
- serialIHMToConfig(portname, config);
-
- // ouvre le port de communication
- m_rs232_listener.startCommunication(portname, config);
+    openSerial();
 }
 
 // _____________________________________________________________
 void CRS232::closeButtonClick(void)
 {
- m_rs232_listener.stopCommunication();
+    closeSerial();
 }
 // _____________________________________________________________
 void CRS232::portCOMChanged(int index)

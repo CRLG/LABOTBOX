@@ -213,5 +213,6 @@ void CRS232Listener::run()
 
   // Termine proprement la ocnnexion et émet le signal de déconnexion
   closeRS232(serial);
+  delete serial;
 }
 

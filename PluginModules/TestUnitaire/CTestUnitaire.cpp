@@ -89,6 +89,7 @@ void CTestUnitaire::init(CLaBotBox *application)
 
  connect(m_ihm.ui.pushButton, SIGNAL(clicked()), this, SLOT(cb_Bouton()));
  connect(m_ihm.ui.pushButton2, SIGNAL(clicked()), this, SLOT(cb_Bouton2()));
+ connect(m_ihm.ui.pushButton3, SIGNAL(clicked()), this, SLOT(cb_Bouton3()));
 
  m_application->m_data_center->write("PosX_robot", 0);
  m_application->m_data_center->getData("PosX_robot")->setProperty("Unite", "secondes");
@@ -199,6 +200,10 @@ void CTestUnitaire::cb_Bouton2(void)
   m_application->m_MessagerieBot->SerialiseTrame(&trame);
 }
 
+void CTestUnitaire::cb_Bouton3(void)
+{
+    m_application->m_RS232_robot->reinitSerial();
+}
 
 void CTestUnitaire::receive_rs232(QByteArray data)
 {
