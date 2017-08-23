@@ -81,7 +81,7 @@ void CTestUnitaire::init(CLaBotBox *application)
  m_application->m_eeprom->write(getName(), "parity", QVariant((int)config.parity));
  m_application->m_eeprom->write(getName(), "stopbits", QVariant((int)config.stopbits));
 
- val = m_application->m_eeprom->read(getName(), "baudrate", 19200);
+ val = m_application->m_eeprom->read(getName(), "baudrate", 115200);
  val = m_application->m_eeprom->read(getName(), "databits", 8);
  val = m_application->m_eeprom->read(getName(), "flowcontrol", 0);
  val = m_application->m_eeprom->read(getName(), "parity", 0);

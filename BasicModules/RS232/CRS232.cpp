@@ -82,7 +82,7 @@ void CRS232::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "portname", "");
   QString portname = val.toString();
   tConfigRS232 config;
-  val = m_application->m_eeprom->read(getName(), "baudrate", 19200);
+  val = m_application->m_eeprom->read(getName(), "baudrate", 115200);
   config.baudrate = (QSerialPort::BaudRate)val.toInt();
   val = m_application->m_eeprom->read(getName(), "databits", 8);
   config.databits = (QSerialPort::DataBits)val.toInt();

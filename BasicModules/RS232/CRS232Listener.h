@@ -25,7 +25,7 @@ typedef struct {
     bool                            echo_enabled;   //! Echo RX -> TX
 }tConfigRS232;
 
-const tConfigRS232 DEFAULT_RS232_CONFIG = { QSerialPort::Baud19200, QSerialPort::Data8, QSerialPort::NoFlowControl, QSerialPort::NoParity, QSerialPort::OneStop, QSerialPort::IgnorePolicy, false };
+const tConfigRS232 DEFAULT_RS232_CONFIG = { QSerialPort::Baud115200, QSerialPort::Data8, QSerialPort::NoFlowControl, QSerialPort::NoParity, QSerialPort::OneStop, QSerialPort::IgnorePolicy, false };
 
  /*! @brief class CRS232Listener
   * Thread d'écoute des données en provenance de la ligne physique RX RS232
