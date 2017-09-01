@@ -108,6 +108,41 @@ void CTrameFactory::create(void)
  }
 
 }
+
+tListeTrames CTrameFactory::getListeTramesRx() const
+{
+    return m_liste_trames_rx;
+}
+
+tListeTrames CTrameFactory::getListeTramesTx() const
+{
+    return m_liste_trames_tx;
+}
+
+tListeTrames CTrameFactory::getListeTrames() const
+{
+    return m_liste_trames;
+}
+
+unsigned int CTrameFactory::name2ID(QString name)
+{
+    for (int i=0; i<m_liste_trames.count(); i++)
+    {
+        if (name == m_liste_trames[i]->m_name) return m_liste_trames[i]->m_id;
+    }
+    return 0;
+}
+
+QString CTrameFactory::ID2Name(unsigned int id)
+{
+    for (int i=0; i<m_liste_trames.count(); i++)
+    {
+        if (id == m_liste_trames[i]->m_id) return m_liste_trames[i]->m_name;
+    }
+    return "";
+}
+
+
 // ========================================================
 //             TRAME ELECTROBOT_CDE_SERVOS_SD20
 // ========================================================

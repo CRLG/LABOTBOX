@@ -36,6 +36,12 @@ public:
 
     void create(void);
 
+    tListeTrames getListeTramesRx() const;
+    tListeTrames getListeTramesTx() const;
+    tListeTrames getListeTrames() const;
+    unsigned int name2ID(QString name);
+    QString ID2Name(unsigned int id);
+
 private :
     CMessagerieBot *m_messagerie_bot;
     CDataManager *m_data_manager;

@@ -62,6 +62,12 @@ private:
 
 private slots :
     void onRightClicGUI(QPoint pos);
+    void onArreterToutesTrames();
+    void onToutesTrames200ms();
+    void onSendConfigPeriodeTrame();
+    void onConfigSelectTrame(QString tramename);
+    void onConfigSelectID();
+
 
 // =======================================================
 //                  GENERALITES

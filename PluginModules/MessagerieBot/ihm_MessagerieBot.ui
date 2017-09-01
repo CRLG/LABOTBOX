@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>187</width>
-    <height>104</height>
+    <width>500</width>
+    <height>167</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QFormLayout" name="formLayout_2">
-    <item row="0" column="0">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" colspan="2">
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
        <widget class="QLed" name="led_connexion_robot">
@@ -54,6 +54,77 @@
       </item>
      </layout>
     </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="pb_ArreterToutesTrames">
+      <property name="text">
+       <string>Arrêter tout</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="2">
+     <widget class="QPushButton" name="pb_ToutesTrames200ms">
+      <property name="text">
+       <string>Toutes à 200msec</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <widget class="QComboBox" name="ConfigListeTrames"/>
+    </item>
+    <item row="2" column="2">
+     <widget class="QSpinBox" name="ConfigID">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="toolTip">
+       <string>0xFFFF pour affecter toutes les trames</string>
+      </property>
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="prefix">
+       <string>0x</string>
+      </property>
+      <property name="maximum">
+       <number>999999999</number>
+      </property>
+      <property name="displayIntegerBase">
+       <number>16</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QSpinBox" name="ConfigPeriode">
+      <property name="toolTip">
+       <string>-1 pour que la trame soit arrêtée</string>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="suffix">
+       <string>msec</string>
+      </property>
+      <property name="minimum">
+       <number>-32768</number>
+      </property>
+      <property name="maximum">
+       <number>32767</number>
+      </property>
+      <property name="value">
+       <number>200</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QPushButton" name="pb_SendConfigPeriode">
+      <property name="text">
+       <string>Send</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -61,7 +132,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>187</width>
+     <width>500</width>
      <height>22</height>
     </rect>
    </property>

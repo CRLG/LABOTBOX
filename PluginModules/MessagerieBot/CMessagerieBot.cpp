@@ -94,7 +94,23 @@ void CMessagerieBot::init(CLaBotBox *application)
   // Diagnostic de perte de communication
   connect(&m_timer_diag_comm, SIGNAL(timeout()), this, SLOT(TimeoutPerteComm()));
   connect(this, SIGNAL(connected(bool)), m_ihm.ui.led_connexion_robot, SLOT(setValue(bool)));
+
+  // Configuration de la période des trames
+  connect(m_ihm.ui.pb_ArreterToutesTrames, SIGNAL(clicked()), this, SLOT(onArreterToutesTrames()));
+  connect(m_ihm.ui.pb_ToutesTrames200ms, SIGNAL(clicked()), this, SLOT(onToutesTrames200ms()));
+  connect(m_ihm.ui.ConfigListeTrames, SIGNAL(currentIndexChanged(QString)), this, SLOT(onConfigSelectTrame(QString)));
+  connect(m_ihm.ui.ConfigID, SIGNAL(editingFinished()), this, SLOT(onConfigSelectID()));
+  connect(m_ihm.ui.pb_SendConfigPeriode, SIGNAL(clicked()), this, SLOT(onSendConfigPeriodeTrame()));
+
+  m_ihm.ui.ConfigListeTrames->addItem("");  // 1er élément vide (utilisé dans le cas où l'ID n'est pas reconnu)
+  tListeTrames list_trames_rx = m_trame_factory->getListeTramesRx();
+  for (int i=0; i<list_trames_rx.count(); i++)
+  {
+      m_ihm.ui.ConfigListeTrames->addItem(list_trames_rx.at(i)->m_name);
+  }
+  m_ihm.ui.ConfigListeTrames->setCurrentIndex(1);
 }
+
 
 
 // _____________________________________________________________________
@@ -124,6 +140,60 @@ void CMessagerieBot::onRightClicGUI(QPoint pos)
   menu->exec(m_ihm.mapToGlobal(pos));
 }
 
+/*!
+*  Demande au robot d'arrêter l'émission de toutes les trames
+*
+*/
+void CMessagerieBot::onArreterToutesTrames()
+{
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", true);
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_ID", 0xFFFF);  // valeur pour dire "concerne toutes les trames"
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_Periode", (short)-1);  // Valeur pour dire "Trame non périodique"
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", false);
+}
+
+/*!
+*  Demande au robot d'émettre toutes les trames à 200msec
+*
+*/
+void CMessagerieBot::onToutesTrames200ms()
+{
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", true);
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_ID", 0xFFFF);  // valeur pour dire "concerne toutes les trames"
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_Periode", 200);
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", false);
+}
+
+/*!
+*  Envoie au robot la configuration de la trame sélectionnée
+*
+*/
+void CMessagerieBot::onSendConfigPeriodeTrame()
+{
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", true);
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_ID", m_ihm.ui.ConfigID->value());
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_Periode", m_ihm.ui.ConfigPeriode->value());
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", false);
+}
+
+/*!
+*  Callback appelée lorsque l'utilisateur sélectionne une trame à configurer
+*
+*/
+void CMessagerieBot::onConfigSelectTrame(QString tramename)
+{
+    m_ihm.ui.ConfigID->setValue(m_trame_factory->name2ID(tramename));
+}
+
+/*!
+*  Callback appelée lorsque l'utilisateur change la valeur de l'identifiant
+*
+*/
+void CMessagerieBot::onConfigSelectID()
+{
+    int id = m_ihm.ui.ConfigID->value();
+    m_ihm.ui.ConfigListeTrames->setCurrentText(m_trame_factory->ID2Name(id));
+}
 
 // =======================================================
 //                  TRAMES EN RECEPTION
