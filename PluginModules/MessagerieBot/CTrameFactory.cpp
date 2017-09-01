@@ -97,6 +97,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ASSERV_DIAG_WRITE_PARAM(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_MANUEL(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -2078,4 +2079,91 @@ void CTrame_ELECTROBOT_ETAT_CAPTEURS_1::Decode(tStructTrameBrute *trameRecue)
    m_nombre_recue++;
 }
 
+// ========================================================
+//             TRAME CONFIG_PERIODE_TRAME
+// ========================================================
+CTrame_CONFIG_PERIODE_TRAME::CTrame_CONFIG_PERIODE_TRAME(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "CONFIG_PERIODE_TRAME";
+ m_id = ID_CONFIG_PERIODE_TRAME;
+ m_dlc = DLC_CONFIG_PERIODE_TRAME;
+ m_liste_noms_signaux.append("CONFIG_PERIODE_TRAME_Periode");
+ m_liste_noms_signaux.append("CONFIG_PERIODE_TRAME_ID");
+
+ // Initialise les données de la messagerie
+ CONFIG_PERIODE_TRAME_Periode = 0;
+ CONFIG_PERIODE_TRAME_ID = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("CONFIG_PERIODE_TRAME_Periode",  CONFIG_PERIODE_TRAME_Periode);
+ data_manager->write("CONFIG_PERIODE_TRAME_ID",  CONFIG_PERIODE_TRAME_ID);
+ data_manager->write("CONFIG_PERIODE_TRAME_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("CONFIG_PERIODE_TRAME_Periode"), SIGNAL(valueChanged(QVariant)), this, SLOT(CONFIG_PERIODE_TRAME_Periode_changed(QVariant)));
+ connect(data_manager->getData("CONFIG_PERIODE_TRAME_ID"), SIGNAL(valueChanged(QVariant)), this, SLOT(CONFIG_PERIODE_TRAME_ID_changed(QVariant)));
+ connect(data_manager->getData("CONFIG_PERIODE_TRAME_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_Periode_changed(QVariant val)
+{
+  CONFIG_PERIODE_TRAME_Periode = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_ID_changed(QVariant val)
+{
+  CONFIG_PERIODE_TRAME_ID = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_CONFIG_PERIODE_TRAME::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_CONFIG_PERIODE_TRAME::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_CONFIG_PERIODE_TRAME;
+  trame.DLC = DLC_CONFIG_PERIODE_TRAME;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[3] |= (unsigned char)( ( (CONFIG_PERIODE_TRAME_Periode) & 0xFF) );
+    trame.Data[2] |= (unsigned char)( ( (CONFIG_PERIODE_TRAME_Periode >> 8) & 0xFF) );
+
+    trame.Data[1] |= (unsigned char)( ( (CONFIG_PERIODE_TRAME_ID) & 0xFF) );
+    trame.Data[0] |= (unsigned char)( ( (CONFIG_PERIODE_TRAME_ID >> 8) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
 

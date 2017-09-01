@@ -845,6 +845,31 @@ private slots :
 };
 
 
+// ========================================================
+//             TRAME CONFIG_PERIODE_TRAME
+// ========================================================
+#define ID_CONFIG_PERIODE_TRAME 0x108
+#define DLC_CONFIG_PERIODE_TRAME 4
+
+class CTrame_CONFIG_PERIODE_TRAME : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_CONFIG_PERIODE_TRAME(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_CONFIG_PERIODE_TRAME() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    short CONFIG_PERIODE_TRAME_Periode;
+    unsigned short CONFIG_PERIODE_TRAME_ID;
+    bool m_synchro_tx;
+
+private slots :
+    void CONFIG_PERIODE_TRAME_Periode_changed(QVariant val);
+    void CONFIG_PERIODE_TRAME_ID_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
 
 
 #endif // _CTRAME_FACTORY_H_
