@@ -315,7 +315,7 @@ void CStrategyDesigner::Slot_AddAction()
     QString commande;
     if(choixAction.compare("PositionServo")==0)
     {
-        commande="setPosition";
+        commande="setServo";
     }
     if(choixAction.compare("CommandeMoteur")==0)
     {

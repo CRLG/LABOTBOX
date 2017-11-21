@@ -59,6 +59,10 @@ private slots :
 
 private :
     void updateAliasLabels(void);
+    int color_now;
+    int color_prec;
+    int color_conf;
+    int color_count;
 
 private slots :
     void Etor1_changed(QVariant val);
@@ -97,6 +101,10 @@ private slots :
     void Codeur_2_changed(QVariant val);
     void Codeur_3_changed(QVariant val);
     void Codeur_4_changed(QVariant val);
+
+    void R_changed(QVariant val);
+    void G_changed(QVariant val);
+    void B_changed(QVariant val);
 };
 
 #endif // _CPLUGIN_MODULE_SensorElectroBot_H_

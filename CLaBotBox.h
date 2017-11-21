@@ -22,6 +22,7 @@ class CDataView;
 class CDataPlayer;
 class CRS232;
 class CJoystick;
+class CEcran;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -36,6 +37,8 @@ class CActuatorElectrobot;
 class CSensorView;
 class CAsserv;
 class CUserGuides;
+class CActuatorSequencer;
+class CBotCam;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -70,6 +73,7 @@ public:
    CRS232     *m_RS232_robot;
    CRS232     *m_RS232_cmucam;
    CJoystick     *m_Joystick;
+   CEcran     *m_Ecran;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
    CModuleDesigner       *m_module_creator;
@@ -83,6 +87,8 @@ public:
    CSensorView     *m_SensorView;
    CAsserv     *m_Asserv;
    CUserGuides     *m_UserGuides;
+   CActuatorSequencer     *m_ActuatorSequencer;
+   CBotCam     *m_BotCam;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

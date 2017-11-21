@@ -17,6 +17,7 @@
 #include "CDataView.h"
 #include "CDataPlayer.h"
 #include "CRS232.h"
+#include "CEcran.h"
 #include "CJoystick.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
@@ -32,6 +33,8 @@
 #include "CSensorView.h"
 #include "CAsserv.h"
 #include "CUserGuides.h"
+#include "CActuatorSequencer.h"
+#include "CBotCam.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CLaBotBox.h"
@@ -120,6 +123,9 @@ void CLaBotBox::createBasicModules(void)
   m_Joystick     = new CJoystick("Joystick");
   m_list_basic_modules.append(m_Joystick);
   m_list_modules.append(m_Joystick);
+  m_Ecran     = new CEcran("Ecran");
+  m_list_basic_modules.append(m_Ecran);
+  m_list_modules.append(m_Ecran);
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }
@@ -181,9 +187,9 @@ void CLaBotBox::createPluginModules(void)
   m_list_plugin_modules.append(m_TestUnitaire);
   m_list_modules.append(m_TestUnitaire);
 
-  m_DataGraph     = new CDataGraph("DataGraph");
-  m_list_plugin_modules.append(m_DataGraph);
-  m_list_modules.append(m_DataGraph);
+//  m_DataGraph     = new CDataGraph("DataGraph");
+//  m_list_plugin_modules.append(m_DataGraph);
+//  m_list_modules.append(m_DataGraph);
 
   m_SimuBot     = new CSimuBot("SimuBot");
   m_list_plugin_modules.append(m_SimuBot);
@@ -217,6 +223,13 @@ void CLaBotBox::createPluginModules(void)
   m_list_plugin_modules.append(m_UserGuides);
   m_list_modules.append(m_UserGuides);
 
+  m_ActuatorSequencer     = new CActuatorSequencer("ActuatorSequencer");
+  m_list_plugin_modules.append(m_ActuatorSequencer);
+  m_list_modules.append(m_ActuatorSequencer);
+
+  m_BotCam     = new CBotCam("BotCam");
+  m_list_plugin_modules.append(m_BotCam);
+  m_list_modules.append(m_BotCam);
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
 
@@ -283,6 +296,8 @@ void CLaBotBox::run(void)
    for (int i=0; i<m_list_basic_modules.size(); i++) {
        qDebug() << m_list_basic_modules[i]->getName() << m_list_basic_modules[i]->getVersion();
    }
+
+   m_Ecran->getIHM()->showMaximized();
 }
 
 

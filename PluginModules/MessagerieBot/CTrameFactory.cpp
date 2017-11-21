@@ -82,6 +82,9 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CODEURS_3_4(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_2(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_1(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ECRAN_ETAT_MATCH(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
   // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -97,6 +100,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ASSERV_DIAG_WRITE_PARAM(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_MANUEL(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ECRAN_ETAT_ECRAN(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
@@ -1171,10 +1175,10 @@ CTrame_COMMANDE_MVT_XY_TETA::CTrame_COMMANDE_MVT_XY_TETA(CMessagerieBot *message
  m_name = "COMMANDE_MVT_XY_TETA";
  m_id = ID_COMMANDE_MVT_XY_TETA;
  m_dlc = DLC_COMMANDE_MVT_XY_TETA;
- m_liste_noms_signaux.append("angle_consigne");
- m_liste_noms_signaux.append("Y_consigne");
- m_liste_noms_signaux.append("X_consigne");
- m_liste_noms_signaux.append("Type_mouvement");
+ m_liste_noms_signaux.append("XYT_angle_consigne");
+ m_liste_noms_signaux.append("XYT_Y_consigne");
+ m_liste_noms_signaux.append("XYT_X_consigne");
+ m_liste_noms_signaux.append("XYT_Type_mouvement");
 
  // Initialise les données de la messagerie
  angle_consigne = 0;
@@ -1184,17 +1188,17 @@ CTrame_COMMANDE_MVT_XY_TETA::CTrame_COMMANDE_MVT_XY_TETA(CMessagerieBot *message
  m_synchro_tx = 0;
 
  // S'assure que les données existent dans le DataManager
- data_manager->write("angle_consigne",  angle_consigne);
- data_manager->write("Y_consigne",  Y_consigne);
- data_manager->write("X_consigne",  X_consigne);
- data_manager->write("Type_mouvement",  Type_mouvement);
+ data_manager->write("XYT_angle_consigne",  angle_consigne);
+ data_manager->write("XYT_Y_consigne",  Y_consigne);
+ data_manager->write("XYT_X_consigne",  X_consigne);
+ data_manager->write("XYT_Type_mouvement",  Type_mouvement);
  data_manager->write("COMMANDE_MVT_XY_TETA_TxSync",  m_synchro_tx);
 
  // Connexion avec le DataManager
- connect(data_manager->getData("angle_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(angle_consigne_changed(QVariant)));
- connect(data_manager->getData("Y_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(Y_consigne_changed(QVariant)));
- connect(data_manager->getData("X_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(X_consigne_changed(QVariant)));
- connect(data_manager->getData("Type_mouvement"), SIGNAL(valueChanged(QVariant)), this, SLOT(Type_mouvement_changed(QVariant)));
+ connect(data_manager->getData("XYT_angle_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(angle_consigne_changed(QVariant)));
+ connect(data_manager->getData("XYT_Y_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(Y_consigne_changed(QVariant)));
+ connect(data_manager->getData("XYT_X_consigne"), SIGNAL(valueChanged(QVariant)), this, SLOT(X_consigne_changed(QVariant)));
+ connect(data_manager->getData("XYT_Type_mouvement"), SIGNAL(valueChanged(QVariant)), this, SLOT(Type_mouvement_changed(QVariant)));
  connect(data_manager->getData("COMMANDE_MVT_XY_TETA_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
 
 }
@@ -2114,6 +2118,247 @@ void CTrame_ELECTROBOT_ETAT_CAPTEURS_1::Decode(tStructTrameBrute *trameRecue)
    m_nombre_recue++;
 }
 
+
+// ========================================================
+//             TRAME ECRAN_ETAT_MATCH
+// ========================================================
+CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ECRAN_ETAT_MATCH";
+ m_id = ID_ECRAN_ETAT_MATCH;
+ m_dlc = DLC_ECRAN_ETAT_MATCH;
+ ModeFonctionnement=2;
+ m_liste_noms_signaux.append("ObstacleDetecte");
+ m_liste_noms_signaux.append("DiagBlocage");
+ m_liste_noms_signaux.append("ConvergenceAsserv");
+ m_liste_noms_signaux.append("ModeFonctionnement");
+ m_liste_noms_signaux.append("CouleurEquipe");
+ m_liste_noms_signaux.append("TempsMatch");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("ObstacleDetecte",  ObstacleDetecte);
+ data_manager->write("DiagBlocage",  DiagBlocage);
+ data_manager->write("ConvergenceAsserv",  ConvergenceAsserv);
+ data_manager->write("ModeFonctionnement",  ModeFonctionnement);
+ data_manager->write("CouleurEquipe",  CouleurEquipe);
+ data_manager->write("TempsMatch",  TempsMatch);
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
+{
+    // Decode les signaux de la trame
+   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x3)<< 6 );
+
+   DiagBlocage = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x1)<< 5 );
+
+   ConvergenceAsserv = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x1) << 4 );
+
+   ModeFonctionnement = ( ( ((unsigned char)(trameRecue->Data[2])) & 0xF) );
+
+   CouleurEquipe=( ( ((unsigned char)(trameRecue->Data[1])) & 0xFF) );
+
+   TempsMatch = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
+
+
+
+   // Envoie les données au data manager
+   m_data_manager->write("ObstacleDetecte", BRUTE2PHYS_ObstacleDetecte(ObstacleDetecte));
+   m_data_manager->write("DiagBlocage", BRUTE2PHYS_DiagBlocage(DiagBlocage));
+   m_data_manager->write("ConvergenceAsserv", BRUTE2PHYS_ConvergenceAsserv(ConvergenceAsserv));
+   m_data_manager->write("ModeFonctionnement", BRUTE2PHYS_ModeFonctionnement(ModeFonctionnement));
+   m_data_manager->write("CouleurEquipe", CouleurEquipe);
+   m_data_manager->write("TempsMatch", BRUTE2PHYS_TempsMatch(TempsMatch));
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+
+
+// ========================================================
+//             TRAME ECRAN_ETAT_ECRAN
+// ========================================================
+CTrame_ECRAN_ETAT_ECRAN::CTrame_ECRAN_ETAT_ECRAN(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ECRAN_ETAT_ECRAN";
+ m_id = ID_ECRAN_ETAT_ECRAN;
+ m_dlc = DLC_ECRAN_ETAT_ECRAN;
+ m_liste_noms_signaux.append("valeur_etat_ecran");
+ m_liste_noms_signaux.append("commande_etat_ecran");
+
+ // Initialise les données de la messagerie
+ Valeur = 0;
+ CodeCommande = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("valeur_etat_ecran",  Valeur);
+ data_manager->write("commande_etat_ecran",  CodeCommande);
+ data_manager->write("ECRAN_ETAT_ECRAN_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("valeur_etat_ecran"), SIGNAL(valueChanged(QVariant)), this, SLOT(Valeur_etat_ecran_changed(QVariant)));
+ connect(data_manager->getData("commande_etat_ecran"), SIGNAL(valueChanged(QVariant)), this, SLOT(CodeCommande_etat_ecran_changed(QVariant)));
+ connect(data_manager->getData("ECRAN_ETAT_ECRAN_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ECRAN_ETAT_ECRAN::Valeur_etat_ecran_changed(QVariant val)
+{
+  Valeur = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ECRAN_ETAT_ECRAN::CodeCommande_etat_ecran_changed(QVariant val)
+{
+  CodeCommande = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ECRAN_ETAT_ECRAN::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ECRAN_ETAT_ECRAN::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ECRAN_ETAT_ECRAN;
+  trame.DLC = DLC_ECRAN_ETAT_ECRAN;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+ // Encode chacun des signaux de la trame
+   trame.Data[3] |= (unsigned char)( ( (Valeur) & 0xFF) );
+   trame.Data[2] |= (unsigned char)( ( (Valeur >> 8) & 0xFF) );
+
+   trame.Data[1] |= (unsigned char)( ( (CodeCommande) & 0xFF) );
+   trame.Data[0] |= (unsigned char)( ( (CodeCommande >> 8) & 0xFF) );
+
+  qDebug() << CodeCommande << Valeur;
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME ETAT_RACK
+// ========================================================
+CTrame_ETAT_RACK::CTrame_ETAT_RACK(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_RACK";
+ m_id = ID_ETAT_RACK;
+ m_dlc = DLC_ETAT_RACK;
+ m_liste_noms_signaux.append("rack_reserve");
+ m_liste_noms_signaux.append("rack_modeAsservissement");
+ m_liste_noms_signaux.append("rack_cde_moteur");
+ m_liste_noms_signaux.append("rack_consigne_moteur");
+ m_liste_noms_signaux.append("rack_convergence");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("rack_reserve",  rack_reserve);
+ data_manager->write("rack_modeAsservissement",  rack_modeAsservissement);
+ data_manager->write("rack_cde_moteur",  rack_cde_moteur);
+ data_manager->write("rack_consigne_moteur",  rack_consigne_moteur);
+ data_manager->write("rack_convergence",  rack_convergence);
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_RACK::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+   rack_reserve = ( ( ((short)(trameRecue->Data[7])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[6])) & 0xFF) << 8 );
+
+   rack_modeAsservissement = ( ( ((unsigned char)(trameRecue->Data[5])) & 0xFF) );
+
+   rack_cde_moteur = ( ( ((short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[2])) & 0xFF) << 8 );
+
+   rack_consigne_moteur = ( ( ((short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[0])) & 0xFF) << 8 );
+
+   rack_convergence = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
+
+
+   // Envoie les données au data manager
+   m_data_manager->write("rack_reserve", rack_reserve);
+   m_data_manager->write("rack_modeAsservissement", rack_modeAsservissement);
+   m_data_manager->write("rack_cde_moteur", rack_cde_moteur);
+   m_data_manager->write("rack_consigne_moteur", rack_consigne_moteur);
+   m_data_manager->write("rack_convergence", rack_convergence);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME COLOR SENSOR
+// ========================================================
+CTrame_COLOR_SENSOR::CTrame_COLOR_SENSOR(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "COLOR_SENSOR";
+ m_id = ID_ELECTROBOT_COLOR_SENSOR;
+ m_dlc = DLC_ELECTROBOT_COLOR_SENSOR;
+ m_liste_noms_signaux.append("color_sensor_R");
+ m_liste_noms_signaux.append("color_sensor_G");
+ m_liste_noms_signaux.append("color_sensor_B");
+
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("color_sensor_R", R);
+ data_manager->write("color_sensor_G", G);
+ data_manager->write("color_sensor_B", B);
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_COLOR_SENSOR::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+    R = ( ( ((short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[0])) & 0xFF) << 8 );
+    G = ( ( ((short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[2])) & 0xFF) << 8 );
+    B = ( ( ((short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[4])) & 0xFF) << 8 );
+
+   // Envoie les données au data manager
+   m_data_manager->write("color_sensor_R", R);
+   m_data_manager->write("color_sensor_G", G);
+   m_data_manager->write("color_sensor_B", B);
+
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
 // ========================================================
 //             TRAME CONFIG_PERIODE_TRAME
 // ========================================================

@@ -218,7 +218,7 @@ void CActuatorElectrobot::keyPressed(int key)
 // _____________________________________________________________________
 void CActuatorElectrobot::updateAliasLabels(void)
 {
- // Gestion des alias sur les noms de capteurs
+ // Gestion des alias sur les noms des moteurs
  QString str_val;
  str_val = m_application->m_data_center->getDataProperty("cde_moteur_1", "Alias").toString();
  if (str_val != "") { m_ihm.ui.label_Moteur_1->setText(str_val); }
@@ -237,6 +237,33 @@ void CActuatorElectrobot::updateAliasLabels(void)
 
  str_val = m_application->m_data_center->getDataProperty("cde_moteur_6", "Alias").toString();
  if (str_val != "") { m_ihm.ui.label_Moteur_6->setText(str_val); }
+
+ // Gestion des alias sur les noms des servos
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_13", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_13->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_14", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_14->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_15", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_15->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_16", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_16->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_17", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_17->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_18", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_18->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_19", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_19->setText(str_val);}
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_20", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.servo_label_20->setText(str_val);}
+
+
 }
 
 
@@ -263,6 +290,33 @@ void CActuatorElectrobot::updateMotorsTooltips(void)
 
  str_val = m_application->m_data_center->getDataProperty("cde_moteur_6", "Tooltip").toString();
  if (str_val != "") { m_ihm.ui.Moteur_6->setToolTip(str_val); }
+
+ //pour les servos
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_13", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_13->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_14", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_14->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_15", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_15->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_16", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_16->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_17", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_17->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_18", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_18->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_19", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_19->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("cde_servo_20", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.Servo_num_20->setToolTip(str_val); }
+
+
 }
 
 

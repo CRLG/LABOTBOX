@@ -68,6 +68,12 @@ void CSensorElectroBot::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
+  //pour le capteur de couleur
+  color_now=0;
+  color_prec=0;
+  color_count=0;
+  color_conf=0;
+
   // Connexions avec la messagerie
   m_application->m_data_center->write("Etor1", 0);
   m_application->m_data_center->write("Etor2", 0);
@@ -143,6 +149,10 @@ void CSensorElectroBot::init(CLaBotBox *application)
   connect(m_application->m_data_center->getData("Codeur_2"), SIGNAL(valueChanged(QVariant)), this, SLOT(Codeur_2_changed(QVariant)));
   connect(m_application->m_data_center->getData("Codeur_3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Codeur_3_changed(QVariant)));
   connect(m_application->m_data_center->getData("Codeur_4"), SIGNAL(valueChanged(QVariant)), this, SLOT(Codeur_4_changed(QVariant)));
+
+  connect(m_application->m_data_center->getData("color_sensor_R"), SIGNAL(valueChanged(QVariant)), this, SLOT(R_changed(QVariant)));
+  connect(m_application->m_data_center->getData("color_sensor_G"), SIGNAL(valueChanged(QVariant)), this, SLOT(G_changed(QVariant)));
+  connect(m_application->m_data_center->getData("color_sensor_B"), SIGNAL(valueChanged(QVariant)), this, SLOT(B_changed(QVariant)));
 
   // Met à jour les labels en fonction de la propriété "Alias" de chaque data
   // Si la data n'a pas d'Alias dans  le data_center,  le label reste celui par défaut
@@ -322,5 +332,85 @@ void CSensorElectroBot::Codeur_1_changed(QVariant val)  { m_ihm.ui.Codeur_1->set
 void CSensorElectroBot::Codeur_2_changed(QVariant val)  { m_ihm.ui.Codeur_2->setValue(val.toInt()); }
 void CSensorElectroBot::Codeur_3_changed(QVariant val)  { m_ihm.ui.Codeur_3->setValue(val.toInt()); }
 void CSensorElectroBot::Codeur_4_changed(QVariant val)  { m_ihm.ui.Codeur_4->setValue(val.toInt()); }
+
+void CSensorElectroBot::R_changed(QVariant val)
+{ m_ihm.ui.sB_R->setValue(val.toInt());
+
+short Thd=4500;
+short sR=val.toInt();
+short sG=m_ihm.ui.sB_G->value();
+short sB=m_ihm.ui.sB_B->value();
+
+while ((sR<Thd)&&(sG<Thd)&&(sB<Thd)&&(Thd>200))
+{
+    Thd=Thd-200;
+}
+
+bool bR=(sR>Thd)?true:false;
+bool bG=(sG>Thd)?true:false;
+bool bB=(sB>Thd)?true:false;
+
+if(bB&&!bR&&!bG){
+    m_ihm.ui.l_Color->setText("BLEU");
+    color_now=Qt::blue;
+}
+else if(!bB&&bR&&bG){
+    m_ihm.ui.l_Color->setText("JAUNE");
+    color_now=Qt::yellow;
+}
+else if(!bB&&bR&&!bG){
+    m_ihm.ui.l_Color->setText("ROUGE");
+    color_now=Qt::red;
+}
+else if(!bB&&!bR&&bG){
+    m_ihm.ui.l_Color->setText("VERT");
+    color_now=Qt::green;
+}
+else{
+    m_ihm.ui.l_Color->setText("BLANC");
+    color_now=Qt::white;
+}
+
+//bounce or debounce the change of color
+if(color_now!=color_prec)
+{
+    color_count++;
+    color_prec=color_now;
+}
+else
+    color_count--;
+
+//if we reach the bounce we can't fix the color anyway we have to give a status
+//if we reach the debounce we can confirm the color
+if((color_count>3)||(color_count<(-3)))
+{
+    color_conf=color_now;
+    color_count=0;
+    color_prec=color_now;
+}
+
+/*switch (color_conf)
+{
+case Qt::blue:
+    m_ihm.ui.l_Color->setText("BLEU");
+    break;
+case Qt::yellow:
+    m_ihm.ui.l_Color->setText("JAUNE");
+    break;
+case Qt::red:
+    m_ihm.ui.l_Color->setText("ROUGE");
+    break;
+case Qt::green:
+    m_ihm.ui.l_Color->setText("VERT");
+    break;
+default:
+    m_ihm.ui.l_Color->setText("BLANC");
+    break;
+}*/
+
+
+}
+void CSensorElectroBot::G_changed(QVariant val)  { m_ihm.ui.sB_G->setValue(val.toInt()); }
+void CSensorElectroBot::B_changed(QVariant val)  { m_ihm.ui.sB_B->setValue(val.toInt()); }
 
 

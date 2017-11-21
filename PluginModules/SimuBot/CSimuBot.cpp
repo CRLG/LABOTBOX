@@ -9,6 +9,7 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include "CAStar.h"
 
 /*!
  * \brief normalizeAngleDeg utilitaire de normalisation d'angle en degré
@@ -129,9 +130,9 @@ void CSimuBot::init(CLaBotBox *application)
     float X_init_2=265;
     float Y_init_2=101;
     float Theta_init_2=180;*/
-    val = m_application->m_eeprom->read(getName(), "X_init_1", QVariant(24.0));
+    val = m_application->m_eeprom->read(getName(), "X_init_1", QVariant(5.0));
     float X_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Y_init_1", QVariant(101.0));
+    val = m_application->m_eeprom->read(getName(), "Y_init_1", QVariant(123.0));
     float Y_init_1=val.toFloat();
     val = m_application->m_eeprom->read(getName(), "Theta_init_1", QVariant(0.0));
     float Theta_init_1=val.toFloat();
@@ -141,28 +142,45 @@ void CSimuBot::init(CLaBotBox *application)
     float Y_init_2=val.toFloat();
     val = m_application->m_eeprom->read(getName(), "Theta_init_2", QVariant(180.0));
     float Theta_init_2=val.toFloat();
+    equipe1.init(X_init_1,Y_init_1,Theta_init_1,true);
+    equipe2.init(X_init_2,Y_init_2,Theta_init_2,false);
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2015_simubot.png"));
-    surface->setPos(0,-202);
-    QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -202 , 302, 202));
-    terrain->addItem(bordures);
+    surface->setPixmap(QPixmap(":/icons/terrain_2017_simubot.PNG"));
+    surface->setPos(-12,-224);
+    QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
-    QGraphicsEllipseItem *spot[8];
-    spot[0]=new QGraphicsEllipseItem(QRectF(110-3,177-202-3,6,6));
-    spot[1]=new QGraphicsEllipseItem(QRectF(9-3,175-202-3,6,6));
-    spot[2]=new QGraphicsEllipseItem(QRectF(9-3,185-202-3,6,6));
-    spot[3]=new QGraphicsEllipseItem(QRectF(130-3,140-202-3,6,6));
-    spot[4]=new QGraphicsEllipseItem(QRectF(87-3,135.5-202-3,6,6));
-    spot[5]=new QGraphicsEllipseItem(QRectF(85-3,20-202-3,6,6));
-    spot[6]=new QGraphicsEllipseItem(QRectF(85-3,10-202-3,6,6));
-    spot[7]=new QGraphicsEllipseItem(QRectF(9-3,20-202-3,6,6));
-    for(int ind=0;ind<8;ind++){
-        spot[ind]->setBrush(QBrush(QColor(0, 255,255, 255)));
-        terrain->addItem(spot[ind]);
-    }
-    QGraphicsEllipseItem *gobelet[3];
+    terrain->addItem(bordures);
+
+/*    QGraphicsEllipseItem *modules[14];
+    modules[0]=new QGraphicsEllipseItem(QRectF(115-3,-200,6,6));
+    modules[0]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
+    modules[1]=new QGraphicsEllipseItem(QRectF(185-3,-200,6,6));
+    modules[1]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
+    modules[2]=new QGraphicsEllipseItem(QRectF(20-3,-140,6,6));
+    modules[2]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
+    modules[3]=new QGraphicsEllipseItem(QRectF(100-3,-140,6,6));
+    modules[4]=new QGraphicsEllipseItem(QRectF(200-3,-140,6,6));
+    modules[5]=new QGraphicsEllipseItem(QRectF(280-3,-140,6,6));
+    modules[5]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
+    modules[6]=new QGraphicsEllipseItem(QRectF(50-3,-90,6,6));
+    modules[7]=new QGraphicsEllipseItem(QRectF(250-3,-90,6,6));
+    modules[8]=new QGraphicsEllipseItem(QRectF(0,-65,6,6));
+    modules[8]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
+    modules[9]=new QGraphicsEllipseItem(QRectF(300-6,-65,6,6));
+    modules[9]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
+    modules[10]=new QGraphicsEllipseItem(QRectF(90-3,-60,6,6));
+    modules[11]=new QGraphicsEllipseItem(QRectF(210-3,-60,6,6));
+    modules[12]=new QGraphicsEllipseItem(QRectF(80-3,-15,6,6));
+    modules[12]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
+    modules[13]=new QGraphicsEllipseItem(QRectF(220-3,-15,6,6));
+    modules[13]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
+    for(int ind=0;ind<14;ind++){
+        //modules[ind]->setBrush(QBrush(QColor(255, 0,0, 255)));
+        terrain->addItem(modules[ind]);
+    }*/
+    /*QGraphicsEllipseItem *gobelet[3];
     gobelet[0]=new QGraphicsEllipseItem(QRectF(150-4.75,165-202-4.75,9.5,9.5));
     gobelet[1]=new QGraphicsEllipseItem(QRectF(25-4.75,175-202-4.75,9.5,9.5));
     gobelet[2]=new QGraphicsEllipseItem(QRectF(91-4.75,80-202-4.75,9.5,9.5));
@@ -170,7 +188,7 @@ void CSimuBot::init(CLaBotBox *application)
     for(int ind1=0;ind1<3;ind1++){
         gobelet[ind1]->setBrush(QBrush(QColor(255, 255,255, 255)));
         terrain->addItem(gobelet[ind1]);
-    }
+    }*/
 
 
     //ajout du robot
@@ -189,6 +207,15 @@ void CSimuBot::init(CLaBotBox *application)
     //on lie les deux points
     QLineF liaison_Line(GrosBot->getX(),GrosBot->getY(),OldGrosBot->getX(),OldGrosBot->getY());
     liaison_GrosBot= new QGraphicsLineItem(liaison_Line);
+	
+	//ajout d'un robot adverse
+    QPolygonF ref_BotForme;
+    ref_BotForme << QPointF(5,-7) << QPointF(-5,-7)<< QPointF(-7,-5)<< QPointF(-7,5) << QPointF(-5,7);
+    ref_BotForme << QPointF(5,7) << QPointF(7,5) << QPointF(7,-5) << QPointF(5,-7);
+    OtherBot= new GraphicElement(ref_BotForme,255,255,255);
+    OtherBot->setFlag(QGraphicsItem::ItemIsMovable, true);
+    OtherBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    OtherBot->setBrush(QBrush(QColor(255,0,0, 100)));
 
     //on place le robot et on crée le mécanisme d'init
     QPushButton *pushButton_init=m_ihm.findChild<QPushButton*>("pushButton_init");
@@ -199,12 +226,11 @@ void CSimuBot::init(CLaBotBox *application)
     connect(radioButton_couleur_2,SIGNAL(clicked()),this,SLOT(changeEquipe()));
 
     //ecrasement des données
-    QLineEdit *lineEdit_x=m_ihm.findChild<QLineEdit*>("lineEdit_x");
-    QLineEdit *lineEdit_y=m_ihm.findChild<QLineEdit*>("lineEdit_y");
-    QLineEdit *lineEdit_theta=m_ihm.findChild<QLineEdit*>("lineEdit_theta");
-    connect(lineEdit_x,SIGNAL(returnPressed()),this,SLOT(returnCapture_XY()));
-    connect(lineEdit_y,SIGNAL(returnPressed()),this,SLOT(returnCapture_XY()));
-    connect(lineEdit_theta,SIGNAL(returnPressed()),this,SLOT(returnCapture_Theta()));
+    connect(m_ihm.ui.lineEdit_x,SIGNAL(editingFinished()),this,SLOT(returnCapture_XY()));
+    connect(m_ihm.ui.lineEdit_y,SIGNAL(editingFinished()),this,SLOT(returnCapture_XY()));
+    connect(m_ihm.ui.lineEdit_theta,SIGNAL(editingFinished()),this,SLOT(returnCapture_Theta()));
+    connect(m_ihm.ui.dial_rotation_bot,SIGNAL(sliderReleased()),this,SLOT(slot_dial_turned()));
+    //connect(m_ihm.ui.dial_rotation_bot,SIGNAL(),this,SLOT(slot_dial_turned()));
     connect(this, SIGNAL(displayCoord(qreal,qreal)), GrosBot,SLOT(display_XY(qreal,qreal)));
     connect(this,SIGNAL(displayAngle(qreal)),GrosBot,SLOT(display_theta(qreal)));
 
@@ -217,9 +243,12 @@ void CSimuBot::init(CLaBotBox *application)
     // pour l'instant c'est en dur dans le constructeur
     connect(terrain, SIGNAL(changed(QList<QRectF>)), this, SLOT(viewChanged(QList<QRectF>)));
     connect(GrosBot,SIGNAL(center(qreal,qreal,float)),OldGrosBot,SLOT(replace(qreal,qreal,float)));
+	
+	
     terrain->addItem(OldGrosBot);
     terrain->addItem(GrosBot);
     terrain->addItem(liaison_GrosBot);
+	terrain->addItem(OtherBot);
 
     //TODO: ajouter nouveaux element comme un MiniBot, un adversaire avec un trajet aléatoire,...
     //ajout des éléments de jeu
@@ -232,12 +261,14 @@ void CSimuBot::init(CLaBotBox *application)
     //ajouté par Steph
     m_ihm.simuView=m_ihm.findChild<QGraphicsView*>("simuGraphicsView");
     m_ihm.simuView->setRenderHint(QPainter::Antialiasing);
-    m_ihm.simuView->centerOn(QPointF(151,101));
+    m_ihm.simuView->centerOn(QPointF(163,118));
     m_ihm.simuView->setCacheMode(QGraphicsView::CacheBackground);
     m_ihm.simuView->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     m_ihm.simuView->setDragMode(QGraphicsView::ScrollHandDrag);
-    m_ihm.simuView->resize(302, 202);
+    m_ihm.simuView->resize(326, 236);
     m_ihm.simuView->setScene(terrain);
+    connect(m_ihm.ui.verticalSlider_zoom_scene,SIGNAL(valueChanged(int)),this,SLOT(zoom(int)));
+    //m_ihm.simuView->scale(2.0,2.0);
 
     //pour le mode visu on se connecte aux changements du datamanager
     connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(coordChanged(CData*)));
@@ -262,8 +293,11 @@ void CSimuBot::init(CLaBotBox *application)
     else              {radioButton_degre->setChecked(true); setAndGetInRad=false; }
 
 
+    //pour calculer une trajectoire d'evitement
+    connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
+
     //positionnement par défaut
-    changeEquipe(X_init_1,Y_init_1,Theta_init_1,X_init_2,Y_init_2,Theta_init_2);
+    initEquipe(equipe1);
     initView();
 }
 
@@ -339,49 +373,37 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
             deltaAngle=atan((y_view-y_prim_view)/(x_view-x_prim_view))-Pi;
     }
 
-
-
-    QLCDNumber *lcdNumber_theta=m_ihm.findChild<QLCDNumber*>("lcdNumber_theta");
-    QLCDNumber *lcdNumber_X=m_ihm.findChild<QLCDNumber*>("lcdNumber_x");
-    QLCDNumber *lcdNumber_Y=m_ihm.findChild<QLCDNumber*>("lcdNumber_y");
-    QLCDNumber *lcdNumber_Distance=m_ihm.findChild<QLCDNumber*>("lcdNumber_distance");
-    QLCDNumber *lcdNumber_Angle=m_ihm.findChild<QLCDNumber*>("lcdNumber_angle");
-    //qDebug() << "view changed";
     if (setAndGetInRad)
-        lcdNumber_theta->display(theta_view);
+        m_ihm.ui.lcdNumber_theta->display(theta_view);
     else
-        lcdNumber_theta->display(normalizeAngleDeg(180*theta_view/Pi));
-    lcdNumber_X->display(x_view);
-    lcdNumber_Y->display(y_view);
+        m_ihm.ui.lcdNumber_theta->display(normalizeAngleDeg(180*theta_view/Pi));
+    m_ihm.ui.lcdNumber_x->display(x_view);
+    m_ihm.ui.lcdNumber_y->display(y_view);
 
     m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 
-
-    QLineEdit *lineEdit_x=m_ihm.findChild<QLineEdit*>("lineEdit_x");
-    QLineEdit *lineEdit_y=m_ihm.findChild<QLineEdit*>("lineEdit_y");
-    QLineEdit *lineEdit_theta=m_ihm.findChild<QLineEdit*>("lineEdit_theta");
     QString str;
 
 
     if(modeVisu==0)
     {
-        lcdNumber_Distance->display(deltaDistance);
+        m_ihm.ui.lcdNumber_distance->display(deltaDistance);
         if (setAndGetInRad){
-            lcdNumber_Angle->display(deltaAngle);
-            lineEdit_theta->setText(str.number(theta_view,'f',2));
+            m_ihm.ui.lcdNumber_angle->display(deltaAngle);
+            m_ihm.ui.lineEdit_theta->setValue(theta_view);
             m_application->m_data_center->write("PosTeta_robot", theta_view);
             m_application->m_data_center->write("DirAngle_robot", deltaAngle);
         }
         else{
-            lcdNumber_Angle->display(normalizeAngleDeg(180*deltaAngle/Pi));
-            lineEdit_theta->setText(str.number(normalizeAngleDeg(180*theta_view/Pi),'f',2));
+            m_ihm.ui.lcdNumber_angle->display(normalizeAngleDeg(180*deltaAngle/Pi));
+            m_ihm.ui.lineEdit_theta->setValue(normalizeAngleDeg(180*theta_view/Pi));
             m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_view/Pi));
             m_application->m_data_center->write("DirAngle_robot", normalizeAngleDeg(180*deltaAngle/Pi));
         }
-        lineEdit_x->setText(str.number(x_view,'f',2));
-        lineEdit_y->setText(str.number(y_view,'f',2));
-        //lineEdit_theta->setText(str.number(theta_view,'f',2));
+        m_ihm.ui.lineEdit_x->setValue(x_view);
+        m_ihm.ui.lineEdit_y->setValue(y_view);
+        //m_ihm.ui.lineEdit_theta->setValue(theta_view);
 
         // Informe le DataCenter de la mise à jour
         m_application->m_data_center->write("PosX_robot", x_view);
@@ -393,8 +415,8 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
 }
 
 void CSimuBot::initView(void){
-    QRadioButton *radioButton_robot_relative=m_ihm.findChild<QRadioButton*>("radioButton_robot_relative");
-    if(radioButton_robot_relative->isChecked()){
+
+    if(m_ihm.ui.radioButton_robot_relative->isChecked()){
         GrosBot->isRelativToBot=true;
         OldGrosBot->isRelativToBot=true;
     }
@@ -403,25 +425,41 @@ void CSimuBot::initView(void){
         OldGrosBot->isRelativToBot=false;
     }
 
-    QRadioButton *radioButton_radian=m_ihm.findChild<QRadioButton*>("radioButton_radian");
-    if(radioButton_radian->isChecked())
+    if(m_ihm.ui.radioButton_radian->isChecked())
         setAndGetInRad=true;
     else
         setAndGetInRad=false;
 
-    QLineEdit *lineEdit_X_init=m_ihm.findChild<QLineEdit*>("lineEdit_X_init");
-    QLineEdit *lineEdit_Y_init=m_ihm.findChild<QLineEdit*>("lineEdit_Y_init");
-    QLineEdit *lineEdit_Theta_init=m_ihm.findChild<QLineEdit*>("lineEdit_Theta_init");
-    qreal x_init=QString(lineEdit_X_init->text()).toDouble();
-    qreal y_init=QString(lineEdit_Y_init->text()).toDouble();
-    qreal theta_init=QString(lineEdit_Theta_init->text()).toDouble();
-    GrosBot->raz(x_init,y_init,theta_init);
-    OldGrosBot->raz(x_init,y_init,theta_init);
+    qreal x_init=m_ihm.ui.lineEdit_X_init->value();
+    qreal y_init=m_ihm.ui.lineEdit_Y_init->value();
+    qreal theta_init=m_ihm.ui.lineEdit_Theta_init->value();
+
+    if (setAndGetInRad)
+    {
+        GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
+                               m_ihm.ui.sB_Y_init_asserv->value(),
+                               180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
+        GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
+        OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
+		OtherBot->raz(100,100,0);
+    }
+    else
+    {
+        GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
+                               m_ihm.ui.sB_Y_init_asserv->value(),
+                               m_ihm.ui.sB_Theta_init_asserv->value());
+        GrosBot->raz(x_init,y_init,theta_init);
+        OldGrosBot->raz(x_init,y_init,theta_init);
+		OtherBot->raz(100,100,0);
+    }
+
     qreal x_reel_init=GrosBot->getX();
     qreal y_reel_init=GrosBot->getY();
     qreal theta_reel_init=GrosBot->getTheta();
+
     m_application->m_data_center->write("PosX_robot", x_reel_init);
     m_application->m_data_center->write("PosY_robot", y_reel_init);
+
     if (setAndGetInRad)
         m_application->m_data_center->write("PosTeta_robot", theta_reel_init);
     else
@@ -431,12 +469,28 @@ void CSimuBot::initView(void){
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 }
 
-void CSimuBot::changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,float X_init_2,float Y_init_2, float Theta_init_2)
+void CSimuBot::initEquipe(Coord equipe)
 {
-    QLineEdit *lineEdit_X_init=m_ihm.findChild<QLineEdit*>("lineEdit_X_init");
-    QLineEdit *lineEdit_Y_init=m_ihm.findChild<QLineEdit*>("lineEdit_Y_init");
-    QLineEdit *lineEdit_Theta_init=m_ihm.findChild<QLineEdit*>("lineEdit_Theta_init");
+    QString texteValue;
 
+    m_ihm.ui.lineEdit_X_init->setValue(equipe.x);
+    m_ihm.ui.lineEdit_Y_init->setValue(equipe.y);
+    m_ihm.ui.lineEdit_Theta_init->setValue(equipe.teta);
+
+    if(equipe.ortho)
+    {
+        GrosBot->sensOrtho=1;
+        OldGrosBot->sensOrtho=1;
+    }
+    else
+    {
+        GrosBot->sensOrtho=-1;
+        OldGrosBot->sensOrtho=-1;
+    }
+}
+
+void CSimuBot::changeEquipe(void)
+{
     QObject *radioButton_couleur=QObject::sender();
     QString name_radio_button;
     if(radioButton_couleur)
@@ -444,39 +498,40 @@ void CSimuBot::changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,fl
     else
         name_radio_button="radioButton_couleur_1";
 
-    QString texteValue;
-    if(name_radio_button.compare("radioButton_couleur_1")==0) //jaune
+
+    if(name_radio_button.compare("radioButton_couleur_1")==0) //bleu
     {
-        lineEdit_X_init->setText(texteValue.setNum(X_init_1));
-        lineEdit_Y_init->setText(texteValue.setNum(Y_init_1));
-        lineEdit_Theta_init->setText(texteValue.setNum(Theta_init_1));
+        initEquipe(equipe1);
+        qDebug() << "bleu";
     }
-    else if(name_radio_button.compare("radioButton_couleur_2")==0) //vert
+    else if(name_radio_button.compare("radioButton_couleur_2")==0) //jaune
     {
-        lineEdit_X_init->setText(texteValue.setNum(X_init_2));
-        lineEdit_Y_init->setText(texteValue.setNum(Y_init_2));
-        lineEdit_Theta_init->setText(texteValue.setNum(Theta_init_2));
+        initEquipe(equipe2);
+        qDebug() << "jaune";
     }
 }
 
 void CSimuBot::returnCapture_Theta()
 {
-    QLineEdit *lineEdit_theta=m_ihm.findChild<QLineEdit*>("lineEdit_theta");
-    if (setAndGetInRad)
-        emit displayAngle(QString(lineEdit_theta->text()).toDouble());
-    else
-        emit displayAngle(Pi*normalizeAngleDeg(QString(lineEdit_theta->text()).toDouble())/180);
+    double new_angle=m_ihm.ui.lineEdit_theta->value();
+    if(m_ihm.ui.lineEdit_theta->hasFocus())
+    {
+        if (setAndGetInRad)
+        {
+            m_ihm.ui.dial_rotation_bot->setValue((int)(10000*new_angle/Pi));
+            emit displayAngle(new_angle);
+        }
+        else
+        {
+            m_ihm.ui.dial_rotation_bot->setValue((int)(10000*new_angle/180));
+            emit displayAngle(Pi*normalizeAngleDeg(new_angle)/180);
+        }
+    }
 }
 
 void CSimuBot::changeMode(int iMode)
 {
     modeVisu=iMode;
-    QLineEdit *lineEdit_x=m_ihm.findChild<QLineEdit*>("lineEdit_x");
-    QLineEdit *lineEdit_y=m_ihm.findChild<QLineEdit*>("lineEdit_y");
-    QLineEdit *lineEdit_theta=m_ihm.findChild<QLineEdit*>("lineEdit_theta");
-
-    QLCDNumber *lcdNumber_Distance=m_ihm.findChild<QLCDNumber*>("lcdNumber_distance");
-    QLCDNumber *lcdNumber_Angle=m_ihm.findChild<QLCDNumber*>("lcdNumber_angle");
 
     if (modeVisu==1)
     {
@@ -484,14 +539,15 @@ void CSimuBot::changeMode(int iMode)
         GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
         OldGrosBot->hide();
         liaison_GrosBot->hide();
-        lcdNumber_Distance->display(0);
-        lcdNumber_Angle->display(0);
-        lineEdit_x->clear();
-        lineEdit_y->clear();
-        lineEdit_theta->clear();
-        lineEdit_x->setEnabled(false);
-        lineEdit_y->setEnabled(false);
-        lineEdit_theta->setEnabled(false);
+        m_ihm.ui.lcdNumber_distance->display(0);
+        m_ihm.ui.lcdNumber_angle->display(0);
+
+        m_ihm.ui.lineEdit_x->clear();
+        m_ihm.ui.lineEdit_y->clear();
+        m_ihm.ui.lineEdit_theta->clear();
+        m_ihm.ui.lineEdit_x->setEnabled(false);
+        m_ihm.ui.lineEdit_y->setEnabled(false);
+        m_ihm.ui.lineEdit_theta->setEnabled(false);
 
     }
     else
@@ -500,9 +556,9 @@ void CSimuBot::changeMode(int iMode)
         GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
         OldGrosBot->show();
         liaison_GrosBot->show();
-        lineEdit_x->setEnabled(true);
-        lineEdit_y->setEnabled(true);
-        lineEdit_theta->setEnabled(true);
+        m_ihm.ui.lineEdit_x->setEnabled(true);
+        m_ihm.ui.lineEdit_y->setEnabled(true);
+        m_ihm.ui.lineEdit_theta->setEnabled(true);
     }
 }
 
@@ -527,16 +583,138 @@ void CSimuBot::coordChanged(CData *data)
     }
 }
 
+void CSimuBot::zoom(int value)
+{
+    float factor=value*1.0;
+    m_ihm.simuView->resetTransform();
+    m_ihm.simuView->scale(factor,factor);
+    m_ihm.simuView->centerOn(QPointF(151,101));
+}
+
 void CSimuBot::returnCapture_XY()
 {
-    QLineEdit *lineEdit_x=m_ihm.findChild<QLineEdit*>("lineEdit_x");
-    QLineEdit *lineEdit_y=m_ihm.findChild<QLineEdit*>("lineEdit_y");
-
     QString lineEdit_coord_name=QObject::sender()->objectName();
 
-    if (lineEdit_coord_name.compare(lineEdit_x->objectName())==0)
-        emit displayCoord(QString(lineEdit_x->text()).toDouble(),5000);
+    if (lineEdit_coord_name.compare(m_ihm.ui.lineEdit_x->objectName())==0)
+        if (m_ihm.ui.lineEdit_x->hasFocus())
+            emit displayCoord(m_ihm.ui.lineEdit_x->value(),5000);
 
-    if (lineEdit_coord_name.compare(lineEdit_y->objectName())==0)
-        emit displayCoord(5000,QString(lineEdit_y->text()).toDouble());
+    if (lineEdit_coord_name.compare(m_ihm.ui.lineEdit_y->objectName())==0)
+        if (m_ihm.ui.lineEdit_y->hasFocus())
+            emit displayCoord(5000,m_ihm.ui.lineEdit_y->value());
+}
+
+void CSimuBot::slot_dial_turned(void)
+{
+    double angle_percent=m_ihm.ui.dial_rotation_bot->value();
+    double new_angle;
+
+    if (setAndGetInRad)
+    {
+        new_angle=Pi*angle_percent/10000;
+
+        emit displayAngle(new_angle);
+    }
+    else
+    {
+        new_angle=180*angle_percent/10000;
+        emit displayAngle(Pi*normalizeAngleDeg(new_angle)/180);
+    }
+}
+
+void CSimuBot::slot_getPath(void)
+{
+    /*AStar Recherche(,
+                    );*/
+    AStar *Recherche=new AStar();
+    int xA, yA, xB, yB; //A depart, B objetcif
+    int xC,yC;
+
+    xA=GrosBot->getX_terrain();
+    yA=GrosBot->getY_terrain();
+    xB=0;
+    yB=0;
+    xC=OtherBot->getX_terrain();
+    yC=OtherBot->getY_terrain();
+
+    //initialisation de la carte des obstacles
+    Recherche->initMap(xC,yC);
+
+    int nb_points_asser=0;
+
+        //lancement de l'algorithme
+        clock_t start = std::clock();
+    int nb_points=Recherche->pathFind(xA, yA, xB, yB);
+    clock_t end = std::clock();
+    if(nb_points<=0)
+    {
+        qDebug()<<"Pas de chemin trouve!";
+        qDebug()<<"Dimension carte (X,Y):\t"<<n<<"x"<<m;
+                qDebug()<<"Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
+                //qDebug()<<"Scenario:\t\t"<<scenar<<std::endl;
+                qDebug()<<"Autre robot:\t\t("<<xC<<","<<yC<<")";
+                double time_elapsed = double(end - start);
+                qDebug()<<"Temps calcul (ms):\t"<<time_elapsed;
+    }
+    else
+        nb_points_asser=Recherche->pathBuild(xA,yA);
+
+
+
+    if(nb_points>0)
+	{
+        qDebug()<<"Dimension carte (X,Y):\t"<<n<<"x"<<m;
+                qDebug()<<"Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
+                //qDebug()<<"Scenario:\t\t"<<scenar<<std::endl;
+                qDebug()<<"Autre robot:\t\t("<<xC<<","<<yC<<")";
+                double time_elapsed = double(end - start);
+                qDebug()<<"Temps calcul (ms):\t"<<time_elapsed;
+                qDebug()<<"\nRoute:\t\t\t"<<nb_points<<" pts";
+                std::vector<int>::reverse_iterator it;
+                for(it=Recherche->path_dir.rbegin(); it!=Recherche->path_dir.rend(); ++it)
+                    qDebug()<<(*it);
+
+
+
+                qDebug()<<"Trajectoire:\t\t"<<nb_points_asser<<" pts";
+                std::vector<int>::iterator it1;
+                std::vector<int>::iterator it2;
+                it1=Recherche->x_dir.begin();
+                it2=Recherche->y_dir.begin();
+                int x1,y1;
+
+                //QPolygon loophole;
+                if (!(evitement.isEmpty()))
+                        for(int k=0;k<evitement.size();k++ ){
+                            //QGraphicsLineItem
+                            terrain->removeItem(evitement.at(k));
+                        }
+                evitement.clear();
+
+                int i_points=0;
+                int x_temp=0;
+                int y_temp=0;
+
+                while((it1!=Recherche->x_dir.end())&&(it1!=Recherche->x_dir.end()))
+                {
+                    if(i_points==0)
+                        i_points++;
+                    else
+                        evitement.append(new QGraphicsLineItem(x_temp,y_temp,(*it1),-(*it2)));
+
+                    x_temp=(*it1);
+                    y_temp=-(*it2);
+
+                    //qDebug()<<"("<<x_temp<<","<<-y_temp<<");";
+                    ++it1;
+                    ++it2;
+                }
+
+                for(int k=0;k<evitement.size();k++)
+                {
+                    evitement.at(k)->setPen(QPen(Qt::red,3));
+                    terrain->addItem(evitement.at(k));
+                }
+
+    }
 }
