@@ -3,14 +3,9 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport multimedia multimediawidgets
+QT       += core gui testlib xml printsupport serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-#pour windows de laguiche
-#LIBS += -LD:/win_progs/Qt_5_2_1/5.2.1/mingw48_32/plugins/designer -lqhexeditplugin -lqledplugin -lq7segplugin
-#LIBS += -LD:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
-#INCLUDEPATH += "D:/win_progs/OpenCV/opencv_2_4_9/include"
 
 TARGET = LaBotBox
 TEMPLATE = app
@@ -35,7 +30,6 @@ LIST_BASIC_MODULES+= \
         DataPlayer \ 
         RS232 \ 
         Joystick \ 
-        Ecran \
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -52,8 +46,6 @@ LIST_PLUGIN_MODULES+= \
         SensorView \ 
         Asserv \ 
         UserGuides \ 
-        ActuatorSequencer \
-        BotCam \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -101,4 +93,3 @@ for(i, LIST_TOOLS) {
 
 CONFIG += plugins_designer
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system
-LIBS += -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249

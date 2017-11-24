@@ -71,8 +71,6 @@ private:
     GraphicElement *GrosBot;
     GraphicElement *OldGrosBot;
     QGraphicsLineItem *liaison_GrosBot;
-	GraphicElement *OtherBot;
-    QList<QGraphicsLineItem*> evitement;
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -80,25 +78,17 @@ private:
     //bool isRelativToBot;
     bool setAndGetInRad;
 
-    void initEquipe(Coord equipe);
-
-    Coord equipe1;
-    Coord equipe2;
-
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
 public slots:
     void viewChanged(QList<QRectF> regions);
     void initView(void);
-    void changeEquipe(void);
+    void changeEquipe(float X_init_1,float Y_init_1, float Theta_init_1,float X_init_2,float Y_init_2, float Theta_init_2);
     void returnCapture_XY();
     void returnCapture_Theta();
     void changeMode(int iMode);
     void coordChanged(CData* data);
-    void zoom(int value);
-    void slot_dial_turned(void);
-    void slot_getPath();
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_

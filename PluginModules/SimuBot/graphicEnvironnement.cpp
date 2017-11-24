@@ -8,7 +8,7 @@ GraphicEnvironnement::GraphicEnvironnement()
     //On donne au terrain les dimensions Eurobot
     //(augmentées des épaisseurs de bordure elles-mêmes ramenées à 2cm, on se fout des 2mm ext ;-) )
     //TODO: prendre en compte les supports balise
-    this->setSceneRect(0, -200, 300, 200);
+    this->setSceneRect(0, -202, 302, 202);
 
     //Pour l'instant il n'y a pas assez d'objets pour avoir besoin de les indexer (plus rapide)
     this->setItemIndexMethod(QGraphicsScene::NoIndex);

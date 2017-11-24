@@ -18,10 +18,6 @@ static qreal normalizeAngleRad(qreal angleRaw)
     return angleRaw;
 }
 
-Coord::Coord(){x=0;y=0;teta=0;ortho=true;}
-Coord::Coord(float _x, float _y, float _teta, bool _ortho):x(_x),y(_y),teta(_teta),ortho(_ortho){}
-void Coord::init(float _x, float _y, float _teta, bool _ortho){x=_x;y=_y;teta=_teta;ortho=_ortho;}
-
 /*!
  * \brief GraphicElement::GraphicElement constructeur TODO: rajouter le X,Y d'init
  * \param angle_init
@@ -45,9 +41,7 @@ GraphicElement::GraphicElement(float R, float G, float B)
     setFillRule(Qt::WindingFill);
     x_reel=0.0; y_reel=0.0; angle=0.0;
     x_offset=0.0;y_offset=0.0;angle_offset=0.0;
-    x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
-    sensOrtho=1;
 }
 
 /*!
@@ -69,9 +63,7 @@ GraphicElement::GraphicElement(QPolygonF forme, float R, float G, float B)
     setFillRule(Qt::WindingFill);
     x_reel=0.0; y_reel=0.0; angle=0.0;
     x_offset=0.0;y_offset=0.0;angle_offset=0.0;
-    x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
-    sensOrtho=1;
 }
 
 /*!
@@ -95,7 +87,6 @@ GraphicElement::GraphicElement()
     setPolygon(polygon);
     setFillRule(Qt::WindingFill);
     isRelativToBot=true;
-    sensOrtho=1;
 }
 
 /*!
@@ -150,7 +141,7 @@ void GraphicElement::wheelEvent(QGraphicsSceneWheelEvent * event){
  */
 qreal GraphicElement::getTheta(void){
     if(isRelativToBot)
-        angle=TwoPi*(((360-rotation())-angle_offset)+angle_asserv_init)/360;
+        angle=TwoPi*((360-rotation())-angle_offset)/360;
     else
         angle=TwoPi*(360-rotation())/360;
     return normalizeAngleRad(angle);
@@ -162,8 +153,7 @@ qreal GraphicElement::getTheta(void){
  */
 qreal GraphicElement::getX(void){
     if(isRelativToBot)
-        //x_reel=sensOrtho*((x()-x_offset)*cos(TwoPi*angle_offset/360))+(((-y())-y_offset)*sin(TwoPi*angle_offset/360));
-        x_reel=((x()-x_offset)*cos(TwoPi*(angle_offset+angle_asserv_init)/360))+(((-y())-y_offset)*sin(TwoPi*(angle_offset+angle_asserv_init)/360));
+        x_reel=((x()-x_offset)*cos(TwoPi*angle_offset/360))+(((-y())-y_offset)*sin(TwoPi*angle_offset/360));
     else
         x_reel=x();
     return x_reel;
@@ -183,7 +173,7 @@ qreal GraphicElement::getX_terrain(void){
  */
 qreal GraphicElement::getY(void){
     if (isRelativToBot)
-        y_reel=-((x()-x_offset)*sin(TwoPi*(angle_offset+angle_asserv_init)/360))+(((-y())-y_offset)*cos(TwoPi*(angle_offset+angle_asserv_init)/360));
+        y_reel=-((x()-x_offset)*sin(TwoPi*angle_offset/360))+(((-y())-y_offset)*cos(TwoPi*angle_offset/360));
     else
         y_reel=-y();
     return y_reel;
@@ -195,13 +185,6 @@ qreal GraphicElement::getY(void){
  */
 qreal GraphicElement::getY_terrain(void){
     return (-y());
-}
-
-void GraphicElement::setAsservInit(qreal x_init, qreal y_init, qreal angle_init)
-{
-    x_asserv_init=x_init;
-    y_asserv_init=y_init;
-    angle_asserv_init=angle_init;
 }
 
 /*!
@@ -240,32 +223,10 @@ void GraphicElement::replace(qreal x_new, qreal y_new, float speed){
 void GraphicElement::raz(qreal x_new, qreal y_new, qreal angle_new)
 {
     replace(x_new,-y_new,0.0); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
-    setRotation(360-(angle_new)); //on tourne de angle_new ramené au repere orthonorme
-
-    //on enregistre la position sur le terrain de simulation via un offset
-    //sur ce point l'asservissement se croira en (0,0,0)
+    setRotation(360-angle_new); //on tourne de angle_new ramené au sens trigo
     x_offset=x_new;
     y_offset=y_new;
     angle_offset=angle_new;
-
-    x_reel=0;y_reel=0;angle=0;
-}
-
-void GraphicElement::raz(Coord cTerrain, Coord cAsserv)
-{
-    //Positionnement terrain
-    replace(cTerrain.x,-cTerrain.y,0.0); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
-    setRotation(360-cTerrain.teta); //on tourne de angle_new ramené au sens trigo
-
-    //positionnement physique - on donne les offset du placement terrain
-    x_offset=cTerrain.x;
-    y_offset=cTerrain.y;
-    angle_offset=cTerrain.teta;
-
-    x_asserv_init=cAsserv.x;
-    y_asserv_init=cAsserv.y;
-    angle_asserv_init=cAsserv.teta;
-
     x_reel=0;y_reel=0;angle=0;
 }
 
@@ -293,8 +254,8 @@ void GraphicElement::display_XY(qreal x_reel_new, qreal y_reel_new)
     //qDebug() << "consigne:" << x_target <<","<<y_target;
     //qDebug() << "angle" << angle_offset;
     if(isRelativToBot){
-        x_view=x_target*cos(-TwoPi*(angle_offset+angle_asserv_init)/360)+y_target*sin(-TwoPi*(angle_offset+angle_asserv_init)/360)+x_offset;
-        y_view=x_target*sin(-TwoPi*(angle_offset+angle_asserv_init)/360)-y_target*cos(-TwoPi*(angle_offset+angle_asserv_init)/360)-y_offset;
+        x_view=x_target*cos(-TwoPi*angle_offset/360)+y_target*sin(-TwoPi*angle_offset/360)+x_offset;
+        y_view=x_target*sin(-TwoPi*angle_offset/360)-y_target*cos(-TwoPi*angle_offset/360)-y_offset;
     }
     else{
         x_view=x_target;
@@ -308,7 +269,7 @@ void GraphicElement::display_XY(qreal x_reel_new, qreal y_reel_new)
 void GraphicElement::display_theta(qreal theta_reel_new)
 {
     if(isRelativToBot)
-        this->setRotation(-(180*(theta_reel_new)/Pi)-angle_offset+angle_asserv_init);
+        this->setRotation(-(180*(theta_reel_new)/Pi)-angle_offset);
     else
         this->setRotation(-(180*(theta_reel_new)/Pi));
 }
