@@ -65,9 +65,12 @@ private :
     void ResetCursor(void);
     QColor variousColor();
     QComboBox* widgetCouleur(int indexRow);
+	QFile* sauvFic;
+	QTextStream sauvStream;
     
 private slots :
     void onRightClicGUI(QPoint pos);
+	void Slot_save(bool toggleState);
 
 private:
     Cihm_DataGraph m_ihm;
@@ -92,6 +95,7 @@ private:
     QCPRange* storedRangeAxe1;
     QCPRange* storedRangeAxe2;
     int dureeObservee;
+    bool backupEnabled;
 
 
 public slots :
