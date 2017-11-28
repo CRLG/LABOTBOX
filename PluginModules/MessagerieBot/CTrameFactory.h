@@ -19,6 +19,20 @@
    *  @{
    */
 
+//! Enumere des codes commandes de l'ecran vers le MBED
+typedef enum {
+    // Generique pour toutes les annees
+    LBB_CMDE_INVALIDE = 0,
+    LBB_CMDE_CHOIX_EQUIPE,
+    LBB_CMDE_CHOIX_NUMERO_STRATEGIE,
+    LBB_CMDE_RAZ_CODEURS_ROUES,
+    LBB_CMDE_RAZ_CODEUR_3,
+    LBB_CMDE_RAZ_CODEUR_4,
+    LBB_CMDE_RESET_MODELE_SIMULINK_MATCH,
+    LBB_CMDE_TEST_ACTIONNEURS,
+    LBB_CMDE_INIT_ACTIONNEURS
+}tCodeCommandeLabotBox;
+
 typedef QVector<CTrameBot *>tListeTrames;
 
 class CMessagerieBot;
@@ -850,6 +864,42 @@ public :
 private slots :
 };
 
+// ========================================================
+//             TRAME ECRAN_ETAT_MATCH
+// ========================================================
+#define ID_ECRAN_ETAT_MATCH 0x41
+#define DLC_ECRAN_ETAT_MATCH 3
+#define BRUTE2PHYS_ObstacleDetecte(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ObstacleDetecte(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_DiagBlocage(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_DiagBlocage(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_ConvergenceAsserv(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ConvergenceAsserv(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_ModeFonctionnement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_ModeFonctionnement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_CouleurEquipe(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_CouleurEquipe(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_TempsMatch(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_TempsMatch(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+class CTrame_ECRAN_ETAT_MATCH : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ECRAN_ETAT_MATCH() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    // Encode chacun des signaux de la trame
+    unsigned char ObstacleDetecte;
+    unsigned char DiagBlocage;
+    unsigned char ConvergenceAsserv;
+    unsigned char ModeFonctionnement;
+    unsigned char CouleurEquipe;
+    unsigned char TempsMatch;
+
+private slots :
+};
 
 // ========================================================
 //             TRAME CONFIG_PERIODE_TRAME
@@ -876,8 +926,87 @@ private slots :
     void Synchro_changed(QVariant val);
 };
 
+// ========================================================
+//             TRAME ECRAN_ETAT_ECRAN
+// ========================================================
+#define ID_ECRAN_ETAT_ECRAN 0x91
+#define DLC_ECRAN_ETAT_ECRAN 4
+#define BRUTE2PHYS_Valeur(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Valeur(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_CodeCommande(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_CodeCommande(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+class CTrame_ECRAN_ETAT_ECRAN : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ECRAN_ETAT_ECRAN(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ECRAN_ETAT_ECRAN() { }
+    /*virtual*/ void Encode(void);
 
+ private :
+    // Encode chacun des signaux de la trame
+    short Valeur;
+    unsigned short CodeCommande;
+    bool m_synchro_tx;
 
+private slots :
+    void Valeur_etat_ecran_changed(QVariant val);
+    void CodeCommande_etat_ecran_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+// ========================================================
+//             TRAME ETAT_RACK
+// ========================================================
+#define ID_ETAT_RACK 0x154
+#define DLC_ETAT_RACK 8
+#define BRUTE2PHYS_rack_reserve(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_rack_reserve(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_rack_modeAsservissement(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_rack_modeAsservissement(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_rack_cde_moteur(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_rack_cde_moteur(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_rack_consigne_moteur(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_rack_consigne_moteur(val) (short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_rack_convergence(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_rack_convergence(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+class CTrame_ETAT_RACK : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_RACK(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_RACK() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short rack_reserve;
+    unsigned char rack_modeAsservissement;
+    short rack_cde_moteur;
+    short rack_consigne_moteur;
+    unsigned char rack_convergence;
+
+private slots :
+};
+
+// ========================================================
+//             TRAME COLOR_SENSOR
+// ========================================================
+#define ID_ELECTROBOT_COLOR_SENSOR 0x21
+#define DLC_ELECTROBOT_COLOR_SENSOR 6
+class CTrame_COLOR_SENSOR : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COLOR_SENSOR(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COLOR_SENSOR() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short R;
+    short G;
+    short B;
+
+};
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
