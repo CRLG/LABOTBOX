@@ -3,7 +3,7 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport
+QT       += core gui testlib xml printsupport serialport multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,6 +29,7 @@ LIST_BASIC_MODULES+= \
         DataView \ 
         DataPlayer \ 
         RS232 \ 
+		Ecran \
         Joystick \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
@@ -46,6 +47,8 @@ LIST_PLUGIN_MODULES+= \
         SensorView \ 
         Asserv \ 
         UserGuides \ 
+        ActuatorSequencer \
+        BotCam \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
