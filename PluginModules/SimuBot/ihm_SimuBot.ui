@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>678</width>
+    <width>858</width>
     <height>538</height>
    </rect>
   </property>
@@ -15,10 +15,125 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" rowspan="9" colspan="4">
-     <widget class="QGraphicsView" name="simuGraphicsView"/>
+    <item row="0" column="9" rowspan="16">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
     </item>
-    <item row="0" column="4">
+    <item row="8" column="10">
+     <widget class="QDoubleSpinBox" name="sB_X_init_asserv">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="12">
+     <widget class="QLabel" name="label_17">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="12">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="16">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Visu</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="2">
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>Robot</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="10" colspan="5">
+     <widget class="QLabel" name="label_15">
+      <property name="text">
+       <string>Coordonnée init asservissement/stratégie</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8" rowspan="9">
+     <widget class="QSlider" name="verticalSlider_zoom_scene">
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>3</number>
+      </property>
+      <property name="pageStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>1</number>
+      </property>
+      <property name="sliderPosition">
+       <number>1</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>1</number>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="4">
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>Terrain</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="10" colspan="4">
+     <widget class="QLabel" name="label_14">
+      <property name="text">
+       <string>Position sur le terrain de simulation</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="11">
      <widget class="QLabel" name="label_8">
       <property name="text">
        <string>Simu</string>
@@ -28,7 +143,44 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="6" colspan="3">
+    <item row="10" column="0" rowspan="6">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>307</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="7" column="10">
+     <widget class="QLabel" name="label_16">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="10" colspan="3">
+     <widget class="QPushButton" name="pushButton_init">
+      <property name="text">
+       <string>INIT</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="10">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="13" colspan="2">
      <widget class="QSlider" name="horizontalSlider_toggle_simu">
       <property name="maximum">
        <number>1</number>
@@ -41,34 +193,200 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="10">
-     <widget class="QLabel" name="label_9">
+    <item row="0" column="8">
+     <widget class="QLabel" name="label_13">
       <property name="text">
-       <string>Visu</string>
+       <string>zoom</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="4" colspan="2">
-     <widget class="QPushButton" name="pushButton_init">
-      <property name="text">
-       <string>INIT</string>
+    <item row="15" column="4">
+     <widget class="QLCDNumber" name="lcdNumber_theta_terrain">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
       </property>
      </widget>
     </item>
-    <item row="1" column="10" rowspan="2">
-     <spacer name="verticalSpacer">
+    <item row="11" column="2">
+     <widget class="QLCDNumber" name="lcdNumber_x">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="6" colspan="2">
+     <widget class="QLabel" name="label_19">
+      <property name="text">
+       <string>Distance/angle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="14">
+     <widget class="QLabel" name="label_18">
+      <property name="text">
+       <string>Theta</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="5">
+     <widget class="QLabel" name="label_20">
+      <property name="text">
+       <string>Rotation robot</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="4" rowspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_y_terrain">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="10" rowspan="3" colspan="7">
+     <spacer name="verticalSpacer_2">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>178</height>
+        <height>25</height>
        </size>
       </property>
      </spacer>
     </item>
-    <item row="2" column="4" colspan="5">
+    <item row="12" column="7" rowspan="2" colspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_angle">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="14">
+     <widget class="QDoubleSpinBox" name="sB_Theta_init_asserv">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="minimum">
+       <double>-360.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>360.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="1">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Theta</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="2">
+     <widget class="QLCDNumber" name="lcdNumber_theta">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="6" rowspan="2">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Angle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="15" colspan="2">
+     <widget class="QGroupBox" name="groupBox_equipe">
+      <property name="title">
+       <string>Equipe</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QRadioButton" name="radioButton_couleur_1">
+         <property name="text">
+          <string>Bleu</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_couleur_2">
+         <property name="text">
+          <string>Jaune</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="10" colspan="4">
      <widget class="QGroupBox" name="groupBox_coord_relative">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -113,120 +431,7 @@
       </widget>
      </widget>
     </item>
-    <item row="3" column="4">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>X</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="8">
-     <widget class="QLabel" name="label_7">
-      <property name="text">
-       <string>Y</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="4" colspan="4">
-     <widget class="QLineEdit" name="lineEdit_X_init"/>
-    </item>
-    <item row="4" column="8" colspan="3">
-     <widget class="QLineEdit" name="lineEdit_Y_init"/>
-    </item>
-    <item row="5" column="4" rowspan="3" colspan="2">
-     <widget class="QGroupBox" name="groupBox_equipe">
-      <property name="title">
-       <string>Equipe</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QRadioButton" name="radioButton_couleur_1">
-         <property name="text">
-          <string>Jaune</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="radioButton_couleur_2">
-         <property name="text">
-          <string>Vert</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="5" column="8">
-     <widget class="QLabel" name="label_10">
-      <property name="text">
-       <string>Theta</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="8" colspan="3">
-     <widget class="QLineEdit" name="lineEdit_Theta_init"/>
-    </item>
-    <item row="7" column="9">
-     <spacer name="verticalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>25</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="8" column="4" colspan="7">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <widget class="QLabel" name="label_11">
-      <property name="text">
-       <string>Robot</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="3">
-     <widget class="QLabel" name="label_12">
-      <property name="text">
-       <string>Terrain</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="4" rowspan="2">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Distance</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="5" rowspan="3" colspan="2">
-     <widget class="QLCDNumber" name="lcdNumber_distance"/>
-    </item>
-    <item row="10" column="0" rowspan="2">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>X</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="1" rowspan="3">
-     <widget class="QLCDNumber" name="lcdNumber_x"/>
-    </item>
-    <item row="10" column="3" rowspan="3">
-     <widget class="QLCDNumber" name="lcdNumber_x_terrain"/>
-    </item>
-    <item row="10" column="7" rowspan="6" colspan="4">
+    <item row="9" column="10" rowspan="4" colspan="4">
      <widget class="QGroupBox" name="groupBox_angles">
       <property name="title">
        <string>Angles en</string>
@@ -262,62 +467,296 @@
       </widget>
      </widget>
     </item>
-    <item row="11" column="2" rowspan="2">
-     <widget class="QLineEdit" name="lineEdit_x">
-      <property name="dragEnabled">
-       <bool>true</bool>
+    <item row="5" column="14">
+     <widget class="QDoubleSpinBox" name="lineEdit_Theta_init">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="minimum">
+       <double>-360.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>360.000000000000000</double>
       </property>
      </widget>
     </item>
-    <item row="12" column="4" rowspan="2">
-     <widget class="QLabel" name="label_4">
+    <item row="5" column="12">
+     <widget class="QDoubleSpinBox" name="lineEdit_Y_init">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="10">
+     <widget class="QDoubleSpinBox" name="lineEdit_X_init">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="14">
+     <widget class="QLabel" name="label_10">
       <property name="text">
-       <string>Angle</string>
+       <string>Theta</string>
       </property>
      </widget>
     </item>
-    <item row="12" column="5" rowspan="3" colspan="2">
-     <widget class="QLCDNumber" name="lcdNumber_angle"/>
+    <item row="8" column="12">
+     <widget class="QDoubleSpinBox" name="sB_Y_init_asserv">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+     </widget>
     </item>
-    <item row="13" column="0" rowspan="2">
+    <item row="11" column="3">
+     <widget class="QDoubleSpinBox" name="lineEdit_x">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-1000.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>1000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="6">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Distance</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1" rowspan="2">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Y</string>
       </property>
      </widget>
     </item>
-    <item row="13" column="1" rowspan="2">
-     <widget class="QLCDNumber" name="lcdNumber_y"/>
+    <item row="12" column="2" rowspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_y">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
     </item>
-    <item row="13" column="3" rowspan="2">
-     <widget class="QLCDNumber" name="lcdNumber_y_terrain"/>
+    <item row="11" column="4">
+     <widget class="QLCDNumber" name="lcdNumber_x_terrain">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
     </item>
-    <item row="14" column="2">
-     <widget class="QLineEdit" name="lineEdit_y">
-      <property name="dragEnabled">
+    <item row="11" column="5" rowspan="5">
+     <widget class="QDial" name="dial_rotation_bot">
+      <property name="minimum">
+       <number>-10000</number>
+      </property>
+      <property name="maximum">
+       <number>10000</number>
+      </property>
+      <property name="pageStep">
+       <number>100</number>
+      </property>
+      <property name="notchTarget">
+       <double>130.000000000000000</double>
+      </property>
+      <property name="notchesVisible">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="15" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Theta</string>
+    <item row="11" column="7" colspan="2">
+     <widget class="QLCDNumber" name="lcdNumber_distance">
+      <property name="minimumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>64</width>
+        <height>20</height>
+       </size>
       </property>
      </widget>
     </item>
-    <item row="15" column="1">
-     <widget class="QLCDNumber" name="lcdNumber_theta"/>
+    <item row="0" column="0" rowspan="10" colspan="8">
+     <widget class="QGraphicsView" name="simuGraphicsView"/>
     </item>
-    <item row="15" column="2">
-     <widget class="QLineEdit" name="lineEdit_theta">
-      <property name="dragEnabled">
-       <bool>true</bool>
+    <item row="12" column="3">
+     <widget class="QDoubleSpinBox" name="lineEdit_y">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>-1000.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>1000.000000000000000</double>
       </property>
      </widget>
     </item>
     <item row="15" column="3">
-     <widget class="QLCDNumber" name="lcdNumber_theta_terrain"/>
+     <widget class="QDoubleSpinBox" name="lineEdit_theta">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="minimum">
+       <double>-360.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>360.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="14">
+     <widget class="QPushButton" name="pb_Astar">
+      <property name="text">
+       <string>Evitement</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -326,7 +765,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>678</width>
+     <width>858</width>
      <height>21</height>
     </rect>
    </property>
