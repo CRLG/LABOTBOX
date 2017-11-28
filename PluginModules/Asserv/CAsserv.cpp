@@ -90,14 +90,21 @@ void CAsserv::init(CLaBotBox *application)
   connect(m_ihm.ui.CdeXY_Y, SIGNAL(editingFinished()), this, SLOT(CdeXY_Y_changed()));
 
   // COMMANDE_XYTeta
-/*
-Messagerie à corriger car les noms de variables sont les mêmes que pour le trame COMMANDE_MVT_XY
   m_ihm.ui.CdeXYTeta_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(m_ihm.ui.CdeXYTeta_SendLock, SIGNAL(clicked()), this, SLOT(CdeXYTetaSynchroSend_left_clic()));
-  connect(m_ihm.ui.CdeXYTeta_SendLock, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdeXYTetaSynchroSend_right_clic(QPoint)));
-  connect(m_ihm.ui.CdeXYTeta_X, SIGNAL(editingFinished()), this, SLOT(CdeXYTeta_X_changed()));
-  connect(m_ihm.ui.CdeXYTeta_Y, SIGNAL(editingFinished()), this, SLOT(CdeXYTeta_Y_changed()));
-*/
+  connect(m_ihm.ui.CdeXYTeta_SendLock, SIGNAL(clicked()), this, SLOT(CdeXYTSynchroSend_left_clic()));
+  connect(m_ihm.ui.CdeXYTeta_SendLock, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdeXYTSynchroSend_right_clic(QPoint)));
+  connect(m_ihm.ui.CdeXYTeta_X, SIGNAL(editingFinished()), this, SLOT(CdeXYT_X_changed()));
+  connect(m_ihm.ui.CdeXYTeta_Y, SIGNAL(editingFinished()), this, SLOT(CdeXYT_Y_changed()));
+  connect(m_ihm.ui.CdeXYTeta_Teta, SIGNAL(editingFinished()), this, SLOT(CdeXYT_Teta_changed()));
+
+  // COMMANDE_INIT_XYTeta
+  m_ihm.ui.CdeInitXYTeta_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(m_ihm.ui.CdeInitXYTeta_SendLock, SIGNAL(clicked()), this, SLOT(CdeInitXYTSynchroSend_left_clic()));
+  connect(m_ihm.ui.CdeInitXYTeta_SendLock, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdeInitXYTSynchroSend_right_clic(QPoint)));
+  connect(m_ihm.ui.CdeInitXYTeta_X, SIGNAL(editingFinished()), this, SLOT(CdeInitXYT_X_changed()));
+  connect(m_ihm.ui.CdeInitXYTeta_Y, SIGNAL(editingFinished()), this, SLOT(CdeInitXYT_Y_changed()));
+  connect(m_ihm.ui.CdeInitXYTeta_Teta, SIGNAL(editingFinished()), this, SLOT(CdeInitXYT_Teta_changed()));
+
 
   // COMMANDE_DISTANCE ANGLE
   m_ihm.ui.CdeDistAngle_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -105,6 +112,15 @@ Messagerie à corriger car les noms de variables sont les mêmes que pour le trame
   connect(m_ihm.ui.CdeDistAngle_SendLock, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdeDistAngleSynchroSend_right_clic(QPoint)));
   connect(m_ihm.ui.CdeDistAngle_Distance, SIGNAL(editingFinished()), this, SLOT(CdeDistAngle_Distance_changed()));
   connect(m_ihm.ui.CdeDistAngle_Angle, SIGNAL(editingFinished()), this, SLOT(CdeDistAngle_Angle_changed()));
+
+  // COMMANDE_VITESSE MVT
+  m_ihm.ui.CdeVitesseMVT_SendLock->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(m_ihm.ui.CdeVitesseMVT_SendLock, SIGNAL(clicked()), this, SLOT(CdeVitesseMVTSynchroSend_left_clic()));
+  connect(m_ihm.ui.CdeVitesseMVT_SendLock, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdeVitesseMVTSynchroSend_right_clic(QPoint)));
+  connect(m_ihm.ui.CdeVitesseMVT_VitAvance, SIGNAL(editingFinished()), this, SLOT(CdeVitesseMVT_VitAvance_changed()));
+  connect(m_ihm.ui.CdeVitesseMVT_VitRotation, SIGNAL(editingFinished()), this, SLOT(CdeVitesseMVT_VitRotation_changed()));
+  connect(m_ihm.ui.CdeVitesseMVT_IdSportAcc, SIGNAL(editingFinished()), this, SLOT(CdeVitesseMVT_IdSportAcc_changed()));
+  connect(m_ihm.ui.CdeVitesseMVT_IdSportDec, SIGNAL(editingFinished()), this, SLOT(CdeVitesseMVT_IdSportDec_changed()));
 
 
   // Les données reçues à afficher
@@ -119,7 +135,19 @@ Messagerie à corriger car les noms de variables sont les mêmes que pour le trame
   connect(m_application->m_data_center->getData("Convergence"), SIGNAL(valueChanged(int)), this, SLOT(Convergence_changed(int)));
   connect(m_application->m_data_center->getData("ModeAsservissement"), SIGNAL(valueChanged(int)), this, SLOT(ModeAsservissement_changed(int)));
 
+  connect(m_application->m_data_center->getData("rack_convergence"), SIGNAL(valueChanged(QVariant)), m_ihm.ui.ConvRack, SLOT(ConvRack_changed(QVariant)));
+  connect(m_application->m_data_center->getData("Codeur_3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Codeur_3_changed(QVariant)));
 
+
+  // COMMANDE_CHARIOT
+  connect(m_ihm.ui.chariot_set, SIGNAL(clicked()), this, SLOT(setConsigneChariot()));
+  connect(m_ihm.ui.chariot_stop, SIGNAL(clicked()) , this, SLOT(stopChariot()));
+  connect(m_ihm.ui.chariot_recal, SIGNAL(clicked()) , this, SLOT(recalChariot()));
+  connect(m_ihm.ui.pB_rackGainPosVit,SIGNAL(clicked(bool)),this,SLOT(sendRackKPosVit()));
+  connect(m_ihm.ui.pB_rackCommandeMax,SIGNAL(clicked(bool)),this,SLOT(sendRackCdeMax()));
+  connect(m_ihm.ui.pB_rackGainProp,SIGNAL(clicked(bool)),this,SLOT(sendRackKP()));
+  connect(m_ihm.ui.pB_rackGainInt,SIGNAL(clicked(bool)),this,SLOT(sendRackKI()));
+  connect(m_ihm.ui.pB_rackSeuilConv,SIGNAL(clicked(bool)),this,SLOT(sendRackSeuilConv()));
 
 
 }
@@ -227,6 +255,60 @@ void CAsserv::CdeXYSynchroSend_right_clic(QPoint pt)
 void CAsserv::CdeXY_X_changed(void) { m_application->m_data_center->write("X_consigne", m_ihm.ui.CdeXY_X->value()); }
 void CAsserv::CdeXY_Y_changed(void) { m_application->m_data_center->write("Y_consigne", m_ihm.ui.CdeXY_Y->value()); }
 
+// ==================================================
+// COMMANDE XYT
+// ==================================================
+// _____________________________________________________________________
+// Clic gauche : envoie la trame
+// Clic droit : vérouille la trame
+void CAsserv::CdeXYTSynchroSend_left_clic(void)
+{
+  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", true);
+  m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", false);
+  m_ihm.ui.CdeXYTeta_SendLock->setChecked(false);
+}
+
+void CAsserv::CdeXYTSynchroSend_right_clic(QPoint pt)
+{
+  Q_UNUSED(pt)
+  m_ihm.ui.CdeXYTeta_SendLock->setCheckable(true);
+  m_ihm.ui.CdeXYTeta_SendLock->setChecked(!m_ihm.ui.CdeXYTeta_SendLock->isChecked());
+  m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", m_ihm.ui.CdeXYTeta_SendLock->isChecked());
+}
+
+void CAsserv::CdeXYT_X_changed(void) { m_application->m_data_center->write("XYT_X_consigne", m_ihm.ui.CdeXYTeta_X->value()); }
+void CAsserv::CdeXYT_Y_changed(void) { m_application->m_data_center->write("XYT_Y_consigne", m_ihm.ui.CdeXYTeta_Y->value()); }
+void CAsserv::CdeXYT_Teta_changed(void) { m_application->m_data_center->write("XYT_angle_consigne", m_ihm.ui.CdeXYTeta_Teta->value()); }
+
+
+// ==================================================
+// COMMANDE REINIT XYT
+// ==================================================
+// _____________________________________________________________________
+// Clic gauche : envoie la trame
+// Clic droit : vérouille la trame
+void CAsserv::CdeInitXYTSynchroSend_left_clic(void)
+{
+  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", true);
+  m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", false);
+  m_ihm.ui.CdeInitXYTeta_SendLock->setChecked(false);
+}
+
+void CAsserv::CdeInitXYTSynchroSend_right_clic(QPoint pt)
+{
+  Q_UNUSED(pt)
+  m_ihm.ui.CdeInitXYTeta_SendLock->setCheckable(true);
+  m_ihm.ui.CdeInitXYTeta_SendLock->setChecked(!m_ihm.ui.CdeInitXYTeta_SendLock->isChecked());
+  m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", m_ihm.ui.CdeInitXYTeta_SendLock->isChecked());
+}
+
+void CAsserv::CdeInitXYT_X_changed(void) { m_application->m_data_center->write("reinit_x_pos", m_ihm.ui.CdeInitXYTeta_X->value()); }
+void CAsserv::CdeInitXYT_Y_changed(void) { m_application->m_data_center->write("reinit_y_pos", m_ihm.ui.CdeInitXYTeta_Y->value()); }
+void CAsserv::CdeInitXYT_Teta_changed(void) { m_application->m_data_center->write("reinit_teta_pos", m_ihm.ui.CdeInitXYTeta_Teta->value()); }
+
+
 
 // ==================================================
 // COMMANDE DISTANCE ANGLE
@@ -252,6 +334,42 @@ void CAsserv::CdeDistAngleSynchroSend_right_clic(QPoint pt)
 
 void CAsserv::CdeDistAngle_Distance_changed(void)   { m_application->m_data_center->write("distance_consigne", m_ihm.ui.CdeDistAngle_Distance->value()); }
 void CAsserv::CdeDistAngle_Angle_changed(void)      { m_application->m_data_center->write("angle_consigne", m_ihm.ui.CdeDistAngle_Angle->value()); }
+
+
+// ==================================================
+// COMMANDE VITESSE MVT
+// ==================================================
+// _____________________________________________________________________
+// Clic gauche : envoie la trame
+// Clic droit : vérouille la trame
+void CAsserv::CdeVitesseMVTSynchroSend_left_clic(void)
+{
+  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  m_application->m_data_center->write("COMMANDE_VITESSE_MVT_TxSync", true);
+  m_application->m_data_center->write("COMMANDE_VITESSE_MVT_TxSync", false);
+  m_ihm.ui.CdeVitesseMVT_SendLock->setChecked(false);
+}
+
+void CAsserv::CdeVitesseMVTSynchroSend_right_clic(QPoint pt)
+{
+  Q_UNUSED(pt)
+  m_ihm.ui.CdeVitesseMVT_SendLock->setCheckable(true);
+  m_ihm.ui.CdeVitesseMVT_SendLock->setChecked(!m_ihm.ui.CdeVitesseMVT_SendLock->isChecked());
+  m_application->m_data_center->write("COMMANDE_VITESSE_MVT_TxSync", m_ihm.ui.CdeVitesseMVT_SendLock->isChecked());
+}
+
+void CAsserv::CdeVitesseMVT_VitAvance_changed(void)
+{
+    m_application->m_data_center->write("vitesse_avance_max", m_ihm.ui.CdeVitesseMVT_VitAvance->value());
+    m_ihm.ui.CdeVitesseMVT_VitAvance->setValue(80);
+}
+void CAsserv::CdeVitesseMVT_VitRotation_changed(void)
+{
+    m_application->m_data_center->write("vitesse_rotation_max", m_ihm.ui.CdeVitesseMVT_VitRotation->value());
+    m_ihm.ui.CdeVitesseMVT_VitRotation->setValue(3.0);
+}
+void CAsserv::CdeVitesseMVT_IdSportAcc_changed(void)   { m_application->m_data_center->write("indice_sportivite_accel", m_ihm.ui.CdeVitesseMVT_IdSportAcc->value()); }
+void CAsserv::CdeVitesseMVT_IdSportDec_changed(void)   { m_application->m_data_center->write("indice_sportivite_decel", m_ihm.ui.CdeVitesseMVT_IdSportDec->value()); }
 
 
 
@@ -355,6 +473,10 @@ int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
         case cASSERV_DIAG_WR_KP_ANGLE:
         case cASSERV_DIAG_WR_KI_DISTANCE:
         case cASSERV_DIAG_WR_KP_DISTANCE:
+        case cASSERV_DIAG_RACK_K_POSVIT:
+        case cASSERV_DIAG_RACK_KP:
+        case cASSERV_DIAG_RACK_KI:
+        //case cASSERV_DIAG_RACK_CONV:
             return (100);
         break;
 
@@ -364,3 +486,95 @@ int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
     }
 }
 
+void CAsserv::setConsigneChariot(void)
+{
+    float consigne=m_ihm.ui.chariot_consigne->value();
+    int sens_position=0;
+    if(consigne>=0)
+        sens_position=5;
+    else
+        sens_position=15;
+    float consigne_messagerie=qRound(qAbs(consigne)/10.0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+    m_application->m_data_center->write("NumeroServoMoteur1", 50);
+    m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
+    m_application->m_data_center->write("VitesseServoMoteur1", sens_position);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+    qDebug() << "set rack ASSER at "<<consigne_messagerie<<"and sens"<<sens_position<<"on trame 50";
+}
+
+void CAsserv::stopChariot(void)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+    m_application->m_data_center->write("NumeroServoMoteur1", 51);
+    m_application->m_data_center->write("PositionServoMoteur1", 1);
+    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+    qDebug() << "set rack STOP with (1,0) on trame 51";
+}
+void CAsserv::recalChariot(void)
+{
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+    m_application->m_data_center->write("NumeroServoMoteur1", 52);
+    m_application->m_data_center->write("PositionServoMoteur1", 1);
+    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+    qDebug() << "set rack RECAL with (1,0) on trame 52";
+}
+/*
+ * cASSERV_DIAG_RACK_CDE_MAX,
+   cASSERV_DIAG_RACK_K_POSVIT,
+   cASSERV_DIAG_RACK_KP,
+   cASSERV_DIAG_RACK_KI,
+   cASSERV_DIAG_RACK_CONV*/
+
+void CAsserv::sendRackCdeMax(void)
+{
+    int param=(int)(FacteurPhys2Brute_ActionDiagAsserv(cASSERV_DIAG_RACK_CDE_MAX) * m_ihm.ui.rackCommandeMax->value());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_CDE_MAX );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE",param );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+    qDebug() << "set rack CDE_MAX at "<<param;
+}
+
+void CAsserv::sendRackKPosVit(void)
+{
+    int param=(int)(FacteurPhys2Brute_ActionDiagAsserv(cASSERV_DIAG_RACK_K_POSVIT) * m_ihm.ui.rackGainPosVit->value());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_K_POSVIT );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+    qDebug() << "set rack K_POSVIT at "<<param;
+}
+void CAsserv::sendRackKP(void)
+{
+    int param=(int)(FacteurPhys2Brute_ActionDiagAsserv(cASSERV_DIAG_RACK_KP) * m_ihm.ui.rackGainProp->value());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_KP );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+    qDebug() << "set rack KP at "<<param;
+}
+void CAsserv::sendRackKI(void)
+{
+    int param=(int)(FacteurPhys2Brute_ActionDiagAsserv(cASSERV_DIAG_RACK_KI) * m_ihm.ui.rackGainInt->value());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_KI );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+    qDebug() << "set rack KI at "<<param;
+}
+void CAsserv::sendRackSeuilConv(void)
+{
+    int param=(int)(FacteurPhys2Brute_ActionDiagAsserv(cASSERV_DIAG_RACK_CONV) * m_ihm.ui.rackSeuilConv->value());
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", true);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_CONV );
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param);
+    m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
+    qDebug() << "set rack SEUIL_CONV at "<<param;
+}
+
+void CAsserv::ConvRack_changed(QVariant value) {m_ihm.ui.ConvRack->setValue(value.toBool());}
+
+void CAsserv::Codeur_3_changed(QVariant val){m_ihm.ui.PosRack->setValue(val.toInt());}

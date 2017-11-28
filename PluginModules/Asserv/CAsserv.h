@@ -55,6 +55,13 @@ typedef enum {
  cBLOCAGE
 }tConvergence;
 
+    // Etat asserv rack
+/*typedef enum {
+ cMOUVEMENT_EN_COURS = 0,
+ cCONVERGENCE_OK,
+ cBLOCAGE
+}tConvergence;*/
+
 typedef enum {
     cMODE_MANUEL = 0,
     cMODE_XY_AUTO,
@@ -74,7 +81,12 @@ typedef enum {
    cASSERV_DIAG_WR_KI_DISTANCE,
    cASSERV_DIAG_WR_KP_DISTANCE,
    cASSERV_DIAG_WR_CDE_MIN,
-   cASSERV_DIAG_WR_CDE_MAX
+   cASSERV_DIAG_WR_CDE_MAX,
+   cASSERV_DIAG_RACK_CDE_MAX,
+   cASSERV_DIAG_RACK_K_POSVIT,
+   cASSERV_DIAG_RACK_KP,
+   cASSERV_DIAG_RACK_KI,
+   cASSERV_DIAG_RACK_CONV
 }eASSERV_WRITE_PARAM;
 
 
@@ -111,23 +123,53 @@ public slots :
     void CdeXY_Y_changed(void);
 
     // Commande XYTeta
-    // TODO : à revoir car les noms dans la messagerie sont identiques à Commande XY
-/*
-    void CdeXYTeta(void);
-    void CdeXYTetaSynchroSend_right_clic(QPoint);
-    void CdeXYTeta_X_changed(void);
-    void CdeXYTeta_Y_changed(void);
-    void CdeXYTeta_Teta_changed(void);
-*/
+    void CdeXYTSynchroSend_left_clic(void);
+    void CdeXYTSynchroSend_right_clic(QPoint);
+    void CdeXYT_X_changed(void);
+    void CdeXYT_Y_changed(void);
+    void CdeXYT_Teta_changed(void);
+
+    // Commande XYTeta
+    void CdeInitXYTSynchroSend_left_clic(void);
+    void CdeInitXYTSynchroSend_right_clic(QPoint);
+    void CdeInitXYT_X_changed(void);
+    void CdeInitXYT_Y_changed(void);
+    void CdeInitXYT_Teta_changed(void);
+
     // Commande Distance Angle
     void CdeDistAngleSynchroSend_left_clic(void);
     void CdeDistAngleSynchroSend_right_clic(QPoint);
     void CdeDistAngle_Distance_changed(void);
     void CdeDistAngle_Angle_changed(void);
 
+    // Commande Vitesse Mouvement
+    void CdeVitesseMVTSynchroSend_left_clic();
+    void CdeVitesseMVTSynchroSend_right_clic(QPoint pt);
+    void CdeVitesseMVT_VitAvance_changed();
+    void CdeVitesseMVT_IdSportAcc_changed();
+    void CdeVitesseMVT_IdSportDec_changed();
+    void CdeVitesseMVT_VitRotation_changed();
+
+    // Commande Diag Asserv
+    void DiagAsserv_Send_clicked(void);
+    void sendRackCdeMax();
+    void sendRackKPosVit();
+    void sendRackKP();
+    void sendRackKI();
+    void sendRackSeuilConv();
+
+    //retour asser
     void Convergence_changed(int val);
     void ModeAsservissement_changed(int val);
 
+    //commande chariot
+    void setConsigneChariot(void);
+    void stopChariot(void);
+    void recalChariot(void);
+
+
+    void ConvRack_changed(QVariant value);
+    void Codeur_3_changed(QVariant val);
 private slots :
     void keyPressed(int key);
 
@@ -135,9 +177,6 @@ private slots :
 private :
     void initList_ActionsDiagAsserv(void);
     int FacteurPhys2Brute_ActionDiagAsserv(int param);
-private slots :
-    void DiagAsserv_Send_clicked(void);
-
 };
 
 #endif // _CPLUGIN_MODULE_Asserv_H_
