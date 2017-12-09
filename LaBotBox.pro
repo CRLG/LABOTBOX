@@ -7,6 +7,11 @@ QT       += core gui testlib xml printsupport serialport multimedia multimediawi
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+LIBS += -LD:/win_progs/Qt_5_2_1/5.2.1/mingw48_32/plugins/designer -lqhexeditplugin -lqledplugin -lq7segplugin
+LIBS += -LD:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
+INCLUDEPATH += "D:/win_progs/OpenCV/opencv_2_4_9/include"
+#LIBS += -LD:/win_progs/SFML-2.3.2/bin -lsfml-graphics-2 -lsfml-window-2 -lsfml-system-2
+#INCLUDEPATH += "D:/win_progs/SFML-2.3.2/include"
 TARGET = LaBotBox
 TEMPLATE = app
 
@@ -29,8 +34,8 @@ LIST_BASIC_MODULES+= \
         DataView \ 
         DataPlayer \ 
         RS232 \ 
-		Ecran \
-        Joystick \ 
+        Ecran \
+#        Joystick \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -95,4 +100,4 @@ for(i, LIST_TOOLS) {
 }
 
 CONFIG += plugins_designer
-LIBS += -lsfml-graphics -lsfml-window -lsfml-system
+#LIBS += -lsfml-graphics -lsfml-window -lsfml-system
