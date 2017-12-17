@@ -112,7 +112,7 @@ void CBotCam::init(CLaBotBox *application)
     //Initialisation de la capture
 	val = m_application->m_eeprom->read(getName(), "camUsed", QVariant(false));
 	camUsed=val.toBool();
-	int camNumber=0;
+    int camNumber=1;
     capture= new cv::VideoCapture(camNumber);
 
     //Init des éléments détectés
