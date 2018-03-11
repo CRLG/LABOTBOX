@@ -115,6 +115,7 @@ void CBotCam::init(CLaBotBox *application)
     m_ihm.ui.comboBox_camera->addItems(colorsEnabled);
     //Initialisation de la capture
 	val = m_application->m_eeprom->read(getName(), "camUsed", QVariant(false));
+<<<<<<< HEAD
     bool camUsed_init=val.toBool();
 
     //Cam utilisee
@@ -124,6 +125,11 @@ void CBotCam::init(CLaBotBox *application)
 qDebug() << "cam utilisée: "<<camIsUsed;
 qDebug() << "cam n°: "<<camNumber;
     /*capture= new cv::VideoCapture(camNumber);
+=======
+	camUsed=val.toBool();
+    int camNumber=1;
+    capture= new cv::VideoCapture(camNumber);
+>>>>>>> d098bfa6a5b0774b127fee11562944b2fa547a51
 
     //Init des éléments détectés
     for(int i=0;i<NB_ELEMENTS;i++)
