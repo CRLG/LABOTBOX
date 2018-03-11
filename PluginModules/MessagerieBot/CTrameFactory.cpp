@@ -406,7 +406,10 @@ CTrame_ELECTROBOT_CDE_MOTEURS::CTrame_ELECTROBOT_CDE_MOTEURS(CMessagerieBot *mes
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_6_changed(QVariant val)
 {
+  //qDebug() << "value mot 6" << val;
   cde_moteur_6 = val.toInt();
+  //qDebug() << "value mot 6 char" << val.toByteArray();
+  //qDebug() << "value mot 6 char" << cde_moteur_6;
   if (m_synchro_tx == 0) { Encode(); }
 }
 //___________________________________________________________________________

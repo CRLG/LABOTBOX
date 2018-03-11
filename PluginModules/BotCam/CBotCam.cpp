@@ -92,6 +92,10 @@ void CBotCam::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
   
+  //init du scheduler
+  schedulerCam=new QTimer();
+  schedulerCam->stop();
+
       //compteur d'images déjà bypassées
     compteurImages=0;
 
@@ -111,9 +115,15 @@ void CBotCam::init(CLaBotBox *application)
     m_ihm.ui.comboBox_camera->addItems(colorsEnabled);
     //Initialisation de la capture
 	val = m_application->m_eeprom->read(getName(), "camUsed", QVariant(false));
-	camUsed=val.toBool();
-	int camNumber=0;
-    capture= new cv::VideoCapture(camNumber);
+    bool camUsed_init=val.toBool();
+
+    //Cam utilisee
+    val = m_application->m_eeprom->read(getName(), "camNumber", QVariant(0));
+    camNumber=val.toInt();
+    QString camIsUsed=(camUsed_init)?"oui":"non";
+qDebug() << "cam utilisée: "<<camIsUsed;
+qDebug() << "cam n°: "<<camNumber;
+    /*capture= new cv::VideoCapture(camNumber);
 
     //Init des éléments détectés
     for(int i=0;i<NB_ELEMENTS;i++)
@@ -156,19 +166,18 @@ void CBotCam::init(CLaBotBox *application)
 //    viewfinder=m_ihm.ui.ui_viewfinder;
 //    connect(m_ihm.ui.cB_camera,SIGNAL(stateChanged(int)),this,SLOT(enableCamera(int)));
     cameraEnabled=false;
-	if(camUsed)
-        m_ihm.ui.cB_camera->setChecked(true);
+    m_ihm.ui.cB_camera->setChecked(camUsed);
+
     connect(m_ihm.ui.SliderCouleur,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.SliderPur,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.SliderSurface,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.comboBox_camera,SIGNAL(currentIndexChanged(QString)),this,SLOT(setCouleur(QString)));
     connect(this,SIGNAL(frameCaptured(QImage,int)),this, SLOT(displayFrame(QImage,int)));
-    if (CamIsOK){
+        connect(schedulerCam, SIGNAL(timeout()), this, SLOT(getCam()));
+        connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
+        runCam(camUsed_init);
 
-        QTimer *timer = new QTimer(this);
-            connect(timer, SIGNAL(timeout()), this, SLOT(getCam()));
-            timer->start(300);
-    }
+*/
 
 }
 
@@ -438,6 +447,26 @@ void CBotCam::afficheCam(cv::Mat frameToQt,bool Colored,int type_Image)
         imgConst=img.copy(QRect(0,0,iL,iH));
 
         emit(frameCaptured(imgConst,type_Image));
+    }
+}
+
+void CBotCam::runCam(bool b_activate)
+{
+    camUsed=b_activate;
+    if((b_activate)&&(CamIsOK))
+    {
+        qDebug() <<"lancement capture cam";
+        m_ihm.ui.label_cam_state->setText("running");
+
+        schedulerCam->start(300);
+    }
+    else
+    {
+
+        schedulerCam->stop();
+        qDebug() <<"arret capture cam";
+        m_ihm.ui.label_cam_state->setText("stopped");
+
     }
 }
 

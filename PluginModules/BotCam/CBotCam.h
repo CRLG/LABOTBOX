@@ -95,6 +95,7 @@ public:
     bool closeCam(void);
     void analyseCam(cv::Mat frame);
     void afficheCam(cv::Mat frameToQt, bool Colored, int type_Image);
+   // void runCam(bool b_activate);
     double S_min;
     double H_min;
     double H_max;
@@ -117,6 +118,8 @@ private:
     //QCameraViewfinder *viewfinder;
     bool cameraEnabled;
 	int camUsed;
+    QTimer *schedulerCam;
+    int camNumber;
    
 signals:
     void  frameCaptured(QImage frame,int type_Image);
@@ -135,6 +138,7 @@ public slots:
     void setSeuil(double H_angle_detection, double S_purete_detection, double area_detection);
     void setCouleur(QString couleur);
     void displayFrame(QImage imgConst, int type);
+    void runCam(bool b_activate);
     //void recording(bool flag);
 };
 
