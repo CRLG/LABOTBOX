@@ -78,8 +78,8 @@ void CEcran::init(CLaBotBox *application)
   m_ihm.ui.tps_unit->setNumber(0);
   m_ihm.ui.tabWidget->setCurrentIndex(0);
 
-  connect(m_ihm.ui.pB_Blue,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
-  connect(m_ihm.ui.pB_Yellow,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.pB_Green,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.pB_Orange,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
 
   //pour le mode visu on se connecte aux changements du datamanager
   connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(color_Changed(CData*)));
@@ -213,13 +213,15 @@ void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.lcd_telemetre_3->display
 void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.lcd_telemetre_4->display(val.toInt());}
 void CEcran::TpsMatch_changed(QVariant val)
 {
-    m_ihm.ui.VBatt->setValue(val.toDouble());
+    //m_ihm.ui.VBatt->setValue(val.toDouble());
 
     int TpsMatch=val.toInt();
     if((TpsMatch>0)&&(TpsMatch<=1))
         m_ihm.ui.tabWidget->setCurrentIndex(1);
     if((TpsMatch>79)&&(TpsMatch<=80))
         m_ihm.ui.tabWidget->setCurrentIndex(2);
+    if(TpsMatch>99)
+        m_ihm.ui.tabWidget->setCurrentIndex(3);
 
     if(m_ihm.ui.tabWidget->currentIndex()==2)
     {
@@ -227,5 +229,16 @@ void CEcran::TpsMatch_changed(QVariant val)
         int unite=qAbs(TpsMatch-10*dizaine);
         m_ihm.ui.tps_dix->setNumber(dizaine);
         m_ihm.ui.tps_unit->setNumber(unite);
+    }
+
+    if(m_ihm.ui.tabWidget->currentIndex()==3)
+    {
+        int Score=m_application->m_data_center->getData("Score")->read().toInt();
+        int centaine=qFloor(Score/100);
+        int dizaine=qFloor(Score-centaine*100);
+        int unite=qAbs(Score-10*dizaine-100*centaine);
+        m_ihm.ui.score_cent->setNumber(dizaine);
+        m_ihm.ui.score_dix->setNumber(dizaine);
+        m_ihm.ui.score_unit->setNumber(unite);
     }
 }

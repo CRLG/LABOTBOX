@@ -868,7 +868,7 @@ private slots :
 //             TRAME ECRAN_ETAT_MATCH
 // ========================================================
 #define ID_ECRAN_ETAT_MATCH 0x41
-#define DLC_ECRAN_ETAT_MATCH 3
+#define DLC_ECRAN_ETAT_MATCH 5
 #define BRUTE2PHYS_ObstacleDetecte(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_ObstacleDetecte(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_DiagBlocage(val) ( ((float)val * (1.000000)) + (0.000000) )
@@ -881,6 +881,8 @@ private slots :
 #define PHYS2BRUTE_CouleurEquipe(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_TempsMatch(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_TempsMatch(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Score(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Score(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
 class CTrame_ECRAN_ETAT_MATCH : public CTrameBot
 {
    Q_OBJECT
@@ -897,6 +899,7 @@ public :
     unsigned char ModeFonctionnement;
     unsigned char CouleurEquipe;
     unsigned char TempsMatch;
+    unsigned short Score;
 
 private slots :
 };

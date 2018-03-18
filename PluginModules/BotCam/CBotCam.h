@@ -28,9 +28,6 @@
 #include <QMap>
 #include <QPoint>
 #include <QtAlgorithms>
-#include <QCamera>
-#include <QCameraImageCapture>
-#include <QCameraViewfinder>
 #include <QPointer>
 
 enum type_Affichage{

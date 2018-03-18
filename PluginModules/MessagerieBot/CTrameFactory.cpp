@@ -2138,6 +2138,7 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
  m_liste_noms_signaux.append("ModeFonctionnement");
  m_liste_noms_signaux.append("CouleurEquipe");
  m_liste_noms_signaux.append("TempsMatch");
+ m_liste_noms_signaux.append("Score");
 
  // S'assure que les données existent dans le DataManager
  data_manager->write("ObstacleDetecte",  ObstacleDetecte);
@@ -2146,6 +2147,7 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
  data_manager->write("ModeFonctionnement",  ModeFonctionnement);
  data_manager->write("CouleurEquipe",  CouleurEquipe);
  data_manager->write("TempsMatch",  TempsMatch);
+ data_manager->write("Score",  Score);
 
 }
 //___________________________________________________________________________
@@ -2168,6 +2170,8 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 
    TempsMatch = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
+   Score=( ( ((long)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((long)(trameRecue->Data[3])) & 0xFF) << 8 );
+
 
 
    // Envoie les données au data manager
@@ -2177,6 +2181,7 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write("ModeFonctionnement", BRUTE2PHYS_ModeFonctionnement(ModeFonctionnement));
    m_data_manager->write("CouleurEquipe", CouleurEquipe);
    m_data_manager->write("TempsMatch", BRUTE2PHYS_TempsMatch(TempsMatch));
+   m_data_manager->write("Score", BRUTE2PHYS_TempsMatch(Score));
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }
