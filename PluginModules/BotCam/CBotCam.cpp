@@ -18,6 +18,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <iostream>
+
 //using namespace cv;
 //using namespace std;
 
@@ -115,7 +119,7 @@ void CBotCam::init(CLaBotBox *application)
     m_ihm.ui.comboBox_camera->addItems(colorsEnabled);
     //Initialisation de la capture
 	val = m_application->m_eeprom->read(getName(), "camUsed", QVariant(false));
-<<<<<<< HEAD
+
     bool camUsed_init=val.toBool();
 
     //Cam utilisee
@@ -124,12 +128,12 @@ void CBotCam::init(CLaBotBox *application)
     QString camIsUsed=(camUsed_init)?"oui":"non";
 qDebug() << "cam utilisée: "<<camIsUsed;
 qDebug() << "cam n°: "<<camNumber;
-    /*capture= new cv::VideoCapture(camNumber);
-=======
-	camUsed=val.toBool();
-    int camNumber=1;
     capture= new cv::VideoCapture(camNumber);
->>>>>>> d098bfa6a5b0774b127fee11562944b2fa547a51
+
+    //camUsed=val.toBool();
+    //int camNumber=1;
+    //capture= new cv::VideoCapture(camNumber);
+
 
     //Init des éléments détectés
     for(int i=0;i<NB_ELEMENTS;i++)
@@ -162,6 +166,9 @@ qDebug() << "cam n°: "<<camNumber;
         qDebug() << "Has to be converted to RGB :" << capture->get(CV_CAP_PROP_CONVERT_RGB); //((capture->get(CV_CAP_PROP_CONVERT_RGB)==1) ? "YES":"NO");
         qDebug() << "Set height to 240 :" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,240)) ? "OK" : "NOK");
         qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,320)) ? "OK" : "NOK") << endl;
+#ifdef OPENCV_IHM
+        cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
+#endif
     }
     else
     {
@@ -183,7 +190,7 @@ qDebug() << "cam n°: "<<camNumber;
         connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
         runCam(camUsed_init);
 
-*/
+
 
 }
 
@@ -304,15 +311,22 @@ void CBotCam::analyseCam(cv::Mat frame)
     int iH = frame.rows;
     int iL = frame.cols;
 
+
+
     //OpenCV travaille en BGR, on convertit donc en RGB
     cv::cvtColor(frame, frameColor, CV_BGR2RGB);
+    //cv::cvtColor(frame, frameColor, CV_YUV2RGB);
     //on clone l'image couleur pour les différents traitement couleur
     frameBlur=frameColor.clone();
+#ifdef OPENCV_IHM
+    cv::imshow("capture",frameColor);
+#endif
 
     //on affiche l'image couleur pour le controle
     //afficheCam(frameColor,true,affichage_Couleur_Origine);
 
     //conversion en N&B pour les traitements binaires de l'image
+    //cv::cvtColor(frameColor,frameGray,CV_RGB2GRAY);
     cv::cvtColor(frame,frameGray,CV_BGR2GRAY);
     //on clone l'image N&B pour les différents traitement N&B
     frameSobel=frameGray.clone();

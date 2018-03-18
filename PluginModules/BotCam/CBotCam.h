@@ -5,6 +5,8 @@
 #ifndef _CPLUGIN_MODULE_BotCam_H_
 #define _CPLUGIN_MODULE_BotCam_H_
 
+//#define OPENCV_IHM
+
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QTableWidget>

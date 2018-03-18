@@ -147,7 +147,7 @@ void CSimuBot::init(CLaBotBox *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2017_simubot.PNG"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2018_simubot.png"));
     surface->setPos(-12,-224);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
