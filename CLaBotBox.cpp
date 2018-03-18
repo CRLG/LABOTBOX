@@ -298,7 +298,8 @@ void CLaBotBox::run(void)
        qDebug() << m_list_basic_modules[i]->getName() << m_list_basic_modules[i]->getVersion();
    }
 
-//   m_Ecran->getIHM()->showMaximized();
+   /*if(m_Ecran->m_isMaximized==1)
+       m_Ecran->getIHM()->showMaximized();*/
 }
 
 

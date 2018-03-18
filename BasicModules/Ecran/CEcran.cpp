@@ -69,6 +69,8 @@ void CEcran::init(CLaBotBox *application)
   //val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   //setBackgroundColor(val.value<QColor>());
   initColor=getBackgroundColor();
+  /*val = m_application->m_eeprom->read(getName(), "isMaximized", QVariant(0));
+  m_isMaximized=val.toInt();*/
 
 
   m_application->m_data_center->write("Vbat", 0);
@@ -211,6 +213,7 @@ void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.lcd_telemetre_1->display
 void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.lcd_telemetre_2->display(val.toInt());}
 void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.lcd_telemetre_3->display(val.toInt());}
 void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.lcd_telemetre_4->display(val.toInt());}
+
 void CEcran::TpsMatch_changed(QVariant val)
 {
     //m_ihm.ui.VBatt->setValue(val.toDouble());

@@ -46,6 +46,8 @@ public:
 
     Cihm_Ecran *getIHM(void) { return(&m_ihm); }
 
+    //int m_isMaximized;
+
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
