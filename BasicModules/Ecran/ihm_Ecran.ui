@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
+    <width>484</width>
     <height>334</height>
    </rect>
   </property>
@@ -15,149 +15,17 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Prepa</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="7" column="5" colspan="2">
-         <widget class="QLCDNumber" name="lcd_telemetre_4">
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="digitCount">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="4">
-         <widget class="QLCDNumber" name="lcd_telemetre_2">
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="digitCount">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="5">
-         <widget class="QLabel" name="label_4">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>ARD</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="4">
-         <widget class="QLabel" name="label_3">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>ARG</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="5" colspan="2">
-         <widget class="QLCDNumber" name="lcd_telemetre_3">
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="digitCount">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="4">
-         <widget class="QLCDNumber" name="lcd_telemetre_1">
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="digitCount">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="5">
-         <widget class="QLabel" name="label_2">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>AVD</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
-         <widget class="QLabel" name="label">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>AVG</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" rowspan="4">
+        <item row="6" column="0" rowspan="5">
          <widget class="QPushButton" name="pB_Orange">
           <property name="minimumSize">
            <size>
@@ -597,18 +465,25 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="6">
-         <widget class="QLed" name="qLed_Obstacle">
+        <item row="2" column="3" rowspan="3" colspan="4">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1" rowspan="2">
+         <widget class="QLed" name="qLed_yellow">
           <property name="minimumSize">
            <size>
-            <width>20</width>
-            <height>20</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>20</width>
-            <height>20</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="toolTip">
@@ -619,48 +494,6 @@
           </property>
           <property name="value">
            <bool>true</bool>
-          </property>
-          <property name="onColor">
-           <enum>QLed::Red</enum>
-          </property>
-          <property name="offColor">
-           <enum>QLed::Grey</enum>
-          </property>
-          <property name="shape">
-           <enum>QLed::Circle</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4" colspan="2">
-         <widget class="QLabel" name="label_5">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Telemetres</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3" colspan="4">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="5">
-         <widget class="QLabel" name="label_6">
-          <property name="font">
-           <font>
-            <pointsize>23</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>V</string>
           </property>
          </widget>
         </item>
@@ -682,53 +515,26 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1" rowspan="2">
-         <widget class="QLed" name="qLed_blue">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Binary Led</string>
-          </property>
-          <property name="whatsThis">
-           <string>Led widget</string>
-          </property>
-          <property name="value">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4" colspan="2">
-         <widget class="QLabel" name="lbl_ModeFct">
+        <item row="1" column="5">
+         <widget class="QLabel" name="label_6">
           <property name="font">
            <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
+            <pointsize>23</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>No Mode</string>
+           <string>V</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2" rowspan="8" colspan="2">
+        <item row="0" column="2" rowspan="11">
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
-        <item row="0" column="0" rowspan="4">
+        <item row="0" column="0" rowspan="6">
          <widget class="QPushButton" name="pB_Green">
           <property name="minimumSize">
            <size>
@@ -1168,8 +974,22 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1" rowspan="3">
-         <widget class="QLed" name="qLed_yellow">
+        <item row="0" column="4">
+         <widget class="QLabel" name="lbl_ModeFct">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>No Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" rowspan="4">
+         <widget class="QLed" name="qLed_blue">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -1193,6 +1013,206 @@
           </property>
          </widget>
         </item>
+        <item row="10" column="4">
+         <widget class="QSpinBox" name="sb_telemetre_2">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="5">
+         <widget class="QSpinBox" name="sb_telemetre_4">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="4">
+         <widget class="QLabel" name="label_3">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>ARG</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="5">
+         <widget class="QLabel" name="label_4">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>ARD</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="4">
+         <widget class="QSpinBox" name="sb_telemetre_1">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="5">
+         <widget class="QSpinBox" name="sb_telemetre_3">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="4">
+         <widget class="QLabel" name="label">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>AVG</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="5">
+         <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>AVD</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="QLabel" name="label_5">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Telemetres</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="5">
+         <widget class="QLed" name="qLed_Obstacle">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Binary Led</string>
+          </property>
+          <property name="whatsThis">
+           <string>Led widget</string>
+          </property>
+          <property name="value">
+           <bool>true</bool>
+          </property>
+          <property name="onColor">
+           <enum>QLed::Red</enum>
+          </property>
+          <property name="offColor">
+           <enum>QLed::Grey</enum>
+          </property>
+          <property name="shape">
+           <enum>QLed::Circle</enum>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
@@ -1200,8 +1220,89 @@
         <string>match</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QLed" name="qLed">
+        <item row="0" column="0" colspan="2">
+         <widget class="QDoubleSpinBox" name="sb_x">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>48</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-400.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>400.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" colspan="3">
+         <widget class="QDoubleSpinBox" name="sb_y">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>48</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-400.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>400.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QDoubleSpinBox" name="sb_teta">
+          <property name="minimumSize">
+           <size>
+            <width>130</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>48</pointsize>
+           </font>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="decimals">
+           <number>2</number>
+          </property>
+          <property name="minimum">
+           <double>-400.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>400.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLed" name="qLed_conv">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -1234,7 +1335,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1" colspan="3">
          <widget class="QLabel" name="label_7">
           <property name="minimumSize">
            <size>
@@ -1260,68 +1361,8 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLed" name="qLed_2">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Binary Led</string>
-          </property>
-          <property name="whatsThis">
-           <string>Led widget</string>
-          </property>
-          <property name="value">
-           <bool>false</bool>
-          </property>
-          <property name="onColor">
-           <enum>QLed::Orange</enum>
-          </property>
-          <property name="offColor">
-           <enum>QLed::Grey</enum>
-          </property>
-          <property name="shape">
-           <enum>QLed::Circle</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_8">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>16</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>BLOCAGE</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
-         <widget class="QLed" name="qLed_3">
+         <widget class="QLed" name="qLed_obst">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -1354,7 +1395,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="2" column="1" colspan="2">
          <widget class="QLabel" name="label_9">
           <property name="minimumSize">
            <size>
@@ -1377,6 +1418,66 @@
           </property>
           <property name="text">
            <string>OBSTACLE</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLed" name="qLed_bloc">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Binary Led</string>
+          </property>
+          <property name="whatsThis">
+           <string>Led widget</string>
+          </property>
+          <property name="value">
+           <bool>false</bool>
+          </property>
+          <property name="onColor">
+           <enum>QLed::Orange</enum>
+          </property>
+          <property name="offColor">
+           <enum>QLed::Grey</enum>
+          </property>
+          <property name="shape">
+           <enum>QLed::Circle</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4" colspan="2">
+         <widget class="QLabel" name="label_8">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>BLOCAGE</string>
           </property>
          </widget>
         </item>
@@ -1449,6 +1550,115 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>CONNECT</string>
+       </attribute>
+       <widget class="QPushButton" name="pB_connect">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>50</y>
+          <width>300</width>
+          <height>60</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>48</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>OPEN</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pB_close">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>110</y>
+          <width>300</width>
+          <height>60</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>48</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>CLOSE</string>
+        </property>
+       </widget>
+       <widget class="QLed" name="isOpen">
+        <property name="geometry">
+         <rect>
+          <x>360</x>
+          <y>50</y>
+          <width>50</width>
+          <height>50</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>true</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Green</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+       <widget class="QLed" name="isClose">
+        <property name="geometry">
+         <rect>
+          <x>360</x>
+          <y>110</y>
+          <width>50</width>
+          <height>50</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Binary Led</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>true</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Red</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1458,7 +1668,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>457</width>
+     <width>484</width>
      <height>21</height>
     </rect>
    </property>

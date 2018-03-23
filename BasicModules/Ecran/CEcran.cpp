@@ -173,13 +173,13 @@ void CEcran::color_Changed(CData *data)
     }
 
     if(dataName.compare("Telemetre1")==0)
-        m_ihm.ui.lcd_telemetre_1->display(data->read().toDouble());
+        m_ihm.ui.sb_telemetre_1->setValue(data->read().toInt());
     if(dataName.compare("Telemetre2")==0)
-        m_ihm.ui.lcd_telemetre_2->display(data->read().toDouble());
+        m_ihm.ui.sb_telemetre_2->setValue(data->read().toInt());
     if(dataName.compare("Telemetre3")==0)
-        m_ihm.ui.lcd_telemetre_3->display(data->read().toDouble());
+        m_ihm.ui.sb_telemetre_3->setValue(data->read().toInt());
     if(dataName.compare("Telemetre4")==0)
-        m_ihm.ui.lcd_telemetre_4->display(data->read().toDouble());
+        m_ihm.ui.sb_telemetre_4->setValue(data->read().toInt());
 
 
     if(dataName.compare("ModeFonctionnement")==0){
@@ -209,10 +209,10 @@ void CEcran::color_Changed(CData *data)
 }
 
 void CEcran::Vbat_changed(QVariant val){ m_ihm.ui.VBatt->setValue(val.toDouble());}
-void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.lcd_telemetre_1->display(val.toInt());}
-void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.lcd_telemetre_2->display(val.toInt());}
-void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.lcd_telemetre_3->display(val.toInt());}
-void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.lcd_telemetre_4->display(val.toInt());}
+void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.sb_telemetre_1->setValue(val.toInt());}
+void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.sb_telemetre_2->setValue(val.toInt());}
+void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.sb_telemetre_3->setValue(val.toInt());}
+void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_telemetre_4->setValue(val.toInt());}
 
 void CEcran::TpsMatch_changed(QVariant val)
 {
@@ -226,6 +226,31 @@ void CEcran::TpsMatch_changed(QVariant val)
     if(TpsMatch>99)
         m_ihm.ui.tabWidget->setCurrentIndex(3);
 
+    if(m_ihm.ui.tabWidget->currentIndex()==1)
+    {
+       m_ihm.ui.sb_x->setValue(m_application->m_data_center->getData("x_pos")->read().toDouble());
+       m_ihm.ui.sb_y->setValue(m_application->m_data_center->getData("y_pos")->read().toDouble());
+       m_ihm.ui.sb_teta->setValue(m_application->m_data_center->getData("teta_pos")->read().toDouble());
+       QVariant val=m_application->m_data_center->getData("teta_pos")->read();
+
+       switch(val.toInt()) {
+         case 1 :
+           m_ihm.ui.qLed_conv->setValue(true);
+           m_ihm.ui.qLed_bloc->setValue(false);
+         break;
+
+         case 2 :
+           m_ihm.ui.qLed_conv->setValue(false);
+           m_ihm.ui.qLed_bloc->setValue(true);
+         break;
+
+         default :
+           m_ihm.ui.qLed_conv->setValue(false);
+           m_ihm.ui.qLed_bloc->setValue(false);
+         break;
+       }
+
+    }
     if(m_ihm.ui.tabWidget->currentIndex()==2)
     {
         int dizaine=qFloor(TpsMatch/10);
