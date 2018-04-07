@@ -566,7 +566,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
         for (indexItem=idxMin;indexItem<idxMax+1;indexItem++)
         {
             sActuator=table_sequence->item(indexItem,0)->text();
-            qDebug() << sActuator;
+            //qDebug() << sActuator;
 
             //color index to tag the sequence
             table_sequence->item(indexItem,0)->setBackgroundColor(Qt::red);
@@ -575,7 +575,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             {
                 id=table_sequence->item(indexItem,1)->text();
                 value=table_sequence->item(indexItem,2)->text();
-                qDebug() << "SD20 number" << id << "at" <<value;
+                //qDebug() << "SD20 number" << id << "at" <<value;
                 m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
                 m_application->m_data_center->write("NumeroServoMoteur1", id);
                 m_application->m_data_center->write("PositionServoMoteur1", value);
@@ -586,7 +586,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             {
                 id=table_sequence->item(indexItem,1)->text();
                 value=table_sequence->item(indexItem,2)->text();
-                qDebug() << "AX number" << id << "position at" <<value;
+                //qDebug() << "AX number" << id << "position at" <<value;
                 m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
                 m_application->m_data_center->write("num_servo_ax", id);
                 m_application->m_data_center->write("commande_ax", cSERVO_AX_POSITION);
@@ -598,7 +598,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             {
                 id=table_sequence->item(indexItem,1)->text();
                 value=table_sequence->item(indexItem,2)->text();
-                qDebug() << "AX number" << id << "speed at" <<value;
+                //qDebug() << "AX number" << id << "speed at" <<value;
                 m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
                 m_application->m_data_center->write("num_servo_ax", id);
                 m_application->m_data_center->write("commande_ax", cSERVO_AX_VITESSE);
@@ -613,7 +613,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 value=table_sequence->item(indexItem,2)->text();
 
                 QString str_name=QString("cde_moteur_%1").arg(id);
-                qDebug() << "Motor" << str_name << "at" <<value;
+                //qDebug() << "Motor" << str_name << "at" <<value;
                 m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
                 m_application->m_data_center->write(str_name, value);
                 m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
@@ -621,7 +621,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             if(sActuator.compare("Wait")==0)
             {
                 value=table_sequence->item(indexItem,2)->text();
-                qDebug() << "Wait during" << value << "ms";
+                //qDebug() << "Wait during" << value << "ms";
                 QTest::qWait(value.toInt()); //no waiting if invalid cast
             }
             if(sActuator.compare("Event")==0)
@@ -640,7 +640,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 {
                     bConv=false;
 
-                    qDebug() << "Attente convergence asservissement ou " << timeOut << "ms";
+                    //qDebug() << "Attente convergence asservissement ou " << timeOut << "ms";
                     while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
                     {
                         QTest::qWait(40);
@@ -653,7 +653,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 {
                     bConv=false;
 
-                    qDebug() << "Attente convergence RACK ou " << timeOut << "ms";
+                    //qDebug() << "Attente convergence RACK ou " << timeOut << "ms";
                     while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
                     {
                         QTest::qWait(40);
@@ -680,7 +680,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 {
                     bReachCondition=false;
 
-                    qDebug() << "Wait " << id << ">" << value;
+                    //qDebug() << "Wait " << id << ">" << value;
                     while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
                     {
                         QTest::qWait(40);
@@ -693,7 +693,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 {
                     bReachCondition=false;
 
-                    qDebug() << "Wait " << id << "=" << value;
+                    //qDebug() << "Wait " << id << "=" << value;
                     while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
                     {
                         QTest::qWait(40);

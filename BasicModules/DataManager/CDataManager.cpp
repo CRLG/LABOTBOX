@@ -124,7 +124,8 @@ CData *CDataManager::getData(QString varname)
 */
 void CDataManager::debug(void)
 {
-  qDebug() << getDataValues();
+    QString sdebug=getDataValues();
+    //qDebug() << sdebug;
 }
 
 // _____________________________________________________________________
@@ -219,7 +220,7 @@ void CDataManager::loadDataProperties(void)
  settings->setIniCodec("ISO 8859-1");
 
  QStringList keys = settings->childGroups();
- qDebug() << keys;
+ //qDebug() << keys;
  for (int i=0; i<keys.size(); i++) {
      QString var_name = keys.at(i);
      if (m_application->m_data_center->isExist(var_name) == false) {

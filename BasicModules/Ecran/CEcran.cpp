@@ -73,6 +73,11 @@ void CEcran::init(CLaBotBox *application)
   m_isMaximized=val.toInt();*/
 
 
+  // S'assure que les données existent dans le DataManager
+  m_application->m_data_center->write("Telemetre4",  0);
+  m_application->m_data_center->write("Telemetre3",  0);
+  m_application->m_data_center->write("Telemetre2",  0);
+  m_application->m_data_center->write("Telemetre1",  0);
   m_application->m_data_center->write("Vbat", 0);
   m_application->m_data_center->write("TempsMatch", 0);
 
@@ -157,7 +162,7 @@ void CEcran::color_Changed(CData *data)
     QString dataName=data->getName();
     if(dataName.compare("CouleurEquipe")==0)
     {
-        qDebug() << data->read();
+        //qDebug() << data->read();
         int colorTeam=data->read().toInt();
 
         if(colorTeam==1)

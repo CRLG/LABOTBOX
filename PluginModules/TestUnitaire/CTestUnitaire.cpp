@@ -108,8 +108,8 @@ void CTestUnitaire::init(CLaBotBox *application)
  myData.setProperty("Facteurs", "14");
  QStringList liste_proprietes;
  myData.getPropertiesList(liste_proprietes);
- qDebug() << liste_proprietes;
- qDebug() << myData.getPropertiesString();
+ //qDebug() << liste_proprietes;
+ //qDebug() << myData.getPropertiesString();
 
 
 

@@ -103,6 +103,7 @@ public:
     double superficieObjetMin;
     int compteurImages;
 
+    void initMotifSeuil();
 private:
     Cihm_BotCam m_ihm;
 	
@@ -138,7 +139,7 @@ public slots:
     void setCouleur(QString couleur);
     void displayFrame(QImage imgConst, int type);
     void runCam(bool b_activate);
-    //void recording(bool flag);
+    void recording(bool flag);
 };
 
 #endif // _CPLUGIN_MODULE_BotCam_H_

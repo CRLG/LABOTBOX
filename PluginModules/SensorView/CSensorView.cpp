@@ -318,7 +318,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLCDNumber);
-            qDebug() << "LCDNumber" << var_name << "ajouté";
+            //qDebug() << "LCDNumber" << var_name << "ajouté";
             break;
         case mime_sensor_tor:
             newLed = new QLed(m_ihm.ui.viewWidget);
@@ -336,7 +336,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLed);
-            qDebug() << "Led" << var_name << "ajouté";
+            //qDebug() << "Led" << var_name << "ajouté";
             break;
         default:
             break;
@@ -351,7 +351,7 @@ void CSensorView::removeWidget(QString var_name)
 //    qDebug()<<"il y a"<<listeAddedSignals.size()<<"elements:";
     for(int ind=0;ind<listeAddedSignals.size();ind++)
     {
-        qDebug()<<listeAddedSignals.at(ind)->addedSignalName;
+        //qDebug()<<listeAddedSignals.at(ind)->addedSignalName;
         if (listeAddedSignals.at(ind)->addedSignalName.compare(var_name)==0)
         {
             iToRemove=ind;

@@ -55,13 +55,9 @@ CBotCam::CBotCam(const char *plugin_name)
 */
 CBotCam::~CBotCam()
 {
-    /*if (isRecording)
-        if(enregistreur!=NULL)
-        {
             isRecording=false;
-            qDebug()<<"Enregistrement vidéo arrété";
-            enregistreur->~VideoWriter();
-        }*/
+    if(camNumber>0)
+    enregistreur->release();
     //on ferme la vidéo
     closeCam();
 }
@@ -125,15 +121,35 @@ void CBotCam::init(CLaBotBox *application)
     //Cam utilisee
     val = m_application->m_eeprom->read(getName(), "camNumber", QVariant(0));
     camNumber=val.toInt();
-    QString camIsUsed=(camUsed_init)?"oui":"non";
-qDebug() << "cam utilisée: "<<camIsUsed;
-qDebug() << "cam n°: "<<camNumber;
-    capture= new cv::VideoCapture(camNumber);
 
-    //camUsed=val.toBool();
-    //int camNumber=1;
-    //capture= new cv::VideoCapture(camNumber);
+    //video utilisee
+    val = m_application->m_eeprom->read(getName(), "videoPath", QVariant(0));
+    QString videoPath=val.toString();
 
+    if(camNumber>0)
+    {
+        QString camIsUsed=(camUsed_init)?"oui":"non";
+        qDebug() << "cam utilisée: "<<camIsUsed;
+        qDebug() << "cam n°: "<<camNumber;
+        capture= new cv::VideoCapture(camNumber);
+
+
+        //construction du nom de fichier
+        QString fileName = "Match_";
+        QDateTime aujourdhui=QDateTime::currentDateTime();
+        fileName = fileName + aujourdhui.toString("dd_MM_yyyy_hh'h'mm'min'ss's'")+".avi";
+
+        qDebug() << fileName;
+
+        //création de l'objet OpenCV qui enregistre des frame
+        //enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),5,cv::Size(320,240),true);
+        enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('M','J','P','G'),5,cv::Size(320,240),true);
+    }
+    else{
+        qDebug() << videoPath;
+        capture= new cv::VideoCapture(videoPath.toStdString());
+        capture->open(videoPath.toStdString());
+}
 
     //Init des éléments détectés
     for(int i=0;i<NB_ELEMENTS;i++)
@@ -175,20 +191,24 @@ qDebug() << "cam n°: "<<camNumber;
         CamIsOK=false;
         qDebug() << endl << "Caméra inopérante :-(" << endl;
      }
-	 
-//    viewfinder=m_ihm.ui.ui_viewfinder;
-//    connect(m_ihm.ui.cB_camera,SIGNAL(stateChanged(int)),this,SLOT(enableCamera(int)));
+
     cameraEnabled=false;
     m_ihm.ui.cB_camera->setChecked(camUsed);
+
+    //Preparation de la table de calibration des couleurs
+    initMotifSeuil();
 
     connect(m_ihm.ui.SliderCouleur,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.SliderPur,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.SliderSurface,SIGNAL(valueChanged(int)),this,SLOT(calibrateCam()));
     connect(m_ihm.ui.comboBox_camera,SIGNAL(currentIndexChanged(QString)),this,SLOT(setCouleur(QString)));
     connect(this,SIGNAL(frameCaptured(QImage,int)),this, SLOT(displayFrame(QImage,int)));
-        connect(schedulerCam, SIGNAL(timeout()), this, SLOT(getCam()));
-        connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
-        runCam(camUsed_init);
+    connect(schedulerCam, SIGNAL(timeout()), this, SLOT(getCam()));
+    connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
+    if(camNumber>0)
+        connect(m_ihm.ui.cB_record, SIGNAL(toggled(bool)),this,SLOT(recording(bool)));
+
+    runCam(camUsed_init);
 
 
 
@@ -411,7 +431,7 @@ void CBotCam::analyseCam(cv::Mat frame)
     //bis repetita: OpenCV travaille en BGR, on convertit donc pour l'enregistrement
     cv::cvtColor(frameColor, frameRecorded, CV_RGB2BGR);
     if (isRecording)
-        enregistreur->write(frameRecorded);
+            enregistreur->write(frameRecorded);
 
     //opencv ne profite pas du garbage collector de Qt
     frameColor.release();
@@ -500,7 +520,7 @@ void  CBotCam::setSeuil(double H_angle_detection, double S_purete_detection, dou
     superficieObjetMin=area_detection;
     m_ihm.ui.lcdCouleur->display(H_angle_detection);
     m_ihm.ui.lcdPur->display(S_min);
-    m_ihm.ui.lcdSurface->display(m_ihm.ui.SliderSurface->value());
+    m_ihm.ui.lcdSurface->display(area_detection);
              //m_ihm.ui.SliderPur->value();
              //m_ihm.ui.SliderSurface->value());
 }
@@ -550,43 +570,26 @@ void CBotCam::displayFrame(QImage imgConst, int type)
 
 }
 
-/*void CBotCam::recording(bool flag)
+void CBotCam::recording(bool flag)
 {
     //Est-ce qu'on demande l'enregistrement
     if (flag)
     {
+        qDebug() << "demande enregistrement";
         //est-ce que l'enregistreur est déjà créé
-        if(enregistreur==NULL)
-        {
-            //construction du nom de fichier
-            QString fileName = "Match_";
-            QDateTime aujourdhui=QDateTime::currentDateTime();
-            fileName = fileName + aujourdhui.toString("dd_MM_yyyy_hh'h'mm'min'ss's'")+".avi";
-
-            //création de l'objet OpenCV qui enregistre des frame
-            enregistreur= new VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),5,Size(320,240),true);
-            if (enregistreur->isOpened())
-            {
-                qDebug()<<"Enregistrement vidéo démarré:" << fileName;
+                qDebug()<<"Enregistrement vidéo démarré:";
                 isRecording=true;
-            }
-        }
+
+
     }
     else
     {
-        //on demande l'arrêt de l'enregistrement
-        //est-ce que l'enregistreur est déjà arrêté
-        if(enregistreur!=NULL)
-        {
             qDebug()<<"Enregistrement vidéo arrété";
             //fin de la boucle d'enregistrement dans la boucle de traitement d'image
-            isRecording=false;
-            //appel du destructeur
-            enregistreur->~VideoWriter();
-        }
+            isRecording=false;       
     }
 }
-*/
+
 
 /*
 void CBotCam::setCamera(int numDevice) //const QByteArray &cameraDevice)
@@ -665,3 +668,56 @@ void CBotCam::takePicture()
 }
 */
 
+void CBotCam::initMotifSeuil()
+{
+    //Preparation de la table de calibration des couleurs
+    m_ihm.ui.calibrateTabs->setCurrentIndex(1);
+    m_ihm.ui.tableAllColor->setColumnCount(6);
+    QStringList QS_Labels;
+    QS_Labels << "Couleur" << "Saturation" << "Ecart" << "Purete"<<"Smin"<<"Smax";
+    m_ihm.ui.tableAllColor->setHorizontalHeaderLabels(QS_Labels);
+
+    // Restore la taille de la fenêtre
+    QVariant val;
+    val = m_application->m_eeprom->read(getName(), "listeCouleurs", QStringList("rouge"));
+    qDebug() << val.toStringList();
+
+    QList<QVariant> int_listedefault;
+    int_listedefault << 100;
+
+    val = m_application->m_eeprom->read(getName(), "listeSaturation", int_listedefault);
+    int_listedefault=val.toList();
+    for(int i=0;i<int_listedefault.size();i++)
+        qDebug() << int_listedefault.at(i).toInt();
+}
+/*
+void CBotCam::createMotifCouleur(QString color,int Nuance,int Purete, int Ecart,int Smin, int Smax)
+{
+    QTableWidgetItem *newItem_color = new QTableWidgetItem(type);
+    QTableWidgetItem *newItem_nuance = new QTableWidgetItem(id);
+    QTableWidgetItem *newItem_purete = new QTableWidgetItem(value);
+    QTableWidgetItem *newItem_ecart = new QTableWidgetItem(comments);
+    QTableWidgetItem *newItem_Smin = new QTableWidgetItem(comments);
+    QTableWidgetItem *newItem_Smax = new QTableWidgetItem(comments);
+
+
+
+    int indexAdd=currentSequence->rowCount();
+
+    QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
+    if(!list_item_selected.isEmpty())
+    {
+        QTableWidgetItem* item_selected=list_item_selected.first();
+        int row_selected=item_selected->row();
+        if(row_selected>=0)
+            indexAdd=row_selected+1;
+    }
+
+    currentSequence->insertRow(indexAdd);
+    currentSequence->setItem(indexAdd, 0, newItem_type);
+    currentSequence->setItem(indexAdd, 1, newItem_id);
+    currentSequence->setItem(indexAdd, 2, newItem_value);
+    currentSequence->setItem(indexAdd, 3, newItem_comments);
+    currentSequence->selectRow(indexAdd);
+}
+*/

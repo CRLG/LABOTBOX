@@ -135,7 +135,7 @@ void CAsserv::init(CLaBotBox *application)
   connect(m_application->m_data_center->getData("Convergence"), SIGNAL(valueChanged(int)), this, SLOT(Convergence_changed(int)));
   connect(m_application->m_data_center->getData("ModeAsservissement"), SIGNAL(valueChanged(int)), this, SLOT(ModeAsservissement_changed(int)));
 
-  connect(m_application->m_data_center->getData("rack_convergence"), SIGNAL(valueChanged(QVariant)), m_ihm.ui.ConvRack, SLOT(ConvRack_changed(QVariant)));
+  connect(m_application->m_data_center->getData("rack_convergence"), SIGNAL(valueChanged(QVariant)), this, SLOT(ConvRack_changed(QVariant)));
   connect(m_application->m_data_center->getData("Codeur_3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Codeur_3_changed(QVariant)));
 
 
@@ -500,7 +500,7 @@ void CAsserv::setConsigneChariot(void)
     m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
     m_application->m_data_center->write("VitesseServoMoteur1", sens_position);
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
-    qDebug() << "set rack ASSER at "<<consigne_messagerie<<"and sens"<<sens_position<<"on trame 50";
+    //qDebug() << "set rack ASSER at "<<consigne_messagerie<<"and sens"<<sens_position<<"on trame 50";
 }
 
 void CAsserv::stopChariot(void)
@@ -510,7 +510,7 @@ void CAsserv::stopChariot(void)
     m_application->m_data_center->write("PositionServoMoteur1", 1);
     m_application->m_data_center->write("VitesseServoMoteur1", 0);
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
-    qDebug() << "set rack STOP with (1,0) on trame 51";
+    //qDebug() << "set rack STOP with (1,0) on trame 51";
 }
 void CAsserv::recalChariot(void)
 {
@@ -519,7 +519,7 @@ void CAsserv::recalChariot(void)
     m_application->m_data_center->write("PositionServoMoteur1", 1);
     m_application->m_data_center->write("VitesseServoMoteur1", 0);
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
-    qDebug() << "set rack RECAL with (1,0) on trame 52";
+    //qDebug() << "set rack RECAL with (1,0) on trame 52";
 }
 /*
  * cASSERV_DIAG_RACK_CDE_MAX,
@@ -535,7 +535,7 @@ void CAsserv::sendRackCdeMax(void)
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_CDE_MAX );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE",param );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
-    qDebug() << "set rack CDE_MAX at "<<param;
+    //qDebug() << "set rack CDE_MAX at "<<param;
 }
 
 void CAsserv::sendRackKPosVit(void)
@@ -545,7 +545,7 @@ void CAsserv::sendRackKPosVit(void)
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_K_POSVIT );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
-    qDebug() << "set rack K_POSVIT at "<<param;
+    //qDebug() << "set rack K_POSVIT at "<<param;
 }
 void CAsserv::sendRackKP(void)
 {
@@ -554,7 +554,7 @@ void CAsserv::sendRackKP(void)
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_KP );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
-    qDebug() << "set rack KP at "<<param;
+    //qDebug() << "set rack KP at "<<param;
 }
 void CAsserv::sendRackKI(void)
 {
@@ -563,7 +563,7 @@ void CAsserv::sendRackKI(void)
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_KI );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
-    qDebug() << "set rack KI at "<<param;
+    //qDebug() << "set rack KI at "<<param;
 }
 void CAsserv::sendRackSeuilConv(void)
 {
@@ -572,7 +572,7 @@ void CAsserv::sendRackSeuilConv(void)
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM",cASSERV_DIAG_RACK_CONV );
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_VALUE", param);
     m_application->m_data_center->write("ASSERV_DIAG_WRITE_PARAM_TxSync", false);
-    qDebug() << "set rack SEUIL_CONV at "<<param;
+    //qDebug() << "set rack SEUIL_CONV at "<<param;
 }
 
 void CAsserv::ConvRack_changed(QVariant value) {m_ihm.ui.ConvRack->setValue(value.toBool());}

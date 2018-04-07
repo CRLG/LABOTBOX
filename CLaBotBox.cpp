@@ -292,11 +292,11 @@ void CLaBotBox::run(void)
    m_data_center->write("PosY_robot", QVariant(123.789));
    m_data_center->write("PosTeta_robot", QVariant(789.124));
 
-   qDebug() << m_data_center->getDataValues();
+   //qDebug() << m_data_center->getDataValues();
 
-   for (int i=0; i<m_list_basic_modules.size(); i++) {
+   /*for (int i=0; i<m_list_basic_modules.size(); i++) {
        qDebug() << m_list_basic_modules[i]->getName() << m_list_basic_modules[i]->getVersion();
-   }
+   }*/
 
    /*if(m_Ecran->m_isMaximized==1)
        m_Ecran->getIHM()->showMaximized();*/

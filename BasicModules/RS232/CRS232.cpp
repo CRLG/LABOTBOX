@@ -870,7 +870,7 @@ void CRS232::HexEdit_EnvoyerFichierFormatHexASCII(void)
             val = str_list.at(i).toInt(&ok, 16);
             if (ok) { byte_array.append(val); }
            } // for tous les octets lus
-           qDebug() << "Array : " << byte_array;
+           //qDebug() << "Array : " << byte_array;
            write(byte_array);
        }
        data.close();
@@ -961,7 +961,7 @@ void CRS232::SimuRx_DonneesEntrantesFichierHexASCII(void)
             val = str_list.at(i).toInt(&ok, 16);
             if (ok) { byte_array.append(val); }
            } // for tous les octets lus
-           qDebug() << "Array : " << byte_array;
+           //qDebug() << "Array : " << byte_array;
            emit readyBytes(byte_array);
        }
        data.close();

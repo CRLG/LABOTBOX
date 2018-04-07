@@ -2267,7 +2267,7 @@ void CTrame_ECRAN_ETAT_ECRAN::Encode(void)
    trame.Data[1] |= (unsigned char)( ( (CodeCommande) & 0xFF) );
    trame.Data[0] |= (unsigned char)( ( (CodeCommande >> 8) & 0xFF) );
 
-  qDebug() << CodeCommande << Valeur;
+  //qDebug() << CodeCommande << Valeur;
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
