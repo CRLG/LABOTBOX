@@ -227,6 +227,38 @@ void CBotCam::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+
+  // Mémorise en EEPROM les parametres de calibration des couleurs
+  m_ihm.ui.calibrateTabs->setCurrentIndex(1);
+
+  QStringList listeCouleurs;
+  QStringList listeSaturation;
+  QStringList listeEcartCouleur;
+  QStringList listePurete;
+  QStringList listeSmin;
+  QStringList listeSmax;
+
+  int row=0;
+  for(row=0;row<(m_ihm.ui.tableAllColor->rowCount());row++)
+  {
+      listeCouleurs << m_ihm.ui.tableAllColor->item(row,0)->text();
+    listeSaturation<<m_ihm.ui.tableAllColor->item(row,1)->text();
+    listeEcartCouleur<<m_ihm.ui.tableAllColor->item(row,2)->text();
+    listePurete<<m_ihm.ui.tableAllColor->item(row,3)->text();
+    listeSmin<<m_ihm.ui.tableAllColor->item(row,4)->text();
+    listeSmax<<m_ihm.ui.tableAllColor->item(row,5)->text();
+
+  }
+
+
+ m_application->m_eeprom->write(getName(), "listeCouleurs", QVariant(listeCouleurs));
+  m_application->m_eeprom->write(getName(), "listeSaturation", QVariant(listeSaturation));
+  m_application->m_eeprom->write(getName(), "listeEcartCouleur", QVariant(listeEcartCouleur));
+  m_application->m_eeprom->write(getName(), "listePurete", QVariant(listePurete));
+  m_application->m_eeprom->write(getName(), "listeSmin", QVariant(listeSmin));
+  m_application->m_eeprom->write(getName(), "listeSmax", QVariant(listeSmax));
+
+
 }
 
 // _____________________________________________________________________
@@ -680,44 +712,193 @@ void CBotCam::initMotifSeuil()
     // Restore la taille de la fenêtre
     QVariant val;
     val = m_application->m_eeprom->read(getName(), "listeCouleurs", QStringList("rouge"));
-    qDebug() << val.toStringList();
+    QStringList listeCouleurs=val.toStringList();
 
-    QList<QVariant> int_listedefault;
-    int_listedefault << 100;
+    val = m_application->m_eeprom->read(getName(), "listeSaturation", QStringList("100"));
+    QStringList listeSaturation=val.toStringList();
 
-    val = m_application->m_eeprom->read(getName(), "listeSaturation", int_listedefault);
-    int_listedefault=val.toList();
-    for(int i=0;i<int_listedefault.size();i++)
-        qDebug() << int_listedefault.at(i).toInt();
-}
-/*
-void CBotCam::createMotifCouleur(QString color,int Nuance,int Purete, int Ecart,int Smin, int Smax)
-{
-    QTableWidgetItem *newItem_color = new QTableWidgetItem(type);
-    QTableWidgetItem *newItem_nuance = new QTableWidgetItem(id);
-    QTableWidgetItem *newItem_purete = new QTableWidgetItem(value);
-    QTableWidgetItem *newItem_ecart = new QTableWidgetItem(comments);
-    QTableWidgetItem *newItem_Smin = new QTableWidgetItem(comments);
-    QTableWidgetItem *newItem_Smax = new QTableWidgetItem(comments);
+    val = m_application->m_eeprom->read(getName(), "listeEcartCouleur", QStringList("100"));
+    QStringList listeEcartCouleur=val.toStringList();
 
+    val = m_application->m_eeprom->read(getName(), "listePurete", QStringList("100"));
+    QStringList listePurete=val.toStringList();
 
+    val = m_application->m_eeprom->read(getName(), "listeSmin", QStringList("100"));
+    QStringList listeSmin=val.toStringList();
 
-    int indexAdd=currentSequence->rowCount();
+    val = m_application->m_eeprom->read(getName(), "listeSmax", QStringList("100"));
+    QStringList listeSmax=val.toStringList();
 
-    QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
-    if(!list_item_selected.isEmpty())
-    {
-        QTableWidgetItem* item_selected=list_item_selected.first();
-        int row_selected=item_selected->row();
-        if(row_selected>=0)
-            indexAdd=row_selected+1;
+    int indexAdd=m_ihm.ui.tableAllColor->rowCount();
+
+    for(int i=0;i<listeCouleurs.size();i++){
+    QTableWidgetItem *newItem_couleur = new QTableWidgetItem(listeCouleurs.at(i));
+    QTableWidgetItem *newItem_nuance = new QTableWidgetItem(listeSaturation.at(i));
+    QTableWidgetItem *newItem_purete = new QTableWidgetItem(listePurete.at(i));
+    QTableWidgetItem *newItem_ecart = new QTableWidgetItem(listeEcartCouleur.at(i));
+    QTableWidgetItem *newItem_Smin = new QTableWidgetItem(listeSmin.at(i));
+    QTableWidgetItem *newItem_Smax = new QTableWidgetItem(listeSmax.at(i));
+
+    m_ihm.ui.tableAllColor->insertRow(indexAdd);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 0, newItem_couleur);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 1, newItem_nuance);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 2, newItem_ecart);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 3, newItem_purete);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 4, newItem_Smin);
+    m_ihm.ui.tableAllColor->setItem(indexAdd, 5, newItem_Smax);
+
+    indexAdd++;
     }
 
-    currentSequence->insertRow(indexAdd);
-    currentSequence->setItem(indexAdd, 0, newItem_type);
-    currentSequence->setItem(indexAdd, 1, newItem_id);
-    currentSequence->setItem(indexAdd, 2, newItem_value);
-    currentSequence->setItem(indexAdd, 3, newItem_comments);
-    currentSequence->selectRow(indexAdd);
+
+
+
+}
+
+/*void CBotCam::analyseCamMotif(cv::Mat frame)
+{
+    //images temporaires pour le traitement video
+    cv::Mat frameColor; //image bidouillee pour utilisation GUI
+    cv::Mat frameHSV;
+    cv::Mat frameBlur;
+    cv::Mat frameGray;
+    cv::Mat frameSobel;
+    cv::Mat frameRecorded;
+
+    QMap<int,QPoint> map_points;
+
+    int idx=0; //index de l'élément détecté
+
+    //séquence qui contiendra les contours des éléments rtouvés
+    std::vector < std::vector<cv::Point> > contours;
+
+    //recuperation des hauteurs et largeur de l'image
+    int iH = frame.rows;
+    int iL = frame.cols;
+
+
+
+    //OpenCV travaille en BGR, on convertit donc en RGB
+    cv::cvtColor(frame, frameColor, CV_BGR2RGB);
+    //on clone l'image couleur pour les différents traitement couleur
+    frameBlur=frameColor.clone();
+
+    //on affiche l'image couleur pour le controle
+    //afficheCam(frameColor,true,affichage_Couleur_Origine);
+
+    //conversion en N&B pour les traitements binaires de l'image
+    //cv::cvtColor(frameColor,frameGray,CV_RGB2GRAY);
+    cv::cvtColor(frame,frameGray,CV_BGR2GRAY);
+    //on clone l'image N&B pour les différents traitement N&B
+    frameSobel=frameGray.clone();
+
+    //floutage de l'image pour enlever les parasites
+    cv::GaussianBlur(frameColor,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
+
+    //Conversion de l'image floutée dans l'espace colorimetrique HSV
+    cv::cvtColor(frameBlur,frameHSV,CV_RGB2HSV);
+
+
+    //seuillage de l'image en extrayant les couleurs des items de l'image HSV
+    //si supérieur à la purete, inferieur à l'angle max et superieur a l'angle min alors le pixel nous interesse
+    //methode alternative: determiner un histogramme caracteristique de l'element et l'extraire de l'image
+
+    int x, y;
+    for (y = 0; y < iH; y++) {
+        for (x = 0; x < iL; x++) {
+            uchar H_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3];
+            uchar S_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+1];
+            //uchar V_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
+
+            //detection oranges
+            if (H_pixel > H_min && H_pixel < H_max && S_pixel > S_min) {
+                ((uchar*)(frameGray.data + frameGray.step*y))[x] = 255;
+            }
+            else ((uchar*)(frameGray.data + frameGray.step*y))[x] = 0;
+        }
+    }
+
+    //Debug: Traitement avec le filtre Sobel pour vérifier si le traitement N&B fonctionne
+    //cv::Sobel(frameGray,frameSobel,frameSobel.depth(),1,1,3,1,0.0,BORDER_DEFAULT);
+
+    //On affiche l'image binarisée et avec une couleur filtrée pour le controle
+    //très utile pour la calibration de la caméra
+    afficheCam(frameGray,false,affichage_NetB_Reglage_HSV);
+
+    //détection des contours
+    cv::findContours(frameGray,contours,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+    //RAZ des éléments détectés
+    int i,j;
+
+    for (size_t contourIdx = 0; contourIdx < contours.size(); contourIdx++)
+    {
+        std::vector<cv::Point> approx;
+        cv::approxPolyDP(contours[contourIdx], approx, 5, true);
+        double aire_detectee = contourArea(approx);
+        if((aire_detectee>superficieObjetMin)&&(aire_detectee<superficieObjetMax)&&(idx<NB_ELEMENTS))
+        {
+            //barycentre circonscrit de la forme détectée
+            cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+            ////barycentre du rectangle
+            float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+            float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+            QPoint centre=QPoint((centre_x/iL)*100,(centre_y/iH)*100);
+
+            map_points.insert(centre.manhattanLength(),centre);
+
+            idx++;
+            cv::rectangle(frameColor,RectCirconscrit,CV_RGB(255,0,0),5,8,0);
+            //drawContours(frameColor,contours,contourIdx,CV_RGB(255,0,0),5,8,noArray(),0);
+        }
+    }
+
+    //tri de la table de hash
+    //comme les éléments sont réinitialisés on exclut les valeurs nulles
+    int indice_proche=0;
+    QMap<int,QPoint>::iterator it=map_points.begin();
+
+//    while((elementsDetectes[indice_proche].distance>0)&&(indice_proche<NB_ELEMENTS)) indice_proche++;
+
+    //mettre le point distance
+    //circle( frameColor, cvPoint((elementsDetectes[indice_proche-1].X)*iL/100,(elementsDetectes[indice_proche-1].Y)*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
+    cv::circle( frameColor, cvPoint((it.value().x())*iL/100,(it.value().y())*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
+    //on affiche l'image traitée
+    afficheCam(frameColor,true,affichage_Couleur_Origine);
+
+    //Si le flag d'enregistrement est levé (normalement synchro avec la tirette)
+    //on enregistre l'image traitée
+    //bis repetita: OpenCV travaille en BGR, on convertit donc pour l'enregistrement
+    cv::cvtColor(frameColor, frameRecorded, CV_RGB2BGR);
+    if (isRecording)
+            enregistreur->write(frameRecorded);
+
+    //opencv ne profite pas du garbage collector de Qt
+    frameColor.release();
+    frameBlur.release();
+    frameGray.release();
+    frameSobel.release();
+    frameHSV.release();
+    frameRecorded.release();
+
+}
+
+cv::Mat* CBotCam::seuillageImage(cv::Mat frameHSV)
+{
+    int x, y;
+    for (y = 0; y < iH; y++) {
+        for (x = 0; x < iL; x++) {
+            uchar H_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3];
+            uchar S_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+1];
+            //uchar V_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
+
+            //detection oranges
+            if (H_pixel > H_min && H_pixel < H_max && S_pixel > S_min) {
+                ((uchar*)(frameGray.data + frameGray.step*y))[x] = 255;
+            }
+            else ((uchar*)(frameGray.data + frameGray.step*y))[x] = 0;
+        }
+    }
 }
 */

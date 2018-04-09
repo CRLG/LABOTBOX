@@ -352,8 +352,8 @@ void CActuatorSequencer::updateTooltip(void)
         m_ihm.ui.label_asserValue_2->setText("Not Used");
         m_ihm.ui.label_asserValue_3->setText("Not Used");
         m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_1->setMaximum(850);
-        m_ihm.ui.lE_Asser_1->setMinimum(-850);
+        m_ihm.ui.lE_Asser_1->setMaximum(1500);
+        m_ihm.ui.lE_Asser_1->setMinimum(-1500);
         m_ihm.ui.lE_Asser_2->setValue(0);
         m_ihm.ui.lE_Asser_3->setValue(0.0);
         m_ihm.ui.lE_Asser_1->setEnabled(true);
