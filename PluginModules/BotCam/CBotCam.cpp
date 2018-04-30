@@ -91,6 +91,9 @@ void CBotCam::init(CLaBotBox *application)
   // Restore la couleur de fond
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
+
+  //positionnement du bon onglet
+  m_ihm.ui.calibrateTabs->setCurrentIndex(0);
   
   //init du scheduler
   schedulerCam=new QTimer();
@@ -111,7 +114,7 @@ void CBotCam::init(CLaBotBox *application)
 
     //mise à jour de l'ihm
     QStringList colorsEnabled;
-    colorsEnabled<<"rouge"<<"jaune"<<"vert"<<"cyan"<<"bleu"<<"magenta";
+    colorsEnabled<<"rouge"<<"orange"<<"jaune"<<"vert"<<"cyan"<<"bleu"<<"magenta";
     m_ihm.ui.comboBox_camera->addItems(colorsEnabled);
     //Initialisation de la capture
 	val = m_application->m_eeprom->read(getName(), "camUsed", QVariant(false));
@@ -126,7 +129,7 @@ void CBotCam::init(CLaBotBox *application)
     val = m_application->m_eeprom->read(getName(), "videoPath", QVariant(0));
     QString videoPath=val.toString();
 
-    if(camNumber>0)
+    if(camNumber>=0)
     {
         QString camIsUsed=(camUsed_init)?"oui":"non";
         qDebug() << "cam utilisée: "<<camIsUsed;
@@ -389,81 +392,200 @@ void CBotCam::analyseCam(cv::Mat frame)
     //Conversion de l'image floutée dans l'espace colorimetrique HSV
     cv::cvtColor(frameBlur,frameHSV,CV_RGB2HSV);
 
+    if(m_ihm.ui.calibrateTabs->currentIndex()==calibration)
+    {
+        QString couleur=m_ihm.ui.comboBox_camera->currentText();
+        int couleurCalib=Qt::red;
 
-    //seuillage de l'image en extrayant les couleurs des items de l'image HSV
-    //si supérieur à la purete, inferieur à l'angle max et superieur a l'angle min alors le pixel nous interesse
-    //methode alternative: determiner un histogramme caracteristique de l'element et l'extraire de l'image
-
-    int x, y;
-    for (y = 0; y < iH; y++) {
-        for (x = 0; x < iL; x++) {
-            uchar H_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3];
-            uchar S_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+1];
-            //uchar V_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
-
-            //detection oranges
-            if (H_pixel > H_min && H_pixel < H_max && S_pixel > S_min) {
-                ((uchar*)(frameGray.data + frameGray.step*y))[x] = 255;
-            }
-            else ((uchar*)(frameGray.data + frameGray.step*y))[x] = 0;
+        if(couleur.contains("rouge",Qt::CaseInsensitive)){
+               H_median=0;couleurCalib=Qt::red;
         }
-    }
+        if(couleur.contains("orange",Qt::CaseInsensitive)){
+               H_median=30;couleurCalib=orange;
+        }
+        if(couleur.contains("jaune",Qt::CaseInsensitive)){
+               H_median=60;couleurCalib=Qt::yellow;
+        }
+        if(couleur.contains("vert",Qt::CaseInsensitive)){
+               H_median=120;couleurCalib=Qt::green;
+        }
+        if(couleur.contains("cyan",Qt::CaseInsensitive)){
+               H_median=180;couleurCalib=Qt::cyan;
+        }
+        if(couleur.contains("bleu",Qt::CaseInsensitive)){
+               H_median=240;couleurCalib=Qt::blue;
+        }
+        if(couleur.contains("magenta",Qt::CaseInsensitive)){
+                H_median=300;couleurCalib=Qt::magenta;
+        }
 
-    //Debug: Traitement avec le filtre Sobel pour vérifier si le traitement N&B fonctionne
-    //cv::Sobel(frameGray,frameSobel,frameSobel.depth(),1,1,3,1,0.0,BORDER_DEFAULT);
+        int seuillage_x=((frameColor.cols)/2)+25;
+        float seuillage_y=((frameColor.rows)/2)-100;
+        //cv::rectangle(frameColor,cv::Rect(traitement_x,traitement_y,60,30),CV_RGB(0,0,255),5,8,0);
+
+        seuillageImage(&frameHSV,&frameGray,
+                       couleurCalib,255,m_ihm.ui.SliderPur->value(),m_ihm.ui.SliderCouleur->value());
+
+        //Debug: Traitement avec le filtre Sobel pour vérifier si le traitement N&B fonctionne
+        //cv::Sobel(frameGray,frameSobel,frameSobel.depth(),1,1,3,1,0.0,BORDER_DEFAULT);
+
+        //On affiche l'image binarisée et avec une couleur filtrée pour le controle
+        //très utile pour la calibration de la caméra
+        afficheCam(frameGray,false,affichage_NetB_Reglage_HSV);
+
+        //détection des contours
+        cv::findContours(frameGray,contours,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+        //RAZ des éléments détectés
+        int i,j;
+
+        for (size_t contourIdx = 0; contourIdx < contours.size(); contourIdx++)
+        {
+            std::vector<cv::Point> approx;
+            cv::approxPolyDP(contours[contourIdx], approx, 5, true);
+            double aire_detectee = contourArea(approx);
+            if((aire_detectee>superficieObjetMin)&&(aire_detectee<superficieObjetMax)&&(idx<NB_ELEMENTS))
+            {
+                //barycentre circonscrit de la forme détectée
+                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+                ////barycentre du rectangle
+                float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+                float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+                QPoint centre=QPoint((centre_x/iL)*100,(centre_y/iH)*100);
+
+                map_points.insert(centre.manhattanLength(),centre);
+
+                idx++;
+                cv::rectangle(frameColor,RectCirconscrit,CV_RGB(255,0,0),5,8,0);
+                //drawContours(frameColor,contours,contourIdx,CV_RGB(255,0,0),5,8,noArray(),0);
+            }
+        }
+
+        //tri de la table de hash
+        //comme les éléments sont réinitialisés on exclut les valeurs nulles
+        int indice_proche=0;
+        QMap<int,QPoint>::iterator it=map_points.begin();
+
+    //    while((elementsDetectes[indice_proche].distance>0)&&(indice_proche<NB_ELEMENTS)) indice_proche++;
+
+        //mettre le point distance
+        //circle( frameColor, cvPoint((elementsDetectes[indice_proche-1].X)*iL/100,(elementsDetectes[indice_proche-1].Y)*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
+        cv::circle( frameColor, cvPoint((it.value().x())*iL/100,(it.value().y())*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
+
+        //zone à traiter
+        //cv::rectangle(frameColor,cv::Rect((frameColor.cols/2)+15,(frameColor.rows/2)+15,20,20),CV_RGB(0,0,255),5,8,0);
+        int traitement_x=((frameColor.cols)/2)+25;
+        float traitement_y=((frameColor.rows)/2)-100;
+        cv::rectangle(frameColor,cv::Rect(traitement_x,traitement_y,60,30),CV_RGB(0,0,255),5,8,0);
+
+        //on affiche l'image traitée
+        afficheCam(frameColor,true,affichage_Couleur_Origine);
+
+        //Si le flag d'enregistrement est levé (normalement synchro avec la tirette)
+        //on enregistre l'image traitée
+        //bis repetita: OpenCV travaille en BGR, on convertit donc pour l'enregistrement
+        cv::cvtColor(frameColor, frameRecorded, CV_RGB2BGR);
+        if (isRecording)
+                enregistreur->write(frameRecorded);
+    }
+    if(m_ihm.ui.calibrateTabs->currentIndex()==cherche_combinaison)
+    {
+        cv::Mat frameGrey_orange=frameGray.clone();
+        cv::Mat frameGrey_yellow=frameGray.clone();
+        cv::Mat frameGrey_green=frameGray.clone();
+        cv::Mat frameGrey_blue=frameGray.clone();
+        cv::Mat frameGrey_black=frameGray.clone();
+
+        cv::Mat frameHSV_orange=frameHSV.clone();
+        cv::Mat frameHSV_yellow=frameHSV.clone();
+        cv::Mat frameHSV_green=frameHSV.clone();
+        cv::Mat frameHSV_blue=frameHSV.clone();
+        cv::Mat frameHSV_black=frameHSV.clone();
+
+        QHash<QString, int> hash;
+
+        for(int i=0;i<m_ihm.ui.tableAllColor->rowCount();i++)
+            hash[m_ihm.ui.tableAllColor->item(i,0)->text()]=i;
+
+        int ROIx=((frameColor.cols)/2)+25;
+        float ROIy=((frameColor.rows)/2)-100;
+        //cv::rectangle(frameColor,cv::Rect(traitement_x,traitement_y,60,30),CV_RGB(0,0,255),5,8,0);
+
+        cv::Point centre_couleur(0,0);
+        QHash<QString, int> combinaison;
+
+       //orange
+       H_median=30;
+       seuillageImage(&frameHSV_orange,&frameGrey_orange,
+                      orange,255,m_ihm.ui.tableAllColor->item(hash["orange"],3)->text().toInt(),
+                      m_ihm.ui.tableAllColor->item(hash["orange"],2)->text().toInt());
+       centre_couleur=isColor(&frameGrey_orange,ROIx,ROIy,ROIy+30,ROIx+60,50);
+       if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["orange"]=centre_couleur.x;
+            //qDebug() << "orange : "<<centre_couleur.x<<centre_couleur.y;
+
+       //jaune
+       H_median=60;
+       seuillageImage(&frameHSV_yellow,&frameGrey_yellow,
+                      Qt::yellow,255,m_ihm.ui.tableAllColor->item(hash["jaune"],3)->text().toInt(),
+               m_ihm.ui.tableAllColor->item(hash["jaune"],2)->text().toInt());
+       centre_couleur=isColor(&frameGrey_yellow,ROIx,ROIy,ROIy+30,ROIx+60,50);
+           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["jaune"]=centre_couleur.x;
+                //qDebug() << "jaune : "<<centre_couleur.x<<centre_couleur.y;
+
+       //vert
+       H_median=120;
+       seuillageImage(&frameHSV_green,&frameGrey_green,
+                      Qt::green,255,m_ihm.ui.tableAllColor->item(hash["vert"],3)->text().toInt(),
+               m_ihm.ui.tableAllColor->item(hash["vert"],2)->text().toInt());
+       centre_couleur=isColor(&frameGrey_green,ROIx,ROIy,ROIy+30,ROIx+60,50);
+           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["vert"]=centre_couleur.x;
+                //qDebug() << "vert : "<<centre_couleur.x<<centre_couleur.y;
+
+       //bleu
+       H_median=240;
+       seuillageImage(&frameHSV_blue,&frameGrey_blue,
+                      Qt::blue,255,m_ihm.ui.tableAllColor->item(hash["bleu"],3)->text().toInt(),
+               m_ihm.ui.tableAllColor->item(hash["bleu"],2)->text().toInt());
+       centre_couleur=isColor(&frameGrey_blue,ROIx,ROIy,ROIy+30,ROIx+60,50);
+           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["bleu"]=centre_couleur.x;
+                //qDebug() << "bleu : "<<centre_couleur.x<<centre_couleur.y;
+
+       //noir
+       H_median=0;
+       seuillageImage(&frameHSV_black,&frameGrey_black,
+                      Qt::black,255,m_ihm.ui.tableAllColor->item(hash["noir"],3)->text().toInt(),
+               m_ihm.ui.tableAllColor->item(hash["noir"],2)->text().toInt());
+       centre_couleur=isColor(&frameGrey_black,ROIx,ROIy,ROIy+30,ROIx+60,50);
+           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["noir"]=centre_couleur.x;
+                //qDebug() << "noir : "<<centre_couleur.x<<centre_couleur.y;
+
+           qDebug()<<combinaison;
 
     //On affiche l'image binarisée et avec une couleur filtrée pour le controle
     //très utile pour la calibration de la caméra
-    afficheCam(frameGray,false,affichage_NetB_Reglage_HSV);
+    afficheCam(frameGrey_green,false,affichage_NetB_Reglage_HSV);
 
-    //détection des contours
-    cv::findContours(frameGray,contours,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+    frameGrey_orange.release();
+    frameGrey_yellow.release();
+    frameGrey_green.release();
+    frameGrey_blue.release();
+    frameGrey_black.release();
 
-    //RAZ des éléments détectés
-    int i,j;
-
-    for (size_t contourIdx = 0; contourIdx < contours.size(); contourIdx++)
-    {
-        std::vector<cv::Point> approx;
-        cv::approxPolyDP(contours[contourIdx], approx, 5, true);
-        double aire_detectee = contourArea(approx);
-        if((aire_detectee>superficieObjetMin)&&(aire_detectee<superficieObjetMax)&&(idx<NB_ELEMENTS))
-        {
-            //barycentre circonscrit de la forme détectée
-            cv::Rect RectCirconscrit=cv::boundingRect( approx );
-
-            ////barycentre du rectangle
-            float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
-            float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
-            QPoint centre=QPoint((centre_x/iL)*100,(centre_y/iH)*100);
-
-            map_points.insert(centre.manhattanLength(),centre);
-
-            idx++;
-            cv::rectangle(frameColor,RectCirconscrit,CV_RGB(255,0,0),5,8,0);
-            //drawContours(frameColor,contours,contourIdx,CV_RGB(255,0,0),5,8,noArray(),0);
-        }
+    frameHSV_orange.release();
+    frameHSV_yellow.release();
+    frameHSV_green.release();
+    frameHSV_blue.release();
+    frameHSV_black.release();
     }
 
-    //tri de la table de hash
-    //comme les éléments sont réinitialisés on exclut les valeurs nulles
-    int indice_proche=0;
-    QMap<int,QPoint>::iterator it=map_points.begin();
 
-//    while((elementsDetectes[indice_proche].distance>0)&&(indice_proche<NB_ELEMENTS)) indice_proche++;
 
-    //mettre le point distance
-    //circle( frameColor, cvPoint((elementsDetectes[indice_proche-1].X)*iL/100,(elementsDetectes[indice_proche-1].Y)*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
-    cv::circle( frameColor, cvPoint((it.value().x())*iL/100,(it.value().y())*iH/100), 5, CV_RGB(0,255,0), -1, 8, 0 );
-    //on affiche l'image traitée
-    afficheCam(frameColor,true,affichage_Couleur_Origine);
 
-    //Si le flag d'enregistrement est levé (normalement synchro avec la tirette)
-    //on enregistre l'image traitée
-    //bis repetita: OpenCV travaille en BGR, on convertit donc pour l'enregistrement
-    cv::cvtColor(frameColor, frameRecorded, CV_RGB2BGR);
-    if (isRecording)
-            enregistreur->write(frameRecorded);
+    //détection des contours
+    //cv::findContours(frameGray,contours,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+
 
     //opencv ne profite pas du garbage collector de Qt
     frameColor.release();
@@ -575,6 +697,8 @@ void CBotCam::setCouleur(QString couleur)
 
     if(couleur.contains("rouge",Qt::CaseInsensitive))
            H_median=0;
+    if(couleur.contains("orange",Qt::CaseInsensitive))
+           H_median=30;
     if(couleur.contains("jaune",Qt::CaseInsensitive))
            H_median=60;
     if(couleur.contains("vert",Qt::CaseInsensitive))
@@ -585,7 +709,7 @@ void CBotCam::setCouleur(QString couleur)
            H_median=240;
     if(couleur.contains("magenta",Qt::CaseInsensitive))
             H_median=300;
-    qDebug() << "choix couleur" << couleur;
+    //qDebug() << "choix couleur" << couleur;
 
     int H_min_temp=(H_median-(H_angle_detection_back/2))/2;
     if (H_min_temp<0) H_min=0;
@@ -882,23 +1006,101 @@ void CBotCam::initMotifSeuil()
     frameHSV.release();
     frameRecorded.release();
 
-}
+}*/
 
-cv::Mat* CBotCam::seuillageImage(cv::Mat frameHSV)
+void CBotCam::seuillageImage(cv::Mat* frameHSV, cv::Mat* frameGray,
+                             int Couleur, int Saturation,int Purete, int EcartCouleur)
 {
+    int iH = frameHSV->rows;
+    int iL = frameHSV->cols;
     int x, y;
+
+    //Quelle couleur?
+    int angleCouleur=0;
+    switch(Couleur){
+        case Qt::red : angleCouleur=0;break;
+        case orange : angleCouleur=30;break;
+        case Qt::yellow : angleCouleur=60;break;
+        case Qt::green : angleCouleur=120;break;
+        case Qt::cyan : angleCouleur=180;break;
+        case Qt::blue : angleCouleur=240;break;
+        case Qt::magenta : angleCouleur=300;break;
+    default : angleCouleur=0;break;
+    }
+
+    //On considere un ecart potentiel par rapport a la couleur souhaitee
+    int angleCouleurMin,angleCouleurMax;
+    int angleCouleurMin_temp=(angleCouleur-(EcartCouleur/2))/2;
+    if (angleCouleurMin_temp<0) angleCouleurMin=360+angleCouleurMin_temp;
+    else angleCouleurMin=angleCouleurMin_temp;
+    angleCouleurMax=(angleCouleur+(EcartCouleur/2))/2;
+
+    //seuillage de l'image en extrayant les couleurs des items de l'image HSV
+    //si supérieur à la purete, inferieur à l'angle max et superieur a l'angle min alors le pixel nous interesse
+    //methode alternative: determiner un histogramme caracteristique de l'element et l'extraire de l'image
     for (y = 0; y < iH; y++) {
         for (x = 0; x < iL; x++) {
-            uchar H_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3];
-            uchar S_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+1];
-            //uchar V_pixel=((uchar*)(frameHSV.data + frameHSV.step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
+            uchar angleCouleur_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3];
+            uchar Purete_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3+1];
+            uchar Saturation_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
 
-            //detection oranges
-            if (H_pixel > H_min && H_pixel < H_max && S_pixel > S_min) {
-                ((uchar*)(frameGray.data + frameGray.step*y))[x] = 255;
+            if(Couleur==Qt::black)
+            {
+                //detection couleur quelconque
+                if ((angleCouleurMin < angleCouleur_pixel)
+                        && (angleCouleur_pixel < angleCouleurMax)
+                        && (Purete_pixel > Purete))
+                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
+                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
             }
-            else ((uchar*)(frameGray.data + frameGray.step*y))[x] = 0;
+            else if(angleCouleurMin_temp<0)
+            {
+                //detection a la limite du modulo 2pi
+                if ((angleCouleurMin < angleCouleur_pixel)
+                        || (angleCouleur_pixel < angleCouleurMax)
+                        && (Purete_pixel > Purete))
+                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
+                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
+            }
+            else
+            {
+                //detection couleur quelconque
+                if ((angleCouleurMin < angleCouleur_pixel)
+                        && (angleCouleur_pixel < angleCouleurMax)
+                        && (Purete_pixel > Purete))
+                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
+                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
+            }
         }
     }
 }
-*/
+
+cv::Point CBotCam::isColor(cv::Mat* frameGray,int ROIx, int ROIy, int ROIh, int ROIl,int seuil)
+{
+    cv::Point centre_couleur;
+    centre_couleur.x=0;
+    centre_couleur.y=0;
+    int detect=0;
+    for (int Y = ROIy; Y < ROIh; Y++) {
+        for (int X = ROIx; X < ROIl; X++) {
+
+            if(((uchar*)(frameGray->data + frameGray->step*Y))[X] == 255)
+            {
+                centre_couleur.x=centre_couleur.x+X;
+                centre_couleur.y=centre_couleur.y+Y;
+                detect++;
+            }
+        }
+    }
+
+    if(detect>seuil){
+        centre_couleur.x=centre_couleur.x/detect;
+        centre_couleur.y=centre_couleur.y/detect;
+    }
+    else{
+        centre_couleur.x=0;
+        centre_couleur.y=0;
+    }
+
+    return (centre_couleur);
+}

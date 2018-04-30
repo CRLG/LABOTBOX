@@ -44,11 +44,11 @@
     <item row="0" column="0" colspan="2">
      <widget class="QTabWidget" name="calibrateTabs">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>One_color</string>
+        <string>calibration</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0" colspan="2">
@@ -163,13 +163,18 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>All_color</string>
+        <string>cherche_combinaison</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QTableWidget" name="tableAllColor"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
       </widget>
      </widget>
     </item>

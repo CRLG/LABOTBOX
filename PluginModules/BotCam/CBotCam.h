@@ -30,11 +30,20 @@
 #include <QtAlgorithms>
 #include <QPointer>
 
+#define orange 20
+
 enum type_Affichage{
         affichage_Couleur_Origine,
         affichage_Couleur_Detection,
         affichage_NetB_Origine,
         affichage_NetB_Reglage_HSV
+};
+
+enum type_Traitement{
+        calibration=0,
+    cherche_combinaison,
+        tracking,
+        balise
 };
 
 typedef struct
@@ -104,6 +113,7 @@ public:
     int compteurImages;
 
     void initMotifSeuil();
+    cv::Point isColor(cv::Mat *frameGray, int ROIx, int ROIy, int ROIh, int ROIl, int seuil);
 private:
     Cihm_BotCam m_ihm;
 	
@@ -120,7 +130,8 @@ private:
 	int camUsed;
     QTimer *schedulerCam;
     int camNumber;
-   
+
+    void seuillageImage(cv::Mat *frameHSV, cv::Mat *frameGray, int Couleur, int Saturation, int Purete, int EcartCouleur);
 signals:
     void  frameCaptured(QImage frame,int type_Image);
 	
