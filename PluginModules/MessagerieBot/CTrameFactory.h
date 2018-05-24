@@ -1010,6 +1010,67 @@ public :
     short B;
 
 };
+
+
+// ========================================================
+//             TRAME MBED_CMDE
+// ========================================================
+#define ID_MBED_CMDE 0x95
+#define DLC_MBED_CMDE 8
+#define BRUTE2PHYS_cde_mbed_char(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_mbed_char(val) (char)( (val - (0.000000)) / (1.000000) )
+class CTrame_MBED_CMDE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_MBED_CMDE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_MBED_CMDE() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    // Encode chacun des signaux de la trame
+    short Valeur_01;
+    short Valeur_02;
+    char Valeur_03;
+    char Valeur_04;
+    unsigned short CodeCommande;
+    bool m_synchro_tx;
+
+private slots :
+    void Valeur_mbed_cmde_01_changed(QVariant val);
+    void Valeur_mbed_cmde_02_changed(QVariant val);
+    void Valeur_mbed_cmde_03_changed(QVariant val);
+    void Valeur_mbed_cmde_04_changed(QVariant val);
+    void Code_mbed_cmde_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+// ========================================================
+//             TRAME MBED_ETAT
+// ========================================================
+#define ID_MBED_ETAT 0x96
+#define DLC_MBED_ETAT 8
+#define BRUTE2PHYS_code_mbed_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_code_mbed_etat(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_valeur_mbed_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_valeur_mbed_etat(val) (short)( (val - (0.000000)) / (1.000000) )
+class CTrame_MBED_ETAT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_MBED_ETAT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_MBED_ETAT() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    short Valeur_mbed_etat_01;
+    short Valeur_mbed_etat_02;
+    char Valeur_mbed_etat_03;
+    char Valeur_mbed_etat_04;
+    unsigned short Cde_mbed_etat;
+
+private slots :
+};
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */

@@ -30,7 +30,7 @@ LIST_BASIC_MODULES+= \
         DataPlayer \ 
         RS232 \ 
         Ecran \
-       Joystick \
+       #Joystick \
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -98,10 +98,14 @@ CONFIG += plugins_designer
 
 # __________________________________________________
 # Gestion du joystick
-LIBS += -lsfml-graphics -lsfml-window -lsfml-system
+#LIBS += -lsfml-graphics -lsfml-window -lsfml-system
 
 # __________________________________________________
 # Gestion des webcam et traitements video
-LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
-INCLUDEPATH += /usr/include/opencv2
+#LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
+#INCLUDEPATH += /usr/include/opencv2
+
+LIBS += -LC:/win_progs/Qt/5.2.1/mingw48_32/plugins/designer -lqhexeditplugin -lqledplugin -lq7segplugin
+LIBS += -LC:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
+INCLUDEPATH += "C:/win_progs/OpenCV/opencv_2_4_9/include"
 

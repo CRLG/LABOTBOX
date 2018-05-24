@@ -94,6 +94,21 @@ void CBotCam::init(CLaBotBox *application)
 
   //positionnement du bon onglet
   m_ihm.ui.calibrateTabs->setCurrentIndex(0);
+
+  //Initialisation du zonage de traitement video
+  val = m_application->m_eeprom->read(getName(), "x_traitement", QVariant(25));
+  x_traitement=val.toInt();
+  val = m_application->m_eeprom->read(getName(), "y_traitement", QVariant(25));
+  y_traitement=val.toInt();
+  val = m_application->m_eeprom->read(getName(), "L_traitement", QVariant(25));
+  L_traitement=val.toInt();
+  val = m_application->m_eeprom->read(getName(), "H_traitement", QVariant(25));
+  H_traitement=val.toInt();
+  m_ihm.ui.x_traitement->setValue(x_traitement);
+  m_ihm.ui.y_traitement->setValue(y_traitement);
+  m_ihm.ui.H_traitement->setValue(H_traitement);
+  m_ihm.ui.L_traitement->setValue(L_traitement);
+
   
   //init du scheduler
   schedulerCam=new QTimer();
@@ -101,6 +116,7 @@ void CBotCam::init(CLaBotBox *application)
 
       //compteur d'images déjà bypassées
     compteurImages=0;
+    confirmation_detection=0;
 
     //init des seuils limites de détection des elements (par défaut)
     H_median=60;
@@ -145,8 +161,8 @@ void CBotCam::init(CLaBotBox *application)
         qDebug() << fileName;
 
         //création de l'objet OpenCV qui enregistre des frame
-        //enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),5,cv::Size(320,240),true);
-        enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('M','J','P','G'),5,cv::Size(320,240),true);
+        enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),5,cv::Size(320,240),true);
+        //enregistreur= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('M','J','P','G'),5,cv::Size(320,240),true);
     }
     else{
         qDebug() << videoPath;
@@ -210,6 +226,7 @@ void CBotCam::init(CLaBotBox *application)
     connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
     if(camNumber>0)
         connect(m_ihm.ui.cB_record, SIGNAL(toggled(bool)),this,SLOT(recording(bool)));
+    connect(m_ihm.ui.cB_camera, SIGNAL(toggled(bool)),this,SLOT(runCam(bool)));
 
     runCam(camUsed_init);
 
@@ -347,6 +364,19 @@ bool CBotCam::closeCam(void)
 
 void CBotCam::analyseCam(cv::Mat frame)
 {
+    /*QVariant val=m_application->m_data_center->getData("Code_mbed_etat")->read();
+    QVariant val2=m_application->m_data_center->getData("Valeur_mbed_etat_01")->read();
+    QVariant val3=m_application->m_data_center->getData("Valeur_mbed_etat_02")->read();
+    QVariant val4=m_application->m_data_center->getData("Valeur_mbed_etat_03")->read();
+    QVariant val5=m_application->m_data_center->getData("Valeur_mbed_etat_04")->read();
+
+    int Code_mbed_etat=val.toInt();
+    int Valeur_mbed_etat_01=val2.toInt();
+    int Valeur_mbed_etat_02=val3.toInt();
+    int Valeur_mbed_etat_03=val4.toInt();
+    int Valeur_mbed_etat_04=val5.toInt();*/
+
+
     //images temporaires pour le traitement video
     cv::Mat frameColor; //image bidouillee pour utilisation GUI
     cv::Mat frameHSV;
@@ -354,6 +384,8 @@ void CBotCam::analyseCam(cv::Mat frame)
     cv::Mat frameGray;
     cv::Mat frameSobel;
     cv::Mat frameRecorded;
+
+
 
     QMap<int,QPoint> map_points;
 
@@ -392,6 +424,10 @@ void CBotCam::analyseCam(cv::Mat frame)
     //Conversion de l'image floutée dans l'espace colorimetrique HSV
     cv::cvtColor(frameBlur,frameHSV,CV_RGB2HSV);
 
+    /*switch(Code_mbed_etat){
+    case 1:
+
+*/
     if(m_ihm.ui.calibrateTabs->currentIndex()==calibration)
     {
         QString couleur=m_ihm.ui.comboBox_camera->currentText();
@@ -477,7 +513,6 @@ void CBotCam::analyseCam(cv::Mat frame)
         //cv::rectangle(frameColor,cv::Rect((frameColor.cols/2)+15,(frameColor.rows/2)+15,20,20),CV_RGB(0,0,255),5,8,0);
         int traitement_x=((frameColor.cols)/2)+25;
         float traitement_y=((frameColor.rows)/2)-100;
-        cv::rectangle(frameColor,cv::Rect(traitement_x,traitement_y,60,30),CV_RGB(0,0,255),5,8,0);
 
         //on affiche l'image traitée
         afficheCam(frameColor,true,affichage_Couleur_Origine);
@@ -489,6 +524,7 @@ void CBotCam::analyseCam(cv::Mat frame)
         if (isRecording)
                 enregistreur->write(frameRecorded);
     }
+
     if(m_ihm.ui.calibrateTabs->currentIndex()==cherche_combinaison)
     {
         cv::Mat frameGrey_orange=frameGray.clone();
@@ -496,6 +532,7 @@ void CBotCam::analyseCam(cv::Mat frame)
         cv::Mat frameGrey_green=frameGray.clone();
         cv::Mat frameGrey_blue=frameGray.clone();
         cv::Mat frameGrey_black=frameGray.clone();
+        cv::Mat frameGrey=frameGray.clone();
 
         cv::Mat frameHSV_orange=frameHSV.clone();
         cv::Mat frameHSV_yellow=frameHSV.clone();
@@ -504,73 +541,154 @@ void CBotCam::analyseCam(cv::Mat frame)
         cv::Mat frameHSV_black=frameHSV.clone();
 
         QHash<QString, int> hash;
-
         for(int i=0;i<m_ihm.ui.tableAllColor->rowCount();i++)
             hash[m_ihm.ui.tableAllColor->item(i,0)->text()]=i;
 
-        int ROIx=((frameColor.cols)/2)+25;
-        float ROIy=((frameColor.rows)/2)-100;
-        //cv::rectangle(frameColor,cv::Rect(traitement_x,traitement_y,60,30),CV_RGB(0,0,255),5,8,0);
+
+        int nb_pixels_minimum=50;
 
         cv::Point centre_couleur(0,0);
-        QHash<QString, int> combinaison;
+        QList< QPair<QString,int> > combinaison;
+
+        //MAJ du zonage
+        x_traitement=m_ihm.ui.x_traitement->value();
+        y_traitement=m_ihm.ui.y_traitement->value();
+        H_traitement=m_ihm.ui.H_traitement->value();
+        L_traitement=m_ihm.ui.L_traitement->value();
 
        //orange
+        //S_min=255*S_purete_detection/100;
        H_median=30;
        seuillageImage(&frameHSV_orange,&frameGrey_orange,
-                      orange,255,m_ihm.ui.tableAllColor->item(hash["orange"],3)->text().toInt(),
+                      orange,255,(int)(m_ihm.ui.tableAllColor->item(hash["orange"],3)->text().toInt()/2.55),
                       m_ihm.ui.tableAllColor->item(hash["orange"],2)->text().toInt());
-       centre_couleur=isColor(&frameGrey_orange,ROIx,ROIy,ROIy+30,ROIx+60,50);
-       if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["orange"]=centre_couleur.x;
-            //qDebug() << "orange : "<<centre_couleur.x<<centre_couleur.y;
+       centre_couleur=isColor(&frameGrey_orange,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
+       if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+       {
+           QPair<QString,int> O("O",centre_couleur.x);
+           combinaison.append(O);
+           cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,128,255), -1, 8, 0 );
+           //frameGrey=frameGrey+frameGrey_orange;
+       }
 
        //jaune
        H_median=60;
        seuillageImage(&frameHSV_yellow,&frameGrey_yellow,
-                      Qt::yellow,255,m_ihm.ui.tableAllColor->item(hash["jaune"],3)->text().toInt(),
+                      Qt::yellow,255,(int)(m_ihm.ui.tableAllColor->item(hash["jaune"],3)->text().toInt()/2.55),
                m_ihm.ui.tableAllColor->item(hash["jaune"],2)->text().toInt());
-       centre_couleur=isColor(&frameGrey_yellow,ROIx,ROIy,ROIy+30,ROIx+60,50);
-           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["jaune"]=centre_couleur.x;
-                //qDebug() << "jaune : "<<centre_couleur.x<<centre_couleur.y;
+       centre_couleur=isColor(&frameGrey_yellow,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
+        if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+        {
+            QPair<QString,int> J("J",centre_couleur.x);
+            combinaison.append(J);
+            cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,255,255), -1, 8, 0 );
+            //frameGrey=frameGrey+frameGrey_yellow;
+        }
 
        //vert
        H_median=120;
        seuillageImage(&frameHSV_green,&frameGrey_green,
-                      Qt::green,255,m_ihm.ui.tableAllColor->item(hash["vert"],3)->text().toInt(),
+                      Qt::green,255,(int)(m_ihm.ui.tableAllColor->item(hash["vert"],3)->text().toInt()/2.55),
                m_ihm.ui.tableAllColor->item(hash["vert"],2)->text().toInt());
-       centre_couleur=isColor(&frameGrey_green,ROIx,ROIy,ROIy+30,ROIx+60,50);
-           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["vert"]=centre_couleur.x;
-                //qDebug() << "vert : "<<centre_couleur.x<<centre_couleur.y;
+       centre_couleur=isColor(&frameGrey_green,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
+       if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+       {
+           QPair<QString,int> V("V",centre_couleur.x);
+           combinaison.append(V);
+           cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,255,0), -1, 8, 0 );
+           //frameGrey=frameGrey+frameGrey_green;
+       }
 
        //bleu
        H_median=240;
        seuillageImage(&frameHSV_blue,&frameGrey_blue,
-                      Qt::blue,255,m_ihm.ui.tableAllColor->item(hash["bleu"],3)->text().toInt(),
+                      Qt::blue,255,(int)(m_ihm.ui.tableAllColor->item(hash["bleu"],3)->text().toInt()/2.55),
                m_ihm.ui.tableAllColor->item(hash["bleu"],2)->text().toInt());
-       centre_couleur=isColor(&frameGrey_blue,ROIx,ROIy,ROIy+30,ROIx+60,50);
-           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["bleu"]=centre_couleur.x;
-                //qDebug() << "bleu : "<<centre_couleur.x<<centre_couleur.y;
+       centre_couleur=isColor(&frameGrey_blue,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
+       if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+       {
+           QPair<QString,int> B("B",centre_couleur.x);
+           combinaison.append(B);
+            cv::circle( frameColor, centre_couleur, 20, CV_RGB(255,0,0), -1, 8, 0 );
+            //frameGrey=frameGrey+frameGrey_blue;
+            //qDebug() << "Blouge";
+       }
 
        //noir
        H_median=0;
        seuillageImage(&frameHSV_black,&frameGrey_black,
-                      Qt::black,255,m_ihm.ui.tableAllColor->item(hash["noir"],3)->text().toInt(),
+                      Qt::black,m_ihm.ui.tableAllColor->item(hash["noir"],1)->text().toInt(),
+               (int)(m_ihm.ui.tableAllColor->item(hash["noir"],3)->text().toInt()/2.55),
                m_ihm.ui.tableAllColor->item(hash["noir"],2)->text().toInt());
-       centre_couleur=isColor(&frameGrey_black,ROIx,ROIy,ROIy+30,ROIx+60,50);
-           if((centre_couleur.x!=0)&&(centre_couleur.y!=0)) combinaison["noir"]=centre_couleur.x;
-                //qDebug() << "noir : "<<centre_couleur.x<<centre_couleur.y;
+       centre_couleur=isColor(&frameGrey_black,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
+       if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+       {
+           QPair<QString,int> N("N",centre_couleur.x);
+           combinaison.append(N);
+           cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,0,0), -1, 8, 0 );
+           //frameGrey=frameGrey+frameGrey_black;
+       }
 
-           qDebug()<<combinaison;
+       if(combinaison.count()>=3)
+       {
+           for(int i=combinaison.count()-1;i>0;i--)
+               for(int j=0;j<i;j++)
+               {
+                   if(combinaison[j+1].second<combinaison[j].second)
+                       combinaison.swap(j+1,j);
+               }
+
+           QString result;
+           for(int i=0;i<3;i++)
+           result.append(combinaison[i].first);
+           qDebug() << result;
+           int code_combinaison=11;
+
+           if(result.compare("ONV",Qt::CaseInsensitive)==0) code_combinaison=1;
+           else if (result.compare("VJB",Qt::CaseInsensitive)==0) code_combinaison=2;
+           else if (result.compare("JNB",Qt::CaseInsensitive)==0) code_combinaison=3;
+           else if (result.compare("BON",Qt::CaseInsensitive)==0) code_combinaison=4;
+           else if (result.compare("BVO",Qt::CaseInsensitive)==0) code_combinaison=5;
+           else if (result.compare("VOJ",Qt::CaseInsensitive)==0) code_combinaison=6;
+           else if (result.compare("JVN",Qt::CaseInsensitive)==0) code_combinaison=7;
+           else if (result.compare("NBV",Qt::CaseInsensitive)==0) code_combinaison=8;
+           else if (result.compare("NJO",Qt::CaseInsensitive)==0) code_combinaison=9;
+           else if (result.compare("OBJ",Qt::CaseInsensitive)==0) code_combinaison=10;
+
+           if(confirmation_detection>=4)
+           {
+            m_application->m_data_center->write("MBED_CMDE_TxSync", true);
+            m_application->m_data_center->write("code_mbed_cmde", 2);
+            m_application->m_data_center->write("valeur_mbed_cmde_01", code_combinaison);
+            m_application->m_data_center->write("valeur_mbed_cmde_02", code_combinaison);
+            m_application->m_data_center->write("valeur_mbed_cmde_03", code_combinaison);
+            m_application->m_data_center->write("valeur_mbed_cmde_04", code_combinaison);
+            m_application->m_data_center->write("MBED_CMDE_TxSync", false);
+            confirmation_detection=0;
+            qDebug() << code_combinaison;
+           }
+           else
+               confirmation_detection++;
+       }
+
 
     //On affiche l'image binarisée et avec une couleur filtrée pour le controle
     //très utile pour la calibration de la caméra
-    afficheCam(frameGrey_green,false,affichage_NetB_Reglage_HSV);
+    afficheCam(frameGrey_black,false,affichage_NetB_Reglage_HSV);
+    cv::rectangle(frameColor,cv::Rect(x_traitement,
+                                      y_traitement,
+                                      L_traitement,
+                                      H_traitement),CV_RGB(0,0,255),5,8,0);
+
+    //on affiche l'image traitée
+    afficheCam(frameColor,true,affichage_Couleur_Origine);
 
     frameGrey_orange.release();
     frameGrey_yellow.release();
     frameGrey_green.release();
     frameGrey_blue.release();
     frameGrey_black.release();
+    frameGrey.release();
 
     frameHSV_orange.release();
     frameHSV_yellow.release();
@@ -578,8 +696,9 @@ void CBotCam::analyseCam(cv::Mat frame)
     frameHSV_blue.release();
     frameHSV_black.release();
     }
+    /*break;
 
-
+    }*/
 
 
     //détection des contours
@@ -1023,7 +1142,7 @@ void CBotCam::seuillageImage(cv::Mat* frameHSV, cv::Mat* frameGray,
         case Qt::yellow : angleCouleur=60;break;
         case Qt::green : angleCouleur=120;break;
         case Qt::cyan : angleCouleur=180;break;
-        case Qt::blue : angleCouleur=240;break;
+    case Qt::blue : angleCouleur=240;/*qDebug() << "bleu" << Saturation << Purete << EcartCouleur*/;break;
         case Qt::magenta : angleCouleur=300;break;
     default : angleCouleur=0;break;
     }
@@ -1047,9 +1166,7 @@ void CBotCam::seuillageImage(cv::Mat* frameHSV, cv::Mat* frameGray,
             if(Couleur==Qt::black)
             {
                 //detection couleur quelconque
-                if ((angleCouleurMin < angleCouleur_pixel)
-                        && (angleCouleur_pixel < angleCouleurMax)
-                        && (Purete_pixel > Purete))
+                if (Saturation_pixel<Saturation)
                     ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
                 else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
             }
@@ -1081,8 +1198,8 @@ cv::Point CBotCam::isColor(cv::Mat* frameGray,int ROIx, int ROIy, int ROIh, int 
     centre_couleur.x=0;
     centre_couleur.y=0;
     int detect=0;
-    for (int Y = ROIy; Y < ROIh; Y++) {
-        for (int X = ROIx; X < ROIl; X++) {
+    for (int Y = ROIy; Y < ROIy+ROIh; Y++) {
+        for (int X = ROIx; X < ROIx+ROIl; X++) {
 
             if(((uchar*)(frameGray->data + frameGray->step*Y))[X] == 255)
             {
@@ -1104,3 +1221,4 @@ cv::Point CBotCam::isColor(cv::Mat* frameGray,int ROIx, int ROIy, int ROIh, int 
 
     return (centre_couleur);
 }
+

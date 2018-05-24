@@ -102,8 +102,8 @@ void CEcran::init(CLaBotBox *application)
 //  if(modeMbed==1)
 //      setBackgroundColor(Qt::red);
 
-  m_ihm.ui.qLed_blue->setVisible(false);
-  m_ihm.ui.qLed_yellow->setVisible(false);
+  m_ihm.ui.qLed_green->setVisible(false);
+  m_ihm.ui.qLed_orange->setVisible(false);
 }
 
 
@@ -137,7 +137,7 @@ void CEcran::onRightClicGUI(QPoint pos)
 void CEcran::onClicColorButton()
 {
     QObject* pB_ColorButton=sender();
-    if(pB_ColorButton->objectName().contains("Yellow"))
+    if(pB_ColorButton->objectName().contains("Orange"))
     {
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", true);
         m_application->m_data_center->write("valeur_etat_ecran", 1);
@@ -145,7 +145,7 @@ void CEcran::onClicColorButton()
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", false);
 
     }
-    if(pB_ColorButton->objectName().contains("Blue"))
+    if(pB_ColorButton->objectName().contains("Green"))
     {
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", true);
         m_application->m_data_center->write("valeur_etat_ecran", 0);
@@ -167,24 +167,24 @@ void CEcran::color_Changed(CData *data)
 
         if(colorTeam==1)
         {
-            m_ihm.ui.qLed_blue->setVisible(false);
-            m_ihm.ui.qLed_yellow->setVisible(true);
+            m_ihm.ui.qLed_green->setVisible(false);
+            m_ihm.ui.qLed_orange->setVisible(true);
         }
 
         if(colorTeam==0)
-        {    m_ihm.ui.qLed_blue->setVisible(true);
-            m_ihm.ui.qLed_yellow->setVisible(false);
+        {    m_ihm.ui.qLed_green->setVisible(true);
+            m_ihm.ui.qLed_orange->setVisible(false);
         }
     }
 
-    if(dataName.compare("Telemetre1")==0)
-        m_ihm.ui.sb_telemetre_1->setValue(data->read().toInt());
-    if(dataName.compare("Telemetre2")==0)
-        m_ihm.ui.sb_telemetre_2->setValue(data->read().toInt());
     if(dataName.compare("Telemetre3")==0)
-        m_ihm.ui.sb_telemetre_3->setValue(data->read().toInt());
+        m_ihm.ui.sb_AVG->setValue(data->read().toInt());
     if(dataName.compare("Telemetre4")==0)
-        m_ihm.ui.sb_telemetre_4->setValue(data->read().toInt());
+        m_ihm.ui.sb_ARG->setValue(data->read().toInt());
+    if(dataName.compare("Telemetre1")==0)
+        m_ihm.ui.sb_AVD->setValue(data->read().toInt());
+    if(dataName.compare("Telemetre2")==0)
+        m_ihm.ui.sb_ARD->setValue(data->read().toInt());
 
 
     if(dataName.compare("ModeFonctionnement")==0){
@@ -214,10 +214,10 @@ void CEcran::color_Changed(CData *data)
 }
 
 void CEcran::Vbat_changed(QVariant val){ m_ihm.ui.VBatt->setValue(val.toDouble());}
-void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.sb_telemetre_1->setValue(val.toInt());}
-void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.sb_telemetre_2->setValue(val.toInt());}
-void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.sb_telemetre_3->setValue(val.toInt());}
-void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_telemetre_4->setValue(val.toInt());}
+void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.sb_AVD->setValue(val.toInt());}
+void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.sb_ARD->setValue(val.toInt());}
+void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.sb_AVG->setValue(val.toInt());}
+void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_ARG->setValue(val.toInt());}
 
 void CEcran::TpsMatch_changed(QVariant val)
 {
@@ -236,24 +236,17 @@ void CEcran::TpsMatch_changed(QVariant val)
        m_ihm.ui.sb_x->setValue(m_application->m_data_center->getData("x_pos")->read().toDouble());
        m_ihm.ui.sb_y->setValue(m_application->m_data_center->getData("y_pos")->read().toDouble());
        m_ihm.ui.sb_teta->setValue(m_application->m_data_center->getData("teta_pos")->read().toDouble());
-       QVariant val=m_application->m_data_center->getData("teta_pos")->read();
 
-       switch(val.toInt()) {
-         case 1 :
-           m_ihm.ui.qLed_conv->setValue(true);
-           m_ihm.ui.qLed_bloc->setValue(false);
-         break;
+       QVariant val=m_application->m_data_center->getData("DiagBlocage")->read();
+       if(val.toBool()) m_ihm.ui.qLed_bloc->setValue(true);
+       else m_ihm.ui.qLed_bloc->setValue(true);
+       QVariant val2=m_application->m_data_center->getData("ObstacleDetecte")->read();
+       if(val2.toBool()) m_ihm.ui.qLed_obst->setValue(true);
+       else m_ihm.ui.qLed_bloc->setValue(true);
+       QVariant val3=m_application->m_data_center->getData("ConvergenceAsserv")->read();
+       if(val3.toBool()) m_ihm.ui.qLed_conv->setValue(true);
+       else m_ihm.ui.qLed_bloc->setValue(true);
 
-         case 2 :
-           m_ihm.ui.qLed_conv->setValue(false);
-           m_ihm.ui.qLed_bloc->setValue(true);
-         break;
-
-         default :
-           m_ihm.ui.qLed_conv->setValue(false);
-           m_ihm.ui.qLed_bloc->setValue(false);
-         break;
-       }
 
     }
     if(m_ihm.ui.tabWidget->currentIndex()==2)
@@ -267,10 +260,11 @@ void CEcran::TpsMatch_changed(QVariant val)
     if(m_ihm.ui.tabWidget->currentIndex()==3)
     {
         int Score=m_application->m_data_center->getData("Score")->read().toInt();
+        qDebug() << Score;
         int centaine=qFloor(Score/100);
-        int dizaine=qFloor(Score-centaine*100);
+        int dizaine=qFloor((Score-centaine*100)/10);
         int unite=qAbs(Score-10*dizaine-100*centaine);
-        m_ihm.ui.score_cent->setNumber(dizaine);
+        m_ihm.ui.score_cent->setNumber(centaine);
         m_ihm.ui.score_dix->setNumber(dizaine);
         m_ihm.ui.score_unit->setNumber(unite);
     }

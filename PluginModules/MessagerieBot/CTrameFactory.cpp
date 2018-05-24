@@ -2455,3 +2455,190 @@ void CTrame_CONFIG_PERIODE_TRAME::Encode(void)
   m_nombre_emis++;
 }
 
+// ========================================================
+//             TRAME MBED_CMDE
+// ========================================================
+CTrame_MBED_CMDE::CTrame_MBED_CMDE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "MBED_CMDE";
+ m_id = ID_MBED_CMDE;
+ m_dlc = DLC_MBED_CMDE;
+ m_liste_noms_signaux.append("valeur_mbed_cmde_01");
+ m_liste_noms_signaux.append("valeur_mbed_cmde_02");
+ m_liste_noms_signaux.append("valeur_mbed_cmde_03");
+ m_liste_noms_signaux.append("valeur_mbed_cmde_04");
+ m_liste_noms_signaux.append("code_mbed_cmde");
+
+ // Initialise les données de la messagerie
+ Valeur_01 = 0;
+ Valeur_02 = 0;
+ Valeur_03 = 0;
+ Valeur_04 = 0;
+ CodeCommande = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("valeur_mbed_cmde_01",  Valeur_01);
+ data_manager->write("valeur_mbed_cmde_02",  Valeur_02);
+ data_manager->write("valeur_mbed_cmde_03",  Valeur_03);
+ data_manager->write("valeur_mbed_cmde_04",  Valeur_04);
+ data_manager->write("code_mbed_cmde",  CodeCommande);
+ data_manager->write("MBED_CMDE_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("valeur_mbed_cmde_01"), SIGNAL(valueChanged(QVariant)), this, SLOT(Valeur_mbed_cmde_01_changed(QVariant)));
+ connect(data_manager->getData("valeur_mbed_cmde_02"), SIGNAL(valueChanged(QVariant)), this, SLOT(Valeur_mbed_cmde_02_changed(QVariant)));
+ connect(data_manager->getData("valeur_mbed_cmde_03"), SIGNAL(valueChanged(QVariant)), this, SLOT(Valeur_mbed_cmde_03_changed(QVariant)));
+ connect(data_manager->getData("valeur_mbed_cmde_04"), SIGNAL(valueChanged(QVariant)), this, SLOT(Valeur_mbed_cmde_04_changed(QVariant)));
+ connect(data_manager->getData("code_mbed_cmde"), SIGNAL(valueChanged(QVariant)), this, SLOT(Code_mbed_cmde_changed(QVariant)));
+ connect(data_manager->getData("MBED_CMDE_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Valeur_mbed_cmde_01_changed(QVariant val)
+{
+  Valeur_01 = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Valeur_mbed_cmde_02_changed(QVariant val)
+{
+  Valeur_02 = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Valeur_mbed_cmde_03_changed(QVariant val)
+{
+  Valeur_03 = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Valeur_mbed_cmde_04_changed(QVariant val)
+{
+  Valeur_04 = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Code_mbed_cmde_changed(QVariant val)
+{
+  CodeCommande = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_MBED_CMDE::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_MBED_CMDE::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_MBED_CMDE;
+  trame.DLC = DLC_MBED_CMDE;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+ // Encode chacun des signaux de la trame
+     trame.Data[7] |= (unsigned char)( ( (Valeur_04) & 0xFF) );
+     trame.Data[6] |= (unsigned char)( ( (Valeur_03) & 0xFF) );
+
+     trame.Data[5] |= (unsigned char)( ( (Valeur_02) & 0xFF) );
+     trame.Data[4] |= (unsigned char)( ( (Valeur_02 >> 8) & 0xFF) );
+
+   trame.Data[3] |= (unsigned char)( ( (Valeur_01) & 0xFF) );
+   trame.Data[2] |= (unsigned char)( ( (Valeur_01 >> 8) & 0xFF) );
+
+   trame.Data[1] |= (unsigned char)( ( (CodeCommande) & 0xFF) );
+   trame.Data[0] |= (unsigned char)( ( (CodeCommande >> 8) & 0xFF) );
+
+  //qDebug() << CodeCommande << Valeur;
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME MBED_ETAT
+// ========================================================
+CTrame_MBED_ETAT::CTrame_MBED_ETAT(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "MBED_ETAT";
+ m_id = ID_MBED_ETAT;
+ m_dlc = DLC_MBED_ETAT;
+ m_liste_noms_signaux.append("Valeur_mbed_etat_01");
+ m_liste_noms_signaux.append("Valeur_mbed_etat_02");
+ m_liste_noms_signaux.append("Valeur_mbed_etat_03");
+ m_liste_noms_signaux.append("Valeur_mbed_etat_04");
+ m_liste_noms_signaux.append("Code_mbed_etat");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("Valeur_mbed_etat_01",  Valeur_mbed_etat_01);
+ data_manager->write("Valeur_mbed_etat_02",  Valeur_mbed_etat_02);
+ data_manager->write("Valeur_mbed_etat_03",  Valeur_mbed_etat_03);
+ data_manager->write("Valeur_mbed_etat_04",  Valeur_mbed_etat_04);
+ data_manager->write("Code_mbed_etat",  Cde_mbed_etat);
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_MBED_ETAT::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+
+    Valeur_mbed_etat_04 = ( ((short)(trameRecue->Data[7])) & 0xFF);
+   Valeur_mbed_etat_03 = ( ((short)(trameRecue->Data[6])) & 0xFF) ;
+
+   Valeur_mbed_etat_02 = ( ( ((short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[4])) & 0xFF) << 8 );
+
+   Valeur_mbed_etat_01 = ( ( ((short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[2])) & 0xFF) << 8 );
+
+   Cde_mbed_etat = ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[0])) & 0xFF) << 8 );
+
+
+   // Envoie les données au data manager
+   m_data_manager->write("Valeur_mbed_etat_01", Valeur_mbed_etat_01);
+   m_data_manager->write("Valeur_mbed_etat_02", Valeur_mbed_etat_02);
+   m_data_manager->write("Valeur_mbed_etat_03", Valeur_mbed_etat_03);
+   m_data_manager->write("Valeur_mbed_etat_04", Valeur_mbed_etat_04);
+   m_data_manager->write("Code_mbed_etat", Cde_mbed_etat);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}

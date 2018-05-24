@@ -32,6 +32,8 @@
 
 #define orange 20
 
+
+
 enum type_Affichage{
         affichage_Couleur_Origine,
         affichage_Couleur_Detection,
@@ -112,8 +114,14 @@ public:
     double superficieObjetMin;
     int compteurImages;
 
+    int x_traitement;
+    int y_traitement;
+    int L_traitement;
+    int H_traitement;
+
     void initMotifSeuil();
     cv::Point isColor(cv::Mat *frameGray, int ROIx, int ROIy, int ROIh, int ROIl, int seuil);
+
 private:
     Cihm_BotCam m_ihm;
 	
@@ -130,8 +138,10 @@ private:
 	int camUsed;
     QTimer *schedulerCam;
     int camNumber;
+    int confirmation_detection;
 
     void seuillageImage(cv::Mat *frameHSV, cv::Mat *frameGray, int Couleur, int Saturation, int Purete, int EcartCouleur);
+    //bool triColor(const QPair<QString, int> &e1, const QPair<QString, int> &e2);
 signals:
     void  frameCaptured(QImage frame,int type_Image);
 	
