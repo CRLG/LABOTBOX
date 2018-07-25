@@ -47,17 +47,17 @@ CSensorView::~CSensorView()
 void CSensorView::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -68,7 +68,7 @@ void CSensorView::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
-  //récupération des signaux déjà placés sur la vue
+  //rÃ©cupÃ©ration des signaux dÃ©jÃ  placÃ©s sur la vue
   val=m_application->m_eeprom->read(getName(),"signalsPlacement",QStringList());
   QStringList listePointsWidget_=val.toStringList();
   val=m_application->m_eeprom->read(getName(),"signalsAdded",QStringList());
@@ -135,7 +135,7 @@ void CSensorView::init(CLaBotBox *application)
 */
 void CSensorView::close(void)
 {
-    // Mémorise en EEPROM l'état de la fenêtre
+    // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
     m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
     m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
     m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -157,7 +157,7 @@ void CSensorView::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CSensorView::onRightClicGUI(QPoint pos)
@@ -171,7 +171,7 @@ void CSensorView::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la liste des variables dans la fenêtre de gauche
+*  Met Ã  jour la liste des variables dans la fenÃªtre de gauche
 *
 */
 void CSensorView::refreshListeVariables(void)
@@ -206,8 +206,8 @@ void CSensorView::refreshListeVariables(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la valeur de chaque variable contenu dans la liste des variables à surveiller
-* Traces les courbes à chaque pas de temps
+*  Met Ã  jour la valeur de chaque variable contenu dans la liste des variables Ã  surveiller
+* Traces les courbes Ã  chaque pas de temps
 *
 */
 //void CSensorView::refreshValeursVariables(QVariant var_value)
@@ -318,7 +318,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLCDNumber);
-            //qDebug() << "LCDNumber" << var_name << "ajouté";
+            //qDebug() << "LCDNumber" << var_name << "ajoutÃ©";
             break;
         case mime_sensor_tor:
             newLed = new QLed(m_ihm.ui.viewWidget);
@@ -336,7 +336,7 @@ void CSensorView::addWidget(QString var_name, QPoint var_pos)
             }
             else
                 listeAddedSignals << new viewWidget(var_name,var_pos,type,newLed);
-            //qDebug() << "Led" << var_name << "ajouté";
+            //qDebug() << "Led" << var_name << "ajoutÃ©";
             break;
         default:
             break;

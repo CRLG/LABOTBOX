@@ -53,10 +53,10 @@ void CNiveauTraceModules::setListeModules(t_map_niv_aff *liste_modules_niveaux)
   int i;
   t_map_niv_aff::const_iterator it;
 
-  // mémorise la liste
+  // mÃ©morise la liste
   m_liste_modules_niveaux = liste_modules_niveaux;
 
-  // met à jour l'IHM avec cette nouvelle liste
+  // met Ã  jour l'IHM avec cette nouvelle liste
   //ui.table_niveau_aff_modules->clear();
 
   ui.table_niveau_aff_modules->setRowCount(liste_modules_niveaux->count());
@@ -68,7 +68,7 @@ void CNiveauTraceModules::setListeModules(t_map_niv_aff *liste_modules_niveaux)
               ui.table_niveau_aff_modules->item(i, j)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
               ui.table_niveau_aff_modules->item(i,j)->setCheckState(Qt::Unchecked);
           }
-          else { // cas spécial pour la cellule contenant le nom du module
+          else { // cas spÃ©cial pour la cellule contenant le nom du module
               ui.table_niveau_aff_modules->item(i, j)->setFlags(Qt::ItemIsEnabled);
               ui.table_niveau_aff_modules->item(i, j)->setToolTip(tr("Double clic sur le nom du module pour cocher/decocher toute la ligne"));
           }
@@ -128,7 +128,7 @@ void CNiveauTraceModules::unselectAll(void)
 
 // _____________________________________________________________________
 /*!
-* Met à jour la mémoire lorsqu'une case change d'état
+* Met Ã  jour la mÃ©moire lorsqu'une case change d'Ã©tat
 *
 */
 void CNiveauTraceModules::refreshMemory(int row, int column)
@@ -167,13 +167,13 @@ void CNiveauTraceModules::refreshLine(int row, int column)
  unsigned long cpt_checked=0;
 
  if (m_table_created == false) { return; }
- if (column != 0) { return; } // L'évènement n'a un effet que s'il est fait sur le nom du module
+ if (column != 0) { return; } // L'Ã©vÃ¨nement n'a un effet que s'il est fait sur le nom du module
 
- // Comptabilise le nombre d'éléments cochés sur la ligne
+ // Comptabilise le nombre d'Ã©lÃ©ments cochÃ©s sur la ligne
  for (unsigned long i=1; i<=9; i++) {
     cpt_checked+= ui.table_niveau_aff_modules->item(row, i)->checkState()==Qt::Checked;
  }
- // Si aucune case n'était cochée -> les coche toutes
+ // Si aucune case n'Ã©tait cochÃ©e -> les coche toutes
  Qt::CheckState checkstate;
  if (cpt_checked == 0)  { checkstate = Qt::Checked; }
  else                   { checkstate = Qt::Unchecked; }
@@ -181,8 +181,8 @@ void CNiveauTraceModules::refreshLine(int row, int column)
      ui.table_niveau_aff_modules->item(row, i)->setCheckState(checkstate);
  }
 
- // La mise à jour de la mémoire est faite automatiquement
- // grace au fait les cellules sont connectées au slot refreshMemory
+ // La mise Ã  jour de la mÃ©moire est faite automatiquement
+ // grace au fait les cellules sont connectÃ©es au slot refreshMemory
  // lorsque leur valeur change
 }
 

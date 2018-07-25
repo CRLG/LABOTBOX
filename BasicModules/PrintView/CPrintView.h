@@ -14,7 +14,7 @@
    */
 
 
-//! Niveau des messages de trace (à déplacer dans le module Logger)
+//! Niveau des messages de trace (Ã  dÃ©placer dans le module Logger)
 typedef enum {
     MSG_ERREUR              = 0x00000000,
     MSG_WARNING_N1          = 0x00000001,

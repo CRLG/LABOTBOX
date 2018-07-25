@@ -1,11 +1,11 @@
 QT += widgets testlib
 INSTALLS += target
 
-INCLUDEPATH +=  ./  \ # répertoire des scripts de test
-                ../ \   # répertoire des sources
-                ../../  # répertoire des classes mères
+INCLUDEPATH +=  ./  \ # rÃ©pertoire des scripts de test
+                ../ \   # rÃ©pertoire des sources
+                ../../  # rÃ©pertoire des classes mÃ¨res
  _________________________________________
-# Les sources à tester
+# Les sources Ã  tester
 SOURCES +=  ../CData.cpp
 #            ../CDataManager.cpp
 HEADERS +=  ../CData.h

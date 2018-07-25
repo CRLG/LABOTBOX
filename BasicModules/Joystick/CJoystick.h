@@ -26,14 +26,14 @@ class CJoystick : public CBasicModule
     Q_OBJECT
 #define     VERSION_Joystick   "1.0"
 #define     AUTEUR_Joystick    "Nico"
-#define     INFO_Joystick      "Lecture des états des joysticks"
+#define     INFO_Joystick      "Lecture des Ã©tats des joysticks"
 
-#define     MAX_JOYSTICK_NUMBER 2       // Nombre maximum de joytick gérés par le driver (voir sf::Joystick::Count pour la limite gérée par la lib sfml)
-#define     MAX_AXIS_NUMBER     8       // Nombre maximum d'axes gérés par un joystick
-#define     MAX_BUTTON_NUMBER   12      // Nombre maximi de bouttons gérés par joystick
+#define     MAX_JOYSTICK_NUMBER 2       // Nombre maximum de joytick gÃ©rÃ©s par le driver (voir sf::Joystick::Count pour la limite gÃ©rÃ©e par la lib sfml)
+#define     MAX_AXIS_NUMBER     8       // Nombre maximum d'axes gÃ©rÃ©s par un joystick
+#define     MAX_BUTTON_NUMBER   12      // Nombre maximi de bouttons gÃ©rÃ©s par joystick
 
-#define     REFRESH_PERIOD          50      // msec : période de rafraichissement des données lorsqu'au moins un joystick est connecté
-#define     SEARCH_JOYSTICK_PERIOD  1000    // msec : période de recherche des nouveaux joyticks connectés ou déconnectés
+#define     REFRESH_PERIOD          50      // msec : pÃ©riode de rafraichissement des donnÃ©es lorsqu'au moins un joystick est connectÃ©
+#define     SEARCH_JOYSTICK_PERIOD  1000    // msec : pÃ©riode de recherche des nouveaux joyticks connectÃ©s ou dÃ©connectÃ©s
 
 public:
     CJoystick(const char *plugin_name);
@@ -49,7 +49,7 @@ private :
     double m_AxisPosition_old[MAX_JOYSTICK_NUMBER][MAX_AXIS_NUMBER];
     bool   m_ButtonState_old[MAX_JOYSTICK_NUMBER][MAX_BUTTON_NUMBER];
 
-    QTimer m_refresh_timer; // lecture périodique des états du joystick
+    QTimer m_refresh_timer; // lecture pÃ©riodique des Ã©tats du joystick
 
 private slots :
     void refreshJoysticksState();

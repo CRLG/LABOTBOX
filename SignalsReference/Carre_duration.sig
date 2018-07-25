@@ -1,3 +1,3 @@
-Valeur;Durée[msec]
+Valeur;DurÃ©e[msec]
 1;200
 0;600

@@ -13,7 +13,7 @@
    */
 
 /*! @brief class CToolBox
- * Implémente une classe de fonctions outils génériques utilisées communément par les modules
+ * ImplÃ©mente une classe de fonctions outils gÃ©nÃ©riques utilisÃ©es communÃ©ment par les modules
  
  */
 class CToolBox

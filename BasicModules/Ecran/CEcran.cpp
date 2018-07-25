@@ -48,17 +48,17 @@ CEcran::~CEcran()
 void CEcran::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique ‡ la classe de base l'IHM
+  setGUI(&m_ihm); // indique √† la classe de base l'IHM
 
-  // GËre les actions sur clic droit sur le panel graphique du module
+  // G√®re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
   
-  // Restore la taille de la fenÍtre
+  // Restore la taille de la fen√™tre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenÍtre est visible ou non
+  // Restore le fait que la fen√™tre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -73,7 +73,7 @@ void CEcran::init(CLaBotBox *application)
   m_isMaximized=val.toInt();*/
 
 
-  // S'assure que les donnÈes existent dans le DataManager
+  // S'assure que les donn√©es existent dans le DataManager
   m_application->m_data_center->write("Telemetre4",  0);
   m_application->m_data_center->write("Telemetre3",  0);
   m_application->m_data_center->write("Telemetre2",  0);
@@ -114,7 +114,7 @@ void CEcran::init(CLaBotBox *application)
 */
 void CEcran::close(void)
 {
-  // MÈmorise en EEPROM l'Ètat de la fenÍtre
+  // M√©morise en EEPROM l'√©tat de la fen√™tre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -123,7 +123,7 @@ void CEcran::close(void)
 
 // _____________________________________________________________________
 /*!
-*  CrÈation des menus sur clic droit sur la fenÍtre du module
+*  Cr√©ation des menus sur clic droit sur la fen√™tre du module
 *
 */
 void CEcran::onRightClicGUI(QPoint pos)
@@ -206,7 +206,7 @@ void CEcran::color_Changed(CData *data)
         }
 		else if (value==2)
 		{
-            m_ihm.ui.lbl_ModeFct->setText("InopÈrant");
+            m_ihm.ui.lbl_ModeFct->setText("Inop√©rant");
             setBackgroundColor(QColor(255,0,0,255));
         }
 			

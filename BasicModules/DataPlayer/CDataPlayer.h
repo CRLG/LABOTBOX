@@ -30,7 +30,7 @@ public:
 
 
 
-typedef QMap<QString, CSignalGenerator*>tListeVariables;    // Pour les générateurs de signaux
+typedef QMap<QString, CSignalGenerator*>tListeVariables;    // Pour les gÃ©nÃ©rateurs de signaux
 typedef QMap<QString, CTracePlayer*>tListePlayers;          // Pour les players
 
  /*! \addtogroup DataPlayer
@@ -46,7 +46,7 @@ class CDataPlayer : public CBasicModule
     Q_OBJECT
 #define     VERSION_DataPlayer   "1.0"
 #define     AUTEUR_DataPlayer    "Nico"
-#define     INFO_DataPlayer      "Générateur de signaux pour data"
+#define     INFO_DataPlayer      "GÃ©nÃ©rateur de signaux pour data"
 
 public:
     CDataPlayer(const char *plugin_name);
@@ -57,8 +57,8 @@ public:
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
-    virtual QIcon getIcon(void)         { return(QIcon(":/icons/signal.png")); }  // Précise l'icône qui représente le module
-    virtual QString getMenuName(void)   { return("BasicModule"); }                  // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
+    virtual QIcon getIcon(void)         { return(QIcon(":/icons/signal.png")); }  // PrÃ©cise l'icÃ´ne qui reprÃ©sente le module
+    virtual QString getMenuName(void)   { return("BasicModule"); }                  // PrÃ©cise le nom du menu de la fenÃªtre principale dans lequel le module apparaÃ®t
     virtual void setVisible(void);
 
 private slots :
@@ -67,7 +67,7 @@ private slots :
 private:
     Cihm_DataPlayer m_ihm;
     tListeVariables m_liste_generateurs;
-    QString m_default_signal_path;  // répertoire par défaut des des signaux
+    QString m_default_signal_path;  // rÃ©pertoire par dÃ©faut des des signaux
 
     tListePlayers   m_liste_players;
 
@@ -84,7 +84,7 @@ private:
 
 
 public slots :
-    // Générateur de signaux
+    // GÃ©nÃ©rateur de signaux
     void signalGenerationFinished(QString var_name);
     void on_PB_refresh_liste_clicked(void);
     void on_PB_choixSignal_clicked(void);

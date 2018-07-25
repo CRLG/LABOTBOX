@@ -40,19 +40,19 @@ bool CRS232Listener::openRS232(QSerialPort *serial_port, QString portname, tConf
 {
  bool return_code = true;
 
- // Ferme le port s'il était ouvert
+ // Ferme le port s'il Ã©tait ouvert
  closeRS232(serial_port);
 
- // Port RS232 en mode simulé (port virtuel) ?
+ // Port RS232 en mode simulÃ© (port virtuel) ?
  if (portname == C_VIRTUAL_PORT_COM) {
      return_code = true;
  }
- else { // port réel (non simulé)
+ else { // port rÃ©el (non simulÃ©)
      serial_port->setPortName(portname);
      QIODevice::OpenMode mode = QIODevice::ReadWrite;
      if (serial_port->open(mode))  { return_code = setConfigRS232(serial_port, config); }
      else                          { return_code = false; }
- } // else le port est un port réel
+ } // else le port est un port rÃ©el
 
  if (return_code == true) {
     emit connected();
@@ -103,19 +103,19 @@ bool CRS232Listener::setConfigRS232(QSerialPort *serial_port, tConfigRS232 confi
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée pour configurer une liaison série et lancer le thread de surveillance/émission
+*  Point d'entrÃ©e pour configurer une liaison sÃ©rie et lancer le thread de surveillance/Ã©mission
 *
 */
 void CRS232Listener::startCommunication(QString portname, tConfigRS232 config/*=DEFAULT_RS232_CONFIG*/)
 {
- if (this->isRunning()) { return; } // le thread est déjà en cours -> ne fait rien
+ if (this->isRunning()) { return; } // le thread est dÃ©jÃ  en cours -> ne fait rien
 
  m_serial_portname = portname;
  m_serial_conf = config;
 
- m_data_to_send.clear(); // efface toute trace dans le buffer d'émission
+ m_data_to_send.clear(); // efface toute trace dans le buffer d'Ã©mission
  if (portname != C_VIRTUAL_PORT_COM) {
-    start(); // commence le thread de surveillance des entrées et d'écriture
+    start(); // commence le thread de surveillance des entrÃ©es et d'Ã©criture
  }
  else {
     emit connected(); // simule le fait que le port est ouvert en mode virtuel
@@ -124,29 +124,29 @@ void CRS232Listener::startCommunication(QString portname, tConfigRS232 config/*=
 
 // _____________________________________________________________________
 /*!
-* Point d'entrée pour terminer une laision série
+* Point d'entrÃ©e pour terminer une laision sÃ©rie
 *
 */
 void CRS232Listener::stopCommunication(void)
 {
- if (isOpen() == false) {  // cas où le port n'a pas été ouvert
+ if (isOpen() == false) {  // cas oÃ¹ le port n'a pas Ã©tÃ© ouvert
      return;
  }
  else if (this->isRunning() == false) {
-     emit disconnected();  // cas du mode virtuel : envoie un évènement pour simuler une fin de connexion
+     emit disconnected();  // cas du mode virtuel : envoie un Ã©vÃ¨nement pour simuler une fin de connexion
      return;
  } // le thread n'est pas en cours : ne rien faire
 
- m_stop_thread_request = true;  // demande au thread de s'arrêter
+ m_stop_thread_request = true;  // demande au thread de s'arrÃªter
  m_serial_portname = "";
 }
 
 // _____________________________________________________________________
 /*!
-* Point d'entrée pour savoir si le port est ouvert
+* Point d'entrÃ©e pour savoir si le port est ouvert
 *
 * this->isRunning() indique si le thread tourne
-* le thread ne tourne pas en mode simulé
+* le thread ne tourne pas en mode simulÃ©
 */
 bool CRS232Listener::isOpen(void)
 {
@@ -161,13 +161,13 @@ bool CRS232Listener::isOpen(void)
 */
 void CRS232Listener::send(const QByteArray &data)
 {
-  // cas où le thread n'est pas en fonctionnement : les données ne sont pas empilées
+  // cas oÃ¹ le thread n'est pas en fonctionnement : les donnÃ©es ne sont pas empilÃ©es
   // ce test prends en compte 2 situations :
-  //    1. la RS232 n'a pas encore été ouverte
-  //    2. la RS232 est un port virutel (mode simulé)
-  if (!this->isRunning()) { return; } // en mode simulé, les données ne sont pas empilées
+  //    1. la RS232 n'a pas encore Ã©tÃ© ouverte
+  //    2. la RS232 est un port virutel (mode simulÃ©)
+  if (!this->isRunning()) { return; } // en mode simulÃ©, les donnÃ©es ne sont pas empilÃ©es
 
-  QMutexLocker mutex_locker(&m_mutex_data_to_send);  // Vérouille l'accès aux données depuis le thread
+  QMutexLocker mutex_locker(&m_mutex_data_to_send);  // VÃ©rouille l'accÃ¨s aux donnÃ©es depuis le thread
   m_data_to_send.append(data);
 }
 
@@ -191,7 +191,7 @@ void CRS232Listener::run()
 
   while (!m_stop_thread_request) {
     msleep(50);
-    // Traite les données en émission
+    // Traite les donnÃ©es en Ã©mission
     m_mutex_data_to_send.lock();
     if (m_data_to_send.size()) {
         serial->write(m_data_to_send);
@@ -211,7 +211,7 @@ void CRS232Listener::run()
     serial->waitForBytesWritten(50);
   }
 
-  // Termine proprement la ocnnexion et émet le signal de déconnexion
+  // Termine proprement la ocnnexion et Ã©met le signal de dÃ©connexion
   closeRS232(serial);
   delete serial;
 }

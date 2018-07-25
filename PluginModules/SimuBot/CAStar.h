@@ -1,7 +1,7 @@
 /** \brief CAStar.h
  * Extrait de https://fr.wikipedia.org/wiki/Algorithme_A*
  *
- * A* commence a un noeud choisi. Il applique a ce noeud un « cout »
+ * A* commence a un noeud choisi. Il applique a ce noeud un Â« cout Â»
  * (habituellement zero pour le noeud initial). A* estime ensuite la
  * distance qui separe ce noeud du but a atteindre. La somme du cout et
  * de l'evaluation represente le cout heuristique assigne au chemin
@@ -13,14 +13,14 @@
  * basse est retire en premier). Si la file d'attente est vide, il n'y a aucun
  * chemin du noeud initial au noeud d'arrivee, ce qui interrompt
  * l'algorithme. Si le noeud retenu est le noeud d'arrivee, A* reconstruit le
- * chemin complet et s'arrête. Pour cette reconstruction on se sert d'une
+ * chemin complet et s'arrÃªte. Pour cette reconstruction on se sert d'une
  * partie des informations sauvees dans la liste communement appele
  * closed list decrite plus bas.
  *
  * Si le noeud n'est pas le noeud d'arrivee, de nouveaux noeuds sont crees
  * pour tous les noeuds contigus admissibles ; la maniere exacte de faire depend du probleme a traiter. Pour
  * chaque noeud successif, A* calcule son cout et le stocke avec le noeud. Ce cout est calcule a partir de la
- * somme du cout de son ancêtre et du cout de l'operation pour atteindre ce nouveau noeud.
+ * somme du cout de son ancÃªtre et du cout de l'operation pour atteindre ce nouveau noeud.
  *
  * L'algorithme maintient egalement la liste de noeuds qui ont ete verifies, couramment appelee closed list. Si
  * un noeud nouvellement produit est deja dans cette liste avec un cout egal ou inferieur, aucune operation n'est

@@ -63,7 +63,7 @@ void CPrintView::init(CLaBotBox *application)
   m_dialog->show();
 
 
-  // Met en cohérence la checkbox avec la valeur d'init d'autorisation de la trace
+  // Met en cohÃ©rence la checkbox avec la valeur d'init d'autorisation de la trace
   m_ihm_print_view->activer_trace->setChecked(m_trace_enable);
 //  m_dialog->setWindowIcon(getIcon());
 //  m_dialog->setStatusTip(getDescription());
@@ -93,7 +93,7 @@ void CPrintView::print(QString msg)
 {
   if (!m_trace_enable) { return; }
   m_ihm_print_view->liste_trace->insertPlainText(msg + "\n");
-  m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur à la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
+  m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur Ã  la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
 }
 
 
@@ -109,7 +109,7 @@ void CPrintView::print(CModule *module, QString msg, unsigned long type_trace)
 
   if (!m_trace_enable) { return; }
 
-  // Est-ce que ce type de message est autorisé à être affiché ?
+  // Est-ce que ce type de message est autorisÃ© Ã  Ãªtre affichÃ© ?
   if( (module->getNiveauTrace() & type_trace) || (type_trace==MSG_ERREUR) ){
      if         (type_trace == MSG_ERREUR)  {  couleur = Qt::red; }
      else if    (type_trace&MSG_WARNING)    {  couleur = Qt::darkGreen; }
@@ -122,7 +122,7 @@ void CPrintView::print(CModule *module, QString msg, unsigned long type_trace)
      m_ihm_print_view->liste_trace->setFontItalic(false);
      m_ihm_print_view->liste_trace->insertPlainText(msg + "\n");
 
-     m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur à la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
+     m_ihm_print_view->liste_trace->moveCursor(QTextCursor::End);  // Place le curseur Ã  la fin pour s'assurer que le dernier message est celui lisible par l'utilisateur
   }
 }
 
@@ -131,7 +131,7 @@ void CPrintView::print(CModule *module, QString msg, unsigned long type_trace)
 // _____________________________________________________________________
 /*!
 *
-* Ouvre une fenêtre permettant à l'utilisateur de modifier
+* Ouvre une fenÃªtre permettant Ã  l'utilisateur de modifier
 *  le niveau d'affichage de chaque module
 */
 void CPrintView::ConfigurerNiveauxModules(void)
@@ -141,8 +141,8 @@ void CPrintView::ConfigurerNiveauxModules(void)
 
   dialog = new CNiveauTraceModules();
 
-  // Construit la liste et la communique au module graphique dédié
-  // On passe le nom de chaque module ainsi que le niveau d'affichage associé
+  // Construit la liste et la communique au module graphique dÃ©diÃ©
+  // On passe le nom de chaque module ainsi que le niveau d'affichage associÃ©
   for (int i=0; i<m_application->m_list_modules.size(); i++) {
       map_niv_aff.insert(m_application->m_list_modules[i]->getName(),
                          m_application->m_list_modules[i]->getNiveauTrace() );
@@ -151,9 +151,9 @@ void CPrintView::ConfigurerNiveauxModules(void)
   dialog->exec();
 
   // en sortie d'exec(), le map contient pour chaque module
-  // le niveau d'afichage attendu qu'l faut restituer à chaque module
+  // le niveau d'afichage attendu qu'l faut restituer Ã  chaque module
 
-  // Met à jour pour chaque module le niveau d'affichage sélectionné par l'utilisateur
+  // Met Ã  jour pour chaque module le niveau d'affichage sÃ©lectionnÃ© par l'utilisateur
   for (int i=0; i<m_application->m_list_modules.size(); i++) {
       CNiveauTraceModules::t_map_niv_aff::const_iterator it;
       it = map_niv_aff.find(m_application->m_list_modules[i]->getName());
@@ -179,7 +179,7 @@ void CPrintView::setEnableTrace(bool on_off)
 
 // _____________________________________________________________________
 /*!
-* Memorise le contenu de la fenêtre de trace dans un fichier
+* Memorise le contenu de la fenÃªtre de trace dans un fichier
 *
 */
 void CPrintView::enregistreTrace()
@@ -191,13 +191,13 @@ void CPrintView::enregistreTrace()
   //    CheminEnregistrement/<NomModule>_<DateHeure>.html
   pathfilename =    m_application->m_pathname_log_file +
                     "/" +
-                    QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                    QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                     "_" +
                     date_time.toString("yyyy_MM_dd_hh'h'mm'm'ss's'") +
                     ".html";
   QFile file(pathfilename);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+      print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
       return;
   }
 
@@ -205,7 +205,7 @@ void CPrintView::enregistreTrace()
   out <<  m_ihm_print_view->liste_trace->toHtml();
   file.close();
 
-  print_debug(this, "Fichier de trace sauvegardé: " + pathfilename);
+  print_debug(this, "Fichier de trace sauvegardÃ©: " + pathfilename);
 }
 
 

@@ -18,10 +18,10 @@
 
 class CDataManager;
 
-// Structure représentant un échantillon de valeur
+// Structure reprÃ©sentant un Ã©chantillon de valeur
 typedef struct {
     QVariant    value;
-    int         duration;    // [msec]. Valeur -1 spécifique pour indiquer que la durée de l'échantillon est la durée commune de tout le module
+    int         duration;    // [msec]. Valeur -1 spÃ©cifique pour indiquer que la durÃ©e de l'Ã©chantillon est la durÃ©e commune de tout le module
 }tSample;
 
 typedef QVector<tSample>tSamples;
@@ -56,12 +56,12 @@ private :
     QString             m_var_name;
     QString             m_signal_filename;
     unsigned long       m_common_samples_duration;
-    int                 m_cycle_number;  // Nombre de période à effectuer. Valeur spéciale C_PERIODIC_SIGNAL pour indiquer que le signal doit tournner en boucle (periodique)
-    int                 m_cycle_count;   // Comptabilise le nombre de période effectuées
+    int                 m_cycle_number;  // Nombre de pÃ©riode Ã  effectuer. Valeur spÃ©ciale C_PERIODIC_SIGNAL pour indiquer que le signal doit tournner en boucle (periodique)
+    int                 m_cycle_count;   // Comptabilise le nombre de pÃ©riode effectuÃ©es
     tSamples            m_samples;
     bool                m_generator_in_progress;
 
-    // Hériatage de QThread
+    // HÃ©riatage de QThread
     virtual void run(void);
 signals :
     void statusChanged(unsigned long status);

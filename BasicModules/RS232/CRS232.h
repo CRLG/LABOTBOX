@@ -54,8 +54,8 @@ public:
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
-    virtual QIcon getIcon(void)         { return(QIcon(":/icons/terminal.png")); }  // Précise l'icône qui représente le module
-    virtual QString getMenuName(void)   { return("RS232"); }                  // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
+    virtual QIcon getIcon(void)         { return(QIcon(":/icons/terminal.png")); }  // PrÃ©cise l'icÃ´ne qui reprÃ©sente le module
+    virtual QString getMenuName(void)   { return("RS232"); }                  // PrÃ©cise le nom du menu de la fenÃªtre principale dans lequel le module apparaÃ®t
 
 private:
     Cihm_RS232 m_ihm;
@@ -88,7 +88,7 @@ public slots :
 
 signals :
     void dataReceived(QString data);
-    // Signaux ré-émis de CRS232Listener
+    // Signaux rÃ©-Ã©mis de CRS232Listener
     void connected(void);
     void disconnected(void);
     void error(void);
@@ -178,7 +178,7 @@ private slots :
     void VisuTx_SauvegarderHexASCII(void);
 
     // Bouton
-    void SimuRX_send(void); // Simule une donnée entrante vers l'applicatif
+    void SimuRX_send(void); // Simule une donnÃ©e entrante vers l'applicatif
 };
 
 

@@ -60,8 +60,8 @@ void CDataManager::close(void)
 /*!
 *  Ecrit une  valeur dans la data
 *
-*  \param [in] varname nom de la variable à ecrire
-*  \param [in] val la valeur à donner à la variable au format générique QVariant
+*  \param [in] varname nom de la variable Ã  ecrire
+*  \param [in] val la valeur Ã  donner Ã  la variable au format gÃ©nÃ©rique QVariant
 *  \remarks si la data n'existe pas, elle est cree automatiquement
 */
 void CDataManager::write(QString varname, QVariant val)
@@ -69,13 +69,13 @@ void CDataManager::write(QString varname, QVariant val)
   m_mutex.lock();
   CData *data = getData(varname);
 
-  if (data == NULL) { // la variable n'existe pas encore -> la créée
+  if (data == NULL) { // la variable n'existe pas encore -> la crÃ©Ã©e
     data = new CData(varname, val);
     m_map_data.insert(varname, data);
     emit valueChanged(data);
   }
   else {
-   if (data->read() != val) {  // Pas d'écriture si la valeur n'a pas changé
+   if (data->read() != val) {  // Pas d'Ã©criture si la valeur n'a pas changÃ©
     data->write(val);
     emit valueChanged(data);
    }
@@ -87,9 +87,9 @@ void CDataManager::write(QString varname, QVariant val)
 /*!
 *  Lit la valeur de la data
 *
-*  \param [in] varname nom de la variable à lire
-*  \return la valeur de la variable au format générique QVariant
-*  \remarks l'accès au map est réalisé en section critique pour assurer l'utilisation en multi-thread
+*  \param [in] varname nom de la variable Ã  lire
+*  \return la valeur de la variable au format gÃ©nÃ©rique QVariant
+*  \remarks l'accÃ¨s au map est rÃ©alisÃ© en section critique pour assurer l'utilisation en multi-thread
 */
 QVariant CDataManager::read(QString varname)
 {
@@ -99,17 +99,17 @@ QVariant CDataManager::read(QString varname)
       ret = m_map_data.value(varname)->read();
   }
   m_mutex.unlock();
-  // sinon, c'est la valeur par défaut "" qui est renvoyée dans le QVariant
+  // sinon, c'est la valeur par dÃ©faut "" qui est renvoyÃ©e dans le QVariant
   return(ret);
 }
 
 // _____________________________________________________________________
 /*!
-*  Récupère un pointeur sur la data pour la manipuer directement sans passer par le DataManager
+*  RÃ©cupÃ¨re un pointeur sur la data pour la manipuer directement sans passer par le DataManager
 *
 *  \param [in] varname nom de la variable
 *  \return \li le pointeur sur la data de type CData
-*          \li NULL si la data n'éxiste pas
+*          \li NULL si la data n'Ã©xiste pas
 */
 CData *CDataManager::getData(QString varname)
 {
@@ -130,7 +130,7 @@ void CDataManager::debug(void)
 
 // _____________________________________________________________________
 /*!
-*  Extrait le contenu du DataManager (liste des données et leur valeur) dans un QString
+*  Extrait le contenu du DataManager (liste des donnÃ©es et leur valeur) dans un QString
 *
 *  \return la liste des variables et leur valeur au format "Nom=valeur"
 */
@@ -150,9 +150,9 @@ QString CDataManager::getDataValues(void)
 
 // _____________________________________________________________________
 /*!
-*  Vérifie l'existance d'une data dans la liste
+*  VÃ©rifie l'existance d'une data dans la liste
 *
-*  \param [in] varname nom de la variable à tester
+*  \param [in] varname nom de la variable Ã  tester
 * \return \li true si la variable existe
 *         \li false sinon.
 */
@@ -165,8 +165,8 @@ bool CDataManager::isExist(QString varname)
 /*!
 *  Supprime une data de la liste si elle existe
 *
-*  \param [in] varname nom de la variable à supprimer
-*  \remarks l'accès au map est réalisé en section critique pour assurer l'utilisation en multi-thread
+*  \param [in] varname nom de la variable Ã  supprimer
+*  \remarks l'accÃ¨s au map est rÃ©alisÃ© en section critique pour assurer l'utilisation en multi-thread
 */
 void CDataManager::remove(QString varname)
 {
@@ -174,7 +174,7 @@ void CDataManager::remove(QString varname)
  m_mutex.lock();
  it = m_map_data.find(varname);
  if (it != m_map_data.end()) {
-     delete (it.value());  // libère le CData créé dynamiquement
+     delete (it.value());  // libÃ¨re le CData crÃ©Ã© dynamiquement
      m_map_data.erase(it);
  }
  m_mutex.unlock();
@@ -193,7 +193,7 @@ unsigned long CDataManager::size(void)
 
 // _____________________________________________________________________
 /*!
-*  Renvoie la liste des noms de variables déclarées
+*  Renvoie la liste des noms de variables dÃ©clarÃ©es
 *
 *  \return le nombre de variables (=la taille)
 */
@@ -209,7 +209,7 @@ void CDataManager::getListeVariablesName(QStringList &var_list)
 
 // _____________________________________________________________________
 /*!
-*  Charge un fichier de configuration des propriétés de chaque variable
+*  Charge un fichier de configuration des propriÃ©tÃ©s de chaque variable
 */
 void CDataManager::loadDataProperties(void)
 {
@@ -217,16 +217,16 @@ void CDataManager::loadDataProperties(void)
  QSettings *settings;
  pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
  settings = new QSettings(pathfilename, QSettings::IniFormat);
- settings->setIniCodec("ISO 8859-1");
+ settings->setIniCodec("UTF-8");
 
  QStringList keys = settings->childGroups();
  //qDebug() << keys;
  for (int i=0; i<keys.size(); i++) {
      QString var_name = keys.at(i);
      if (m_application->m_data_center->isExist(var_name) == false) {
-        m_application->m_data_center->write(var_name, ""); // crée la variable si elle n'existe pas
+        m_application->m_data_center->write(var_name, ""); // crÃ©e la variable si elle n'existe pas
      }
-     // récupère la liste des propriétés de cette variable
+     // rÃ©cupÃ¨re la liste des propriÃ©tÃ©s de cette variable
      settings->beginGroup(var_name);
      QStringList liste_proprietes = settings->childKeys();
      for (int j=0; j<liste_proprietes.size(); j++) {
@@ -241,7 +241,7 @@ void CDataManager::loadDataProperties(void)
 }
 // _____________________________________________________________________
 /*!
-*  Charge un fichier de configuration des propriétés de chaque variable
+*  Charge un fichier de configuration des propriÃ©tÃ©s de chaque variable
 */
 void CDataManager::saveDataProperties(void)
 {
@@ -249,7 +249,7 @@ void CDataManager::saveDataProperties(void)
  QSettings *settings;
  pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
  settings = new QSettings(pathfilename, QSettings::IniFormat);
- settings->setIniCodec("ISO 8859-1");
+ settings->setIniCodec("UTF-8");
 
  t_map_data::const_iterator it;
  for (it=m_map_data.constBegin();  it!=m_map_data.constEnd(); it++) {
@@ -260,7 +260,7 @@ void CDataManager::saveDataProperties(void)
          QVariant prop_value = it.value()->getProperty(prop_name);
          QString section_prop_name = it.key() + "/" + prop_name;
          settings->setValue(section_prop_name, prop_value);
-     } // for toutes les propriétés de la variale
+     } // for toutes les propriÃ©tÃ©s de la variale
  } // for toutes les variables
 
  delete settings;
@@ -269,12 +269,12 @@ void CDataManager::saveDataProperties(void)
 
 // _____________________________________________________________________
 /*!
-*  Positionne la valeur d'une propriété d'une variable
+*  Positionne la valeur d'une propriÃ©tÃ© d'une variable
 *
-* \param [in] varname nom de la variable à tester
-* \param [in] prop_name nom de la propriété à affecter (ou à créer si elle n'existe pas déjà)
-* \param [in] val valeur de la propriété
-* \remarks si la propriété n'existe pas déjà, elle est créée
+* \param [in] varname nom de la variable Ã  tester
+* \param [in] prop_name nom de la propriÃ©tÃ© Ã  affecter (ou Ã  crÃ©er si elle n'existe pas dÃ©jÃ )
+* \param [in] val valeur de la propriÃ©tÃ©
+* \remarks si la propriÃ©tÃ© n'existe pas dÃ©jÃ , elle est crÃ©Ã©e
 * \remarks si la data n'existe pas, la fonction ne fait rien
 */
 void CDataManager::setDataProperty(QString varname, QString prop_name, QVariant val)
@@ -287,13 +287,13 @@ void CDataManager::setDataProperty(QString varname, QString prop_name, QVariant 
 
 // _____________________________________________________________________
 /*!
-*  Lit la valeur d'une propriété d'une variable
+*  Lit la valeur d'une propriÃ©tÃ© d'une variable
 *
-* \param [in] varname nom de la variable à tester
-* \param [in] prop_name nom de la propriété à affecter (ou à créer si elle n'existe pas déjà)
-* \param [in] val valeur de la propriété
-* \return la valeur de la propriété
-* \remarks si la data ou la propriété n'existe pas, la fonction renvoie un QVariant vide
+* \param [in] varname nom de la variable Ã  tester
+* \param [in] prop_name nom de la propriÃ©tÃ© Ã  affecter (ou Ã  crÃ©er si elle n'existe pas dÃ©jÃ )
+* \param [in] val valeur de la propriÃ©tÃ©
+* \return la valeur de la propriÃ©tÃ©
+* \remarks si la data ou la propriÃ©tÃ© n'existe pas, la fonction renvoie un QVariant vide
 */
 QVariant CDataManager::getDataProperty(QString varname, QString prop_name)
 {

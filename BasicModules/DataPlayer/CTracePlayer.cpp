@@ -62,12 +62,12 @@ void CTracePlayer::clearSteps(void)
 
 // _____________________________________________________________________
 /*!
-*  Choix du fichier contenant les Èchantillons
+*  Choix du fichier contenant les √©chantillons
 *  Analyse le fichier dont la syntaxe est : 
 *    timestamp;nom_variable;valeur_variable
 *  Un step c'est un pas de temps dans lequel plusieurs
-*   variables peuvent Ítre mise ‡ jour en mÍme temps
-*   si elles ont le mÍme timestamp
+*   variables peuvent √™tre mise √† jour en m√™me temps
+*   si elles ont le m√™me timestamp
 *  
 */
 void CTracePlayer::setTraceFilename(QString trace_filename)
@@ -85,12 +85,12 @@ void CTracePlayer::setTraceFilename(QString trace_filename)
   stopPlayer();
   clearSteps();
 
-  // Analyse le fichier (fichier au format .csv avec sÈparateur ";"
+  // Analyse le fichier (fichier au format .csv avec s√©parateur ";"
   QFile data(trace_filename);
   if (data.open(QFile::ReadOnly)) {
       QTextStream in(&data);
       QString line;
-      in.readLine(); // ignore la premiËre ligne du fichier qui explique le contneu du fichier
+      in.readLine(); // ignore la premi√®re ligne du fichier qui explique le contneu du fichier
       long int old_timestamp = -1;
       while ((line = in.readLine()) != NULL) {
         QStringList split_line = line.split(";");
@@ -108,15 +108,15 @@ void CTracePlayer::setTraceFilename(QString trace_filename)
         QVariant var_value  = split_line.at(2);
         tStep *pstep = NULL;
 
-        if (timestamp != old_timestamp) { // cette donnÈe est sur un pas de temps diffÈrent du prÈcÈdent
+        if (timestamp != old_timestamp) { // cette donn√©e est sur un pas de temps diff√©rent du pr√©c√©dent
             pstep = new tStep();
-            pstep->duration = 1000; // 1sec : met une valeur par dÈfaut pour ne pas laisser le champ avec une valeur inconnue (valable pour le dernier pas de temps du fichier principalement)
+            pstep->duration = 1000; // 1sec : met une valeur par d√©faut pour ne pas laisser le champ avec une valeur inconnue (valable pour le dernier pas de temps du fichier principalement)
             pstep->timestamp_sec = timestamp_sec;
             m_steps.append(pstep);
             
-            // calcule la durÈe du pas de temps prÈcÈdent en fonction du timestamp courant
-            if (m_steps.size() != 1) { // si c'est le tout premier pas de temps, on ne peut pas encore calculer sa durÈe car il n'existe pas de pas de temps prÈcÈdent
-                long int duration = timestamp - old_timestamp; // traite le cas d'une erreure dans le fichier o˘ le timestamp du pas suivant est infÈrieur au timestamp du pas prÈcÈdent (le temps doit avancer)
+            // calcule la dur√©e du pas de temps pr√©c√©dent en fonction du timestamp courant
+            if (m_steps.size() != 1) { // si c'est le tout premier pas de temps, on ne peut pas encore calculer sa dur√©e car il n'existe pas de pas de temps pr√©c√©dent
+                long int duration = timestamp - old_timestamp; // traite le cas d'une erreure dans le fichier o√π le timestamp du pas suivant est inf√©rieur au timestamp du pas pr√©c√©dent (le temps doit avancer)
                 if (duration >= 0) {
                     m_steps.at(m_steps.size()-2)->duration = duration;
                 }
@@ -126,11 +126,11 @@ void CTracePlayer::setTraceFilename(QString trace_filename)
         else {
             pstep = m_steps.at(m_steps.size() - 1);
         }
-        // ici pstep pointe sur le step ‡ mettre ‡ jour
+        // ici pstep pointe sur le step √† mettre √† jour
         pstep->variables_values.insert(var_name, var_value);
       } // pour toutes les lignes du fichier
   }
-  // le player est prÍt ‡ jouer s'il contient quelquechose ‡ jouer
+  // le player est pr√™t √† jouer s'il contient quelquechose √† jouer
   if (m_steps.size() != 0) {
     changePlayerState(C_PLAYER_STOP);
   }
@@ -140,15 +140,15 @@ void CTracePlayer::setTraceFilename(QString trace_filename)
 
 // _____________________________________________________________________
 /*!
-*  ExÈcution du thread de gÈnÈration des steps
+*  Ex√©cution du thread de g√©n√©ration des steps
 *
-*  Le step peut Ítre modifiÈ depuis 
+*  Le step peut √™tre modifi√© depuis 
 */
 void CTracePlayer::run(void)
 {
  changePlayerState(C_PLAYER_RUN);
 
- while(1) {  // boucle sur le nombre de pÈriodes ‡ rÈaliser
+ while(1) {  // boucle sur le nombre de p√©riodes √† r√©aliser
      if (m_cycle_number != C_PERIODIC_SIGNAL) {
        if (m_cycle_count >= m_cycle_number) {
            break;
@@ -162,8 +162,8 @@ void CTracePlayer::run(void)
        } 
 
        playStep(m_step_index);
-       // la durÈe du step est soit la durÈe du fichier, soit une durÈe configurÈe par l'utilisateur
-       // pour pouvoir rejouer une trace plus ou moins vite que la durÈe rÈelle
+       // la dur√©e du step est soit la dur√©e du fichier, soit une dur√©e configur√©e par l'utilisateur
+       // pour pouvoir rejouer une trace plus ou moins vite que la dur√©e r√©elle
        int step_duration;
        if (m_common_step_duration == C_STEP_DURATION_IN_FILE) {
         step_duration = m_steps.at(m_step_index)->duration;
@@ -181,12 +181,12 @@ void CTracePlayer::run(void)
 
 // _____________________________________________________________________
 /*!
-*  GËre les Ètats du player
+*  G√®re les √©tats du player
 *  
 */
 void CTracePlayer::changePlayerState(tPlayerState new_state, bool enable_emit/*=true*/)
 {
-  // pas de changement par rapport au derner Ètat -> rien ‡ faire
+  // pas de changement par rapport au derner √©tat -> rien √† faire
   if (m_player_state == new_state) { return; }
 
   switch(new_state) {
@@ -228,12 +228,12 @@ void CTracePlayer::changePlayerState(tPlayerState new_state, bool enable_emit/*=
 
 // _____________________________________________________________________
 /*!
-*  Joue un step donnÈe
+*  Joue un step donn√©e
 *  Positionne l'ensemble des variables du step aux valeurs
 */
 void CTracePlayer::playStep(int step_index)
 {
- // protection contre les valeurs incohÈrentes d'index
+ // protection contre les valeurs incoh√©rentes d'index
  if ( (step_index < 0) || (step_index >= m_steps.size()) ) { 
      return; 
  } 
@@ -290,7 +290,7 @@ void CTracePlayer::pausePlayer(void)
      terminate();
  }
  
- // Laisse tous les compteurs m_step_index et m_cycle_count ‡ leur valeur pour pouvoir reprendre 
+ // Laisse tous les compteurs m_step_index et m_cycle_count √† leur valeur pour pouvoir reprendre 
  changePlayerState(C_PLAYER_PAUSE);
 }
 
@@ -301,9 +301,9 @@ void CTracePlayer::pausePlayer(void)
 */
 void CTracePlayer::nextStep(void)
 {
- pausePlayer(); // si le thread Ètait en cours
- // calcul le prochain pas ‡ jouer (le step suivant)
- if (m_step_index < (m_steps.size()-1)) { // arrivÈ ‡ la fin, pas de rebouclage
+ pausePlayer(); // si le thread √©tait en cours
+ // calcul le prochain pas √† jouer (le step suivant)
+ if (m_step_index < (m_steps.size()-1)) { // arriv√© √† la fin, pas de rebouclage
     m_step_index++;
     playStep(m_step_index);
  }
@@ -316,14 +316,14 @@ void CTracePlayer::nextStep(void)
 }
 // _____________________________________________________________________
 /*!
-*  Joue le pas prÈcÈdent (commande manuelle)
+*  Joue le pas pr√©c√©dent (commande manuelle)
 *
 */
 void CTracePlayer::previousStep(void)
 {
- pausePlayer(); // si le thread Ètait en cours
- // calcul le prochain pas ‡ jouer (le step prÈcÈdent)
- if (m_step_index > 0) { // arrivÈ ‡ la fin, pas de rebouclage
+ pausePlayer(); // si le thread √©tait en cours
+ // calcul le prochain pas √† jouer (le step pr√©c√©dent)
+ if (m_step_index > 0) { // arriv√© √† la fin, pas de rebouclage
     m_step_index--;
     playStep(m_step_index);
  }
@@ -348,13 +348,13 @@ void CTracePlayer::activeTrace(bool state)
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrÈe pour repositionner l'index sur un step particulier
-*   et exÈcuter ce step
+*  Point d'entr√©e pour repositionner l'index sur un step particulier
+*   et ex√©cuter ce step
 *
 */
 void CTracePlayer::selectAndPlayStep(int step_index)
 {
- // protection contre les valeurs incohÈrentes d'index
+ // protection contre les valeurs incoh√©rentes d'index
  if ( (step_index < 0) || (step_index >= m_steps.size()) ) { 
      return; 
  } 

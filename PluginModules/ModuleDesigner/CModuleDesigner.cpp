@@ -62,14 +62,14 @@ CModuleDesigner::~CModuleDesigner()
 void CModuleDesigner::init(CLaBotBox *application)
 {
   CPluginModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
   setNiveauTrace(MSG_TOUS);
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restaure le chemin de génération du module
+  // Restaure le chemin de gÃ©nÃ©ration du module
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "repertoire_projet", "./"); 
   m_ihm.ui.repertoire_projet->setText(val.toString());
@@ -98,7 +98,7 @@ void CModuleDesigner::init(CLaBotBox *application)
 */
 void CModuleDesigner::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "repertoire_projet", QVariant(m_ihm.ui.repertoire_projet->text()));
@@ -107,7 +107,7 @@ void CModuleDesigner::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CModuleDesigner::onRightClicGUI(QPoint pos)
@@ -121,7 +121,7 @@ void CModuleDesigner::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
-*  Génère du module
+*  GÃ©nÃ¨re du module
 *
 */
 void CModuleDesigner::genererModule(void)
@@ -139,7 +139,7 @@ void CModuleDesigner::genererModule(void)
 
 // _____________________________________________________________________
 /*!
-*  Crée du module
+*  CrÃ©e du module
 *
 */
 bool CModuleDesigner::creerModule(void)
@@ -164,37 +164,37 @@ bool CModuleDesigner::creerModule(void)
                                                 QString::number(m_ihm.ui.chbx_interface_graphique->isChecked())
                                                );
 
-  // Crée le répertoire de sortie
+  // CrÃ©e le rÃ©pertoire de sortie
   QString output_dirname; 
   if (m_ihm.ui.ModuleTypeBasic->isChecked())    { output_dirname = m_ihm.ui.repertoire_projet->text() + "/BasicModules/" + nom_module_a_generer; }
   else                                          { output_dirname = m_ihm.ui.repertoire_projet->text() + "/PluginModules/" + nom_module_a_generer; }
   QDir directory;
-  if (directory.exists(output_dirname)) { // Demande confirmation à l'utilisateur si le répertoir existe déjà
+  if (directory.exists(output_dirname)) { // Demande confirmation Ã  l'utilisateur si le rÃ©pertoir existe dÃ©jÃ 
      QMessageBox msgBox;
-     msgBox.setText("Le répertoire existe déjà: " + output_dirname);
-     msgBox.setInformativeText("Voulez vous l'écraser ?");
+     msgBox.setText("Le rÃ©pertoire existe dÃ©jÃ : " + output_dirname);
+     msgBox.setInformativeText("Voulez vous l'Ã©craser ?");
      msgBox.setIcon(QMessageBox::Warning);
      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
      msgBox.setDefaultButton(QMessageBox::Yes);
      int ret = msgBox.exec();  
      if (ret == QMessageBox::No) { 
-         m_application->m_print_view->print_warning(this, "Annulation de la création du module: " + nom_module_a_generer);
+         m_application->m_print_view->print_warning(this, "Annulation de la crÃ©ation du module: " + nom_module_a_generer);
          return false;
      }
   }
-  // Crée le répertoire s'il n'existe pas déjà
+  // CrÃ©e le rÃ©pertoire s'il n'existe pas dÃ©jÃ 
   if (directory.exists(output_dirname) == false) {
       if (directory.mkdir(output_dirname) == false) {
-          m_application->m_print_view->print_error(this, "Impossible de créer le répertoire: " + output_dirname);
+          m_application->m_print_view->print_error(this, "Impossible de crÃ©er le rÃ©pertoire: " + output_dirname);
           return(false);
       }
   }
 
-  // Génère les fichiers cpp, h, ui
+  // GÃ©nÃ¨re les fichiers cpp, h, ui
   status = genereSources(output_dirname);
   if (!status) { return false; }
 
-  // Génère les fichiers cpp, h, ui
+  // GÃ©nÃ¨re les fichiers cpp, h, ui
   status = genereResources(output_dirname);
   if (!status) { return false; }
 
@@ -204,7 +204,7 @@ bool CModuleDesigner::creerModule(void)
 
 // _____________________________________________________________________
 /*!
-*  Crée le fichier de ressources
+*  CrÃ©e le fichier de ressources
 *
 */
 bool CModuleDesigner::genereSources(const QString &output_dirname)
@@ -216,7 +216,7 @@ bool CModuleDesigner::genereSources(const QString &output_dirname)
     QString nom_module_a_generer = m_ihm.ui.nom_module->text();
 
 
-    // Lit les fichiers templates adaptés au type de module à générer
+    // Lit les fichiers templates adaptÃ©s au type de module Ã  gÃ©nÃ©rer
     if (m_ihm.ui.ModuleTypeBasic->isChecked()) { // BasicModule
         if (m_ihm.ui.chbx_interface_graphique->isChecked()) {  // Avec IHM
           module_template_cpp = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "BasicModuleAvecIHM/CModuleTemplate.tpl.cpp");
@@ -243,7 +243,7 @@ bool CModuleDesigner::genereSources(const QString &output_dirname)
     }
 
 
-    // Test sur la cohérence des fichiers templates
+    // Test sur la cohÃ©rence des fichiers templates
     if ((module_template_cpp.length() == 0) || (module_template_h.length() == 0) ) {
         m_application->m_print_view->print_error(this, "Probleme d'ouverture des fichiers template");
         return(false);
@@ -266,7 +266,7 @@ bool CModuleDesigner::genereSources(const QString &output_dirname)
 
 // _____________________________________________________________________
 /*!
-*  Crée le fichier de ressources
+*  CrÃ©e le fichier de ressources
 *  Le fichier de ressources du module peut contenir :
 *       - Guide d'utilisation du module
 *       - ...
@@ -279,7 +279,7 @@ bool CModuleDesigner::genereResources(const QString &output_dirname)
     // Lit le fichier template pour les ressources
     module_template_qrc = readFile(QString(PREFIXE_QRC_TEMPLATE_CODE) + "Resources/resources.tpl.qrc");
 
-    // ressource n°1 : guide d'utilisation
+    // ressource nÂ°1 : guide d'utilisation
     if (m_ihm.ui.chbx_guide_utilisation->isChecked()) {
         QString code_user_guide="";
         if (getCodeResourceUserGuide(code_user_guide)) {
@@ -288,9 +288,9 @@ bool CModuleDesigner::genereResources(const QString &output_dirname)
         }
         genereResourcesUserGuideHtml(output_dirname);
     }
-    // ressource n°2 : ...
+    // ressource nÂ°2 : ...
 
-    // Génère le fichier de ressources s'il y a quelquechose à mettre dedans
+    // GÃ©nÃ¨re le fichier de ressources s'il y a quelquechose Ã  mettre dedans
     if (!complete_code_resources.isEmpty()) {
         module_template_qrc.replace("##ALL_RESOURCES##", complete_code_resources);
         writeFile(output_dirname, m_ihm.ui.nom_module->text()+".qrc", module_template_qrc);
@@ -301,7 +301,7 @@ bool CModuleDesigner::genereResources(const QString &output_dirname)
 
 // _____________________________________________________________________
 /*!
-*  Crée le fichier de ressources pour le user-guide
+*  CrÃ©e le fichier de ressources pour le user-guide
 *
 */
 bool CModuleDesigner::getCodeResourceUserGuide(QString &out_code)
@@ -315,7 +315,7 @@ bool CModuleDesigner::getCodeResourceUserGuide(QString &out_code)
 
 // _____________________________________________________________________
 /*!
-*  Crée le fichier de ressources pour le user-guide
+*  CrÃ©e le fichier de ressources pour le user-guide
 *
 */
 bool CModuleDesigner::genereResourcesUserGuideHtml(const QString &output_dirname)
@@ -332,7 +332,7 @@ bool CModuleDesigner::genereResourcesUserGuideHtml(const QString &output_dirname
 
 // _____________________________________________________________________
 /*!
-*  Intègre le module nouvellement créé au projet
+*  IntÃ¨gre le module nouvellement crÃ©Ã© au projet
 *
 */
 bool CModuleDesigner::integrerNouveauModuleCreeAuProjet(void)
@@ -353,7 +353,7 @@ bool CModuleDesigner::integrerNouveauModuleCreeAuProjet(void)
 
 // _____________________________________________________________________
 /*!
-*  Modifie certains fichiers du projet pour intégrer le nouveau module
+*  Modifie certains fichiers du projet pour intÃ©grer le nouveau module
 *
 */
 bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
@@ -432,8 +432,8 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
 
 // _____________________________________________________________________
 /*!
-*  Modifie certains fichiers du projet pour désintégrer un module
-*  Après cette opération, les fichiers du projet sont nettoyé des
+*  Modifie certains fichiers du projet pour dÃ©sintÃ©grer un module
+*  AprÃ¨s cette opÃ©ration, les fichiers du projet sont nettoyÃ© des
 *  appels au module
 */
 #define C_RIEN_DU_TOUT ""
@@ -446,28 +446,28 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   QString replaceString="";
  
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.pro et supprime les références au module
+  // Ouvre le fichier LaBotBox.pro et supprime les rÃ©fÃ©rences au module
   pathfilename = repertoire_projet + "/LaBotBox.pro";
   QString pro_file = readFile(pathfilename); 
   if (pro_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
     return(false);
   }
-  // Supprime le texte ajouté automatiquement à la création du module
+  // Supprime le texte ajoutÃ© automatiquement Ã  la crÃ©ation du module
   replaceString = "        " + nom_module + " \\ \r\n";
   pro_file.replace(replaceString, C_RIEN_DU_TOUT);
   m_application->m_print_view->print_info(this, pro_file);
   writeFile(pathfilename, pro_file);
 
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.h et supprime les références au module
+  // Ouvre le fichier LaBotBox.h et supprime les rÃ©fÃ©rences au module
   pathfilename = repertoire_projet + "/CLaBotBox.h";
   QString header_file = readFile(pathfilename); 
   if (header_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
     return(false);
   }
-  // Supprime le texte ajouté automatiquement à la création du module
+  // Supprime le texte ajoutÃ© automatiquement Ã  la crÃ©ation du module
   replaceString = "class C" + nom_module + ";\r\n";
   header_file.replace(replaceString, C_RIEN_DU_TOUT);
   
@@ -478,7 +478,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   writeFile(pathfilename, header_file);
 
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.cpp et supprime les références au module
+  // Ouvre le fichier LaBotBox.cpp et supprime les rÃ©fÃ©rences au module
   pathfilename = repertoire_projet + "/CLaBotBox.cpp";
   QString cpp_file = readFile(pathfilename); 
   if (header_file == "") {
@@ -488,7 +488,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   replaceString = "#include \"C" + nom_module + ".h\"\r\n";
   cpp_file.replace(replaceString, C_RIEN_DU_TOUT);
 
-  // Supprime le texte ajouté automatiquement à la création du module
+  // Supprime le texte ajoutÃ© automatiquement Ã  la crÃ©ation du module
   replaceString =  "  m_" + nom_module + "     = new C" + nom_module + "(\"" + nom_module + "\");\r\n" ;
   replaceString += "  m_list_" + type_module.toLower() + "_modules.append(m_" + nom_module + ");\r\n"; 
   replaceString += "  m_list_modules.append(m_" + nom_module + ");\r\n";
@@ -526,7 +526,7 @@ QString CModuleDesigner::readFile(QString pathfilename)
 
 // _____________________________________________________________________
 /*!
-*  Ecrit dans un fichier le contenu de la string passée
+*  Ecrit dans un fichier le contenu de la string passÃ©e
 *
 */
 void CModuleDesigner::writeFile(QString path, QString filename, const QString &value)
@@ -535,7 +535,7 @@ void CModuleDesigner::writeFile(QString path, QString filename, const QString &v
 }
 // _____________________________________________________________________
 /*!
-*  Ecrit dans un fichier le contenu de la string passée
+*  Ecrit dans un fichier le contenu de la string passÃ©e
 *
 */
 void CModuleDesigner::writeFile(QString pathfilename, const QString &value)
@@ -554,13 +554,13 @@ void CModuleDesigner::writeFile(QString pathfilename, const QString &value)
 
 // _____________________________________________________________________
 /*!
-*  Choisit le répertoire dans lequel le module va être créé
+*  Choisit le rÃ©pertoire dans lequel le module va Ãªtre crÃ©Ã©
 *
 */
 void CModuleDesigner::choixRepertoireSortie(void)
 {
  QFileDialog dialog;
- QString rep = QFileDialog::getExistingDirectory(   &dialog, tr("Choix du répertoire de génération du module"),
+ QString rep = QFileDialog::getExistingDirectory(   &dialog, tr("Choix du rÃ©pertoire de gÃ©nÃ©ration du module"),
                                                     m_ihm.ui.repertoire_projet->text(),
                                                     QFileDialog::ShowDirsOnly);
  if (rep != "") { m_ihm.ui.repertoire_projet->setText(rep); }
@@ -572,33 +572,33 @@ void CModuleDesigner::choixRepertoireSortie(void)
 // ============ PAGE INTEGRATION D'UN MODULE EXISTANT =======================
 // _____________________________________________________________________
 /*!
-*  Intègre un module déjà existant au projet
+*  IntÃ¨gre un module dÃ©jÃ  existant au projet
 *
 */
 bool CModuleDesigner::integrerModuleExistantAuProjet(void)
 {
  QString rep_module_existant = m_ihm.ui.repertoire_module_existant->text();
  const QString SEPARATEUR = "/";
- // Extrait du répertoire : 
+ // Extrait du rÃ©pertoire : 
  // Le type de module : BASIC ou PLUGIN
  // Le nom du module
- // Le nom du répertoire du projet
+ // Le nom du rÃ©pertoire du projet
  m_application->m_print_view->print_info(this, rep_module_existant);
 
- // Découpe le répertoire suivant le séparateur "/" (windows et linux)
+ // DÃ©coupe le rÃ©pertoire suivant le sÃ©parateur "/" (windows et linux)
  QStringList liste_rep = rep_module_existant.split(SEPARATEUR, QString::SkipEmptyParts);
  if (liste_rep.size() <= 2) { 
      m_application->m_print_view->print_error(this, "Repertoire du module invalide");
      return(false);
  }
 
- // Si le découpage s'est bien passé : 
+ // Si le dÃ©coupage s'est bien passÃ© : 
  //     - Le dernier nom de la liste est le nom du module
  //     - L'avant dernier nom indique s'il s'agit d'un Basic ou Plugin module
- //     - Le nom du répertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
+ //     - Le nom du rÃ©pertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
  // Exemple : D:\workarea\LaBotBox\LabBotBox\BasicModules\DataView
  //           |-----------------------------|------------|-------------|
- //           |  nom du répertoire projet   | type module| nom module  |
+ //           |  nom du rÃ©pertoire projet   | type module| nom module  |
 
  QString nom_module = liste_rep.at(liste_rep.size()-1);
 
@@ -617,7 +617,7 @@ return(integrerModuleAuProjet(typeModuleString, rep_projet, nom_module));
 
 // _____________________________________________________________________
 /*!
-*  Choisit le répertoire dans lequel le module va être créé
+*  Choisit le rÃ©pertoire dans lequel le module va Ãªtre crÃ©Ã©
 *
 */
 void CModuleDesigner::choixRepertoireModuleExistant(void)
@@ -637,26 +637,26 @@ bool CModuleDesigner::desintegrerModuleExistantDuProjet(void)
 {
  QString rep_module_a_desintegrer = m_ihm.ui.repertoire_module_desintegration->text();
  const QString SEPARATEUR = "/";
- // Extrait du répertoire : 
+ // Extrait du rÃ©pertoire : 
  // Le type de module : BASIC ou PLUGIN
  // Le nom du module
- // Le nom du répertoire du projet
+ // Le nom du rÃ©pertoire du projet
  m_application->m_print_view->print_info(this, rep_module_a_desintegrer);
 
- // Découpe le répertoire suivant le séparateur "/" (windows et linux)
+ // DÃ©coupe le rÃ©pertoire suivant le sÃ©parateur "/" (windows et linux)
  QStringList liste_rep = rep_module_a_desintegrer.split(SEPARATEUR, QString::SkipEmptyParts);
  if (liste_rep.size() <= 2) { 
      m_application->m_print_view->print_error(this, "Repertoire du module invalide");
      return(false);
  }
 
- // Si le découpage s'est bien passé : 
+ // Si le dÃ©coupage s'est bien passÃ© : 
  //     - Le dernier nom de la liste est le nom du module
  //     - L'avant dernier nom indique s'il s'agit d'un Basic ou Plugin module
- //     - Le nom du répertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
+ //     - Le nom du rÃ©pertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
  // Exemple : D:\workarea\LaBotBox\LabBotBox\BasicModules\DataView
  //           |-----------------------------|------------|-------------|
- //           |  nom du répertoire projet   | type module| nom module  |
+ //           |  nom du rÃ©pertoire projet   | type module| nom module  |
 
  QString nom_module = liste_rep.at(liste_rep.size()-1);
 
@@ -676,7 +676,7 @@ return(desintegrerModuleDuProjet(typeModuleString, rep_projet, nom_module));
 
 // _____________________________________________________________________
 /*!
-*  Choisit le répertoire dans lequel le module va être créé
+*  Choisit le rÃ©pertoire dans lequel le module va Ãªtre crÃ©Ã©
 *
 */
 void CModuleDesigner::choixRepertoireModuleDesintegration(void)

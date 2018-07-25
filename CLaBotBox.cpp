@@ -54,7 +54,7 @@ CLaBotBox::CLaBotBox()
     :   m_pathname_log_file("./Log"),
         m_pathname_config_file("./Config")
 {
-  // S'assure que le répertoire de sortie des logs existe bien
+  // S'assure que le rÃ©pertoire de sortie des logs existe bien
   QDir dir;
   dir.mkpath(m_pathname_log_file);
 
@@ -83,12 +83,12 @@ CLaBotBox::~CLaBotBox()
 
 // _____________________________________________________________________
 /*!
-*  Cree chaque basic module et l'ajoute à la liste
+*  Cree chaque basic module et l'ajoute Ã  la liste
 *
 */
 void CLaBotBox::createBasicModules(void)
 {
-  // Mettre en premier les modules indépendants des autres modules
+  // Mettre en premier les modules indÃ©pendants des autres modules
   m_print_view    = new CPrintView("PrintView");
   m_list_basic_modules.append(m_print_view);
   m_list_modules.append(m_print_view);
@@ -146,7 +146,7 @@ void CLaBotBox::initBasicModules(void)
 /*!
 *  Termine chaque basic module
 *
-* \remarks les modules sont déchargés dans le sens inverse du chargement
+* \remarks les modules sont dÃ©chargÃ©s dans le sens inverse du chargement
 */
 void CLaBotBox::closeBasicModules(void)
 {
@@ -157,9 +157,9 @@ void CLaBotBox::closeBasicModules(void)
 
 // _____________________________________________________________________
 /*!
-*  Libère les instances de chaque basic module
+*  LibÃ¨re les instances de chaque basic module
 *
-* \remarks les modules sont supprimés dans le sens inverse de la création
+* \remarks les modules sont supprimÃ©s dans le sens inverse de la crÃ©ation
 */
 void CLaBotBox::deleteBasicModules()
 {
@@ -175,7 +175,7 @@ void CLaBotBox::deleteBasicModules()
 
 // _____________________________________________________________________
 /*!
-*  Cree chaque plugin module et l'ajoute à la liste
+*  Cree chaque plugin module et l'ajoute Ã  la liste
 *
 */
 void CLaBotBox::createPluginModules(void)
@@ -249,7 +249,7 @@ void CLaBotBox::initPluginModules(void)
 /*!
 *  Termine chaque plugin module
 *
-* \remarks les modules sont déchargés dans le sens inverse du chargement
+* \remarks les modules sont dÃ©chargÃ©s dans le sens inverse du chargement
 */
 void CLaBotBox::closePluginModules(void)
 {
@@ -260,9 +260,9 @@ void CLaBotBox::closePluginModules(void)
 
 // _____________________________________________________________________
 /*!
-*  Libère les instances de chaque basic module
+*  LibÃ¨re les instances de chaque basic module
 *
-* \remarks les modules sont supprimés dans le sens inverse de la création
+* \remarks les modules sont supprimÃ©s dans le sens inverse de la crÃ©ation
 */
 void CLaBotBox::deletePluginModules()
 {
@@ -320,7 +320,7 @@ void CLaBotBox::TermineApplication(void)
   deleteBasicModules();
   m_list_modules.clear();
 
-  // met fin à l'application
+  // met fin Ã  l'application
   qApp->exit();
 }
 

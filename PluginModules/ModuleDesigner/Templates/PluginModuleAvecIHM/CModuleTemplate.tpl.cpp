@@ -47,17 +47,17 @@ CModuleTemplate::~CModuleTemplate()
 void CModuleTemplate::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -77,7 +77,7 @@ void CModuleTemplate::init(CLaBotBox *application)
 */
 void CModuleTemplate::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -86,7 +86,7 @@ void CModuleTemplate::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CModuleTemplate::onRightClicGUI(QPoint pos)

@@ -11,15 +11,15 @@
 #include <QtSerialPort/QSerialPortInfo>
 
 
-// Nom du port pour indiquer un fonctionnement ne mode simulé (port virtuel)
+// Nom du port pour indiquer un fonctionnement ne mode simulÃ© (port virtuel)
 #define C_VIRTUAL_PORT_COM  "VIRTUAL"
 
-//! Structure de donnée permettant la configuration
+//! Structure de donnÃ©e permettant la configuration
 typedef struct {
     QSerialPort::BaudRate           baudrate;       //! Vitesse de communication
-    QSerialPort::DataBits           databits;       //! Nombre de bits de données
+    QSerialPort::DataBits           databits;       //! Nombre de bits de donnÃ©es
     QSerialPort::FlowControl        flowcontrol;    //! Flow controle
-    QSerialPort::Parity             parity;         //! Parité
+    QSerialPort::Parity             parity;         //! ParitÃ©
     QSerialPort::StopBits           stopbits;       //! Nombre de bits de stop
     QSerialPort::DataErrorPolicy    dataerrorpolicy;
     bool                            echo_enabled;   //! Echo RX -> TX
@@ -28,7 +28,7 @@ typedef struct {
 const tConfigRS232 DEFAULT_RS232_CONFIG = { QSerialPort::Baud115200, QSerialPort::Data8, QSerialPort::NoFlowControl, QSerialPort::NoParity, QSerialPort::OneStop, QSerialPort::IgnorePolicy, false };
 
  /*! @brief class CRS232Listener
-  * Thread d'écoute des données en provenance de la ligne physique RX RS232
+  * Thread d'Ã©coute des donnÃ©es en provenance de la ligne physique RX RS232
   */
 class CRS232Listener : public QThread
 {

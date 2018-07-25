@@ -1,5 +1,5 @@
 /*! \file CTrameBot.h
-	\brief Classe virtuelle pour définir une trame
+	\brief Classe virtuelle pour dÃ©finir une trame
 */
 
 #ifndef _TRAME_BOT_H_
@@ -33,7 +33,7 @@ public :
 	tStructTrameBrute m_trame_brute;
 	//! Memorise le nombre de trame recues
 	unsigned int m_nombre_recue;
-    //! Memorise le nombre de trame émises
+    //! Memorise le nombre de trame Ã©mises
     unsigned int m_nombre_emis;
     //! Identifiant de la trame
     unsigned int m_id;
@@ -57,7 +57,7 @@ public :
     virtual void Encode() { }
 
 protected :
-    //! Gestionnaire de données de l'application
+    //! Gestionnaire de donnÃ©es de l'application
     CDataManager *m_data_manager;
 
     //! Gestionnaire de messagerie

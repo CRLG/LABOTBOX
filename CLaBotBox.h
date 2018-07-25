@@ -98,13 +98,13 @@ public:
    // Liste de l'ensemble des plugin modules
    t_list_plugin_modules m_list_plugin_modules;
 
-   // Liste de l'ensemble des modules (indépendamment du fait qu'il soit un BasicModule ou un PluginModule)
+   // Liste de l'ensemble des modules (indÃ©pendamment du fait qu'il soit un BasicModule ou un PluginModule)
    t_list_modules m_list_modules;
 
 public :
-   //! Répertoire par défaut de sortie des fichiers de log
+   //! RÃ©pertoire par dÃ©faut de sortie des fichiers de log
    QString m_pathname_log_file;
-   //! Répertoire par défaut des fichiers de config
+   //! RÃ©pertoire par dÃ©faut des fichiers de config
    QString m_pathname_config_file;
 
 private:

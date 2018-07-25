@@ -31,7 +31,7 @@ public:
 #define DEFAULT_MODULE_COLOR QColor(240, 240, 240)
 
     CModule()
-        :   m_niveau_trace(0), // active uniquement la remontée des messages d'erreurs par défaut
+        :   m_niveau_trace(0), // active uniquement la remontÃ©e des messages d'erreurs par dÃ©faut
             m_application(NULL)
 
     { }
@@ -50,23 +50,23 @@ public:
 
     // _____________________________________________________________________
     /*!
-    *  Méthode appelée pour initialiser les ressources du basic module
+    *  MÃ©thode appelÃ©e pour initialiser les ressources du basic module
     */
     virtual void init(CLaBotBox *application) { m_application = application; }
 
     // _____________________________________________________________________
     /*!
-    *  Méthode appelée avant la fin de l'application pour libérer les ressources du basic module
+    *  MÃ©thode appelÃ©e avant la fin de l'application pour libÃ©rer les ressources du basic module
     */
     virtual void close(void) { }
     // _____________________________________________________________________
     /*!
-    *  Indique si le module possède une IHM
+    *  Indique si le module possÃ¨de une IHM
     */
     virtual bool hasGUI(void) { return(false); }
     // _____________________________________________________________________
     /*!
-    *  Indique si le module possède une documentation
+    *  Indique si le module possÃ¨de une documentation
     */
     virtual bool hasUserGuide(void) {
         QFileInfo fileInfo("://user_guide/" + getName() + ".html");
@@ -74,7 +74,7 @@ public:
     }
     // _____________________________________________________________________
     /*!
-    *  Récupère la documentation du module si elle existe
+    *  RÃ©cupÃ¨re la documentation du module si elle existe
     */
     virtual QString getUserGuide(void) {
         QString filename = "://user_guide/" + getName() + ".html";
@@ -84,14 +84,14 @@ public:
     }
     // _____________________________________________________________________
     /*!
-    *  Renvoie l'icon qui représente le module
+    *  Renvoie l'icon qui reprÃ©sente le module
     */
     virtual QIcon getIcon(void) { return(QIcon("")); }
     // _____________________________________________________________________
     /*!
-    *  Récupère l'IHM
+    *  RÃ©cupÃ¨re l'IHM
     *
-    *  \return l'IHM du module s'il en possède une
+    *  \return l'IHM du module s'il en possÃ¨de une
     */
     QWidget *getGUI(void)       { return(m_GUI); }
     // _____________________________________________________________________
@@ -121,18 +121,18 @@ public:
     }
     // _____________________________________________________________________
     /*!
-    *  Récupère la couleur de fond de l'IHM
+    *  RÃ©cupÃ¨re la couleur de fond de l'IHM
     */
     QColor getBackgroundColor()  { return m_background_color; }
     // _____________________________________________________________________
     /*!
-    *  Récupère le nom du menu dans lequel le module doit apparaitre sur l'IHM
+    *  RÃ©cupÃ¨re le nom du menu dans lequel le module doit apparaitre sur l'IHM
     */
     virtual QString getMenuName(void)  { return(""); }
 
     // _____________________________________________________________________
     /*!
-    *  Récupère le nom du basic module
+    *  RÃ©cupÃ¨re le nom du basic module
     *
     *  \return le nom du BasicModule
     */
@@ -140,7 +140,7 @@ public:
 
     // _____________________________________________________________________
     /*!
-    *  Récupère la version du basic module
+    *  RÃ©cupÃ¨re la version du basic module
     *
     *  \return la version du BasicModule
     */
@@ -148,7 +148,7 @@ public:
 
     // _____________________________________________________________________
     /*!
-    *  Récupère le nom de l'auteur du basic module
+    *  RÃ©cupÃ¨re le nom de l'auteur du basic module
     *
     *  \return le nom de l'auteur du BasicModule
     */
@@ -156,7 +156,7 @@ public:
 
     // _____________________________________________________________________
     /*!
-    *  Récupère les infos générales sur le basic module
+    *  RÃ©cupÃ¨re les infos gÃ©nÃ©rales sur le basic module
     *
     *  \return le nom de l'auteur du BasicModule
     */
@@ -164,14 +164,14 @@ public:
 
     // _____________________________________________________________________
     /*!
-    *  Récupère les messages autorisés à être affichés
+    *  RÃ©cupÃ¨re les messages autorisÃ©s Ã  Ãªtre affichÃ©s
     *
-    *  \return le niveau des messages autorisés
+    *  \return le niveau des messages autorisÃ©s
     */
     unsigned long getNiveauTrace(void) { return(m_niveau_trace); }
     // _____________________________________________________________________
     /*!
-    *  Force le niveau de trace (types des messages autorisés à être affichés)
+    *  Force le niveau de trace (types des messages autorisÃ©s Ã  Ãªtre affichÃ©s)
     *
     */
     void setNiveauTrace(unsigned long niveau) { m_niveau_trace = niveau; }
@@ -193,13 +193,13 @@ private:
     QString m_name;
     //! Version du basic module
     QString m_version;
-    //! Nom  du développeur du basic module
+    //! Nom  du dÃ©veloppeur du basic module
     QString m_auteur;
-    //! Description générale sur le module
+    //! Description gÃ©nÃ©rale sur le module
     QString m_description;
-    //! Niveau de trace remontées (champ de bit -> 32 niveaux de trace configuraables)
+    //! Niveau de trace remontÃ©es (champ de bit -> 32 niveaux de trace configuraables)
     unsigned long m_niveau_trace;
-    //! L'IHM du module s'il en possède (mémoriser l'IHM du module dans un QWidget permet d'accueillir tout type d'IHM qui en hérite (QMainWindow, QDialog, ...)
+    //! L'IHM du module s'il en possÃ¨de (mÃ©moriser l'IHM du module dans un QWidget permet d'accueillir tout type d'IHM qui en hÃ©rite (QMainWindow, QDialog, ...)
     QWidget *m_GUI;
     //! Couleur de fond de l'IHM
     QColor m_background_color;
@@ -210,12 +210,12 @@ protected:
 public slots :
     // _____________________________________________________________________
     /*!
-    *  Indique si le module doit être visible ou caché (cas des basic module avec une IHM)
+    *  Indique si le module doit Ãªtre visible ou cachÃ© (cas des basic module avec une IHM)
     */
     virtual void setVisible(void) { if (m_GUI) { m_GUI->show(); } }
     // _____________________________________________________________________
     /*!
-    *  Ouvre la popup et sélectionne la couleur de fond de la fenêtre
+    *  Ouvre la popup et sÃ©lectionne la couleur de fond de la fenÃªtre
     *
     */
     void selectBackgroundColor(void)

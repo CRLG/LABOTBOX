@@ -48,8 +48,8 @@ public:
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
-    virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
-    virtual QString getMenuName(void)   { return("BasicModule"); }                  // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
+    virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // PrÃ©cise l'icÃ´ne qui reprÃ©sente le module
+    virtual QString getMenuName(void)   { return("BasicModule"); }                  // PrÃ©cise le nom du menu de la fenÃªtre principale dans lequel le module apparaÃ®t
 
 private:
     Cihm_ModuleTemplate m_ihm;

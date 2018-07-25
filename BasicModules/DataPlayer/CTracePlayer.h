@@ -32,11 +32,11 @@ typedef QVector<tStep *>tSteps;
 
 typedef enum {
     C_PLAYER_IDLE_NO_DATA = 0,          // player en veille car la liste des steps est vide
-    C_PLAYER_STOP,                      // player au repos prêt à être démarré
+    C_PLAYER_STOP,                      // player au repos prÃªt Ã  Ãªtre dÃ©marrÃ©
     C_PLAYER_RUN,                       // le player joue la trace
-    C_PLAYER_PAUSE,                     // le player est en pause et le dernier step joué est un step qui n'est ni le premier, ni le dernier
-    C_PLAYER_PAUSE_FIRST_STEP_INDEX,    // le player est en pause et le dernier step joué est le premier step de la liste
-    C_PLAYER_PAUSE_LAST_STEP_INDEX      // le player est en pause et le dernier step joué est le dernier step de la liste
+    C_PLAYER_PAUSE,                     // le player est en pause et le dernier step jouÃ© est un step qui n'est ni le premier, ni le dernier
+    C_PLAYER_PAUSE_FIRST_STEP_INDEX,    // le player est en pause et le dernier step jouÃ© est le premier step de la liste
+    C_PLAYER_PAUSE_LAST_STEP_INDEX      // le player est en pause et le dernier step jouÃ© est le dernier step de la liste
 }tPlayerState;
 
 /*! @brief class CTracePlayer
@@ -66,7 +66,7 @@ public:
     int getCycleNumber(void)                        { return(m_cycle_number); }
     
     int getStepsSize(void)                          { return(m_steps.size()); }
-    int getCurrentStepIndex(void)                   { return(m_step_index); } // renvoie "-1" pour indiquer que le player est ré-initialisé
+    int getCurrentStepIndex(void)                   { return(m_step_index); } // renvoie "-1" pour indiquer que le player est rÃ©-initialisÃ©
 
     tPlayerState getState(void)                     { return(m_player_state); }
 
@@ -75,14 +75,14 @@ private :
     QString             m_player_name;
     CDataManager        *m_data_manager;
     QString             m_trace_filename;
-    int                 m_common_step_duration; // durée d'un pas de temps. Valeur spéciale C_STEP_DURATION_IN_FILE pour indiquer que la durée provient du fichier
-    int                 m_step_index;    // Pointe sur le dernier pas joué
-    int                 m_cycle_number;  // Nombre de période à effectuer. Valeur spéciale C_PERIODIC_SIGNAL pour indiquer que le signal doit tournner en boucle (periodique)
-    int                 m_cycle_count;   // Comptabilise le nombre de période effectuées
+    int                 m_common_step_duration; // durÃ©e d'un pas de temps. Valeur spÃ©ciale C_STEP_DURATION_IN_FILE pour indiquer que la durÃ©e provient du fichier
+    int                 m_step_index;    // Pointe sur le dernier pas jouÃ©
+    int                 m_cycle_number;  // Nombre de pÃ©riode Ã  effectuer. Valeur spÃ©ciale C_PERIODIC_SIGNAL pour indiquer que le signal doit tournner en boucle (periodique)
+    int                 m_cycle_count;   // Comptabilise le nombre de pÃ©riode effectuÃ©es
     tSteps              m_steps;
     tPlayerState        m_player_state; // Etat de fonctionnement du player
 
-    // Hériatage de QThread
+    // HÃ©riatage de QThread
     virtual void run(void);
     void clearSteps(void);
     void playStep(int step_index);
@@ -92,7 +92,7 @@ signals :
     void playerStarted(QString player_name);
     void playerFinished(QString player_name);
     void playerPaused(QString player_name);
-    void stateChanged(QString player_name/*, tPlayerState state*/); // Problème rencontré en passant des signaux à 2 paramètres depuis le thread (les signaux ne sont pas émis : pourquoi ??)
+    void stateChanged(QString player_name/*, tPlayerState state*/); // ProblÃ¨me rencontrÃ© en passant des signaux Ã  2 paramÃ¨tres depuis le thread (les signaux ne sont pas Ã©mis : pourquoi ??)
 
 public slots:
     void startPlayer(void);

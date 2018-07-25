@@ -57,17 +57,17 @@ CRS232::~CRS232()
 void CRS232::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -96,7 +96,7 @@ void CRS232::init(CLaBotBox *application)
   config.echo_enabled = val.toInt();
 
   procFillingOptions(); // Remplit toutes les valeurs possibles de l'IHM
-  serialConfigToIHM(portname, config); // Met en cohérence l'IHM avec la configuration du port
+  serialConfigToIHM(portname, config); // Met en cohÃ©rence l'IHM avec la configuration du port
 
   connect(m_ihm.ui.OpenButton, SIGNAL(clicked()), this, SLOT(openButtonClick()));
   connect(m_ihm.ui.CloseButton, SIGNAL(clicked()), this, SLOT(closeButtonClick()));
@@ -109,7 +109,7 @@ void CRS232::init(CLaBotBox *application)
   connect(&m_rs232_listener, SIGNAL(connected()), this, SLOT(serialConnected()));
   connect(&m_rs232_listener, SIGNAL(disconnected()), this, SLOT(serialDisconnected()));
 
-  // ré-émet les signaux de m_rs232_listener
+  // rÃ©-Ã©met les signaux de m_rs232_listener
   connect(&m_rs232_listener, SIGNAL(readyBytes(QByteArray)), this, SIGNAL(readyBytes(QByteArray)));
   connect(&m_rs232_listener, SIGNAL(connected()), this, SIGNAL(connected()));
   connect(&m_rs232_listener, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
@@ -127,7 +127,7 @@ void CRS232::init(CLaBotBox *application)
   connect(m_ihm.ui.actionTerminal_EchoLocal, SIGNAL(toggled(bool)), this, SLOT(Terminal_EchoLocal(bool)));
   connect(m_ihm.ui.actionTerminal_Sauvegarder, SIGNAL(triggered()), this, SLOT(Terminal_Sauvegarder()));
   connect(m_ihm.ui.actionTerminal_EnvoyerFichierTexte, SIGNAL(triggered()), this, SLOT(Terminal_EnvoyerFichierTexte()));
-  Terminal_OnOff(false);  // fonction inhibée par défaut
+  Terminal_OnOff(false);  // fonction inhibÃ©e par dÃ©faut
 
   // Onglet HexEdit
   connect(m_ihm.ui.actionHexEdit_OnOff, SIGNAL(toggled(bool)), this, SLOT(HexEdit_OnOff(bool)));
@@ -138,7 +138,7 @@ void CRS232::init(CLaBotBox *application)
   connect(m_ihm.ui.actionHexEdit_CopyHexASCII, SIGNAL(triggered()), this, SLOT(HexEdit_CopyHexASCII()));
   connect(m_ihm.ui.actionHexEdit_EnvoyerFichierFormatBrut, SIGNAL(triggered()), this, SLOT(HexEdit_EnvoyerFichierFormatBrut()));
   connect(m_ihm.ui.actionHexEdit_EnvoyerFichierFormatHexASCII, SIGNAL(triggered()), this, SLOT(HexEdit_EnvoyerFichierFormatHexASCII()));
-  HexEdit_OnOff(false); // fonction inhibée par défaut
+  HexEdit_OnOff(false); // fonction inhibÃ©e par dÃ©faut
 
   // Onglet SimuRxTx
   connect(m_ihm.ui.actionSimuRxTx_OnOff, SIGNAL(toggled(bool)), this, SLOT(SimuRxTx_OnOff(bool)));
@@ -148,9 +148,9 @@ void CRS232::init(CLaBotBox *application)
   connect(m_ihm.ui.SimuRX_send, SIGNAL(clicked()), this, SLOT(SimuRX_send()));
   connect(m_ihm.ui.actionVisuTx_SauvegarderBrut, SIGNAL(triggered()), this, SLOT(VisuTx_SauvegarderBrut()));
   connect(m_ihm.ui.actionVisuTx_SauvegarderHexASCII, SIGNAL(triggered()), this, SLOT(VisuTx_SauvegarderHexASCII()));
-  SimuRxTx_OnOff(false);    // fonction inhibée par défaut
+  SimuRxTx_OnOff(false);    // fonction inhibÃ©e par dÃ©faut
 
-  // ouvre le port RS232 s'il était ouvert à la précédente session
+  // ouvre le port RS232 s'il Ã©tait ouvert Ã  la prÃ©cÃ©dente session
   val = m_application->m_eeprom->read(getName(), "connected", 0);
   if (val.toInt()) {
     m_rs232_listener.startCommunication(portname, config);  // Ouvre le port de communication
@@ -166,16 +166,16 @@ void CRS232::init(CLaBotBox *application)
 */
 void CRS232::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 
   m_application->m_eeprom->write(getName(), "connected", QVariant((int)m_rs232_listener.isOpen()));
-  // Si le port était ouvert, c'est que la configuration est bonne -> la mémorise
+  // Si le port Ã©tait ouvert, c'est que la configuration est bonne -> la mÃ©morise
   if (m_rs232_listener.isOpen()) {
-    // récupère la config
+    // rÃ©cupÃ¨re la config
     tConfigRS232 config;
     QString portname;
     serialIHMToConfig(portname, config);
@@ -194,7 +194,7 @@ void CRS232::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CRS232::onRightClicGUI(QPoint pos)
@@ -228,7 +228,7 @@ void CRS232::write(const QByteArray &data)
 {
  m_rs232_listener.send(data);
 
- // Affiche les données sortantes dans le menu des données entrantes et sortantes
+ // Affiche les donnÃ©es sortantes dans le menu des donnÃ©es entrantes et sortantes
  if (m_simu_rx_tx_ON) {
     m_simuTx_writer->append(data);
  }
@@ -245,8 +245,8 @@ void CRS232::write(const char *data, qint64 size)
 
 // _____________________________________________________________________
 /*!
-* Empile une donnée dans la FIFO des data à transmettre sur la RS232
-* ainsi que dans la FIFO des données pour l'IHM (affichage ou enregistrement dans un fichier)
+* Empile une donnÃ©e dans la FIFO des data Ã  transmettre sur la RS232
+* ainsi que dans la FIFO des donnÃ©es pour l'IHM (affichage ou enregistrement dans un fichier)
 */
 void CRS232::write(char data)
 {
@@ -255,7 +255,7 @@ void CRS232::write(char data)
 
 // _____________________________________________________________________
 /*!
-* Données reçues de la RS232 physique
+* DonnÃ©es reÃ§ues de la RS232 physique
 */
 void CRS232::reveive_rx_data(QByteArray data)
 {
@@ -265,14 +265,14 @@ void CRS232::reveive_rx_data(QByteArray data)
 
 // _____________________________________________________________
 /*!
-* Ouvre le port de communication série
+* Ouvre le port de communication sÃ©rie
 */
 void CRS232::openSerial()
 {
  tConfigRS232 config;
  QString portname;
 
- // récupère la config
+ // rÃ©cupÃ¨re la config
  serialIHMToConfig(portname, config);
 
  // ouvre le port de communication
@@ -281,7 +281,7 @@ void CRS232::openSerial()
 
 // _____________________________________________________________
 /*!
-* Ferme le port de communication série
+* Ferme le port de communication sÃ©rie
 */
 void CRS232::closeSerial()
 {
@@ -290,7 +290,7 @@ void CRS232::closeSerial()
 
 // _____________________________________________________________________
 /*!
-* Réinitialise le port de communication (ferme+ouvre)
+* RÃ©initialise le port de communication (ferme+ouvre)
 */
 void CRS232::reinitSerial()
 {
@@ -492,7 +492,7 @@ int value = 0;
 }
 
 // _____________________________________________________________________
-/*! Recupère les données de configuration du port de l'IHM
+/*! RecupÃ¨re les donnÃ©es de configuration du port de l'IHM
 *
 *
 */
@@ -550,7 +550,7 @@ void CRS232::portCOMChanged(int index)
 }
 
 // _____________________________________________________________
-// La liaison série est connectée, grise les boutons
+// La liaison sÃ©rie est connectÃ©e, grise les boutons
 void CRS232::serialConnected(void)
 {
  m_ihm.ui.groupConfigPortCom->setEnabled(false);
@@ -610,7 +610,7 @@ void CRS232::terminalInit(void)
 // _____________________________________________________________
 void CRS232::Terminal_OnOff(bool state)
 {
- // Grise / dégris l'onglet
+ // Grise / dÃ©gris l'onglet
  m_ihm.ui.Terminal->setEnabled(state);
  m_terminal_ON = state;
 
@@ -633,8 +633,8 @@ void CRS232::Terminal_Clear(void)
 
 
 // _____________________________________________________________
-// active l'écho local : lorsque l'utilisateur saisit une donnée,
-// elle est affichée dans la console
+// active l'Ã©cho local : lorsque l'utilisateur saisit une donnÃ©e,
+// elle est affichÃ©e dans la console
 void CRS232::Terminal_EchoLocal(bool state)
 {
   m_terminal->setLocalEchoEnabled(state);
@@ -643,7 +643,7 @@ void CRS232::Terminal_EchoLocal(bool state)
 
 
 // _____________________________________________________________
-// Enregistre les données du terminal dans un fichier texte
+// Enregistre les donnÃ©es du terminal dans un fichier texte
 void CRS232::Terminal_Sauvegarder(void)
 {
   QString pathfilename;
@@ -652,13 +652,13 @@ void CRS232::Terminal_Sauvegarder(void)
   //    CheminEnregistrement/<NomModule>_Terminal_<DateHeure>.txt
   pathfilename =    m_application->m_pathname_log_file +
                       "/" +
-                      QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                      QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                       "_Terminal_" +
                       CToolBox::getDateTime() +
                       ".txt";
   QFile file(pathfilename);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
         return;
   }
 
@@ -676,11 +676,11 @@ void CRS232::Terminal_EnvoyerFichierTexte(void)
      tr("Fichier texte a transmettre"), "./", "", 0, 0);
 
  if (fileName != "") {
-     // Récupère le contenu du fichier et l'envoie
+     // RÃ©cupÃ¨re le contenu du fichier et l'envoie
      QFile data(fileName);
      if (data.open(QFile::ReadOnly)) {
          QTextStream in(&data);
-         write(in.readAll().toLocal8Bit()); // envoie des données vers le port
+         write(in.readAll().toLocal8Bit()); // envoie des donnÃ©es vers le port
      }
      data.close();
  }
@@ -693,7 +693,7 @@ void CRS232::Terminal_EnvoyerFichierTexte(void)
 // _____________________________________________________________
 void CRS232::HexEdit_OnOff(bool state)
 {
- // Grise / dégris l'onglet
+ // Grise / dÃ©gris l'onglet
  m_ihm.ui.HexEditorRxTx->setEnabled(state);
  m_hex_edit_ON = state;
 
@@ -721,11 +721,11 @@ void CRS232::TX_send(void)
 {
   QByteArray byteArray;
 
-  // La ligne est directement la chaine à envoyer
+  // La ligne est directement la chaine Ã  envoyer
   if (m_ihm.ui.TX_select_String->isChecked()) {
     byteArray.append(m_ihm.ui.TX_value->text());
   }
-  // Convertit la ligne en valeurs numériques
+  // Convertit la ligne en valeurs numÃ©riques
   else if (m_ihm.ui.TX_select_Values->isChecked()) {
     QStringList list = m_ihm.ui.TX_value->text().split(" ");
     for (int i=0; i<list.size(); i++) {
@@ -734,8 +734,8 @@ void CRS232::TX_send(void)
         if (ok) {
             byteArray.append(val);
         }
-    } // for toutes les valeurs à écrire
-  } // if la ligne doit être considérée comme valeur numérique
+    } // for toutes les valeurs Ã  Ã©crire
+  } // if la ligne doit Ãªtre considÃ©rÃ©e comme valeur numÃ©rique
   write(byteArray);
 }
 
@@ -765,13 +765,13 @@ void CRS232::HexEdit_SauvegarderBrut(void)
   //    CheminEnregistrement/<NomModule>_Terminal_<DateHeure>.txt
   pathfilename =    m_application->m_pathname_log_file +
                         "/" +
-                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                         "_HexEditBrut" +
                         CToolBox::getDateTime() +
                         ".txt";
   QFile file(pathfilename);
   if (!file.open(QIODevice::WriteOnly)) {
-          m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+          m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
           return;
   }
   QByteArray byteArray = reader.read(0, m_hex_edit_data->length());
@@ -791,13 +791,13 @@ void CRS232::HexEdit_SauvegarderHexASCII(void)
   //    CheminEnregistrement/<NomModule>_Terminal_<DateHeure>.txt
   pathfilename =    m_application->m_pathname_log_file +
                           "/" +
-                          QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                          QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                           "_HexEditHEXA_" +
                           CToolBox::getDateTime() +
                           ".txt";
   QFile file(pathfilename);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+            m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
             return;
   }
 
@@ -815,14 +815,14 @@ void CRS232::HexEdit_SauvegarderHexASCII(void)
 
 
 // _____________________________________________________________
-// Copie dans le presse papier les données brutes
+// Copie dans le presse papier les donnÃ©es brutes
 void CRS232::HexEdit_CopyBrut(void)
 {
   m_ihm.ui.hexEdit->copy();
 }
 
 // _____________________________________________________________
-// Copie dans le presse papier les données au format hexa affichable
+// Copie dans le presse papier les donnÃ©es au format hexa affichable
 void CRS232::HexEdit_CopyHexASCII(void)
 {
   m_ihm.ui.hexEdit->copyHex();
@@ -837,12 +837,12 @@ void CRS232::HexEdit_EnvoyerFichierFormatBrut(void)
     tr("Fichier brut a transmettre"), "./", "", 0, 0);
 
  if (fileName != "") {
-    // Récupère le contenu du fichier et l'envoie
+    // RÃ©cupÃ¨re le contenu du fichier et l'envoie
     QFile data(fileName);
     if (data.open(QFile::ReadOnly)) {
         QTextStream in(&data);
         QByteArray byteArray = in.readAll().toLocal8Bit();
-        write(byteArray); // envoie des données vers le port
+        write(byteArray); // envoie des donnÃ©es vers le port
         m_ihm.ui.statusbar->showMessage(QString::number(byteArray.size()) + " octets envoyes");
     }
     data.close();
@@ -861,11 +861,11 @@ void CRS232::HexEdit_EnvoyerFichierFormatHexASCII(void)
        tr("Fichier brut a transmettre"), "./", "", 0, 0);
 
   if (fileName != "") {
-       // Récupère le contenu du fichier et l'envoie
+       // RÃ©cupÃ¨re le contenu du fichier et l'envoie
        QFile data(fileName);
        if (data.open(QFile::ReadOnly)) {
            QTextStream in(&data);
-           QStringList str_list = in.readAll().split(QRegularExpression("\\s+"));  // découpe en éliminants espaces, tabulation, retours chariots
+           QStringList str_list = in.readAll().split(QRegularExpression("\\s+"));  // dÃ©coupe en Ã©liminants espaces, tabulation, retours chariots
             for (int i=0; i<str_list.size(); i++) {
             val = str_list.at(i).toInt(&ok, 16);
             if (ok) { byte_array.append(val); }
@@ -901,7 +901,7 @@ void CRS232::simuRxTxInit(void)
 // _____________________________________________________________
 void CRS232::SimuRxTx_OnOff(bool state)
 {
-  // Grise / dégris l'onglet
+  // Grise / dÃ©gris l'onglet
   m_ihm.ui.SimuRxTx->setEnabled(state);
   m_simu_rx_tx_ON = state;
 
@@ -918,20 +918,20 @@ void CRS232::VisuTx_Clear(void)
 }
 
 // _____________________________________________________________
-// Simule des données entrantes vers l'applicatif.
-// Les données sont récupérées d'un fichier brut
+// Simule des donnÃ©es entrantes vers l'applicatif.
+// Les donnÃ©es sont rÃ©cupÃ©rÃ©es d'un fichier brut
 void CRS232::SimuRx_DonneesEntrantesFichierBrut(void)
 {
   QString fileName = QFileDialog::getOpenFileName(&m_ihm,
        tr("Fichier brut a transmettre"), "./", "", 0, 0);
 
   if (fileName != "") {
-       // Récupère le contenu du fichier et l'envoie
+       // RÃ©cupÃ¨re le contenu du fichier et l'envoie
        QFile data(fileName);
        if (data.open(QFile::ReadOnly)) {
            QTextStream in(&data);
            QByteArray byteArray = in.readAll().toLocal8Bit();
-           emit readyBytes(byteArray); // envoie les données vers l'applicatif
+           emit readyBytes(byteArray); // envoie les donnÃ©es vers l'applicatif
            m_ihm.ui.statusbar->showMessage(QString::number(byteArray.size()) + " octets entrants simules");
        }
        data.close();
@@ -940,8 +940,8 @@ void CRS232::SimuRx_DonneesEntrantesFichierBrut(void)
 
 
 // _____________________________________________________________
-// Simule des données entrantes vers l'applicatif.
-// Les données sont récupérées d'un fichier Hex ASCII
+// Simule des donnÃ©es entrantes vers l'applicatif.
+// Les donnÃ©es sont rÃ©cupÃ©rÃ©es d'un fichier Hex ASCII
 // 0x12 0xfe ...
 void CRS232::SimuRx_DonneesEntrantesFichierHexASCII(void)
 {
@@ -952,7 +952,7 @@ void CRS232::SimuRx_DonneesEntrantesFichierHexASCII(void)
        tr("Fichier brut a transmettre"), "./", "", 0, 0);
 
   if (fileName != "") {
-       // Récupère le contenu du fichier et l'envoie
+       // RÃ©cupÃ¨re le contenu du fichier et l'envoie
        QFile data(fileName);
        if (data.open(QFile::ReadOnly)) {
            QTextStream in(&data);
@@ -979,13 +979,13 @@ void CRS232::VisuTx_SauvegarderBrut(void)
     //    CheminEnregistrement/<NomModule>_VisuTxBrut<DateHeure>.txt
     pathfilename =    m_application->m_pathname_log_file +
                           "/" +
-                          QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                          QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                           "_VisuTxBrut_" +
                           CToolBox::getDateTime() +
                           ".txt";
     QFile file(pathfilename);
     if (!file.open(QIODevice::WriteOnly)) {
-            m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+            m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
             return;
     }
     QByteArray byteArray = reader.read(0, m_simuTx_data->length());
@@ -1005,13 +1005,13 @@ void CRS232::VisuTx_SauvegarderHexASCII(void)
     //    CheminEnregistrement/<NomModule>_Terminal_<DateHeure>.txt
     pathfilename =    m_application->m_pathname_log_file +
                             "/" +
-                            QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                            QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                             "_VisuTxHEXA_" +
                             CToolBox::getDateTime() +
                             ".txt";
     QFile file(pathfilename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-              m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+              m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
               return;
     }
 
@@ -1033,11 +1033,11 @@ void CRS232::SimuRX_send(void)
 {
   QByteArray byteArray;
 
-  // La ligne est directement la chaine à envoyer
+  // La ligne est directement la chaine Ã  envoyer
   if (m_ihm.ui.SimuRX_select_String->isChecked()) {
     byteArray.append(m_ihm.ui.SimuRX_value->text());
   }
-  // Convertit la ligne en valeurs numériques
+  // Convertit la ligne en valeurs numÃ©riques
   else if (m_ihm.ui.SimuRX_select_Values->isChecked()) {
     QStringList list = m_ihm.ui.SimuRX_value->text().split(" ");
     for (int i=0; i<list.size(); i++) {
@@ -1046,9 +1046,9 @@ void CRS232::SimuRX_send(void)
         if (ok) {
             byteArray.append(val);
         }
-    } // for toutes les valeurs à écrire
-  } // if la ligne doit être considérée comme valeur numérique
-  emit readyBytes(byteArray); // simule les données entrantes vers l'applicatif
+    } // for toutes les valeurs Ã  Ã©crire
+  } // if la ligne doit Ãªtre considÃ©rÃ©e comme valeur numÃ©rique
+  emit readyBytes(byteArray); // simule les donnÃ©es entrantes vers l'applicatif
 }
 
 

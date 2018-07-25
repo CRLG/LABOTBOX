@@ -16,8 +16,8 @@
 
 template <class T>
 /*! @brief class QProtectedQueue
- * Implémente une classe FIFO avec protection contre les accès concurents (par mutex)
- * Cette classe est implémentée sur le modèle de la classe QQueue de Qt en y ajoutant des mutex
+ * ImplÃ©mente une classe FIFO avec protection contre les accÃ¨s concurents (par mutex)
+ * Cette classe est implÃ©mentÃ©e sur le modÃ¨le de la classe QQueue de Qt en y ajoutant des mutex
  */
 class QProtectedQueue : public QList<T>
 {

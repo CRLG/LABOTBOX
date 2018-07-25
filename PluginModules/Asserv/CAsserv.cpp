@@ -47,17 +47,17 @@ CAsserv::~CAsserv()
 void CAsserv::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -123,7 +123,7 @@ void CAsserv::init(CLaBotBox *application)
   connect(m_ihm.ui.CdeVitesseMVT_IdSportDec, SIGNAL(editingFinished()), this, SLOT(CdeVitesseMVT_IdSportDec_changed()));
 
 
-  // Les données reçues à afficher
+  // Les donnÃ©es reÃ§ues Ã  afficher
   connect(m_application->m_data_center->getData("cde_moteur_D"), SIGNAL(valueChanged(int)), m_ihm.ui.Etat_CdeMotDroit, SLOT(setValue(int)));
   connect(m_application->m_data_center->getData("cde_moteur_G"), SIGNAL(valueChanged(int)), m_ihm.ui.Etat_CdeMotGauche, SLOT(setValue(int)));
   connect(m_application->m_data_center->getData("compteur_diag_blocage"), SIGNAL(valueChanged(int)), m_ihm.ui.Etat_Cpt_diag_blocage, SLOT(setValue(int)));
@@ -160,7 +160,7 @@ void CAsserv::init(CLaBotBox *application)
 */
 void CAsserv::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -169,7 +169,7 @@ void CAsserv::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CAsserv::onRightClicGUI(QPoint pos)
@@ -196,10 +196,10 @@ void CAsserv::keyPressed(int key)
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeManuelleSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le flag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le flag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", true);
   m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", false);
   m_ihm.ui.CdeManuelle_SendLock->setChecked(false);
@@ -219,7 +219,7 @@ void CAsserv::CdeManuelle_Gauche_changed(void)  { m_application->m_data_center->
 
 void CAsserv::CdeManuelle_stopAll(void)
 {
- // enchaine 1->0 sur le flag de synchro pour forcer l'émission de la trame
+ // enchaine 1->0 sur le flag de synchro pour forcer l'Ã©mission de la trame
  m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", true);
  m_ihm.ui.CdeManuelle_Droit->setValue(0);
  m_ihm.ui.CdeManuelle_Gauche->setValue(0);
@@ -235,10 +235,10 @@ void CAsserv::CdeManuelle_stopAll(void)
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeXYSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le floag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", true);
   m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", false);
   m_ihm.ui.CdeXY_SendLock->setChecked(false);
@@ -260,10 +260,10 @@ void CAsserv::CdeXY_Y_changed(void) { m_application->m_data_center->write("Y_con
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeXYTSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le floag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", true);
   m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", false);
   m_ihm.ui.CdeXYTeta_SendLock->setChecked(false);
@@ -287,10 +287,10 @@ void CAsserv::CdeXYT_Teta_changed(void) { m_application->m_data_center->write("X
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeInitXYTSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le floag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", true);
   m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", false);
   m_ihm.ui.CdeInitXYTeta_SendLock->setChecked(false);
@@ -315,10 +315,10 @@ void CAsserv::CdeInitXYT_Teta_changed(void) { m_application->m_data_center->writ
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeDistAngleSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le floag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", true);
   m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", false);
   m_ihm.ui.CdeDistAngle_SendLock->setChecked(false);
@@ -341,10 +341,10 @@ void CAsserv::CdeDistAngle_Angle_changed(void)      { m_application->m_data_cent
 // ==================================================
 // _____________________________________________________________________
 // Clic gauche : envoie la trame
-// Clic droit : vérouille la trame
+// Clic droit : vÃ©rouille la trame
 void CAsserv::CdeVitesseMVTSynchroSend_left_clic(void)
 {
-  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  // enchaine 1->0 sur le floag de synchro pour forcer l'Ã©mission de la trame
   m_application->m_data_center->write("COMMANDE_VITESSE_MVT_TxSync", true);
   m_application->m_data_center->write("COMMANDE_VITESSE_MVT_TxSync", false);
   m_ihm.ui.CdeVitesseMVT_SendLock->setChecked(false);
@@ -438,7 +438,7 @@ void CAsserv::ModeAsservissement_changed(int val)
 void CAsserv::initList_ActionsDiagAsserv(void)
 {
   QStringList lst;
-  // à mettre dans le même ordre que l'énuméré "eASSERV_WRITE_PARAM" (commun avec le MBED)
+  // Ã  mettre dans le mÃªme ordre que l'Ã©numÃ©rÃ© "eASSERV_WRITE_PARAM" (commun avec le MBED)
   lst << "SEUIL_CONV_DIST"
       << "SEUIL_CONV_ANGLE"
       << "DIAG_WR_KI_ANGLE"
@@ -461,9 +461,9 @@ void CAsserv::DiagAsserv_Send_clicked(void)
 }
 
 // ____________________________________________________
-// Les coeficients de l'asserv ne sont pas tous dans le même range
+// Les coeficients de l'asserv ne sont pas tous dans le mÃªme range
 // Adapte le range au coeficient
-// Attention : doit être en cohérence avec le code côté MBED
+// Attention : doit Ãªtre en cohÃ©rence avec le code cÃ´tÃ© MBED
 int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
 {
     switch (param) {

@@ -35,7 +35,7 @@ public:
     QString getName(void) { return(m_name); }
     quint64 getTime() { return m_update_time; }
 
-    // Accesseurs sur les propriétés
+    // Accesseurs sur les propriÃ©tÃ©s
     void setProperty(QString name, QVariant value);
     QVariant getProperty(QString name);
     void getPropertiesList(QStringList &list);
@@ -44,13 +44,13 @@ public:
 private:
     //! Stockage de la valeur de la data
     QVariant m_data;
-    //! Instant de la dernière mse à à jour (temps absolue en msec)
+    //! Instant de la derniÃ¨re mse Ã  Ã  jour (temps absolue en msec)
     qint64 m_update_time;
     //! Nom de la data
     QString m_name;
-    //! Mutex pour l'accès concurrentiel à la data
+    //! Mutex pour l'accÃ¨s concurrentiel Ã  la data
     QMutex m_mutex;
-    //! Liste d'options associées à la data (QString = nom de la propriété / QVariant = valeur de la propriété)
+    //! Liste d'options associÃ©es Ã  la data (QString = nom de la propriÃ©tÃ© / QVariant = valeur de la propriÃ©tÃ©)
     t_map_properties m_properties;
 
 signals:

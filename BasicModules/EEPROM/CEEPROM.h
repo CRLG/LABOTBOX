@@ -26,7 +26,7 @@ class CEEPROM : public CBasicModule
 private :
 #define     VERSION_EEPROM         "1.0"
 #define     AUTEUR_EEPROM          "Nico"
-#define     INFO_EEPROM            "Gestionnaire de la sauvegarde des paramËtres de configuration"
+#define     INFO_EEPROM            "Gestionnaire de la sauvegarde des param√®tres de configuration"
 
 
 public:
@@ -40,13 +40,13 @@ public:
 
     void init(CLaBotBox *application);
 private:
-    //! Mutex de protection d'accËs multiple ‡ la ressource partagÈe
+    //! Mutex de protection d'acc√®s multiple √† la ressource partag√©e
     QMutex m_mutex;
 
-    //! Ressource de mÈmorisation propre Qt
+    //! Ressource de m√©morisation propre Qt
     QSettings *m_settings;
 
-    //! Indique si l'initialisation du module ‡ dÈj‡ ÈtÈt faite
+    //! Indique si l'initialisation du module √† d√©j√† √©t√©t faite
     bool m_initialized;
 
 };

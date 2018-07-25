@@ -1,4 +1,4 @@
-Valeur;Durée[msec]
+Valeur;DurÃ©e[msec]
 1;100
 2;100
 3;100

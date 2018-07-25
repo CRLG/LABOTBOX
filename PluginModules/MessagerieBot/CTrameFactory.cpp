@@ -1,5 +1,5 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
-// Date de génération : Tue May 05 22:41:21 2015
+// Date de gÃ©nÃ©ration : Tue May 05 22:41:21 2015
 // PLATEFORME CIBLE : LABOTBOX
 /*! \file CTrameFactory.cpp
  * A brief file description CPP.
@@ -38,7 +38,7 @@ CTrameFactory::CTrameFactory(CMessagerieBot *messagerie_bot, CDataManager *data_
 */
 CTrameFactory::~CTrameFactory()
 {
-  // Nettoie les trames créées dynamiquement
+  // Nettoie les trames crÃ©Ã©es dynamiquement
   for (int i=0; i<m_liste_trames.size(); i++) {
     if (m_liste_trames.at(i) != NULL) { delete m_liste_trames.at(i); }
   }
@@ -48,14 +48,14 @@ CTrameFactory::~CTrameFactory()
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée lorsqu'une trame valide arrive
+*  Point d'entrÃ©e lorsqu'une trame valide arrive
 *
-*  \param [in] trame la trame arrivée
+*  \param [in] trame la trame arrivÃ©e
 */
 void CTrameFactory::Decode(tStructTrameBrute trame)
 {
-  // Vérifie pour chaque trame de la factory si l'identifiant
-  // correspond à celui de la trame reçue
+  // VÃ©rifie pour chaque trame de la factory si l'identifiant
+  // correspond Ã  celui de la trame reÃ§ue
   for (int i=0; i<m_liste_trames_rx.size(); i++) {
     if (m_liste_trames_rx.at(i)->m_id == trame.ID) {
         m_liste_trames_rx.at(i)->Decode(&trame);
@@ -66,13 +66,13 @@ void CTrameFactory::Decode(tStructTrameBrute trame)
 /*!
 *  Construit et initialise les trames
 *
-*  \param [in] data la valeur de la donnée au format générique QVariant
-*  \remarks le signal valueChanged est émis si la valeur de la donnée a changé
-*  \remarks l'écriture de la donnée est réalisée en section critique pour assurer l'utilisation en multi-thread
+*  \param [in] data la valeur de la donnÃ©e au format gÃ©nÃ©rique QVariant
+*  \remarks le signal valueChanged est Ã©mis si la valeur de la donnÃ©e a changÃ©
+*  \remarks l'Ã©criture de la donnÃ©e est rÃ©alisÃ©e en section critique pour assurer l'utilisation en multi-thread
 */
 void CTrameFactory::create(void)
 {
-  // Trames en réception
+  // Trames en rÃ©ception
  m_liste_trames_rx.append(new CTrame_ETAT_PID_ASSERVISSEMENT(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_ASSERVISSEMENT(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_POSITION_CODEURS(m_messagerie_bot, m_data_manager));
@@ -85,7 +85,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ECRAN_ETAT_MATCH(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
-  // Trames en émission
+  // Trames en Ã©mission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
@@ -103,7 +103,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ECRAN_ETAT_ECRAN(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
 
- // Crée une seule liste avec toutes les trames en émission et en réception
+ // CrÃ©e une seule liste avec toutes les trames en Ã©mission et en rÃ©ception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
     m_liste_trames.append(m_liste_trames_rx.at(i));
  }
@@ -160,13 +160,13 @@ CTrame_ELECTROBOT_CDE_SERVOS_SD20::CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerie
  m_liste_noms_signaux.append("commande_sd20");
  m_liste_noms_signaux.append("num_servo_sd20");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  valeur_commande_sd20 = 0;
  commande_sd20 = 0;
  num_servo_sd20 = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("valeur_commande_sd20",  valeur_commande_sd20);
  data_manager->write("commande_sd20",  commande_sd20);
  data_manager->write("num_servo_sd20",  num_servo_sd20);
@@ -181,7 +181,7 @@ CTrame_ELECTROBOT_CDE_SERVOS_SD20::CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerie
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_SD20::valeur_commande_sd20_changed(QVariant val)
@@ -191,7 +191,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::valeur_commande_sd20_changed(QVariant va
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_SD20::commande_sd20_changed(QVariant val)
@@ -201,7 +201,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::commande_sd20_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_SD20::num_servo_sd20_changed(QVariant val)
@@ -211,7 +211,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::num_servo_sd20_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Synchro_changed(QVariant val)
@@ -228,7 +228,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ELECTROBOT_CDE_SERVOS_SD20;
   trame.DLC = DLC_ELECTROBOT_CDE_SERVOS_SD20;
 
@@ -247,7 +247,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -264,13 +264,13 @@ CTrame_ELECTROBOT_CDE_SERVOS_AX::CTrame_ELECTROBOT_CDE_SERVOS_AX(CMessagerieBot 
  m_liste_noms_signaux.append("commande_ax");
  m_liste_noms_signaux.append("num_servo_ax");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  valeur_commande_ax = 0;
  commande_ax = 0;
  num_servo_ax = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("valeur_commande_ax",  valeur_commande_ax);
  data_manager->write("commande_ax",  commande_ax);
  data_manager->write("num_servo_ax",  num_servo_ax);
@@ -285,7 +285,7 @@ CTrame_ELECTROBOT_CDE_SERVOS_AX::CTrame_ELECTROBOT_CDE_SERVOS_AX(CMessagerieBot 
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_AX::valeur_commande_ax_changed(QVariant val)
@@ -295,7 +295,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_AX::valeur_commande_ax_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_AX::commande_ax_changed(QVariant val)
@@ -305,7 +305,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_AX::commande_ax_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_AX::num_servo_ax_changed(QVariant val)
@@ -315,7 +315,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_AX::num_servo_ax_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS_AX::Synchro_changed(QVariant val)
@@ -332,7 +332,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_AX::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ELECTROBOT_CDE_SERVOS_AX;
   trame.DLC = DLC_ELECTROBOT_CDE_SERVOS_AX;
 
@@ -351,7 +351,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_AX::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -371,7 +371,7 @@ CTrame_ELECTROBOT_CDE_MOTEURS::CTrame_ELECTROBOT_CDE_MOTEURS(CMessagerieBot *mes
  m_liste_noms_signaux.append("cde_moteur_2");
  m_liste_noms_signaux.append("cde_moteur_1");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  cde_moteur_6 = 0;
  cde_moteur_5 = 0;
  cde_moteur_4 = 0;
@@ -380,7 +380,7 @@ CTrame_ELECTROBOT_CDE_MOTEURS::CTrame_ELECTROBOT_CDE_MOTEURS(CMessagerieBot *mes
  cde_moteur_1 = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("cde_moteur_6",  cde_moteur_6);
  data_manager->write("cde_moteur_5",  cde_moteur_5);
  data_manager->write("cde_moteur_4",  cde_moteur_4);
@@ -401,7 +401,7 @@ CTrame_ELECTROBOT_CDE_MOTEURS::CTrame_ELECTROBOT_CDE_MOTEURS(CMessagerieBot *mes
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_6_changed(QVariant val)
@@ -414,7 +414,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_6_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_5_changed(QVariant val)
@@ -424,7 +424,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_5_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_4_changed(QVariant val)
@@ -434,7 +434,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_4_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_3_changed(QVariant val)
@@ -444,7 +444,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_3_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_2_changed(QVariant val)
@@ -454,7 +454,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_2_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_1_changed(QVariant val)
@@ -464,7 +464,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::cde_moteur_1_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_MOTEURS::Synchro_changed(QVariant val)
@@ -481,7 +481,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ELECTROBOT_CDE_MOTEURS;
   trame.DLC = DLC_ELECTROBOT_CDE_MOTEURS;
 
@@ -504,7 +504,7 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -521,13 +521,13 @@ CTrame_COMMANDE_MVT_XY::CTrame_COMMANDE_MVT_XY(CMessagerieBot *messagerie_bot, C
  m_liste_noms_signaux.append("X_consigne");
  m_liste_noms_signaux.append("Type_mouvement");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  Y_consigne = 0;
  X_consigne = 0;
  Type_mouvement = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Y_consigne",  Y_consigne);
  data_manager->write("X_consigne",  X_consigne);
  data_manager->write("Type_mouvement",  Type_mouvement);
@@ -542,7 +542,7 @@ CTrame_COMMANDE_MVT_XY::CTrame_COMMANDE_MVT_XY(CMessagerieBot *messagerie_bot, C
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY::Y_consigne_changed(QVariant val)
@@ -552,7 +552,7 @@ void CTrame_COMMANDE_MVT_XY::Y_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY::X_consigne_changed(QVariant val)
@@ -562,7 +562,7 @@ void CTrame_COMMANDE_MVT_XY::X_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY::Type_mouvement_changed(QVariant val)
@@ -572,7 +572,7 @@ void CTrame_COMMANDE_MVT_XY::Type_mouvement_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY::Synchro_changed(QVariant val)
@@ -589,7 +589,7 @@ void CTrame_COMMANDE_MVT_XY::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_MVT_XY;
   trame.DLC = DLC_COMMANDE_MVT_XY;
 
@@ -608,7 +608,7 @@ void CTrame_COMMANDE_MVT_XY::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -623,11 +623,11 @@ CTrame_ASSERV_RESET::CTrame_ASSERV_RESET(CMessagerieBot *messagerie_bot, CDataMa
  m_dlc = DLC_ASSERV_RESET;
  m_liste_noms_signaux.append("SECURITE_RESET");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  SECURITE_RESET = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("SECURITE_RESET",  SECURITE_RESET);
  data_manager->write("ASSERV_RESET_TxSync",  m_synchro_tx);
 
@@ -638,7 +638,7 @@ CTrame_ASSERV_RESET::CTrame_ASSERV_RESET(CMessagerieBot *messagerie_bot, CDataMa
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ASSERV_RESET::SECURITE_RESET_changed(QVariant val)
@@ -648,7 +648,7 @@ void CTrame_ASSERV_RESET::SECURITE_RESET_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ASSERV_RESET::Synchro_changed(QVariant val)
@@ -665,7 +665,7 @@ void CTrame_ASSERV_RESET::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ASSERV_RESET;
   trame.DLC = DLC_ASSERV_RESET;
 
@@ -678,7 +678,7 @@ void CTrame_ASSERV_RESET::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -693,11 +693,11 @@ CTrame_AUTOAPPRENTISSAGE_ASSERV::CTrame_AUTOAPPRENTISSAGE_ASSERV(CMessagerieBot 
  m_dlc = DLC_AUTOAPPRENTISSAGE_ASSERV;
  m_liste_noms_signaux.append("Type_autoapprentissage");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  Type_autoapprentissage = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Type_autoapprentissage",  Type_autoapprentissage);
  data_manager->write("AUTOAPPRENTISSAGE_ASSERV_TxSync",  m_synchro_tx);
 
@@ -708,7 +708,7 @@ CTrame_AUTOAPPRENTISSAGE_ASSERV::CTrame_AUTOAPPRENTISSAGE_ASSERV(CMessagerieBot 
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_AUTOAPPRENTISSAGE_ASSERV::Type_autoapprentissage_changed(QVariant val)
@@ -718,7 +718,7 @@ void CTrame_AUTOAPPRENTISSAGE_ASSERV::Type_autoapprentissage_changed(QVariant va
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_AUTOAPPRENTISSAGE_ASSERV::Synchro_changed(QVariant val)
@@ -735,7 +735,7 @@ void CTrame_AUTOAPPRENTISSAGE_ASSERV::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_AUTOAPPRENTISSAGE_ASSERV;
   trame.DLC = DLC_AUTOAPPRENTISSAGE_ASSERV;
 
@@ -748,7 +748,7 @@ void CTrame_AUTOAPPRENTISSAGE_ASSERV::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -765,13 +765,13 @@ CTrame_COMMANDE_REINIT_XY_TETA::CTrame_COMMANDE_REINIT_XY_TETA(CMessagerieBot *m
  m_liste_noms_signaux.append("reinit_y_pos");
  m_liste_noms_signaux.append("reinit_x_pos");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  reinit_teta_pos = 0;
  reinit_y_pos = 0;
  reinit_x_pos = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("reinit_teta_pos",  reinit_teta_pos);
  data_manager->write("reinit_y_pos",  reinit_y_pos);
  data_manager->write("reinit_x_pos",  reinit_x_pos);
@@ -786,7 +786,7 @@ CTrame_COMMANDE_REINIT_XY_TETA::CTrame_COMMANDE_REINIT_XY_TETA(CMessagerieBot *m
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REINIT_XY_TETA::reinit_teta_pos_changed(QVariant val)
@@ -796,7 +796,7 @@ void CTrame_COMMANDE_REINIT_XY_TETA::reinit_teta_pos_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REINIT_XY_TETA::reinit_y_pos_changed(QVariant val)
@@ -806,7 +806,7 @@ void CTrame_COMMANDE_REINIT_XY_TETA::reinit_y_pos_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REINIT_XY_TETA::reinit_x_pos_changed(QVariant val)
@@ -816,7 +816,7 @@ void CTrame_COMMANDE_REINIT_XY_TETA::reinit_x_pos_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REINIT_XY_TETA::Synchro_changed(QVariant val)
@@ -833,7 +833,7 @@ void CTrame_COMMANDE_REINIT_XY_TETA::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_REINIT_XY_TETA;
   trame.DLC = DLC_COMMANDE_REINIT_XY_TETA;
 
@@ -853,7 +853,7 @@ void CTrame_COMMANDE_REINIT_XY_TETA::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -871,14 +871,14 @@ CTrame_COMMANDE_VITESSE_MVT::CTrame_COMMANDE_VITESSE_MVT(CMessagerieBot *message
  m_liste_noms_signaux.append("vitesse_rotation_max");
  m_liste_noms_signaux.append("vitesse_avance_max");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  indice_sportivite_decel = 0;
  indice_sportivite_accel = 0;
  vitesse_rotation_max = 0;
  vitesse_avance_max = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("indice_sportivite_decel",  indice_sportivite_decel);
  data_manager->write("indice_sportivite_accel",  indice_sportivite_accel);
  data_manager->write("vitesse_rotation_max",  vitesse_rotation_max);
@@ -895,7 +895,7 @@ CTrame_COMMANDE_VITESSE_MVT::CTrame_COMMANDE_VITESSE_MVT(CMessagerieBot *message
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_VITESSE_MVT::indice_sportivite_decel_changed(QVariant val)
@@ -905,7 +905,7 @@ void CTrame_COMMANDE_VITESSE_MVT::indice_sportivite_decel_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_VITESSE_MVT::indice_sportivite_accel_changed(QVariant val)
@@ -915,7 +915,7 @@ void CTrame_COMMANDE_VITESSE_MVT::indice_sportivite_accel_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_VITESSE_MVT::vitesse_rotation_max_changed(QVariant val)
@@ -925,7 +925,7 @@ void CTrame_COMMANDE_VITESSE_MVT::vitesse_rotation_max_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_VITESSE_MVT::vitesse_avance_max_changed(QVariant val)
@@ -935,7 +935,7 @@ void CTrame_COMMANDE_VITESSE_MVT::vitesse_avance_max_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_VITESSE_MVT::Synchro_changed(QVariant val)
@@ -952,7 +952,7 @@ void CTrame_COMMANDE_VITESSE_MVT::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_VITESSE_MVT;
   trame.DLC = DLC_COMMANDE_VITESSE_MVT;
 
@@ -973,7 +973,7 @@ void CTrame_COMMANDE_VITESSE_MVT::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -989,12 +989,12 @@ CTrame_COMMANDE_REGUL_VITESSE::CTrame_COMMANDE_REGUL_VITESSE(CMessagerieBot *mes
  m_liste_noms_signaux.append("consigne_vitesse_roue_D");
  m_liste_noms_signaux.append("consigne_vitesse_roue_G");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  consigne_vitesse_roue_D = 0;
  consigne_vitesse_roue_G = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("consigne_vitesse_roue_D",  consigne_vitesse_roue_D);
  data_manager->write("consigne_vitesse_roue_G",  consigne_vitesse_roue_G);
  data_manager->write("COMMANDE_REGUL_VITESSE_TxSync",  m_synchro_tx);
@@ -1007,7 +1007,7 @@ CTrame_COMMANDE_REGUL_VITESSE::CTrame_COMMANDE_REGUL_VITESSE(CMessagerieBot *mes
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REGUL_VITESSE::consigne_vitesse_roue_D_changed(QVariant val)
@@ -1017,7 +1017,7 @@ void CTrame_COMMANDE_REGUL_VITESSE::consigne_vitesse_roue_D_changed(QVariant val
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REGUL_VITESSE::consigne_vitesse_roue_G_changed(QVariant val)
@@ -1027,7 +1027,7 @@ void CTrame_COMMANDE_REGUL_VITESSE::consigne_vitesse_roue_G_changed(QVariant val
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_REGUL_VITESSE::Synchro_changed(QVariant val)
@@ -1044,7 +1044,7 @@ void CTrame_COMMANDE_REGUL_VITESSE::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_REGUL_VITESSE;
   trame.DLC = DLC_COMMANDE_REGUL_VITESSE;
 
@@ -1061,7 +1061,7 @@ void CTrame_COMMANDE_REGUL_VITESSE::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1078,13 +1078,13 @@ CTrame_COMMANDE_DISTANCE_ANGLE::CTrame_COMMANDE_DISTANCE_ANGLE(CMessagerieBot *m
  m_liste_noms_signaux.append("distance_consigne");
  m_liste_noms_signaux.append("priorite_mouvement");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  angle_consigne = 0;
  distance_consigne = 0;
  priorite_mouvement = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("angle_consigne",  angle_consigne);
  data_manager->write("distance_consigne",  distance_consigne);
  data_manager->write("priorite_mouvement",  priorite_mouvement);
@@ -1099,7 +1099,7 @@ CTrame_COMMANDE_DISTANCE_ANGLE::CTrame_COMMANDE_DISTANCE_ANGLE(CMessagerieBot *m
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_DISTANCE_ANGLE::angle_consigne_changed(QVariant val)
@@ -1109,7 +1109,7 @@ void CTrame_COMMANDE_DISTANCE_ANGLE::angle_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_DISTANCE_ANGLE::distance_consigne_changed(QVariant val)
@@ -1119,7 +1119,7 @@ void CTrame_COMMANDE_DISTANCE_ANGLE::distance_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_DISTANCE_ANGLE::priorite_mouvement_changed(QVariant val)
@@ -1129,7 +1129,7 @@ void CTrame_COMMANDE_DISTANCE_ANGLE::priorite_mouvement_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_DISTANCE_ANGLE::Synchro_changed(QVariant val)
@@ -1146,7 +1146,7 @@ void CTrame_COMMANDE_DISTANCE_ANGLE::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_DISTANCE_ANGLE;
   trame.DLC = DLC_COMMANDE_DISTANCE_ANGLE;
 
@@ -1165,7 +1165,7 @@ void CTrame_COMMANDE_DISTANCE_ANGLE::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1183,14 +1183,14 @@ CTrame_COMMANDE_MVT_XY_TETA::CTrame_COMMANDE_MVT_XY_TETA(CMessagerieBot *message
  m_liste_noms_signaux.append("XYT_X_consigne");
  m_liste_noms_signaux.append("XYT_Type_mouvement");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  angle_consigne = 0;
  Y_consigne = 0;
  X_consigne = 0;
  Type_mouvement = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("XYT_angle_consigne",  angle_consigne);
  data_manager->write("XYT_Y_consigne",  Y_consigne);
  data_manager->write("XYT_X_consigne",  X_consigne);
@@ -1207,7 +1207,7 @@ CTrame_COMMANDE_MVT_XY_TETA::CTrame_COMMANDE_MVT_XY_TETA(CMessagerieBot *message
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY_TETA::angle_consigne_changed(QVariant val)
@@ -1217,7 +1217,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::angle_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY_TETA::Y_consigne_changed(QVariant val)
@@ -1227,7 +1227,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::Y_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY_TETA::X_consigne_changed(QVariant val)
@@ -1237,7 +1237,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::X_consigne_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY_TETA::Type_mouvement_changed(QVariant val)
@@ -1247,7 +1247,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::Type_mouvement_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_XY_TETA::Synchro_changed(QVariant val)
@@ -1264,7 +1264,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_MVT_XY_TETA;
   trame.DLC = DLC_COMMANDE_MVT_XY_TETA;
 
@@ -1286,7 +1286,7 @@ void CTrame_COMMANDE_MVT_XY_TETA::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1302,12 +1302,12 @@ CTrame_ASSERV_DIAG_WRITE_PARAM::CTrame_ASSERV_DIAG_WRITE_PARAM(CMessagerieBot *m
  m_liste_noms_signaux.append("ASSERV_DIAG_WRITE_VALUE");
  m_liste_noms_signaux.append("ASSERV_DIAG_WRITE_PARAM");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  ASSERV_DIAG_WRITE_VALUE = 0;
  ASSERV_DIAG_WRITE_PARAM = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("ASSERV_DIAG_WRITE_VALUE",  ASSERV_DIAG_WRITE_VALUE);
  data_manager->write("ASSERV_DIAG_WRITE_PARAM",  ASSERV_DIAG_WRITE_PARAM);
  data_manager->write("ASSERV_DIAG_WRITE_PARAM_TxSync",  m_synchro_tx);
@@ -1320,7 +1320,7 @@ CTrame_ASSERV_DIAG_WRITE_PARAM::CTrame_ASSERV_DIAG_WRITE_PARAM(CMessagerieBot *m
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_VALUE_changed(QVariant val)
@@ -1330,7 +1330,7 @@ void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_VALUE_changed(QVariant va
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_PARAM_changed(QVariant val)
@@ -1340,7 +1340,7 @@ void CTrame_ASSERV_DIAG_WRITE_PARAM::ASSERV_DIAG_WRITE_PARAM_changed(QVariant va
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ASSERV_DIAG_WRITE_PARAM::Synchro_changed(QVariant val)
@@ -1357,7 +1357,7 @@ void CTrame_ASSERV_DIAG_WRITE_PARAM::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ASSERV_DIAG_WRITE_PARAM;
   trame.DLC = DLC_ASSERV_DIAG_WRITE_PARAM;
 
@@ -1374,7 +1374,7 @@ void CTrame_ASSERV_DIAG_WRITE_PARAM::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1394,7 +1394,7 @@ CTrame_ELECTROBOT_CDE_SERVOS::CTrame_ELECTROBOT_CDE_SERVOS(CMessagerieBot *messa
  m_liste_noms_signaux.append("VitesseServoMoteur1");
  m_liste_noms_signaux.append("NumeroServoMoteur1");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  PositionServoMoteur2 = 0;
  VitesseServoMoteur2 = 0;
  NumeroServoMoteur2 = 0;
@@ -1403,7 +1403,7 @@ CTrame_ELECTROBOT_CDE_SERVOS::CTrame_ELECTROBOT_CDE_SERVOS(CMessagerieBot *messa
  NumeroServoMoteur1 = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("PositionServoMoteur2",  PositionServoMoteur2);
  data_manager->write("VitesseServoMoteur2",  VitesseServoMoteur2);
  data_manager->write("NumeroServoMoteur2",  NumeroServoMoteur2);
@@ -1424,7 +1424,7 @@ CTrame_ELECTROBOT_CDE_SERVOS::CTrame_ELECTROBOT_CDE_SERVOS(CMessagerieBot *messa
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::PositionServoMoteur2_changed(QVariant val)
@@ -1434,7 +1434,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::PositionServoMoteur2_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::VitesseServoMoteur2_changed(QVariant val)
@@ -1444,7 +1444,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::VitesseServoMoteur2_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::NumeroServoMoteur2_changed(QVariant val)
@@ -1454,7 +1454,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::NumeroServoMoteur2_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::PositionServoMoteur1_changed(QVariant val)
@@ -1464,7 +1464,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::PositionServoMoteur1_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::VitesseServoMoteur1_changed(QVariant val)
@@ -1474,7 +1474,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::VitesseServoMoteur1_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::NumeroServoMoteur1_changed(QVariant val)
@@ -1484,7 +1484,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::NumeroServoMoteur1_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ELECTROBOT_CDE_SERVOS::Synchro_changed(QVariant val)
@@ -1501,7 +1501,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ELECTROBOT_CDE_SERVOS;
   trame.DLC = DLC_ELECTROBOT_CDE_SERVOS;
 
@@ -1526,7 +1526,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1542,12 +1542,12 @@ CTrame_COMMANDE_MVT_MANUEL::CTrame_COMMANDE_MVT_MANUEL(CMessagerieBot *messageri
  m_liste_noms_signaux.append("PuissanceMotD");
  m_liste_noms_signaux.append("PuissanceMotG");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  PuissanceMotD = 0;
  PuissanceMotG = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("PuissanceMotD",  PuissanceMotD);
  data_manager->write("PuissanceMotG",  PuissanceMotG);
  data_manager->write("COMMANDE_MVT_MANUEL_TxSync",  m_synchro_tx);
@@ -1560,7 +1560,7 @@ CTrame_COMMANDE_MVT_MANUEL::CTrame_COMMANDE_MVT_MANUEL(CMessagerieBot *messageri
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_MANUEL::PuissanceMotD_changed(QVariant val)
@@ -1570,7 +1570,7 @@ void CTrame_COMMANDE_MVT_MANUEL::PuissanceMotD_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_MANUEL::PuissanceMotG_changed(QVariant val)
@@ -1580,7 +1580,7 @@ void CTrame_COMMANDE_MVT_MANUEL::PuissanceMotG_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_COMMANDE_MVT_MANUEL::Synchro_changed(QVariant val)
@@ -1597,7 +1597,7 @@ void CTrame_COMMANDE_MVT_MANUEL::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_COMMANDE_MVT_MANUEL;
   trame.DLC = DLC_COMMANDE_MVT_MANUEL;
 
@@ -1614,7 +1614,7 @@ void CTrame_COMMANDE_MVT_MANUEL::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -1632,7 +1632,7 @@ CTrame_ETAT_PID_ASSERVISSEMENT::CTrame_ETAT_PID_ASSERVISSEMENT(CMessagerieBot *m
  m_liste_noms_signaux.append("consigne_vitesse_avance_filt");
  m_liste_noms_signaux.append("vitesse_avance_robot_filt");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("consigne_vitesse_rotation_filt",  consigne_vitesse_rotation_filt);
  data_manager->write("vitesse_rotation_robot_filt",  vitesse_rotation_robot_filt);
  data_manager->write("consigne_vitesse_avance_filt",  consigne_vitesse_avance_filt);
@@ -1656,7 +1656,7 @@ void CTrame_ETAT_PID_ASSERVISSEMENT::Decode(tStructTrameBrute *trameRecue)
    vitesse_avance_robot_filt = ( ( ((short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[0])) & 0xFF) << 8 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("consigne_vitesse_rotation_filt", BRUTE2PHYS_consigne_vitesse_rotation_filt(consigne_vitesse_rotation_filt));
    m_data_manager->write("vitesse_rotation_robot_filt", BRUTE2PHYS_vitesse_rotation_robot_filt(vitesse_rotation_robot_filt));
    m_data_manager->write("consigne_vitesse_avance_filt", BRUTE2PHYS_consigne_vitesse_avance_filt(consigne_vitesse_avance_filt));
@@ -1680,7 +1680,7 @@ CTrame_ETAT_ASSERVISSEMENT::CTrame_ETAT_ASSERVISSEMENT(CMessagerieBot *messageri
  m_liste_noms_signaux.append("cde_moteur_G");
  m_liste_noms_signaux.append("Convergence");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("compteur_diag_blocage",  compteur_diag_blocage);
  data_manager->write("ModeAsservissement",  ModeAsservissement);
  data_manager->write("cde_moteur_D",  cde_moteur_D);
@@ -1707,7 +1707,7 @@ void CTrame_ETAT_ASSERVISSEMENT::Decode(tStructTrameBrute *trameRecue)
    Convergence = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("compteur_diag_blocage", compteur_diag_blocage);
    m_data_manager->write("ModeAsservissement", ModeAsservissement);
    m_data_manager->write("cde_moteur_D", cde_moteur_D);
@@ -1729,7 +1729,7 @@ CTrame_POSITION_CODEURS::CTrame_POSITION_CODEURS(CMessagerieBot *messagerie_bot,
  m_liste_noms_signaux.append("PosCodeurG");
  m_liste_noms_signaux.append("PosCodeurD");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("PosCodeurG",  PosCodeurG);
  data_manager->write("PosCodeurD",  PosCodeurD);
 
@@ -1747,7 +1747,7 @@ void CTrame_POSITION_CODEURS::Decode(tStructTrameBrute *trameRecue)
    PosCodeurD = ( ( ((short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[2])) & 0xFF) << 8 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("PosCodeurG", PosCodeurG);
    m_data_manager->write("PosCodeurD", PosCodeurD);
    // Comptabilise la reception de cette trame
@@ -1767,7 +1767,7 @@ CTrame_POSITION_ABSOLUE_XY_TETA::CTrame_POSITION_ABSOLUE_XY_TETA(CMessagerieBot 
  m_liste_noms_signaux.append("y_pos");
  m_liste_noms_signaux.append("x_pos");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("teta_pos",  teta_pos);
  data_manager->write("y_pos",  y_pos);
  data_manager->write("x_pos",  x_pos);
@@ -1788,7 +1788,7 @@ void CTrame_POSITION_ABSOLUE_XY_TETA::Decode(tStructTrameBrute *trameRecue)
    x_pos = ( ( ((short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[0])) & 0xFF) << 8 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("teta_pos", BRUTE2PHYS_teta_pos(teta_pos));
    m_data_manager->write("y_pos", BRUTE2PHYS_y_pos(y_pos));
    m_data_manager->write("x_pos", BRUTE2PHYS_x_pos(x_pos));
@@ -1808,7 +1808,7 @@ CTrame_ELECTROBOT_ETAT_CODEURS_1_2::CTrame_ELECTROBOT_ETAT_CODEURS_1_2(CMessager
  m_liste_noms_signaux.append("Codeur_2");
  m_liste_noms_signaux.append("Codeur_1");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Codeur_2",  Codeur_2);
  data_manager->write("Codeur_1",  Codeur_1);
 
@@ -1826,7 +1826,7 @@ void CTrame_ELECTROBOT_ETAT_CODEURS_1_2::Decode(tStructTrameBrute *trameRecue)
    Codeur_1 = ( ( ((long)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((long)(trameRecue->Data[2])) & 0xFF) << 8 )  |  ( ( ((long)(trameRecue->Data[1])) & 0xFF) << 16 )  |  ( ( ((long)(trameRecue->Data[0])) & 0xFF) << 24 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Codeur_2", Codeur_2);
    m_data_manager->write("Codeur_1", Codeur_1);
    // Comptabilise la reception de cette trame
@@ -1847,7 +1847,7 @@ CTrame_ELECTROBOT_ETAT_TELEMETRES::CTrame_ELECTROBOT_ETAT_TELEMETRES(CMessagerie
  m_liste_noms_signaux.append("Telemetre2");
  m_liste_noms_signaux.append("Telemetre1");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Telemetre4",  Telemetre4);
  data_manager->write("Telemetre3",  Telemetre3);
  data_manager->write("Telemetre2",  Telemetre2);
@@ -1871,7 +1871,7 @@ void CTrame_ELECTROBOT_ETAT_TELEMETRES::Decode(tStructTrameBrute *trameRecue)
    Telemetre1 = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Telemetre4", Telemetre4);
    m_data_manager->write("Telemetre3", Telemetre3);
    m_data_manager->write("Telemetre2", Telemetre2);
@@ -1892,7 +1892,7 @@ CTrame_ELECTROBOT_ETAT_CODEURS_3_4::CTrame_ELECTROBOT_ETAT_CODEURS_3_4(CMessager
  m_liste_noms_signaux.append("Codeur_4");
  m_liste_noms_signaux.append("Codeur_3");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Codeur_4",  Codeur_4);
  data_manager->write("Codeur_3",  Codeur_3);
 
@@ -1910,7 +1910,7 @@ void CTrame_ELECTROBOT_ETAT_CODEURS_3_4::Decode(tStructTrameBrute *trameRecue)
    Codeur_3 = ( ( ((long)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((long)(trameRecue->Data[2])) & 0xFF) << 8 )  |  ( ( ((long)(trameRecue->Data[1])) & 0xFF) << 16 )  |  ( ( ((long)(trameRecue->Data[0])) & 0xFF) << 24 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Codeur_4", Codeur_4);
    m_data_manager->write("Codeur_3", Codeur_3);
    // Comptabilise la reception de cette trame
@@ -1949,7 +1949,7 @@ CTrame_ELECTROBOT_ETAT_CAPTEURS_2::CTrame_ELECTROBOT_ETAT_CAPTEURS_2(CMessagerie
  m_liste_noms_signaux.append("Eana10");
  m_liste_noms_signaux.append("Eana9");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Etor_PGED1_dsPIC2",  Etor_PGED1_dsPIC2);
  data_manager->write("Etor_PGED1_dsPIC1",  Etor_PGED1_dsPIC1);
  data_manager->write("Etor_PGEC1_dsPIC2",  Etor_PGEC1_dsPIC2);
@@ -2027,7 +2027,7 @@ void CTrame_ELECTROBOT_ETAT_CAPTEURS_2::Decode(tStructTrameBrute *trameRecue)
    Eana9 = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Etor_PGED1_dsPIC2", Etor_PGED1_dsPIC2);
    m_data_manager->write("Etor_PGED1_dsPIC1", Etor_PGED1_dsPIC1);
    m_data_manager->write("Etor_PGEC1_dsPIC2", Etor_PGEC1_dsPIC2);
@@ -2072,7 +2072,7 @@ CTrame_ELECTROBOT_ETAT_CAPTEURS_1::CTrame_ELECTROBOT_ETAT_CAPTEURS_1(CMessagerie
  m_liste_noms_signaux.append("Eana2");
  m_liste_noms_signaux.append("Eana1");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Eana8",  Eana8);
  data_manager->write("Eana7",  Eana7);
  data_manager->write("Eana6",  Eana6);
@@ -2108,7 +2108,7 @@ void CTrame_ELECTROBOT_ETAT_CAPTEURS_1::Decode(tStructTrameBrute *trameRecue)
    Eana1 = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Eana8", BRUTE2PHYS_Eana8(Eana8));
    m_data_manager->write("Eana7", BRUTE2PHYS_Eana7(Eana7));
    m_data_manager->write("Eana6", BRUTE2PHYS_Eana6(Eana6));
@@ -2140,7 +2140,7 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
  m_liste_noms_signaux.append("TempsMatch");
  m_liste_noms_signaux.append("Score");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("ObstacleDetecte",  ObstacleDetecte);
  data_manager->write("DiagBlocage",  DiagBlocage);
  data_manager->write("ConvergenceAsserv",  ConvergenceAsserv);
@@ -2174,7 +2174,7 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("ObstacleDetecte", BRUTE2PHYS_ObstacleDetecte(ObstacleDetecte));
    m_data_manager->write("DiagBlocage", BRUTE2PHYS_DiagBlocage(DiagBlocage));
    m_data_manager->write("ConvergenceAsserv", BRUTE2PHYS_ConvergenceAsserv(ConvergenceAsserv));
@@ -2199,11 +2199,11 @@ CTrame_ECRAN_ETAT_ECRAN::CTrame_ECRAN_ETAT_ECRAN(CMessagerieBot *messagerie_bot,
  m_liste_noms_signaux.append("valeur_etat_ecran");
  m_liste_noms_signaux.append("commande_etat_ecran");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  Valeur = 0;
  CodeCommande = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("valeur_etat_ecran",  Valeur);
  data_manager->write("commande_etat_ecran",  CodeCommande);
  data_manager->write("ECRAN_ETAT_ECRAN_TxSync",  m_synchro_tx);
@@ -2216,7 +2216,7 @@ CTrame_ECRAN_ETAT_ECRAN::CTrame_ECRAN_ETAT_ECRAN(CMessagerieBot *messagerie_bot,
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ECRAN_ETAT_ECRAN::Valeur_etat_ecran_changed(QVariant val)
@@ -2226,7 +2226,7 @@ void CTrame_ECRAN_ETAT_ECRAN::Valeur_etat_ecran_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ECRAN_ETAT_ECRAN::CodeCommande_etat_ecran_changed(QVariant val)
@@ -2236,7 +2236,7 @@ void CTrame_ECRAN_ETAT_ECRAN::CodeCommande_etat_ecran_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_ECRAN_ETAT_ECRAN::Synchro_changed(QVariant val)
@@ -2253,7 +2253,7 @@ void CTrame_ECRAN_ETAT_ECRAN::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_ECRAN_ETAT_ECRAN;
   trame.DLC = DLC_ECRAN_ETAT_ECRAN;
 
@@ -2271,7 +2271,7 @@ void CTrame_ECRAN_ETAT_ECRAN::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -2290,7 +2290,7 @@ CTrame_ETAT_RACK::CTrame_ETAT_RACK(CMessagerieBot *messagerie_bot, CDataManager 
  m_liste_noms_signaux.append("rack_consigne_moteur");
  m_liste_noms_signaux.append("rack_convergence");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("rack_reserve",  rack_reserve);
  data_manager->write("rack_modeAsservissement",  rack_modeAsservissement);
  data_manager->write("rack_cde_moteur",  rack_cde_moteur);
@@ -2317,7 +2317,7 @@ void CTrame_ETAT_RACK::Decode(tStructTrameBrute *trameRecue)
    rack_convergence = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("rack_reserve", rack_reserve);
    m_data_manager->write("rack_modeAsservissement", rack_modeAsservissement);
    m_data_manager->write("rack_cde_moteur", rack_cde_moteur);
@@ -2341,7 +2341,7 @@ CTrame_COLOR_SENSOR::CTrame_COLOR_SENSOR(CMessagerieBot *messagerie_bot, CDataMa
  m_liste_noms_signaux.append("color_sensor_B");
 
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("color_sensor_R", R);
  data_manager->write("color_sensor_G", G);
  data_manager->write("color_sensor_B", B);
@@ -2359,7 +2359,7 @@ void CTrame_COLOR_SENSOR::Decode(tStructTrameBrute *trameRecue)
     G = ( ( ((short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[2])) & 0xFF) << 8 );
     B = ( ( ((short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((short)(trameRecue->Data[4])) & 0xFF) << 8 );
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("color_sensor_R", R);
    m_data_manager->write("color_sensor_G", G);
    m_data_manager->write("color_sensor_B", B);
@@ -2379,12 +2379,12 @@ CTrame_CONFIG_PERIODE_TRAME::CTrame_CONFIG_PERIODE_TRAME(CMessagerieBot *message
  m_liste_noms_signaux.append("CONFIG_PERIODE_TRAME_Periode");
  m_liste_noms_signaux.append("CONFIG_PERIODE_TRAME_ID");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  CONFIG_PERIODE_TRAME_Periode = 0;
  CONFIG_PERIODE_TRAME_ID = 0;
  m_synchro_tx = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("CONFIG_PERIODE_TRAME_Periode",  CONFIG_PERIODE_TRAME_Periode);
  data_manager->write("CONFIG_PERIODE_TRAME_ID",  CONFIG_PERIODE_TRAME_ID);
  data_manager->write("CONFIG_PERIODE_TRAME_TxSync",  m_synchro_tx);
@@ -2397,7 +2397,7 @@ CTrame_CONFIG_PERIODE_TRAME::CTrame_CONFIG_PERIODE_TRAME(CMessagerieBot *message
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_Periode_changed(QVariant val)
@@ -2407,7 +2407,7 @@ void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_Periode_changed(QVariant 
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_ID_changed(QVariant val)
@@ -2417,7 +2417,7 @@ void CTrame_CONFIG_PERIODE_TRAME::CONFIG_PERIODE_TRAME_ID_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_CONFIG_PERIODE_TRAME::Synchro_changed(QVariant val)
@@ -2434,7 +2434,7 @@ void CTrame_CONFIG_PERIODE_TRAME::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_CONFIG_PERIODE_TRAME;
   trame.DLC = DLC_CONFIG_PERIODE_TRAME;
 
@@ -2451,7 +2451,7 @@ void CTrame_CONFIG_PERIODE_TRAME::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -2470,14 +2470,14 @@ CTrame_MBED_CMDE::CTrame_MBED_CMDE(CMessagerieBot *messagerie_bot, CDataManager 
  m_liste_noms_signaux.append("valeur_mbed_cmde_04");
  m_liste_noms_signaux.append("code_mbed_cmde");
 
- // Initialise les données de la messagerie
+ // Initialise les donnÃ©es de la messagerie
  Valeur_01 = 0;
  Valeur_02 = 0;
  Valeur_03 = 0;
  Valeur_04 = 0;
  CodeCommande = 0;
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("valeur_mbed_cmde_01",  Valeur_01);
  data_manager->write("valeur_mbed_cmde_02",  Valeur_02);
  data_manager->write("valeur_mbed_cmde_03",  Valeur_03);
@@ -2496,7 +2496,7 @@ CTrame_MBED_CMDE::CTrame_MBED_CMDE(CMessagerieBot *messagerie_bot, CDataManager 
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Valeur_mbed_cmde_01_changed(QVariant val)
@@ -2506,7 +2506,7 @@ void CTrame_MBED_CMDE::Valeur_mbed_cmde_01_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Valeur_mbed_cmde_02_changed(QVariant val)
@@ -2516,7 +2516,7 @@ void CTrame_MBED_CMDE::Valeur_mbed_cmde_02_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Valeur_mbed_cmde_03_changed(QVariant val)
@@ -2526,7 +2526,7 @@ void CTrame_MBED_CMDE::Valeur_mbed_cmde_03_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Valeur_mbed_cmde_04_changed(QVariant val)
@@ -2536,7 +2536,7 @@ void CTrame_MBED_CMDE::Valeur_mbed_cmde_04_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Code_mbed_cmde_changed(QVariant val)
@@ -2546,7 +2546,7 @@ void CTrame_MBED_CMDE::Code_mbed_cmde_changed(QVariant val)
 }
 //___________________________________________________________________________
 /*!
-  \brief Fonction appelée lorsque la data est modifée
+  \brief Fonction appelÃ©e lorsque la data est modifÃ©e
   \param val la nouvelle valeur de la data
 */
 void CTrame_MBED_CMDE::Synchro_changed(QVariant val)
@@ -2563,7 +2563,7 @@ void CTrame_MBED_CMDE::Encode(void)
 {
   tStructTrameBrute trame;
 
-  // Informations générales
+  // Informations gÃ©nÃ©rales
   trame.ID = ID_MBED_CMDE;
   trame.DLC = DLC_MBED_CMDE;
 
@@ -2587,7 +2587,7 @@ void CTrame_MBED_CMDE::Encode(void)
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);
 
-  // Comptabilise le nombre de trames émises
+  // Comptabilise le nombre de trames Ã©mises
   m_nombre_emis++;
 }
 
@@ -2606,7 +2606,7 @@ CTrame_MBED_ETAT::CTrame_MBED_ETAT(CMessagerieBot *messagerie_bot, CDataManager 
  m_liste_noms_signaux.append("Valeur_mbed_etat_04");
  m_liste_noms_signaux.append("Code_mbed_etat");
 
- // S'assure que les données existent dans le DataManager
+ // S'assure que les donnÃ©es existent dans le DataManager
  data_manager->write("Valeur_mbed_etat_01",  Valeur_mbed_etat_01);
  data_manager->write("Valeur_mbed_etat_02",  Valeur_mbed_etat_02);
  data_manager->write("Valeur_mbed_etat_03",  Valeur_mbed_etat_03);
@@ -2633,7 +2633,7 @@ void CTrame_MBED_ETAT::Decode(tStructTrameBrute *trameRecue)
    Cde_mbed_etat = ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[0])) & 0xFF) << 8 );
 
 
-   // Envoie les données au data manager
+   // Envoie les donnÃ©es au data manager
    m_data_manager->write("Valeur_mbed_etat_01", Valeur_mbed_etat_01);
    m_data_manager->write("Valeur_mbed_etat_02", Valeur_mbed_etat_02);
    m_data_manager->write("Valeur_mbed_etat_03", Valeur_mbed_etat_03);

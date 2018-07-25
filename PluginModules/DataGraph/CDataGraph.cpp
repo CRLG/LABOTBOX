@@ -34,7 +34,7 @@
 CDataGraph::CDataGraph(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_DataGraph, AUTEUR_DataGraph, INFO_DataGraph)
 {
-    //Initialisation des paramètres propres à  l'affichage graphique
+    //Initialisation des paramÃ¨tres propres Ã   l'affichage graphique
     dureeObservee=20;
     graphColor=-1;
     graphEnabled=true;
@@ -70,18 +70,18 @@ CDataGraph::~CDataGraph()
 void CDataGraph::init(CLaBotBox *application)
 {
     CModule::init(application);
-    setGUI(&m_ihm); // indique à  la classe de base l'IHM
+    setGUI(&m_ihm); // indique Ã   la classe de base l'IHM
     setNiveauTrace(MSG_TOUS);
 
-    // Gère les actions sur clic droit sur le panel graphique du module
+    // GÃ¨re les actions sur clic droit sur le panel graphique du module
     m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
     connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-    // Restore la taille de la fenêtre
+    // Restore la taille de la fenÃªtre
     QVariant val;
     val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
     m_ihm.setGeometry(val.toRect());
-    // Restore le fait que la fenêtre est visible ou non
+    // Restore le fait que la fenÃªtre est visible ou non
     val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
     if (val.toBool()) { m_ihm.show(); }
     else              { m_ihm.hide(); }
@@ -89,7 +89,7 @@ void CDataGraph::init(CLaBotBox *application)
     val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
     setBackgroundColor(val.value<QColor>());
 
-    //labels pour le tableau de données
+    //labels pour le tableau de donnÃ©es
     QStringList QS_Labels;
     QS_Labels << "Variable" << "Valeur" << "Couleur" << "Curseur 1" << "Curseur 2";
     m_ihm.ui.table_variables_valeurs->setHorizontalHeaderLabels(QS_Labels);
@@ -97,15 +97,15 @@ void CDataGraph::init(CLaBotBox *application)
     m_ihm.ui.table_variables_valeurs->horizontalHeaderItem(3)->setTextColor(Qt::green);
     m_ihm.ui.table_variables_valeurs->horizontalHeaderItem(4)->setTextColor(Qt::red);
 
-    // Restaure la zone minimale autour du curseur pour le sélectionner
+    // Restaure la zone minimale autour du curseur pour le sÃ©lectionner
     val = m_application->m_eeprom->read(getName(), "fineDistanceCursorSelection", QVariant(true));
     fineDistanceCursorSelection=val.toInt();
 
-    //On cache les contrà´les agissant sur les courbes (réactivés lors de la pause des courbes)
+    //On cache les contrÃ Â´les agissant sur les courbes (rÃ©activÃ©s lors de la pause des courbes)
     m_ihm.ui.label_deltaT->setVisible(false);
     m_ihm.ui.pb_resetZoom->setVisible(true);
 
-    //de même on ne permet pas l'activation des curseurs
+    //de mÃªme on ne permet pas l'activation des curseurs
     m_ihm.ui.pb_cusor->setEnabled(false);
     m_ihm.ui.pb_cusor->setChecked(false);
 
@@ -113,7 +113,7 @@ void CDataGraph::init(CLaBotBox *application)
     m_ihm.ui.pb_resume->setEnabled(false);
     m_ihm.ui.pb_resume->setChecked(false);
 
-    // le bouton refresh met à  jour la liste des variables disponibles
+    // le bouton refresh met Ã   jour la liste des variables disponibles
     connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(refreshListeVariables()));
     connect(m_ihm.ui.pb_play,SIGNAL(toggled(bool)),this,SLOT(activeGraph(bool)));
     connect(m_ihm.ui.pb_up, SIGNAL(clicked()), this, SLOT(upVariable()));
@@ -122,14 +122,14 @@ void CDataGraph::init(CLaBotBox *application)
 
     connect(&m_timer_lecture_variables, SIGNAL(timeout()), this, SLOT(refreshValeursVariables()));
 
-    //récupération du pointeur du graphique et création des curseurs
+    //rÃ©cupÃ©ration du pointeur du graphique et crÃ©ation des curseurs
     customPlot=m_ihm.findChild<QCustomPlot*>("customPlot");
     cursor1 = new QCPItemLine(customPlot);
     cursor1->setPen(QPen(Qt::green));
     cursor2 = new QCPItemLine(customPlot);
     cursor2->setPen(QPen(Qt::red));
 
-    // à  inclure pour supprimer l'antialiasing pour de meilleures perfos
+    // Ã   inclure pour supprimer l'antialiasing pour de meilleures perfos
     /*
     customPlot->setNotAntialiasedElements(QCP::aeAll);
     QFont font;
@@ -148,7 +148,7 @@ void CDataGraph::init(CLaBotBox *application)
     customPlot->yAxis->setRange(-300,300);
     val = m_application->m_eeprom->read(getName(), "initHighRange", QVariant());
     customPlot->yAxis->setRange(-fabs(val.toDouble()),fabs(val.toDouble()));
-    //range du deuxième axe
+    //range du deuxiÃ¨me axe
     customPlot->yAxis2->setRange(-3.5,3.5);
     val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
     customPlot->yAxis2->setRange(-fabs(val.toDouble()),fabs(val.toDouble()));
@@ -159,29 +159,29 @@ void CDataGraph::init(CLaBotBox *application)
     //uniformisation des ranges entre les axes dessus-dessous et gauche-droite
     connect(customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->xAxis2, SLOT(setRange(QCPRange)));
 
-    //gestion des ranges pour les différents zoom
+    //gestion des ranges pour les diffÃ©rents zoom
     storedRange->lower=customPlot->yAxis->range().lower;
     storedRange->upper=customPlot->yAxis->range().upper;
     storedRangeAxe1->lower=customPlot->yAxis->range().lower;
     storedRangeAxe1->upper=customPlot->yAxis->range().upper;
     storedRangeAxe2->lower=customPlot->yAxis2->range().lower;
     storedRangeAxe2->upper=customPlot->yAxis2->range().upper;
-    //par sécurité on normalise les ranges
+    //par sÃ©curitÃ© on normalise les ranges
     storedRange->normalize();storedRangeAxe1->normalize();storedRangeAxe2->normalize();
     QString str;
     m_ihm.ui.inputRangeAxe1->setText(str.setNum(storedRangeAxe1->upper));
     m_ihm.ui.inputRangeAxe2->setText(str.setNum(storedRangeAxe2->upper));
 
-    //Interaction avec la souris: défilement de la courbe, zoom, sélection de lignes
+    //Interaction avec la souris: dÃ©filement de la courbe, zoom, sÃ©lection de lignes
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectItems);
-    // zone minimale autour du curseur pour le sélectionner
+    // zone minimale autour du curseur pour le sÃ©lectionner
     customPlot->setSelectionTolerance(fineDistanceCursorSelection);
-    //pour l'init on désactive temporairement le drag and drop des courbes (réactive à  la mise en pause des courbes)
+    //pour l'init on dÃ©sactive temporairement le drag and drop des courbes (rÃ©active Ã   la mise en pause des courbes)
     customPlot->axisRect()->setRangeDrag(0);
-    //pour l'init on désactive le zoom (réactive à  la mise en pause des courbes)
+    //pour l'init on dÃ©sactive le zoom (rÃ©active Ã   la mise en pause des courbes)
     customPlot->axisRect()->setRangeZoom(0);
 
-    //mise à  jour des courbes
+    //mise Ã   jour des courbes
     customPlot->replot();    
 
     backupEnabled=false;
@@ -208,12 +208,12 @@ void CDataGraph::init(CLaBotBox *application)
 */
 void CDataGraph::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 
-  // mémorise en EEPROM la liste des variables sous surveillance
+  // mÃ©morise en EEPROM la liste des variables sous surveillance
   QStringList liste_variables_observees;
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
@@ -225,7 +225,7 @@ void CDataGraph::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CDataGraph::onRightClicGUI(QPoint pos)
@@ -238,7 +238,7 @@ void CDataGraph::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée lorsque la fenêtre est appelée
+*  Point d'entrÃ©e lorsque la fenÃªtre est appelÃ©e
 *
 */
 void CDataGraph::setVisible(void)
@@ -250,7 +250,7 @@ void CDataGraph::setVisible(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à  jour la liste des variables dans la fenêtre de gauche
+*  Met Ã   jour la liste des variables dans la fenÃªtre de gauche
 *
 */
 void CDataGraph::refreshListeVariables(void)
@@ -269,7 +269,7 @@ void CDataGraph::refreshListeVariables(void)
 
 // _____________________________________________________________________
 /*!
-*  Point  d'entrée lorsque la checkbox d'activation est actionnée
+*  Point  d'entrÃ©e lorsque la checkbox d'activation est actionnÃ©e
 *
 */
 void CDataGraph::activeGraph(bool state)
@@ -287,7 +287,7 @@ void CDataGraph::activeGraph(bool state)
 
   }
   else {
-      stopGraph(); // désactivation du suivi des variables
+      stopGraph(); // dÃ©sactivation du suivi des variables
       m_ihm.ui.pb_play->setIcon(QIcon(":/icons/player_play.png"));
 
       //on ne permet plus la pause la pause
@@ -295,7 +295,7 @@ void CDataGraph::activeGraph(bool state)
       m_ihm.ui.pb_resume->setChecked(false);
   }
 
-  // vérouille les objets pendant l'enregistrement
+  // vÃ©rouille les objets pendant l'enregistrement
   //m_ihm.ui.choix_mode_inspection->setEnabled(!state);
   m_ihm.ui.liste_variables->setEnabled(!state);
   //m_ihm.ui.liste_variables->setEnabled(!state);
@@ -316,7 +316,7 @@ void CDataGraph::effacerListeVariablesValues(void)
 
 // _____________________________________________________________________
 /*!
-*  Ajoute une ligne à  la liste des valeurs de variables
+*  Ajoute une ligne Ã   la liste des valeurs de variables
 *   name = nom de la variable
 *   value = valeur de la variable
 *
@@ -341,11 +341,11 @@ void CDataGraph::addTraceVariable(QString name, QString value)
  connect(choixCouleur,SIGNAL(currentIndexChanged(int)),this,SLOT(changeGraphCouleur(int)));
  m_ihm.ui.table_variables_valeurs->setCellWidget(index,2,choixCouleur);
 
- //cellule qui indique la valeur du curseur associé au bouton gauche
+ //cellule qui indique la valeur du curseur associÃ© au bouton gauche
  m_ihm.ui.table_variables_valeurs->setItem(index, 3, new QTableWidgetItem());
  m_ihm.ui.table_variables_valeurs->setItem(index, 4, new QTableWidgetItem());
 
- //on crée une courbe et on l'associe à  la variable
+ //on crÃ©e une courbe et on l'associe Ã   la variable
  int indexGraph=customPlot->graphCount();
 
  QVariant property_value=m_application->m_data_center->getDataProperty(name,"Range");
@@ -371,8 +371,8 @@ void CDataGraph::addTraceVariable(QString name, QString value)
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::variousColor retourne une couleur, à  chaque appel on procède à  une permutation circulaire dans
- * le tableau des couleurs prédéfinies.
+ * \brief CDataGraph::variousColor retourne une couleur, Ã   chaque appel on procÃ¨de Ã   une permutation circulaire dans
+ * le tableau des couleurs prÃ©dÃ©finies.
  * \return
  */
 QColor CDataGraph::variousColor()
@@ -385,15 +385,15 @@ QColor CDataGraph::variousColor()
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::widgetCouleur création d'un widget qcomboBox de choix de couleur
- * \param indexRow on associe le comboBox à  une ligne dans le tableau des variables
+ * \brief CDataGraph::widgetCouleur crÃ©ation d'un widget qcomboBox de choix de couleur
+ * \param indexRow on associe le comboBox Ã   une ligne dans le tableau des variables
  * \return
  */
 QComboBox *CDataGraph::widgetCouleur(int indexRow)
 {
     QComboBox *choixCouleur=new QComboBox();
 
-    //création d'un petit carré noir (qu'on remplira de couleur bien entendu :-) )
+    //crÃ©ation d'un petit carrÃ© noir (qu'on remplira de couleur bien entendu :-) )
     QImage img(16,16,QImage::Format_RGB32);
     QPainter p(&img);
     p.fillRect(img.rect(), Qt::black);
@@ -411,7 +411,7 @@ QComboBox *CDataGraph::widgetCouleur(int indexRow)
 
 // _____________________________________________________________________
 /*!
-*  Actions à  effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
+*  Actions Ã   effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
 *
 */
 void CDataGraph::playGraph(void)
@@ -419,21 +419,21 @@ void CDataGraph::playGraph(void)
   m_ihm.ui.pb_up->setEnabled(true);
   m_ihm.ui.pb_down->setEnabled(true);
 
-  // Recopie toutes les variables à  surveiller
+  // Recopie toutes les variables Ã   surveiller
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
         addTraceVariable(m_ihm.ui.liste_variables->item(i)->text());
     }
   }
 
-  // Lance le timer qui lit périodiquement les variables
+  // Lance le timer qui lit pÃ©riodiquement les variables
   m_timer_lecture_variables.start(PERIODE_ECHANTILLONNAGE_VARIABLES); // refresh toutes les 100msec
 
 }
 
 // _____________________________________________________________________
 /*!
-*  Actions à  effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
+*  Actions Ã   effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
 *
 */
 void CDataGraph::stopGraph(void)
@@ -441,7 +441,7 @@ void CDataGraph::stopGraph(void)
   //repositionne le bouton pause
   m_ihm.ui.pb_resume->setChecked(false);
 
-  // Arrête le timer de mise à  jour des variables si l'enregistrement est stoppé
+  // ArrÃªte le timer de mise Ã   jour des variables si l'enregistrement est stoppÃ©
   m_timer_lecture_variables.stop();
 
   //nettoie la liste des variables suivies
@@ -455,8 +455,8 @@ void CDataGraph::stopGraph(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à  jour la valeur de chaque variable contenu dans la liste des variables à  surveiller
-* Traces les courbes à  chaque pas de temps
+*  Met Ã   jour la valeur de chaque variable contenu dans la liste des variables Ã   surveiller
+* Traces les courbes Ã   chaque pas de temps
 *
 */
 void CDataGraph::refreshValeursVariables(void)
@@ -476,7 +476,7 @@ void CDataGraph::refreshValeursVariables(void)
         {
             //identification de la courbe
             int indexGraph=m_liste_graph[var_name];
-            //ajout des données à  la courbe "ligne"
+            //ajout des donnÃ©es Ã   la courbe "ligne"
             customPlot->graph(indexGraph)->addData(key, var_value.toDouble());
             //positionnement du point
             customPlot->graph(indexGraph+1)->clearData();
@@ -484,12 +484,12 @@ void CDataGraph::refreshValeursVariables(void)
             //if(backupEnabled)
 				
 
-            //suppression des données qui sont en dehors du range visible (positionné à  "dureeObservee" secondes):
+            //suppression des donnÃ©es qui sont en dehors du range visible (positionnÃ© Ã   "dureeObservee" secondes):
             //avec un tampon de 30 sec
             if(key> (dureeObservee+30))
             customPlot->graph(indexGraph)->removeDataBefore(key-(dureeObservee+30));
 
-            //adaptation du range de l'axe vertical pour correspondre au range des nouvelles données:
+            //adaptation du range de l'axe vertical pour correspondre au range des nouvelles donnÃ©es:
             //customPlot->graph(0)->rescaleValueAxis();
         }
 		
@@ -503,7 +503,7 @@ void CDataGraph::refreshValeursVariables(void)
 
     if(graphEnabled)
     {
-        //défilement de l'axe horizontal (à  un écart constant de "dureeObservee" secondes):
+        //dÃ©filement de l'axe horizontal (Ã   un Ã©cart constant de "dureeObservee" secondes):
         customPlot->xAxis->setRange(key+0.25, dureeObservee, Qt::AlignRight);
         customPlot->replot();
     }
@@ -517,18 +517,18 @@ void CDataGraph::refreshValeursVariables(void)
 */
 void CDataGraph::upVariable()
 {
-  // Identifie quelle variable est concernée
+  // Identifie quelle variable est concernÃ©e
   int index = m_ihm.ui.table_variables_valeurs->currentRow();
-  if (index <= 0) { return; } // valeur invalide ou premier élément de la liste
+  if (index <= 0) { return; } // valeur invalide ou premier Ã©lÃ©ment de la liste
 
-  // Arrête le timer le temps de la manipulation
+  // ArrÃªte le timer le temps de la manipulation
   bool timer_active = false;
   if (m_timer_lecture_variables.isActive()) {
     timer_active = true;
     m_timer_lecture_variables.stop();
   }
 
-  // Déplace la variable
+  // DÃ©place la variable
   QString var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
   QString cursor1_value=m_ihm.ui.table_variables_valeurs->item(index, 3)->text();
   QString cursor2_value=m_ihm.ui.table_variables_valeurs->item(index, 4)->text();
@@ -542,7 +542,7 @@ void CDataGraph::upVariable()
   m_ihm.ui.table_variables_valeurs->setItem(new_row, 1, new QTableWidgetItem());
   m_ihm.ui.table_variables_valeurs->item(new_row, 0)->setText(var_name);
 
-  //gestion des cellules qui gèrent les courbes et l'affichage du curseur gauche
+  //gestion des cellules qui gÃ¨rent les courbes et l'affichage du curseur gauche
   widgetCouleurChoisie=widgetCouleur(new_row);
   widgetCouleurChoisie->setCurrentIndex(couleurChoisie);
   connect(widgetCouleurChoisie,SIGNAL(currentIndexChanged(int)),this,SLOT(changeGraphCouleur(int)));
@@ -565,19 +565,19 @@ void CDataGraph::upVariable()
 */
 void CDataGraph::downVariable()
 {
-  // Identifie quelle variable est concernée
+  // Identifie quelle variable est concernÃ©e
   int index = m_ihm.ui.table_variables_valeurs->currentRow();
   if (index < 0) { return; } // valeur invalide
-  if (index >= (m_ihm.ui.table_variables_valeurs->rowCount()-1)) { return; } // valeur invalide ou dernier élément de la liste
+  if (index >= (m_ihm.ui.table_variables_valeurs->rowCount()-1)) { return; } // valeur invalide ou dernier Ã©lÃ©ment de la liste
 
-  // Arrête le timer, le temps de la manipulation
+  // ArrÃªte le timer, le temps de la manipulation
   bool timer_active = false;
   if (m_timer_lecture_variables.isActive()) {
     timer_active = true;
     m_timer_lecture_variables.stop();
   }
 
-  // Déplace la variable
+  // DÃ©place la variable
   QString var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
   QString cursor1_value=m_ihm.ui.table_variables_valeurs->item(index, 3)->text();
   QString cursor2_value=m_ihm.ui.table_variables_valeurs->item(index, 4)->text();
@@ -591,7 +591,7 @@ void CDataGraph::downVariable()
   m_ihm.ui.table_variables_valeurs->setItem(new_row, 1, new QTableWidgetItem());
   m_ihm.ui.table_variables_valeurs->item(new_row, 0)->setText(var_name);
 
-  //gestion des cellules qui gèrent les courbes et l'affichage du curseur gauche
+  //gestion des cellules qui gÃ¨rent les courbes et l'affichage du curseur gauche
   widgetCouleurChoisie=widgetCouleur(new_row);
   widgetCouleurChoisie->setCurrentIndex(couleurChoisie);
   connect(widgetCouleurChoisie,SIGNAL(currentIndexChanged(int)),this,SLOT(changeGraphCouleur(int)));
@@ -609,17 +609,17 @@ void CDataGraph::downVariable()
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::resumeInspector gèle le traà§age des courbes et rend disponible le zoom et les curseurs
+ * \brief CDataGraph::resumeInspector gÃ¨le le traÃ Â§age des courbes et rend disponible le zoom et les curseurs
  * \param varToggle
  */
 void CDataGraph::resumeGraph(bool varToggle)
 {
     if(varToggle)
     {
-        //si on veut geler également la lecture de variables
+        //si on veut geler Ã©galement la lecture de variables
         //m_timer_lecture_variables.stop();
 
-        graphEnabled=false;//on gèle le traà§age
+        graphEnabled=false;//on gÃ¨le le traÃ Â§age
 
         //on permet le drag des courbes (uniquement le long de l'axe horizontal)
         customPlot->axisRect()->setRangeDrag(Qt::Horizontal);
@@ -637,12 +637,12 @@ void CDataGraph::resumeGraph(bool varToggle)
     {
         //m_timer_lecture_variables.start();
 
-        //on désactive temporairement le drag and drop des courbes
+        //on dÃ©sactive temporairement le drag and drop des courbes
         customPlot->axisRect()->setRangeDrag(0);
 
-        graphEnabled=true;//on réactive les courbes
+        graphEnabled=true;//on rÃ©active les courbes
 
-        //on désactive le zoom en réhabilitant le range par défaut.
+        //on dÃ©sactive le zoom en rÃ©habilitant le range par dÃ©faut.
         customPlot->axisRect()->setRangeZoom(0);
         m_ihm.ui.pb_resetZoom->setVisible(false);
         QCPRange const restoredRange(storedRange->lower,storedRange->upper);
@@ -656,23 +656,23 @@ void CDataGraph::resumeGraph(bool varToggle)
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::changeGraphCouleur change la couleur d'une courbe sur selection de celle-ci pour une variable donnée
+ * \brief CDataGraph::changeGraphCouleur change la couleur d'une courbe sur selection de celle-ci pour une variable donnÃ©e
  * \param indexCouleur couleur choisie
  */
 void CDataGraph::changeGraphCouleur(int indexCouleur)
 {
-    // Arrête le timer le temps de la manipulation
+    // ArrÃªte le timer le temps de la manipulation
     bool timer_active = false;
     if (m_timer_lecture_variables.isActive()) {
       timer_active = true;
       m_timer_lecture_variables.stop();
     }
 
-    // Identifie quelle variable est concernée (ligne stockée dans le combobox)
+    // Identifie quelle variable est concernÃ©e (ligne stockÃ©e dans le combobox)
     QComboBox* choixCouleur=qobject_cast<QComboBox*>(sender());
     int index = choixCouleur->itemData(indexCouleur).toInt();
     QString var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
-    //on identifie le graph grace à  son nom
+    //on identifie le graph grace Ã   son nom
     int indexGraph=m_liste_graph[var_name];
     //on met la couleur choisie
     customPlot->graph(indexGraph)->setPen(QPen(t_predefinedColor[indexCouleur]));
@@ -686,8 +686,8 @@ void CDataGraph::changeGraphCouleur(int indexCouleur)
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::rescaleGraph redimensionnement des ordonnées en double cliquant sur une variable tracée.
- * \param item référence de l'objet stockant la valeur de la variable tracée.
+ * \brief CDataGraph::rescaleGraph redimensionnement des ordonnÃ©es en double cliquant sur une variable tracÃ©e.
+ * \param item rÃ©fÃ©rence de l'objet stockant la valeur de la variable tracÃ©e.
  */
 void CDataGraph::itemRescaleGraph(QTableWidgetItem *item)
 {
@@ -699,7 +699,7 @@ void CDataGraph::itemRescaleGraph(QTableWidgetItem *item)
     QVariant val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
 
     QString str;
-    //Le nouveau range correspond à  120% du range [-valeur, +valeur]
+    //Le nouveau range correspond Ã   120% du range [-valeur, +valeur]
     if (range_property>val.toDouble())
     {
         rescaleGraph(var_absValue*1.2,0);
@@ -754,7 +754,7 @@ void CDataGraph::userZoomGraph(int value)
 
 void CDataGraph::rescaleGraph(double newMaxRange, double newMaxRange2)
 {
-    //Le nouveau range correspond à  120% du range [-valeur, +valeur] ou à  [-5, 5] si la valeur est nulle
+    //Le nouveau range correspond Ã   120% du range [-valeur, +valeur] ou Ã   [-5, 5] si la valeur est nulle
     double upperRange=storedRangeAxe1->upper;
     double upperRange2=storedRangeAxe2->upper;
 
@@ -779,19 +779,19 @@ void CDataGraph::rescaleGraph(double newMaxRange, double newMaxRange2)
 // _____________________________________________________________________
 /*!
  * \brief CDataGraph::ManageCursor Dessine le curseur graphique (relativement au bouton gauche ou droit) sous le curseur de la souris.
- * Ecriture/mise à  jour des valeurs des variables tracées relativement à  la position du curseur gauche
- * \param cursor référence du curseur graphique
+ * Ecriture/mise Ã   jour des valeurs des variables tracÃ©es relativement Ã   la position du curseur gauche
+ * \param cursor rÃ©fÃ©rence du curseur graphique
  * \param xPosition abscisse du curseur de la souris
  */
 void CDataGraph::ManageCursor(QCPItemLine *cursor, double xPosition, int columTableWidget)
 {
 
-    //Positionnement du curseur à  l'abscisse du curseur de la souris
+    //Positionnement du curseur Ã   l'abscisse du curseur de la souris
     cursor->start->setCoords( xPosition, (customPlot->yAxis->range().lower));
     cursor->end->setCoords( xPosition, (customPlot->yAxis->range().upper));
 
 
-    //les deux curseurs sont présent on met à  jour le DeltaT
+    //les deux curseurs sont prÃ©sent on met Ã   jour le DeltaT
     double deltaT=fabs((cursor1->start->coords().x())-(cursor2->start->coords().x()));
     QString str;
     m_ihm.ui.label_deltaT->setText(str.number(deltaT,'f',3));
@@ -805,7 +805,7 @@ void CDataGraph::ManageCursor(QCPItemLine *cursor, double xPosition, int columTa
     for(int index=0;index<m_ihm.ui.table_variables_valeurs->rowCount();index++)
     {
         var_name = m_ihm.ui.table_variables_valeurs->item(index, 0)->text();
-        //on identifie le graph grace à  son nom
+        //on identifie le graph grace Ã   son nom
         indexGraph=m_liste_graph[var_name];
         //on prend la valeur de la courbe
         var_value=customPlot->graph(indexGraph)->data()->lowerBound(xPosition).value().value;
@@ -816,20 +816,20 @@ void CDataGraph::ManageCursor(QCPItemLine *cursor, double xPosition, int columTa
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::ResetCursor On retire les curseurs du graphique. Les curseur sont rénitialisés aux valeurs par défaut.
- * Les valeurs des variables tracées relativement à  la position du curseur gauche sont effacées
+ * \brief CDataGraph::ResetCursor On retire les curseurs du graphique. Les curseur sont rÃ©nitialisÃ©s aux valeurs par dÃ©faut.
+ * Les valeurs des variables tracÃ©es relativement Ã   la position du curseur gauche sont effacÃ©es
  */
 void CDataGraph::ResetCursor(void)
 {
     //On retire les curseurs
     if((customPlot->hasItem(cursor1))) customPlot->removeItem(cursor1);
     if((customPlot->hasItem(cursor2))) customPlot->removeItem(cursor2);
-    //on réinitialise les curseurs
+    //on rÃ©initialise les curseurs
     cursor1 = new QCPItemLine(customPlot);
     cursor1->setPen(QPen(Qt::green));
     cursor2 = new QCPItemLine(customPlot);
     cursor2->setPen(QPen(Qt::red));
-    //On efface les valeurs relatives à  la position du curseur gauche
+    //On efface les valeurs relatives Ã   la position du curseur gauche
     for(int index=0;index<m_ihm.ui.table_variables_valeurs->rowCount();index++)
     {
         m_ihm.ui.table_variables_valeurs->item(index, 3)->setText("");
@@ -839,9 +839,9 @@ void CDataGraph::ResetCursor(void)
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::mousePress redirection du gestionnaire d'événement lors d'un click souris.
- * Si le curseur graphique est autorisé (gel de l'affichage), un curseur graphique est positionné sous le curseur de la souris.
- * On gère un curseur graphique par bouton (gauche et droit).
+ * \brief CDataGraph::mousePress redirection du gestionnaire d'Ã©vÃ©nement lors d'un click souris.
+ * Si le curseur graphique est autorisÃ© (gel de l'affichage), un curseur graphique est positionnÃ© sous le curseur de la souris.
+ * On gÃ¨re un curseur graphique par bouton (gauche et droit).
  * \param event
  */
 void CDataGraph::mousePress(QMouseEvent* event)
@@ -870,7 +870,7 @@ void CDataGraph::mouseMove(QMouseEvent *event)
 {
     if(cursorEnabled)
     {
-        //on récupère le curseur de la souris
+        //on rÃ©cupÃ¨re le curseur de la souris
         double x=customPlot->xAxis->pixelToCoord(event->pos().x());
 
         //gestion du bouton gauche et droit
@@ -883,7 +883,7 @@ void CDataGraph::mouseMove(QMouseEvent *event)
 
 // _____________________________________________________________________
 /*!
- * \brief CDataGraph::resetZoom restaure le Range stocké dans le membre storedRange
+ * \brief CDataGraph::resetZoom restaure le Range stockÃ© dans le membre storedRange
  */
 void CDataGraph::resetZoom()
 {
@@ -895,8 +895,8 @@ void CDataGraph::resetZoom()
 
 void CDataGraph::authorizePlay(QListWidgetItem* senderItem){
 
-    if((senderItem->checkState()==Qt::Checked)&&(senderItem->text().compare("Nouvel élément")!=0)){
-        //une variable au moins est sélectionnée une fois
+    if((senderItem->checkState()==Qt::Checked)&&(senderItem->text().compare("Nouvel Ã©lÃ©ment")!=0)){
+        //une variable au moins est sÃ©lectionnÃ©e une fois
         m_ihm.ui.pb_play->setEnabled(true);
     }
 }
@@ -906,14 +906,14 @@ void CDataGraph::enableCursor(bool varToggle)
     cursorEnabled=varToggle;
     if (varToggle){
 
-        customPlot->axisRect()->setRangeDrag(0); //désactive temporairement le drag and drop des courbes
+        customPlot->axisRect()->setRangeDrag(0); //dÃ©sactive temporairement le drag and drop des courbes
 
         //On ajoute les curseurs au graphique
         customPlot->addItem(cursor1);
         customPlot->addItem(cursor2);
-        //qDebug() << customPlot->itemCount() << "créés";
+        //qDebug() << customPlot->itemCount() << "crÃ©Ã©s";
 
-        //on les rend sélectionnables
+        //on les rend sÃ©lectionnables
         cursor1->setSelectable(true);
         cursor2->setSelectable(true);
 
@@ -934,12 +934,12 @@ void CDataGraph::enableCursor(bool varToggle)
         m_ihm.ui.label_deltaT->setText("2");
     }
     else{
-        customPlot->axisRect()->setRangeDrag(Qt::Horizontal); //réactive drag de la courbe (uniquement le long de l'axe horizontal)
+        customPlot->axisRect()->setRangeDrag(Qt::Horizontal); //rÃ©active drag de la courbe (uniquement le long de l'axe horizontal)
 
         //le delta T n'est plus visible
         m_ihm.ui.label_deltaT->setVisible(false);
 
-        //on enlève les curseurs le cas échéant
+        //on enlÃ¨ve les curseurs le cas Ã©chÃ©ant
         ResetCursor();
 
         customPlot->replot();
@@ -960,12 +960,12 @@ void CDataGraph::Slot_save(bool toggleState)
 		//qDebug() << ficName;
 
 		sauvFic=new QFile(ficName);
-		// On ouvre notre fichier en lecture seule et on vérifie l'ouverture
+		// On ouvre notre fichier en lecture seule et on vÃ©rifie l'ouverture
 		if (sauvFic->open(QIODevice::ReadWrite | QIODevice::Text))
 		{
-			// Création d'un objet QTextStream à partir de notre objet QFile
+			// CrÃ©ation d'un objet QTextStream Ã  partir de notre objet QFile
 			sauvStream.setDevice(sauvFic);
-			// On choisit le codec correspondant au jeu de caractère que l'on souhaite ; ici, UTF-8
+			// On choisit le codec correspondant au jeu de caractÃ¨re que l'on souhaite ; ici, UTF-8
 			sauvStream.setCodec("UTF-8");
 			//write header
 			sauvStream << "time;";

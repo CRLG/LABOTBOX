@@ -46,14 +46,14 @@ CSignalGenerator::~CSignalGenerator()
 
 // _____________________________________________________________________
 /*!
-*  Choix du fichier contenant les Èchantillons
+*  Choix du fichier contenant les √©chantillons
 *  Analys le fichier
-*  2 types de formats de fichiers autorisÈs :
-*   - Fichier ‡ une seule colonne reprÈsentant la valeur des Èchantillons
-*   - Fichier ‡ 2 colonnes :
-*       > La 1Ëre colonne reprÈsente la valeur de l'Èchantillon
-*       > La 2Ëme colonne reprÈsente la durÈe de l'Èchantillon en [msec]
-*         Valeur particuliËre (-1) pour indiquer que c'est la durÈe commune qui doit Ítre utilisÈe
+*  2 types de formats de fichiers autoris√©s :
+*   - Fichier √† une seule colonne repr√©sentant la valeur des √©chantillons
+*   - Fichier √† 2 colonnes :
+*       > La 1√®re colonne repr√©sente la valeur de l'√©chantillon
+*       > La 2√®me colonne repr√©sente la dur√©e de l'√©chantillon en [msec]
+*         Valeur particuli√®re (-1) pour indiquer que c'est la dur√©e commune qui doit √™tre utilis√©e
 */
 void CSignalGenerator::setSignalFilename(QString signal_filename)
 {
@@ -66,30 +66,30 @@ void CSignalGenerator::setSignalFilename(QString signal_filename)
     return; // pas la peine d'aller plus loin
   }
 
-  bool generator_is_running = m_generator_in_progress;  // mÈmorisation de l'Ètat cournat pour le restituer ‡ la fin
+  bool generator_is_running = m_generator_in_progress;  // m√©morisation de l'√©tat cournat pour le restituer √† la fin
   m_signal_filename = signal_filename;
   stop_generator();
   m_samples.clear();
 
 
-  // Analyse le fichier (fichier au format .csv avec sÈparateur ";"
+  // Analyse le fichier (fichier au format .csv avec s√©parateur ";"
   QFile data(signal_filename);
   if (data.open(QFile::ReadOnly)) {
       QTextStream in(&data);
       QString line;
-      in.readLine(); // ignore la premiËre ligne du fichier qui explique le contneu du fichier
+      in.readLine(); // ignore la premi√®re ligne du fichier qui explique le contneu du fichier
       while ((line = in.readLine()) != NULL) {
         QStringList split_line = line.split(";");
         tSample sample = { "", C_COMMON_DURATION };
         sample.value = split_line.at(0);
-        if (split_line.size() == 2) {  // fichier ‡ 2 colonnes
+        if (split_line.size() == 2) {  // fichier √† 2 colonnes
             sample.duration = split_line.at(1).toULong();
         }
         m_samples.append(sample);
       }
   }
 
- // si le gÈnÈrateur tournait, le relance
+ // si le g√©n√©rateur tournait, le relance
  if (generator_is_running) {
      start_generator();
  }
@@ -100,7 +100,7 @@ void CSignalGenerator::setSignalFilename(QString signal_filename)
 
 // _____________________________________________________________________
 /*!
-*  ExÈcution du threadd de gÈnÈration du signal
+*  Ex√©cution du threadd de g√©n√©ration du signal
 *
 */
 void CSignalGenerator::run(void)

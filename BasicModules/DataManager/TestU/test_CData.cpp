@@ -69,20 +69,20 @@ void Test::test_connect_write(void)
  CTest_connect test_connect;
  unsigned long memo_cpt_passage_slot;
 
- test_connect.m_data.write("123.456");  // écrit dans la data
- QCOMPARE(test_connect.m_data_variant.toDouble(), 123.456); // vérifie que le slot connecté sur le signal de la data a été appelé
+ test_connect.m_data.write("123.456");  // Ã©crit dans la data
+ QCOMPARE(test_connect.m_data_variant.toDouble(), 123.456); // vÃ©rifie que le slot connectÃ© sur le signal de la data a Ã©tÃ© appelÃ©
 
- test_connect.m_data.write("Hello");  // écrit dans la data
- QCOMPARE(test_connect.m_data_variant.toString(), QString("Hello")); // vérifie que le slot connecté sur le signal de la data a été appelé
+ test_connect.m_data.write("Hello");  // Ã©crit dans la data
+ QCOMPARE(test_connect.m_data_variant.toString(), QString("Hello")); // vÃ©rifie que le slot connectÃ© sur le signal de la data a Ã©tÃ© appelÃ©
 
- test_connect.m_data.write("Nom.champ1.sous_champ1");  // écrit dans la data
- QCOMPARE(test_connect.m_data_variant.toString(), QString("Nom.champ1.sous_champ1")); // vérifie que le slot connecté sur le signal de la data a été appelé
+ test_connect.m_data.write("Nom.champ1.sous_champ1");  // Ã©crit dans la data
+ QCOMPARE(test_connect.m_data_variant.toString(), QString("Nom.champ1.sous_champ1")); // vÃ©rifie que le slot connectÃ© sur le signal de la data a Ã©tÃ© appelÃ©
 
- // Vérifie que si la valeur n'a pas changé, le signal valuechanged n'est pas émis
+ // VÃ©rifie que si la valeur n'a pas changÃ©, le signal valuechanged n'est pas Ã©mis
  test_connect.m_data.write("123.456");
- memo_cpt_passage_slot = test_connect.m_nbre_appel_slot;  // mémorise le nombre de passage dans le slot
- test_connect.m_data.write("123.456");  // écrit la même valeur que précédemment
- QCOMPARE(test_connect.m_nbre_appel_slot, memo_cpt_passage_slot); // vérifie que le signal n'a pas été émis (car la valeur de la data n'a pas changé)
+ memo_cpt_passage_slot = test_connect.m_nbre_appel_slot;  // mÃ©morise le nombre de passage dans le slot
+ test_connect.m_data.write("123.456");  // Ã©crit la mÃªme valeur que prÃ©cÃ©demment
+ QCOMPARE(test_connect.m_nbre_appel_slot, memo_cpt_passage_slot); // vÃ©rifie que le signal n'a pas Ã©tÃ© Ã©mis (car la valeur de la data n'a pas changÃ©)
 }
 
 

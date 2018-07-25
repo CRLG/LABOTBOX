@@ -22,7 +22,7 @@ class CDataManager : public CBasicModule
     Q_OBJECT
 #define     VERSION_DATA_MANAGER         "1.0"
 #define     AUTEUR_DATA_MANAGER          "Nico"
-#define     INFO_DATA_MANAGER            "Gestionnaire de données"
+#define     INFO_DATA_MANAGER            "Gestionnaire de donnÃ©es"
 
 typedef QHash<QString, CData *> t_map_data;
 
@@ -50,7 +50,7 @@ public:
 
 private:
     t_map_data m_map_data;
-    //! Mutex pour l'accès concurrentiel au map
+    //! Mutex pour l'accÃ¨s concurrentiel au map
     QMutex m_mutex;
 
 private :

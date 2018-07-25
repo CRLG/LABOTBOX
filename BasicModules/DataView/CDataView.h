@@ -15,7 +15,7 @@
 {
     Q_OBJECT
 public:
-    enum    // Numéro de colonnes dans le widget
+    enum    // NumÃ©ro de colonnes dans le widget
     {
          COL_TEMPS = 0,
          COL_NOM,
@@ -45,7 +45,7 @@ class CDataView : public CBasicModule
     Q_OBJECT
 #define     VERSION_DataView   "1.1"
 #define     AUTEUR_DataView    "Nico"
-#define     INFO_DataView      "Visualise l'évolution d'une ou plusieurs données du DataCenter"
+#define     INFO_DataView      "Visualise l'Ã©volution d'une ou plusieurs donnÃ©es du DataCenter"
 
 #define     PERIODE_ECHANTILLONNAGE_VARIABLES   30 // msec
 
@@ -58,7 +58,7 @@ public:
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
-    virtual QIcon getIcon(void)         { return(QIcon(":/icons/eye.png")); }  // Précise l'icône qui représente le module
+    virtual QIcon getIcon(void)         { return(QIcon(":/icons/eye.png")); }  // PrÃ©cise l'icÃ´ne qui reprÃ©sente le module
     virtual QString getMenuName(void)   { return("BasicModule"); }
     virtual void setVisible(void);
 

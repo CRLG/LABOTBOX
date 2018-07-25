@@ -51,17 +51,17 @@ CDataView::~CDataView()
 void CDataView::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -72,7 +72,7 @@ void CDataView::init(CLaBotBox *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
-  // le bouton refresh met à jour la liste des variables disponibles
+  // le bouton refresh met Ã  jour la liste des variables disponibles
   connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(refreshListeVariables()));
   connect(m_ihm.ui.active_trace, SIGNAL(clicked(bool)), this, SLOT(activeInspector(bool)));
   connect(m_ihm.ui.pb_up, SIGNAL(clicked()), this, SLOT(upVariable()));
@@ -93,13 +93,13 @@ void CDataView::init(CLaBotBox *application)
 */
 void CDataView::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 
-  // mémorise en EEPROM la liste des variables sous surveillance
+  // mÃ©morise en EEPROM la liste des variables sous surveillance
   QStringList liste_variables_observees;
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
@@ -111,7 +111,7 @@ void CDataView::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CDataView::onRightClicGUI(QPoint pos)
@@ -125,24 +125,24 @@ void CDataView::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée lorsqu'une variable a été modifiée
+*  Point d'entrÃ©e lorsqu'une variable a Ã©tÃ© modifiÃ©e
 *
 */
 void CDataView::variableChanged(QVariant val)
 {
- CData *data = qobject_cast<CData*>(sender()); // récupère l'objet émetteur du signal (pour pouvoir récupérer son nom)
+ CData *data = qobject_cast<CData*>(sender()); // rÃ©cupÃ¨re l'objet Ã©metteur du signal (pour pouvoir rÃ©cupÃ©rer son nom)
  if (data) {
     m_application->m_print_view->print_debug(this, "Variable modifiee: " + data->getName() + "=" + val.toString() + "(" +  data->read().toString() + ")");
     addTraceVariable(data->getName(), data->read().toString(), data->getTime());
  }
  else {
-    m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la récupération de l'objet a l'origine du signal");
+    m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la rÃ©cupÃ©ration de l'objet a l'origine du signal");
  }
 }
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée lorsque la fenêtre est appelée
+*  Point d'entrÃ©e lorsque la fenÃªtre est appelÃ©e
 *
 */
 void CDataView::setVisible(void)
@@ -154,7 +154,7 @@ void CDataView::setVisible(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la liste des variables dans la fenêtre de gauche
+*  Met Ã  jour la liste des variables dans la fenÃªtre de gauche
 *
 */
 void CDataView::refreshListeVariables(void)
@@ -173,7 +173,7 @@ void CDataView::refreshListeVariables(void)
 
 // _____________________________________________________________________
 /*!
-*  Point  d'entrée lorsque la checkbox d'activation est actionnée
+*  Point  d'entrÃ©e lorsque la checkbox d'activation est actionnÃ©e
 *
 */
 void CDataView::activeInspector(bool state)
@@ -189,7 +189,7 @@ void CDataView::activeInspector(bool state)
         activeInspectorInstantane();
     }
   }
-  else { // désactivation du suivi des variables
+  else { // dÃ©sactivation du suivi des variables
     if (m_ihm.ui.choix_mode_inspection->currentText()=="Temporel") {
         finInspectorTemporel();
     }
@@ -198,7 +198,7 @@ void CDataView::activeInspector(bool state)
     }
   }
 
-  // vérouille les objets pendant l'enregistrement
+  // vÃ©rouille les objets pendant l'enregistrement
   m_ihm.ui.choix_mode_inspection->setEnabled(!state);
   m_ihm.ui.liste_variables->setEnabled(!state);
   m_ihm.ui.liste_variables->setEnabled(!state);
@@ -224,29 +224,29 @@ void CDataView::effacerListeVariablesValues(void)
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
+*  Actions Ã  effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
 *
-*  Crée une connexion entre toutes les variables à surveiller et l'affichage de la valeur
+*  CrÃ©e une connexion entre toutes les variables Ã  surveiller et l'affichage de la valeur
 */
 void CDataView::activeInspectorTemporel(void)
 {
   m_ihm.ui.pb_up->setEnabled(false);
   m_ihm.ui.pb_down->setEnabled(false);
 
-  // réalise la connexion entre chaque variable cochée et le slot d'affichage
+  // rÃ©alise la connexion entre chaque variable cochÃ©e et le slot d'affichage
   connectDiscconnectVariablesTemporel(1);
 }
 
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
+*  Actions Ã  effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
 *
-*  Crée une connexion entre toutes les variables à surveiller et l'affichage de la valeur
+*  CrÃ©e une connexion entre toutes les variables Ã  surveiller et l'affichage de la valeur
 */
 void CDataView::finInspectorTemporel(void)
 {
-  // réalise la deconnexion entre chaque variable cochée et le slot d'affichage
+  // rÃ©alise la deconnexion entre chaque variable cochÃ©e et le slot d'affichage
   connectDiscconnectVariablesTemporel(0);
 }
 
@@ -254,14 +254,14 @@ void CDataView::finInspectorTemporel(void)
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
+*  Actions Ã  effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
 *
-*  Crée une connexion entre toutes les variables à surveiller et l'affichage de la valeur
+*  CrÃ©e une connexion entre toutes les variables Ã  surveiller et l'affichage de la valeur
 *  choix : 0=deconnexion / 1=connexion
 */
 void CDataView::connectDiscconnectVariablesTemporel(bool choix)
 {
-  // Recopie toutes les variables à surveiller
+  // Recopie toutes les variables Ã  surveiller
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
         CData *_data = m_application->m_data_center->getData(m_ihm.ui.liste_variables->item(i)->text());
@@ -279,14 +279,14 @@ void CDataView::connectDiscconnectVariablesTemporel(bool choix)
                   SLOT(variableChanged(QVariant))
                   );
         }
-    } // if la variable est à surveiller
+    } // if la variable est Ã  surveiller
   }
 }
 
 // _____________________________________________________________________
 /*!
-*  Normalise le temps par rapport à l'instant du début de la trace
-*   name = ms_epoch : temps à normaliser (nombre de msec depuis 1970)
+*  Normalise le temps par rapport Ã  l'instant du dÃ©but de la trace
+*   name = ms_epoch : temps Ã  normaliser (nombre de msec depuis 1970)
 *   Renvoie une valeur en secondes
 */
 double CDataView::normaliseTemps(qint64 ms_epoch)
@@ -297,7 +297,7 @@ double CDataView::normaliseTemps(qint64 ms_epoch)
 
 // _____________________________________________________________________
 /*!
-*  Ajoute une ligne à la liste des valeurs de variables
+*  Ajoute une ligne Ã  la liste des valeurs de variables
 *   name = nom de la variable
 *   value = valeur de la variable
 *
@@ -325,7 +325,7 @@ void CDataView::addTraceVariable(QString name, QString value, quint64 time)
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
+*  Actions Ã  effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
 *
 */
 void CDataView::activeInspectorInstantane(void)
@@ -336,14 +336,14 @@ void CDataView::activeInspectorInstantane(void)
   m_ihm.ui.valueToWrite->setEnabled(true);
   m_ihm.ui.valueToWrite_label->setEnabled(true);
 
-  // Recopie toutes les variables à surveiller
+  // Recopie toutes les variables Ã  surveiller
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
         addTraceVariable(m_ihm.ui.liste_variables->item(i)->text());
     }
   }
 
-  // Lance le timer qui lit périodiquement les variables
+  // Lance le timer qui lit pÃ©riodiquement les variables
   m_timer_lecture_variables.start(PERIODE_ECHANTILLONNAGE_VARIABLES); // refresh toutes les 100msec
 
 }
@@ -351,12 +351,12 @@ void CDataView::activeInspectorInstantane(void)
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
+*  Actions Ã  effecter lors de l'activation de l'enregistrement des data en mode "Instantane"
 *
 */
 void CDataView::finInspectorInstantane(void)
 {
-  // Arrête le timer de mise à jour des variables si l'enregistrement est stoppé
+  // ArrÃªte le timer de mise Ã  jour des variables si l'enregistrement est stoppÃ©
   m_timer_lecture_variables.stop();
 
   m_ihm.ui.pb_effacer_liste->setEnabled(true);
@@ -368,7 +368,7 @@ void CDataView::finInspectorInstantane(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la valeur de chaque variable contenu dans la liste des variables à surveiller
+*  Met Ã  jour la valeur de chaque variable contenu dans la liste des variables Ã  surveiller
 *
 */
 void CDataView::refreshValeursVariables(void)
@@ -384,7 +384,7 @@ void CDataView::refreshValeursVariables(void)
     }
     else
     {
-        m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la récupération de la data " + var_name);
+        m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la rÃ©cupÃ©ration de la data " + var_name);
     }
   }
 }
@@ -396,19 +396,19 @@ void CDataView::refreshValeursVariables(void)
 */
 void CDataView::upVariable()
 {
-  // Identifie quelle variable est concernée
+  // Identifie quelle variable est concernÃ©e
   int index = m_ihm.ui.table_variables_valeurs->currentRow();
   m_application->m_print_view->print_debug(this, "index a deplacer = " + QString::number(index));
-  if (index <= 0) { return; } // valeur invalide ou premier élément de la liste
+  if (index <= 0) { return; } // valeur invalide ou premier Ã©lÃ©ment de la liste
 
-  // Arrête le timer le temps de la manipulation
+  // ArrÃªte le timer le temps de la manipulation
   bool timer_active = false;
   if (m_timer_lecture_variables.isActive()) {
     timer_active = true;
     m_timer_lecture_variables.stop();
   }
 
-  // Déplace la variable
+  // DÃ©place la variable
   QString var_name = m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->text();
   m_ihm.ui.table_variables_valeurs->removeRow(index);
   int new_row = index - 1;
@@ -431,20 +431,20 @@ void CDataView::upVariable()
 */
 void CDataView::downVariable()
 {
-  // Identifie quelle variable est concernée
+  // Identifie quelle variable est concernÃ©e
   int index = m_ihm.ui.table_variables_valeurs->currentRow();
   m_application->m_print_view->print_debug(this, "index a deplacer = " + QString::number(index));
   if (index < 0) { return; } // valeur invalide
-  if (index >= (m_ihm.ui.table_variables_valeurs->rowCount()-1)) { return; } // valeur invalide ou dernier élément de la liste
+  if (index >= (m_ihm.ui.table_variables_valeurs->rowCount()-1)) { return; } // valeur invalide ou dernier Ã©lÃ©ment de la liste
 
-  // Arrête le timer, le temps de la manipulation
+  // ArrÃªte le timer, le temps de la manipulation
   bool timer_active = false;
   if (m_timer_lecture_variables.isActive()) {
     timer_active = true;
     m_timer_lecture_variables.stop();
   }
 
-  // Déplace la variable
+  // DÃ©place la variable
   QString var_name = m_ihm.ui.table_variables_valeurs->item(index, Cihm_DataView::COL_NOM)->text();
   m_ihm.ui.table_variables_valeurs->removeRow(index);
   int new_row = index + 1;
@@ -464,8 +464,8 @@ void CDataView::downVariable()
 
 // _____________________________________________________________________
 /*!
-*  Slot appelé lorsque l'utilisateur termine la saisie d'une valeur à écrire
-*  Chaque élément sélectionné dans la liste se voit affecté de la nouvelle valeur
+*  Slot appelÃ© lorsque l'utilisateur termine la saisie d'une valeur Ã  Ã©crire
+*  Chaque Ã©lÃ©ment sÃ©lectionnÃ© dans la liste se voit affectÃ© de la nouvelle valeur
 */
 void CDataView::editingFinishedWriteValueInstantane(void)
 {
@@ -477,14 +477,14 @@ void CDataView::editingFinishedWriteValueInstantane(void)
             QString var_name = m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_NOM)->text();
             m_application->m_data_center->write(var_name, valueToWrite);
             nbre_variables_ecrites++;
-    } // if l'élément est sélectionné
+    } // if l'Ã©lÃ©ment est sÃ©lectionnÃ©
   }
 
-  // si aucune variable n'a été écrite, préciser à l'utilisateur pourquoi
+  // si aucune variable n'a Ã©tÃ© Ã©crite, prÃ©ciser Ã  l'utilisateur pourquoi
   if (nbre_variables_ecrites == 0) {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText("Sélectionner une ou plusieurs données à écrire");
+    msgBox.setText("SÃ©lectionner une ou plusieurs donnÃ©es Ã  Ã©crire");
     msgBox.exec();
   }
 }
@@ -492,7 +492,7 @@ void CDataView::editingFinishedWriteValueInstantane(void)
 
 // _____________________________________________________________________
 /*!
-*  Enregistre les données dans un fichier texte au format CSV
+*  Enregistre les donnÃ©es dans un fichier texte au format CSV
 */
 void CDataView::saveToFile()
 {
@@ -501,13 +501,13 @@ void CDataView::saveToFile()
     QString pathfilename;
     pathfilename =    m_application->m_pathname_log_file +
                         "/" +
-                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
+                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom gÃ©nÃ©rÃ©
                         CToolBox::getDateTime() +
                         ".trc";
     // Ouvre et construit le fichier
     QFile file(pathfilename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en Ã©criture le fichier " + pathfilename);
         return;
     }
     // Ecrit le fichier

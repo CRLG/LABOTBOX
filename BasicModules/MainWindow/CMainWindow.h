@@ -69,7 +69,7 @@ class CMainWindow : public CBasicModule
 typedef QMap<QString, QMenu *>tListeMenu;
 
 
-//! Niveau des messages de trace (à déplacer dans le module Logger)
+//! Niveau des messages de trace (Ã  dÃ©placer dans le module Logger)
 
 public:
     CMainWindow(const char *plugin_name);
@@ -82,10 +82,10 @@ public:
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/peertopeer.png")); }
 
-    // Fournit l'accès à la barre de menu pour qu'un module puisse ajouter des menus, actions, ... en fonction du besoin
+    // Fournit l'accÃ¨s Ã  la barre de menu pour qu'un module puisse ajouter des menus, actions, ... en fonction du besoin
     QMenuBar    *getMenuBar(void)   { return(m_ihm.menuBar()); }
     QStatusBar  *getStatusBar(void) { return(m_ihm.statusBar()); }
-    QMenu       *getMenu(QString name); // TODO à implémenter
+    QMenu       *getMenu(QString name); // TODO Ã  implÃ©menter
 private:
     Cihm_main_window m_ihm;
 

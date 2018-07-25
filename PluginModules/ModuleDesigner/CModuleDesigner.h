@@ -39,7 +39,7 @@ class CModuleDesigner : public CPluginModule
     Q_OBJECT
 #define     VERSION_MODULE_CREATOR     "2.0"
 #define     AUTEUR_MODULE_CREATOR      "Nico"
-#define     INFO_MODULE_CREATOR        "Wizard de création/intégration/désintégration de modules"
+#define     INFO_MODULE_CREATOR        "Wizard de crÃ©ation/intÃ©gration/dÃ©sintÃ©gration de modules"
 
 #define 	PREFIXE_QRC_TEMPLATE_CODE "://Templates/"
 		

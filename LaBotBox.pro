@@ -20,7 +20,7 @@ HEADERS  += CLaBotBox.h \
 RESOURCES+= icons.qrc \
     code_template.qrc
 # __________________________________________________
-# Ajouter ici les basic modules (nom des répertoires)
+# Ajouter ici les basic modules (nom des rÃ©pertoires)
 LIST_BASIC_MODULES+= \
         DataManager \
         MainWindow \
@@ -34,7 +34,7 @@ LIST_BASIC_MODULES+= \
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les plugin modules (nom des répertoires)
+# Ajouter ici les plugin modules (nom des rÃ©pertoires)
 LIST_PLUGIN_MODULES+= \
         ModuleDesigner \
         TestUnitaire \ 
@@ -52,7 +52,7 @@ LIST_PLUGIN_MODULES+= \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
-# Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
+# Ajouter ici les utilitaires communs "Tools" (nom des rÃ©pertoires)
 LIST_TOOLS+= CustomPlot\
              HtmlTextEditor
 

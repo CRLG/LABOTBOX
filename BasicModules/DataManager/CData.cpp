@@ -43,9 +43,9 @@ CData::~CData()
 /*!
 *  Ecrit une valeur dans la data
 *
-*  \param [in] data la valeur de la donnée au format générique QVariant
-*  \remarks le signal valueChanged est émis si la valeur de la donnée a changé
-*  \remarks l'écriture de la donnée est réalisée en section critique pour assurer l'utilisation en multi-thread
+*  \param [in] data la valeur de la donnÃ©e au format gÃ©nÃ©rique QVariant
+*  \remarks le signal valueChanged est Ã©mis si la valeur de la donnÃ©e a changÃ©
+*  \remarks l'Ã©criture de la donnÃ©e est rÃ©alisÃ©e en section critique pour assurer l'utilisation en multi-thread
 */
 void CData::write(QVariant data)
 {
@@ -53,7 +53,7 @@ void CData::write(QVariant data)
   m_update_time = QDateTime::currentMSecsSinceEpoch();
   if (data != m_data) {
     m_data = data;
-    // Emet le signal dans différent format pour faciliter l'utilisations et la mise à jour des IHM
+    // Emet le signal dans diffÃ©rent format pour faciliter l'utilisations et la mise Ã  jour des IHM
     emit valueChanged(data);
     emit valueChanged(data.toInt());
     emit valueChanged(data.toBool() );
@@ -81,11 +81,11 @@ QVariant CData::read(void)
 
 // _____________________________________________________________________
 /*!
-*  Fixe la valeur d'une propriété
+*  Fixe la valeur d'une propriÃ©tÃ©
 *  \param [in] name le nom de la propiete
-*  \param [in] value valeur de la propriété
-*  \remarks si la propriété existe déjà, sa valeur est écrasée
-*  \remarks si la propriété n'existe pas, elle est créée
+*  \param [in] value valeur de la propriÃ©tÃ©
+*  \remarks si la propriÃ©tÃ© existe dÃ©jÃ , sa valeur est Ã©crasÃ©e
+*  \remarks si la propriÃ©tÃ© n'existe pas, elle est crÃ©Ã©e
 *  \return --
 */
 void CData::setProperty(QString name, QVariant value)
@@ -96,10 +96,10 @@ void CData::setProperty(QString name, QVariant value)
 
 // _____________________________________________________________________
 /*!
-*  Lit la valeur d'une propriété
+*  Lit la valeur d'une propriÃ©tÃ©
 *  \param [in] name le nom de la propiete
-*  \remarks si la propriété n'existe pas, une valeur par défaut est renvoyée (QVariant "Invalid" qui conduit à une valeur nulle sur un toInt() ou à une chaine vide sur un toString())
-*  \return la valeur de la propriété
+*  \remarks si la propriÃ©tÃ© n'existe pas, une valeur par dÃ©faut est renvoyÃ©e (QVariant "Invalid" qui conduit Ã  une valeur nulle sur un toInt() ou Ã  une chaine vide sur un toString())
+*  \return la valeur de la propriÃ©tÃ©
 */
 QVariant CData::getProperty(QString name)
 {
@@ -109,10 +109,10 @@ QVariant CData::getProperty(QString name)
 
 // _____________________________________________________________________
 /*!
-*  Lit la valeur d'une propriété
+*  Lit la valeur d'une propriÃ©tÃ©
 *  \param [in] name le nom de la propiete
-*  \remarks si la propriété n'existe pas, une valeur par défaut est renvoyée (QVariant "Invalid" qui conduit à une valeur nulle sur un toInt() ou à une chaine vide sur un toString())
-*  \return la valeur de la propriété
+*  \remarks si la propriÃ©tÃ© n'existe pas, une valeur par dÃ©faut est renvoyÃ©e (QVariant "Invalid" qui conduit Ã  une valeur nulle sur un toInt() ou Ã  une chaine vide sur un toString())
+*  \return la valeur de la propriÃ©tÃ©
 */
 void CData::getPropertiesList(QStringList &list)
 {
@@ -121,8 +121,8 @@ void CData::getPropertiesList(QStringList &list)
 
 // _____________________________________________________________________
 /*!
-*  COnstruit une liste de type propriété=valeur
-*  \return une chaine de caractère prêt à afficher
+*  COnstruit une liste de type propriÃ©tÃ©=valeur
+*  \return une chaine de caractÃ¨re prÃªt Ã  afficher
 */
 QString CData::getPropertiesString(void)
 {

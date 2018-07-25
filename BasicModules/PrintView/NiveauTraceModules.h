@@ -33,10 +33,10 @@ public:
 
 private : 
         Ui::NiveauTraceModules ui;
-        //! Liste des modules avec leur niveau d'affichage associé
+        //! Liste des modules avec leur niveau d'affichage associÃ©
         t_map_niv_aff *m_liste_modules_niveaux;
 
-        //! Indique si tous les éléments du tableau sont créés
+        //! Indique si tous les Ã©lÃ©ments du tableau sont crÃ©Ã©s
         bool m_table_created;
 
 public slots :

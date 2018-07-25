@@ -38,7 +38,7 @@ CDataPlayer::CDataPlayer(const char *plugin_name)
 */
 CDataPlayer::~CDataPlayer()
 {
- // Efface la liste des générateurs de signaux
+ // Efface la liste des gÃ©nÃ©rateurs de signaux
  for (tListeVariables::iterator i=m_liste_generateurs.begin(); i!=m_liste_generateurs.end(); i++) {
         delete i.value();
  }
@@ -58,17 +58,17 @@ CDataPlayer::~CDataPlayer()
 void CDataPlayer::init(CLaBotBox *application)
 {
   CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+  setGUI(&m_ihm); // indique Ã  la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
+  // GÃ¨re les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
   connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
+  // Restore la taille de la fenÃªtre
   QVariant val;
   val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
   m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
+  // Restore le fait que la fenÃªtre est visible ou non
   val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
   if (val.toBool()) { m_ihm.show(); }
   else              { m_ihm.hide(); }
@@ -110,7 +110,7 @@ void CDataPlayer::init(CLaBotBox *application)
 
   m_ihm.ui.groupBox_ConfigGenerator->setEnabled(false);
 
-  // Crée un player par défaut pour qu'il y en ai au moins 1 de base
+  // CrÃ©e un player par dÃ©faut pour qu'il y en ai au moins 1 de base
   newPlayer("Player1");
 
   QIcon icon = QIcon(":/icons/signal.png");
@@ -126,7 +126,7 @@ void CDataPlayer::init(CLaBotBox *application)
 */
 void CDataPlayer::close(void)
 {
-  // Mémorise en EEPROM l'état de la fenêtre
+  // MÃ©morise en EEPROM l'Ã©tat de la fenÃªtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
@@ -136,7 +136,7 @@ void CDataPlayer::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Création des menus sur clic droit sur la fenêtre du module
+*  CrÃ©ation des menus sur clic droit sur la fenÃªtre du module
 *
 */
 void CDataPlayer::onRightClicGUI(QPoint pos)
@@ -149,7 +149,7 @@ void CDataPlayer::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
-*  Point d'entrée lorsque la fenêtre est appelée
+*  Point d'entrÃ©e lorsque la fenÃªtre est appelÃ©e
 *
 */
 void CDataPlayer::setVisible(void)
@@ -169,7 +169,7 @@ void CDataPlayer::setVisible(void)
 
 // _____________________________________________________________________
 /*!
-*  Met à jour la liste des variables existantes
+*  Met Ã  jour la liste des variables existantes
 *
 */
 void CDataPlayer::refreshListeVariables(void)
@@ -193,12 +193,12 @@ void CDataPlayer::refreshListeVariables(void)
 
 // _____________________________________________________________________
 /*!
-*  Met en cohérence l'IHM  avec l'état de la liste interne
+*  Met en cohÃ©rence l'IHM  avec l'Ã©tat de la liste interne
 *
 */
 void CDataPlayer::miseEnCoherenceListeVariables(void)
 {
- // Balaye toutes les variables affichées dans la liste
+ // Balaye toutes les variables affichÃ©es dans la liste
  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     QString ihm_varname = m_ihm.ui.liste_variables->item(i)->text();
     tListeVariables::const_iterator it = m_liste_generateurs.find(ihm_varname);
@@ -206,8 +206,8 @@ void CDataPlayer::miseEnCoherenceListeVariables(void)
         if (it.value() != NULL) {
             m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
         }
-    } // si la variable est dans la liste des variables possédant un générateur
- } // for toutes les variables listées sur l'IHM
+    } // si la variable est dans la liste des variables possÃ©dant un gÃ©nÃ©rateur
+ } // for toutes les variables listÃ©es sur l'IHM
 }
 
 
@@ -215,7 +215,7 @@ void CDataPlayer::miseEnCoherenceListeVariables(void)
 
 void CDataPlayer::signalGenerationFinished(QString var_name)
 {
-  m_application->m_print_view->print_info(this, "Génération terminée pour signal: " + var_name);
+  m_application->m_print_view->print_info(this, "GÃ©nÃ©ration terminÃ©e pour signal: " + var_name);
 }
 
 // _____________________________________________________________________
@@ -313,9 +313,9 @@ void CDataPlayer::on_nombreCycles_editingFinished(void)
 
 // _____________________________________________________________________
 /*!
-* Sélection d'une variable dans la liste des variables disponibles
-* L'évènement est levé quand :
-*   - L'utilisateur coche ou décoche la checkbox associée
+* SÃ©lection d'une variable dans la liste des variables disponibles
+* L'Ã©vÃ¨nement est levÃ© quand :
+*   - L'utilisateur coche ou dÃ©coche la checkbox associÃ©e
 *
 */
 void CDataPlayer::on_selectVariable(void)
@@ -330,7 +330,7 @@ void CDataPlayer::on_selectVariable(void)
  }
  else {
     m_ihm.ui.groupBox_ConfigGenerator->setEnabled(false);
-    //met des valeurs par défaut dans les champs
+    //met des valeurs par dÃ©faut dans les champs
     m_ihm.ui.dureeEchantillon->setValue(0);
     m_ihm.ui.nombreCycles->setValue(0);
     m_ihm.ui.signal_name->setText("");
@@ -342,9 +342,9 @@ void CDataPlayer::on_selectVariable(void)
 
 // _____________________________________________________________________
 /*!
-* Sélection d'une variable dans la liste des variables disponibles
-* L'évènement est levé quand :
-*   - L'utilisateur coche ou décoche la checkbox associée
+* SÃ©lection d'une variable dans la liste des variables disponibles
+* L'Ã©vÃ¨nement est levÃ© quand :
+*   - L'utilisateur coche ou dÃ©coche la checkbox associÃ©e
 *
 */
 void CDataPlayer::on_checkVariable(QListWidgetItem* item)
@@ -359,22 +359,22 @@ void CDataPlayer::on_checkVariable(QListWidgetItem* item)
  }
 
  if (item->checkState()) {  // L'utilisateur vient de cocher la case
-  if (generator == NULL) {  // aucun générateur n'est associé à cette variable
+  if (generator == NULL) {  // aucun gÃ©nÃ©rateur n'est associÃ© Ã  cette variable
     generator = new CSignalGenerator(m_application->m_data_center,
                                      variable_name);
     m_liste_generateurs.insert(variable_name, generator);
     connect(generator, SIGNAL(signalStarted(QString)), this, SLOT(refreshGeneratorProperties()));
     connect(generator, SIGNAL(signalFinished(QString)), this, SLOT(refreshGeneratorProperties()));
   }
-  // else : si un générateur était déjà affecté, n'en crée pas (situation qui ne devrait pas arriver)
+  // else : si un gÃ©nÃ©rateur Ã©tait dÃ©jÃ  affectÃ©, n'en crÃ©e pas (situation qui ne devrait pas arriver)
  }
- else {  // l'utilisateur à décoché la case
+ else {  // l'utilisateur Ã  dÃ©cochÃ© la case
     if (generator != NULL) {
         generator->stop_generator();
         delete generator;
         m_liste_generateurs.remove(variable_name);
     }
-    // else : aucun générateur n'existe -> donc rien à supprimer
+    // else : aucun gÃ©nÃ©rateur n'existe -> donc rien Ã  supprimer
  }
 
  // Met en surbrillance la liste correspondance
@@ -386,7 +386,7 @@ void CDataPlayer::on_checkVariable(QListWidgetItem* item)
 
 // _____________________________________________________________________
 /*!
-* Récupère un pointeur sur le générateur associé à la variable sélectionnée
+* RÃ©cupÃ¨re un pointeur sur le gÃ©nÃ©rateur associÃ© Ã  la variable sÃ©lectionnÃ©e
 *
 */
 CSignalGenerator *CDataPlayer::selectedVariableToSignalGenerator(void)
@@ -394,7 +394,7 @@ CSignalGenerator *CDataPlayer::selectedVariableToSignalGenerator(void)
   QString varname = "";
   CSignalGenerator *generator = NULL;
 
-  // recherche la variable sélectionnée
+  // recherche la variable sÃ©lectionnÃ©e
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
       if (m_ihm.ui.liste_variables->item(i)->isSelected()) {
           varname = m_ihm.ui.liste_variables->item(i)->text();
@@ -413,7 +413,7 @@ CSignalGenerator *CDataPlayer::selectedVariableToSignalGenerator(void)
 
 // _____________________________________________________________________
 /*!
-* Met à jour les propriétés du générateur sur l'IHM
+* Met Ã  jour les propriÃ©tÃ©s du gÃ©nÃ©rateur sur l'IHM
 *
 */
 void CDataPlayer::refreshGeneratorProperties(void)
@@ -444,7 +444,7 @@ void CDataPlayer::refreshGeneratorProperties(void)
 
 // _____________________________________________________________________
 /*!
-* Renvoie un pointeur sur le player dont le nom est affiché dans la combobox
+* Renvoie un pointeur sur le player dont le nom est affichÃ© dans la combobox
 * Renvoie NULL si le player n'existe pas
 *
 */
@@ -462,7 +462,7 @@ CTracePlayer* CDataPlayer::selectedPlayerNameToPlayer(void)
 
 // _____________________________________________________________________
 /*!
-* Met à jour l'interface du player
+* Met Ã  jour l'interface du player
 *
 */
 void CDataPlayer::refreshIHMGenerateur(void)
@@ -479,7 +479,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
   QFileInfo file_info(player->getTraceFilename());
   m_ihm.ui.trace_name->setText(file_info.baseName());
 
-  // met à jour la valeur max du slider qui correspond au nombre de steps du player
+  // met Ã  jour la valeur max du slider qui correspond au nombre de steps du player
   int max_step = player->getStepsSize()-1;
   if (max_step > 0) {
       m_ihm.ui.sliderStepNumTrace->setMaximum(max_step);
@@ -498,7 +498,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
     m_ihm.ui.sliderStepNumTrace->setValue(player->getCurrentStepIndex());
   }
 
-  // grise ou dégrise les boutons en fonction de l'état du player
+  // grise ou dÃ©grise les boutons en fonction de l'Ã©tat du player
   tPlayerState player_state = player->getState();
   switch (player_state) {
     // ________________________________
@@ -563,12 +563,12 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.PB_StopTrace->setEnabled(state);
         m_ihm.ui.sliderStepNumTrace->setEnabled(state);
     break;
-  } //swtich l'état du player
+  } //swtich l'Ã©tat du player
 }
 
 // _____________________________________________________________________
 /*!
-* Choix du fichier de trace à rejouer
+* Choix du fichier de trace Ã  rejouer
 *
 */
 void CDataPlayer::on_PB_choixTrace_clicked(void)
@@ -582,17 +582,17 @@ void CDataPlayer::on_PB_choixTrace_clicked(void)
 
   m_default_signal_path = file_info.path();
 
-  // Met à jour le fichier dans le player
+  // Met Ã  jour le fichier dans le player
   selectedPlayerNameToPlayer()->setTraceFilename(fileName);
 
   // si la liste contient plus d'un player, autorise le start et le stop 
-  // synchronisé sur tous les players en même temps
+  // synchronisÃ© sur tous les players en mÃªme temps
   if (m_liste_players.size() > 1) {
     m_ihm.ui.PB_StartAllTraces_Synchro->setEnabled(true);
     m_ihm.ui.PB_StopAllTraces_Synchro->setEnabled(true);
   }
 
-  // Met à jour l'IHM
+  // Met Ã  jour l'IHM
   refreshIHMGenerateur();
 }
 
@@ -639,7 +639,7 @@ void CDataPlayer::on_playerNameListe_changed(QString player_name)
 void CDataPlayer::on_PB_AjoutPlayer_clicked(void)
 {
   bool ok;
-  QString text = QInputDialog::getText(NULL, tr("Nom du player à créer"),
+  QString text = QInputDialog::getText(NULL, tr("Nom du player Ã  crÃ©er"),
                                           tr(""), QLineEdit::Normal,
                                           "Player_n", &ok);    
   if (ok && !text.isEmpty()) {
@@ -649,12 +649,12 @@ void CDataPlayer::on_PB_AjoutPlayer_clicked(void)
 
 // _____________________________________________________________________
 /*!
-* Ajoute un player dont le nom est passé
+* Ajoute un player dont le nom est passÃ©
 *
 */
 void CDataPlayer::newPlayer(QString player_name)
 {
- if (m_liste_players.find(player_name) != m_liste_players.end() ) { return; }  // Ce nom de player existe déjà
+ if (m_liste_players.find(player_name) != m_liste_players.end() ) { return; }  // Ce nom de player existe dÃ©jÃ 
  
  CTracePlayer *player = new CTracePlayer(m_application->m_data_center, player_name);
  m_liste_players[player_name] = player;
@@ -662,7 +662,7 @@ void CDataPlayer::newPlayer(QString player_name)
  m_ihm.ui.playerNameListe->insertItem(insert_index, player_name);
  m_ihm.ui.playerNameListe->setCurrentIndex(insert_index);
 
- // connecte les signaux émis avec la mise à jour de l'IHM
+ // connecte les signaux Ã©mis avec la mise Ã  jour de l'IHM
  connect(player, SIGNAL(stateChanged(QString)), this, SLOT(on_TracePlayerStateChanged(QString)));
  connect(player, SIGNAL(oneStepFinished(QString)), this, SLOT(on_TracePlayerStateChanged(QString)));
 
@@ -671,13 +671,13 @@ void CDataPlayer::newPlayer(QString player_name)
 
 // _____________________________________________________________________
 /*!
-* Capture des évènements émis par CTracePlayer
+* Capture des Ã©vÃ¨nements Ã©mis par CTracePlayer
 *
 */
 void CDataPlayer::on_TracePlayerStateChanged(QString player_name)
 {
- // si le player qui a émis l'évènement correspond au player affiché
- // l'IHM est mise à jour
+ // si le player qui a Ã©mis l'Ã©vÃ¨nement correspond au player affichÃ©
+ // l'IHM est mise Ã  jour
  if (m_ihm.ui.playerNameListe->currentText() == player_name) {
   refreshIHMGenerateur();
  }
@@ -686,7 +686,7 @@ void CDataPlayer::on_TracePlayerStateChanged(QString player_name)
 
 // _____________________________________________________________________
 /*!
-* Joue le pas précédent 
+* Joue le pas prÃ©cÃ©dent 
 *
 */
 void CDataPlayer::on_PB_StepBackwardTrace_clicked(void)
@@ -721,7 +721,7 @@ void CDataPlayer::on_PB_StartTrace_clicked(void)
 }
 // _____________________________________________________________________
 /*!
-* Arrête de jouer la trace en cours 
+* ArrÃªte de jouer la trace en cours 
 *
 */
 void CDataPlayer::on_PB_StopTrace_clicked(void)
@@ -733,7 +733,7 @@ void CDataPlayer::on_PB_StopTrace_clicked(void)
 
 // _____________________________________________________________________
 /*!
-* Démarrage synchronisé de tous les modules 
+* DÃ©marrage synchronisÃ© de tous les modules 
 *
 */
 void CDataPlayer::on_PB_StartAllTraces_Synchro_clicked(void)
@@ -745,7 +745,7 @@ void CDataPlayer::on_PB_StartAllTraces_Synchro_clicked(void)
 
 // _____________________________________________________________________
 /*!
-* Arrêt synchronisé de tous les modules 
+* ArrÃªt synchronisÃ© de tous les modules 
 *
 */
 void CDataPlayer::on_PB_StopAllTraces_Synchro_clicked(void)

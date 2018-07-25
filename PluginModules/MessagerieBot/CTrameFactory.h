@@ -1,5 +1,5 @@
 // FICHIER GENERE PAR L'OUTIL MESS2C_robot V1.0
-// Date de génération : Tue May 05 22:41:21 2015
+// Date de gÃ©nÃ©ration : Tue May 05 22:41:21 2015
 // PLATEFORME CIBLE : LABOTBOX
 /*! \file CTrameFactory.h
  * A brief file description header.
@@ -61,9 +61,9 @@ private :
     CDataManager *m_data_manager;
     //! Liste des trames
     tListeTrames m_liste_trames;
-    //! Liste des trames en émission
+    //! Liste des trames en Ã©mission
     tListeTrames m_liste_trames_tx;
-    //! Liste des trames en réception
+    //! Liste des trames en rÃ©ception
     tListeTrames m_liste_trames_rx;
 
 public slots :

@@ -54,8 +54,8 @@ public:
     virtual void init(CLaBotBox *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
-    virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
-    virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
+    virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // PrÃ©cise l'icÃ´ne qui reprÃ©sente le module
+    virtual QString getMenuName(void)   { return("PluginModule"); }                 // PrÃ©cise le nom du menu de la fenÃªtre principale dans lequel le module apparaÃ®t
 
 private:
     Cihm_MessagerieBot m_ihm;
@@ -75,7 +75,7 @@ private slots :
 public :
     //! Convertit une trame en une chaine affichable
     QString TrameBruteToString(tStructTrameBrute *trame);
-    //! Associe le module de messagerie à une RS232
+    //! Associe le module de messagerie Ã  une RS232
     void setRS232(CRS232 *serial);
 
 private :
@@ -110,9 +110,9 @@ typedef enum {
 #define C_TIMEOUT_PERTE_COM 1000 // [msec]
 
 private slots :
-    //! Reconstitue une trame à partir de données entrantes
+    //! Reconstitue une trame Ã  partir de donnÃ©es entrantes
     void Reconstitution(QByteArray data);
-    //! Reconstitue une trame à partir de données entrantes
+    //! Reconstitue une trame Ã  partir de donnÃ©es entrantes
     void Reconstitution(unsigned char data);
     //! Diagnostic de perte de communication avec le robot
     void TimeoutPerteComm(void);
@@ -121,9 +121,9 @@ public slots :
     //! Recherche et lance le decodage de la trame arrivee
     void DecodeFrame(tStructTrameBrute trameRecue);
 signals :
-    //! Signal de réception de trame
+    //! Signal de rÃ©ception de trame
     void frameReceived(tStructTrameBrute trame);
-    //! Signal de diagnostic de communication avec le robot pour indiquer que la connexion avec le robot est établie/perdue
+    //! Signal de diagnostic de communication avec le robot pour indiquer que la connexion avec le robot est Ã©tablie/perdue
     void connected(bool state);
 
 private :
@@ -137,7 +137,7 @@ private :
 private :
     //! Etat de la machine d'etat de reconstitution
     unsigned char m_etatReconst;
-    //! Numéro d'octet reçu
+    //! NumÃ©ro d'octet reÃ§u
     unsigned int m_numero_data;
     //! Trame en cours de reconstruction
     tStructTrameBrute m_trameCourante;
@@ -146,14 +146,14 @@ private :
 
     //! Timer de diagnostic de perte de communication
     QTimer  m_timer_diag_comm;
-    //! Indique si la connexion est établie ou non
+    //! Indique si la connexion est Ã©tablie ou non
     bool m_connected_to_robot;
 
 // =======================================================
 //                  TRAMES EN EMISSION
 // =======================================================
 public :
-    //! Sérialise une trame
+    //! SÃ©rialise une trame
     void SerialiseTrame(tStructTrameBrute *trameBrute);
 };
 

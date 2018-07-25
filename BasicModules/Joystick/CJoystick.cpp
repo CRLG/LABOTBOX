@@ -56,7 +56,7 @@ void CJoystick::init(CLaBotBox *application)
   memset(&m_ButtonState_old, 0, sizeof(m_ButtonState_old));
   memset(&m_connected, 0, sizeof(m_connected));
 
-  // Crée les variables liées au joystick dans le data manager
+  // CrÃ©e les variables liÃ©es au joystick dans le data manager
   QString data_name = "";
   for (unsigned int joy=0; joy<MAX_JOYSTICK_NUMBER; joy++) {
       data_name = QString("Joystick%1_Connected").arg(joy);
@@ -92,19 +92,19 @@ void CJoystick::close(void)
 
 // _____________________________________________________________________
 /*!
-*  Mise à jour des états des joysticks
+*  Mise Ã  jour des Ã©tats des joysticks
 *
 */
 void CJoystick::refreshJoysticksState()
 {
     int numberjoystickconnected=0;
 
-    // mise à jour sfml
+    // mise Ã  jour sfml
     sf::Joystick::update();
 
     for (unsigned int joy=0; joy<MAX_JOYSTICK_NUMBER; joy++) {
         // ____________________________________
-        // recherche des joysticks nouvellement connectés ou déconnectés
+        // recherche des joysticks nouvellement connectÃ©s ou dÃ©connectÃ©s
         if (m_connected[joy] != sf::Joystick::isConnected(joy)) {
             m_connected[joy] = sf::Joystick::isConnected(joy);
             QString data_name = QString("Joystick%1_Connected").arg(joy);
@@ -134,11 +134,11 @@ void CJoystick::refreshJoysticksState()
             }
         }
         // ____________________________________
-        // comptabilise le nombre de joystick connectés au moment présent
+        // comptabilise le nombre de joystick connectÃ©s au moment prÃ©sent
         numberjoystickconnected += sf::Joystick::isConnected(joy);
     } // for tous les joysticks possibles
 
-    // si au moins un joystick est connecté, augmente la fréquence de lecture du jostick
+    // si au moins un joystick est connectÃ©, augmente la frÃ©quence de lecture du jostick
     m_refresh_timer.setInterval(numberjoystickconnected!=0?REFRESH_PERIOD:SEARCH_JOYSTICK_PERIOD);
 }
 

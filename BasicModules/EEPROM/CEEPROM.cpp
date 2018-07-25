@@ -50,7 +50,7 @@ void CEEPROM::init(CLaBotBox *application)
 
   pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
   m_settings = new QSettings(pathfilename, QSettings::IniFormat);
-  m_settings->setIniCodec("ISO 8859-1");
+  m_settings->setIniCodec("UTF-8");
   m_application->m_print_view->print_debug(this, "Fichier EEPROM = " + pathfilename);
 
   m_initialized = true;
@@ -59,11 +59,11 @@ void CEEPROM::init(CLaBotBox *application)
 
 // _____________________________________________________________________
 /*!
-*  Ecrit la valeur d'un paramètre en EEPROM
+*  Ecrit la valeur d'un paramÃ¨tre en EEPROM
 *
-*  \param [in] section nom de la section (nom du module à l'origine  de la demande)
-*  \param [in] param nom du paramètre
-*  \param [in] val valeur du paramètre au format générique QVariant
+*  \param [in] section nom de la section (nom du module Ã  l'origine  de la demande)
+*  \param [in] param nom du paramÃ¨tre
+*  \param [in] val valeur du paramÃ¨tre au format gÃ©nÃ©rique QVariant
 */
 void CEEPROM::write(QString section, QString param, QVariant val)
 {
@@ -81,11 +81,11 @@ void CEEPROM::write(QString section, QString param, QVariant val)
 
 // _____________________________________________________________________
 /*!
-*  Ecrit la valeur d'un paramètre en EEPROM
+*  Ecrit la valeur d'un paramÃ¨tre en EEPROM
 *
-*  \param [in] param nom du paramètre
-*  \param [in] val valeur du paramètre au format générique QVariant
-*  \remarks l'écriture se fait dans la section "General"
+*  \param [in] param nom du paramÃ¨tre
+*  \param [in] val valeur du paramÃ¨tre au format gÃ©nÃ©rique QVariant
+*  \remarks l'Ã©criture se fait dans la section "General"
 */
 void CEEPROM::write(QString param, QVariant val)
 {
@@ -95,11 +95,11 @@ void CEEPROM::write(QString param, QVariant val)
 
 // _____________________________________________________________________
 /*!
-*  Lit la valeur d'un paramètre en EEPROM
+*  Lit la valeur d'un paramÃ¨tre en EEPROM
 *
-*  \param [in] section nom de la section (nom du module à l'origine  de la demande)
-*  \param [in] param nom du paramètre
-*  \param [in] def_val valeur par défaut retournée si le paramètre n'existe pas en EEPROM
+*  \param [in] section nom de la section (nom du module Ã  l'origine  de la demande)
+*  \param [in] param nom du paramÃ¨tre
+*  \param [in] def_val valeur par dÃ©faut retournÃ©e si le paramÃ¨tre n'existe pas en EEPROM
 *  \remarks si la data n'existe pas, elle est cree automatiquement
 */
 QVariant CEEPROM::read(QString section, QString param, QVariant def_val)
@@ -121,10 +121,10 @@ QVariant CEEPROM::read(QString section, QString param, QVariant def_val)
 
 // _____________________________________________________________________
 /*!
-*  Lit la valeur d'un paramètre en EEPROM
+*  Lit la valeur d'un paramÃ¨tre en EEPROM
 *
-*  \param [in] param nom du paramètre
-*  \param [in] def_val valeur par défaut retournée si le paramètre n'existe pas en EEPROM
+*  \param [in] param nom du paramÃ¨tre
+*  \param [in] def_val valeur par dÃ©faut retournÃ©e si le paramÃ¨tre n'existe pas en EEPROM
 *  \remarks la lecture se fait dans la section "General"
 */
 QVariant CEEPROM::read(QString param, QVariant def_val)
