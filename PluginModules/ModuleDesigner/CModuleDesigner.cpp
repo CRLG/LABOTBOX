@@ -517,7 +517,7 @@ QString CModuleDesigner::readFile(QString pathfilename)
       return "";
   }
   QTextStream txtstream(&file);
-  txtstream.setCodec("ISO 8859-1");
+  txtstream.setCodec("UTF-8");
   QString contenu = txtstream.readAll();
   file.close();
   return(contenu);
@@ -546,7 +546,7 @@ void CModuleDesigner::writeFile(QString pathfilename, const QString &value)
       return;
   }
   QTextStream txtstream(&file);
-  txtstream.setCodec("ISO 8859-1");
+  txtstream.setCodec("UTF-8");
   txtstream << value;
   file.close();
 }
