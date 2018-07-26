@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>489</width>
-    <height>339</height>
+    <height>356</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -273,7 +273,7 @@
          <rect>
           <x>13</x>
           <y>140</y>
-          <width>118</width>
+          <width>181</width>
           <height>20</height>
          </rect>
         </property>
@@ -320,7 +320,7 @@
        <widget class="QLineEdit" name="repertoire_module_desintegration">
         <property name="geometry">
          <rect>
-          <x>137</x>
+          <x>190</x>
           <y>140</y>
           <width>177</width>
           <height>20</height>
@@ -336,7 +336,7 @@
        <widget class="QToolButton" name="PB_choix_repertoire_module_desintegration">
         <property name="geometry">
          <rect>
-          <x>320</x>
+          <x>370</x>
           <y>140</y>
           <width>25</width>
           <height>19</height>
@@ -366,7 +366,7 @@
      <x>0</x>
      <y>0</y>
      <width>489</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

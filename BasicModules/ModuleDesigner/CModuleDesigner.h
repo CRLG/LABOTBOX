@@ -68,8 +68,9 @@ private:
     bool genereResourcesUserGuideHtml(const QString &output_dirname);
     bool getCodeResourceUserGuide(QString &out_code);
     bool integrerNouveauModuleCreeAuProjet(void);
-    bool integrerModuleAuProjet(QString type_module, QString repertoire_projet, QString nom_module);
-    bool desintegrerModuleDuProjet(QString type_module, QString repertoire_projet, QString nom_module);
+    bool integrerModuleAuProjet(QString type_module, QString repertoire_projet, QString nom_module, QString nom_fichier_pro);
+    bool desintegrerModuleDuProjet(QString type_module, QString repertoire_projet, QString nom_module, QString nom_fichier_pro);
+    QString choixNomFichierPro(QString repertoire_projet);
 
 private slots :
     void genererModule(void);

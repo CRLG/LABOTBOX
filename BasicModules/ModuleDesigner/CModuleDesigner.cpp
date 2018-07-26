@@ -342,14 +342,14 @@ bool CModuleDesigner::integrerNouveauModuleCreeAuProjet(void)
  if (m_ihm.ui.ModuleTypeBasic->isChecked()) { typeModuleString = "BASIC"; }
  else                                       { typeModuleString = "PLUGIN"; }
 
+ QString pro_filename = choixNomFichierPro(m_ihm.ui.repertoire_projet->text());
+
  return(integrerModuleAuProjet( typeModuleString, 
                                 m_ihm.ui.repertoire_projet->text(),
-                                m_ihm.ui.nom_module->text())
+                                m_ihm.ui.nom_module->text(),
+                                pro_filename)
        );
 }
-
-
-
 
 // _____________________________________________________________________
 /*!
@@ -358,7 +358,8 @@ bool CModuleDesigner::integrerNouveauModuleCreeAuProjet(void)
 */
 bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
                                             QString repertoire_projet,
-                                            QString nom_module)
+                                            QString nom_module,
+                                            QString nom_fichier_pro)
 {
   bool status = true;
   QString pathfilename="";
@@ -366,8 +367,8 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
   QString tagName="";
 
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.pro et ajoute le nouveau module
-  pathfilename = repertoire_projet + "/LaBotBox.pro";
+  // Ouvre le fichier .pro et ajoute le nouveau module
+  pathfilename = repertoire_projet + "/" + nom_fichier_pro;
   QString pro_file = readFile(pathfilename); 
   if (pro_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
@@ -401,7 +402,7 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
   writeFile(pathfilename, header_file);
 
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.cpp et ajoute le nouveau module
+  // Ouvre le fichier CApplication.cpp et ajoute le nouveau module
   pathfilename = repertoire_projet + "/CApplication.cpp";
   QString cpp_file = readFile(pathfilename); 
   if (header_file == "") {
@@ -439,15 +440,16 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
 #define C_RIEN_DU_TOUT ""
 bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
                                             QString repertoire_projet,
-                                            QString nom_module)
+                                            QString nom_module,
+                                            QString nom_fichier_pro)
 {
   bool status = true;
   QString pathfilename="";
   QString replaceString="";
  
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.pro et supprime les références au module
-  pathfilename = repertoire_projet + "/LaBotBox.pro";
+  // Ouvre le fichier .pro et supprime les références au module
+  pathfilename = repertoire_projet + "/" + nom_fichier_pro;
   QString pro_file = readFile(pathfilename); 
   if (pro_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
@@ -460,7 +462,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   writeFile(pathfilename, pro_file);
 
   // _______________________________________________
-  // Ouvre le fichier LaBotBox.h et supprime les références au module
+  // Ouvre le fichier CApplication.h et supprime les références au module
   pathfilename = repertoire_projet + "/CApplication.h";
   QString header_file = readFile(pathfilename); 
   if (header_file == "") {
@@ -511,6 +513,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
 */
 QString CModuleDesigner::readFile(QString pathfilename)
 {
+  pathfilename.replace("//", "/");
   QFile file(pathfilename);
   if (file.open(QFile::ReadOnly) == false) {
       m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
@@ -567,6 +570,29 @@ void CModuleDesigner::choixRepertoireSortie(void)
 }
 
 
+// _____________________________________________________________________
+/*!
+*  Recherche le fichier .pro du projet et si ambiguité, demande à l'utilisateur
+*
+*/
+QString CModuleDesigner::choixNomFichierPro(QString repertoire_projet)
+{
+    QString pro_filename;
+    QStringList filelist = QDir(repertoire_projet).entryList(QStringList("*.pro"), QDir::Files);
+
+    if (filelist.size() == 0) { // il n'y a aucun fichier .pro
+        m_application->m_print_view->print_error(this, "Impossible de trouver le fichier .pro dans le répertoire: " + repertoire_projet);
+    }
+    else if (filelist.size() == 1) { // il n'y en a qu'un seul, le choix est sans ambiguité
+        pro_filename = filelist.at(0);
+    }
+    else { // il y en a plus q'un : ambiguité à lever par l'utilisateur
+        QString pathfilename = QFileDialog::getSaveFileName(&m_ihm, "Select .pro file", repertoire_projet, ".pro file (*.pro)");
+        pro_filename = QFileInfo(pathfilename).fileName();
+    }
+    return pro_filename;
+}
+
 
 
 // ============ PAGE INTEGRATION D'UN MODULE EXISTANT =======================
@@ -578,40 +604,31 @@ void CModuleDesigner::choixRepertoireSortie(void)
 bool CModuleDesigner::integrerModuleExistantAuProjet(void)
 {
  QString rep_module_existant = m_ihm.ui.repertoire_module_existant->text();
- const QString SEPARATEUR = "/";
  // Extrait du répertoire : 
  // Le type de module : BASIC ou PLUGIN
  // Le nom du module
  // Le nom du répertoire du projet
  m_application->m_print_view->print_info(this, rep_module_existant);
 
- // Découpe le répertoire suivant le séparateur "/" (windows et linux)
- QStringList liste_rep = rep_module_existant.split(SEPARATEUR, QString::SkipEmptyParts);
- if (liste_rep.size() <= 2) { 
-     m_application->m_print_view->print_error(this, "Repertoire du module invalide");
+ // Exemple : ~/workarea/LABOTBOX/BasicModules/DataView
+ QDir dir = QDir(rep_module_existant);
+ QString nom_module = dir.dirName();  // "DataView"
+ dir.cdUp();
+ QString type_module = dir.dirName(); // "BasicModules"
+ dir.cdUp();
+ QString rep_projet = dir.path(); // "~/workarea/LABOTBOX"
+
+ QString typeModuleString="";
+ if (type_module == "BasicModules")         { typeModuleString = "BASIC"; }
+ else if (type_module == "PluginModules")   { typeModuleString = "PLUGIN"; }
+ else {
+     m_application->m_print_view->print_error(this, "Repertoire du module invalide : " + rep_module_existant);
      return(false);
  }
 
- // Si le découpage s'est bien passé : 
- //     - Le dernier nom de la liste est le nom du module
- //     - L'avant dernier nom indique s'il s'agit d'un Basic ou Plugin module
- //     - Le nom du répertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
- // Exemple : D:\workarea\LaBotBox\LabBotBox\BasicModules\DataView
- //           |-----------------------------|------------|-------------|
- //           |  nom du répertoire projet   | type module| nom module  |
+ QString pro_filename = choixNomFichierPro(rep_projet);
 
- QString nom_module = liste_rep.at(liste_rep.size()-1);
-
- QString typeModuleString="";
- if (liste_rep.at(liste_rep.size()-2) == "BasicModules") { typeModuleString = "BASIC"; }
- else                                                   { typeModuleString = "PLUGIN"; }
-
- QString rep_projet = "";
- for (int i=0; i<liste_rep.size()-2; i++) {
-    rep_projet += liste_rep.at(i) + SEPARATEUR;
- }
-
-return(integrerModuleAuProjet(typeModuleString, rep_projet, nom_module));
+return(integrerModuleAuProjet(typeModuleString, rep_projet, nom_module, pro_filename));
 }
 
 
@@ -636,40 +653,31 @@ void CModuleDesigner::choixRepertoireModuleExistant(void)
 bool CModuleDesigner::desintegrerModuleExistantDuProjet(void)
 {
  QString rep_module_a_desintegrer = m_ihm.ui.repertoire_module_desintegration->text();
- const QString SEPARATEUR = "/";
  // Extrait du répertoire : 
  // Le type de module : BASIC ou PLUGIN
  // Le nom du module
  // Le nom du répertoire du projet
  m_application->m_print_view->print_info(this, rep_module_a_desintegrer);
 
- // Découpe le répertoire suivant le séparateur "/" (windows et linux)
- QStringList liste_rep = rep_module_a_desintegrer.split(SEPARATEUR, QString::SkipEmptyParts);
- if (liste_rep.size() <= 2) { 
-     m_application->m_print_view->print_error(this, "Repertoire du module invalide");
+ // Exemple : ~/workarea/LABOTBOX/BasicModules/DataView
+ QDir dir = QDir(rep_module_a_desintegrer);
+ QString nom_module = dir.dirName();  // "DataView"
+ dir.cdUp();
+ QString type_module = dir.dirName(); // "BasicModules"
+ dir.cdUp();
+ QString rep_projet = dir.path(); // "~/workarea/LABOTBOX"
+
+ QString typeModuleString="";
+ if (type_module == "BasicModules")         { typeModuleString = "BASIC"; }
+ else if (type_module == "PluginModules")   { typeModuleString = "PLUGIN"; }
+ else {
+     m_application->m_print_view->print_error(this, "Repertoire du module invalide : " + rep_module_a_desintegrer);
      return(false);
  }
 
- // Si le découpage s'est bien passé : 
- //     - Le dernier nom de la liste est le nom du module
- //     - L'avant dernier nom indique s'il s'agit d'un Basic ou Plugin module
- //     - Le nom du répertoire du projet s'obtient en recomposant les noms de la liste sans le dernier
- // Exemple : D:\workarea\LaBotBox\LabBotBox\BasicModules\DataView
- //           |-----------------------------|------------|-------------|
- //           |  nom du répertoire projet   | type module| nom module  |
+ QString pro_filename = choixNomFichierPro(rep_projet);
 
- QString nom_module = liste_rep.at(liste_rep.size()-1);
-
- QString typeModuleString="";
- if (liste_rep.at(liste_rep.size()-2) == "BasicModules") { typeModuleString = "BASIC"; }
- else                                                   { typeModuleString = "PLUGIN"; }
-
- QString rep_projet = "";
- for (int i=0; i<liste_rep.size()-2; i++) {
-    rep_projet += liste_rep.at(i) + SEPARATEUR;
- }
-
-return(desintegrerModuleDuProjet(typeModuleString, rep_projet, nom_module));
+ return(desintegrerModuleDuProjet(typeModuleString, rep_projet, nom_module, pro_filename));
 }
 
 
