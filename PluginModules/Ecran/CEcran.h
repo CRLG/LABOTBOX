@@ -7,7 +7,7 @@
 
 #include <QMainWindow>
 
-#include "CBasicModule.h"
+#include "CPluginModule.h"
 #include "ui_ihm_Ecran.h"
 #include "CData.h"
 
@@ -33,12 +33,12 @@ public:
 	   
 /*! @brief class CEcran
  */	   
-class CEcran : public CBasicModule
+class CEcran : public CPluginModule
 {
     Q_OBJECT
 #define     VERSION_Ecran   "1.0"
 #define     AUTEUR_Ecran    "Laguiche"
-#define     INFO_Ecran      "IHM du robot pour �cran sur raspberry pi"
+#define     INFO_Ecran      "IHM du robot pour écran sur raspberry pi"
 
 public:
     CEcran(const char *plugin_name);

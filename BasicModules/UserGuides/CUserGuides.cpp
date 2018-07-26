@@ -25,7 +25,7 @@
 *
 */
 CUserGuides::CUserGuides(const char *plugin_name)
-    :CPluginModule(plugin_name, VERSION_UserGuides, AUTEUR_UserGuides, INFO_UserGuides),
+    :CBasicModule(plugin_name, VERSION_UserGuides, AUTEUR_UserGuides, INFO_UserGuides),
      m_html_text_editor(NULL)
 {
 }

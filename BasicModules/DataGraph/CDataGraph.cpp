@@ -32,7 +32,7 @@
 *
 */
 CDataGraph::CDataGraph(const char *plugin_name)
-    :CPluginModule(plugin_name, VERSION_DataGraph, AUTEUR_DataGraph, INFO_DataGraph)
+    :CBasicModule(plugin_name, VERSION_DataGraph, AUTEUR_DataGraph, INFO_DataGraph)
 {
     //Initialisation des paramètres propres à  l'affichage graphique
     dureeObservee=20;

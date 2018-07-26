@@ -15,16 +15,17 @@
 #include "CPrintView.h"
 #include "CEEPROM.h"
 #include "CDataView.h"
+#include "CDataGraph.h"
 #include "CDataPlayer.h"
 #include "CRS232.h"
+#include "CJoystick.h"
+#include "CModuleDesigner.h"
+#include "CUserGuides.h"
 //#include "CJoystick.h"
-#include "CEcran.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 
-#include "CModuleDesigner.h"
 #include "CTestUnitaire.h"
-#include "CDataGraph.h"
 #include "CSimuBot.h"
 #include "CStrategyDesigner.h"
 #include "CMessagerieBot.h"
@@ -32,9 +33,9 @@
 #include "CActuatorElectrobot.h"
 #include "CSensorView.h"
 #include "CAsserv.h"
-#include "CUserGuides.h"
 #include "CActuatorSequencer.h"
 #include "CBotCam.h"
+#include "CEcran.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CLaBotBox.h"
@@ -109,6 +110,10 @@ void CLaBotBox::createBasicModules(void)
   m_list_basic_modules.append(m_DataView);
   m_list_modules.append(m_DataView);
 
+  m_DataGraph     = new CDataGraph("DataGraph");
+  m_list_basic_modules.append(m_DataGraph);
+  m_list_modules.append(m_DataGraph);
+
   m_DataPlayer     = new CDataPlayer("DataPlayer");
   m_list_basic_modules.append(m_DataPlayer);
   m_list_modules.append(m_DataPlayer);
@@ -124,9 +129,13 @@ void CLaBotBox::createBasicModules(void)
 //  m_list_basic_modules.append(m_Joystick);
 //  m_list_modules.append(m_Joystick);
 
-  m_Ecran     = new CEcran("Ecran");
-  m_list_basic_modules.append(m_Ecran);
-  m_list_modules.append(m_Ecran);
+  m_UserGuides     = new CUserGuides("UserGuides");
+  m_list_basic_modules.append(m_UserGuides);
+  m_list_modules.append(m_UserGuides);
+
+  m_module_creator    = new CModuleDesigner("ModuleDesigner");
+  m_list_basic_modules.append(m_module_creator);
+  m_list_modules.append(m_module_creator);
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }
@@ -180,17 +189,9 @@ void CLaBotBox::deleteBasicModules()
 */
 void CLaBotBox::createPluginModules(void)
 {
-  m_module_creator    = new CModuleDesigner("ModuleDesigner");
-  m_list_plugin_modules.append(m_module_creator);
-  m_list_modules.append(m_module_creator);
-
   m_TestUnitaire     = new CTestUnitaire("TestUnitaire");
   m_list_plugin_modules.append(m_TestUnitaire);
   m_list_modules.append(m_TestUnitaire);
-
-//  m_DataGraph     = new CDataGraph("DataGraph");
-//  m_list_plugin_modules.append(m_DataGraph);
-//  m_list_modules.append(m_DataGraph);
 
   m_SimuBot     = new CSimuBot("SimuBot");
   m_list_plugin_modules.append(m_SimuBot);
@@ -220,10 +221,6 @@ void CLaBotBox::createPluginModules(void)
   m_list_plugin_modules.append(m_Asserv);
   m_list_modules.append(m_Asserv);
 
-  m_UserGuides     = new CUserGuides("UserGuides");
-  m_list_plugin_modules.append(m_UserGuides);
-  m_list_modules.append(m_UserGuides);
-
   m_ActuatorSequencer     = new CActuatorSequencer("ActuatorSequencer");
   m_list_plugin_modules.append(m_ActuatorSequencer);
   m_list_modules.append(m_ActuatorSequencer);
@@ -231,6 +228,12 @@ void CLaBotBox::createPluginModules(void)
   m_BotCam     = new CBotCam("BotCam");
   m_list_plugin_modules.append(m_BotCam);
   m_list_modules.append(m_BotCam);
+
+  /*
+  m_Ecran     = new CEcran("Ecran");
+  m_list_plugin_modules.append(m_Ecran);
+  m_list_modules.append(m_Ecran);
+*/
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
 

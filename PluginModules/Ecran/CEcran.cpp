@@ -24,7 +24,7 @@
 *
 */
 CEcran::CEcran(const char *plugin_name)
-    :CBasicModule(plugin_name, VERSION_Ecran, AUTEUR_Ecran, INFO_Ecran)
+    :CPluginModule(plugin_name, VERSION_Ecran, AUTEUR_Ecran, INFO_Ecran)
 {
 }
 

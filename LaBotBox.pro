@@ -27,18 +27,18 @@ LIST_BASIC_MODULES+= \
         PrintView \
         EEPROM \
         DataView \ 
-        DataPlayer \ 
+        DataGraph \
+        DataPlayer \
         RS232 \ 
-        Ecran \
        #Joystick \
+        ModuleDesigner \
+        UserGuides \
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
 # Ajouter ici les plugin modules (nom des répertoires)
 LIST_PLUGIN_MODULES+= \
-        ModuleDesigner \
         TestUnitaire \ 
-        DataGraph \ 
         SimuBot \ 
         StrategyDesigner \ 
         MessagerieBot \ 
@@ -46,9 +46,9 @@ LIST_PLUGIN_MODULES+= \
         ActuatorElectrobot \ 
         SensorView \ 
         Asserv \ 
-        UserGuides \ 
         ActuatorSequencer \
         BotCam \
+        Ecran \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

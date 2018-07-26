@@ -7,7 +7,7 @@
 
 #include <QMainWindow>
 
-#include "CPluginModule.h"
+#include "CBasicModule.h"
 #include "ui_ihm_UserGuides.h"
 
  class Cihm_UserGuides : public QMainWindow
@@ -32,7 +32,7 @@ class HtmlTextEditor;
 	   
 /*! @brief class CUserGuides
  */	   
-class CUserGuides : public CPluginModule
+class CUserGuides : public CBasicModule
 {
     Q_OBJECT
 #define     VERSION_UserGuides   "1.0"

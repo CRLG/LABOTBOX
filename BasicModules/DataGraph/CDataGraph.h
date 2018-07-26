@@ -8,7 +8,7 @@
 #include <QMainWindow>
 #include <QTimer>
 
-#include "CPluginModule.h"
+#include "CBasicModule.h"
 #include "ui_ihm_DataGraph.h"
 #include "qcustomplot.h"
 
@@ -32,7 +32,7 @@ public:
 	   
 /*! @brief class CDataGraph
  */	   
-class CDataGraph : public CPluginModule
+class CDataGraph : public CBasicModule
 {
     Q_OBJECT
 #define     VERSION_DataGraph   "1.0"

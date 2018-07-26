@@ -27,7 +27,7 @@
 *
 */
 CModuleDesigner::CModuleDesigner(const char *plugin_name)
-    :CPluginModule(plugin_name, VERSION_MODULE_CREATOR, AUTEUR_MODULE_CREATOR, INFO_MODULE_CREATOR)
+    :CBasicModule(plugin_name, VERSION_MODULE_CREATOR, AUTEUR_MODULE_CREATOR, INFO_MODULE_CREATOR)
 {
 }
 
@@ -61,7 +61,7 @@ CModuleDesigner::~CModuleDesigner()
 */
 void CModuleDesigner::init(CLaBotBox *application)
 {
-  CPluginModule::init(application);
+  CBasicModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM
   setNiveauTrace(MSG_TOUS);
 

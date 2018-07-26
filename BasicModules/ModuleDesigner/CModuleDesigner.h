@@ -5,7 +5,7 @@
 #ifndef _CMODULE_CREATOR_H_
 #define _CMODULE_CREATOR_H_
 
-#include "CPluginModule.h"
+#include "CBasicModule.h"
 #include "ui_ihm_ModuleDesigner.h"
 
 
@@ -34,7 +34,7 @@ public:
 	   
 /*! @brief class CModuleDesigner in @link PrintView basic module.
  */	   
-class CModuleDesigner : public CPluginModule
+class CModuleDesigner : public CBasicModule
 {
     Q_OBJECT
 #define     VERSION_MODULE_CREATOR     "2.0"
