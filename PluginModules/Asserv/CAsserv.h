@@ -21,7 +21,7 @@ public:
 
     Ui::ihm_Asserv ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
 
     // renvoie les appuis touches
     void keyReleaseEvent(QKeyEvent * event) { emit keyPressed(event->key()); }
@@ -96,7 +96,7 @@ public:
 
     Cihm_Asserv *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/wheel.png")); }  // Précise l'icône qui représente le module

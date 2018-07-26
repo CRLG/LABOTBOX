@@ -1,10 +1,10 @@
 #include <QApplication>
-#include "CLaBotBox.h"
+#include "CApplication.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    CLaBotBox LaBotBox;
+    CApplication LaBotBox;
     LaBotBox.run();
 
     return a.exec();

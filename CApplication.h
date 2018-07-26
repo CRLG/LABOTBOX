@@ -1,4 +1,4 @@
-/*! \file CLaBotBox.h
+/*! \file CApplication.h
  * A brief file description header.
  * A more elaborated file description.
  */
@@ -51,15 +51,15 @@ typedef QList <CPluginModule *> t_list_plugin_modules;
 typedef QList <CModule *> t_list_modules;
 
 
-/*! @brief class CLaBotBox in @link DataManager.
+/*! @brief class CApplication in @link DataManager.
  */	   
-class CLaBotBox : public QObject
+class CApplication : public QObject
 {
     Q_OBJECT
 
 public:
-    CLaBotBox();
-    ~CLaBotBox();
+    CApplication();
+    ~CApplication();
 
     void run(void);
 

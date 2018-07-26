@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CActuatorElectrobot.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -44,7 +44,7 @@ CActuatorElectrobot::~CActuatorElectrobot()
 *  Initialisation du module
 *
 */
-void CActuatorElectrobot::init(CLaBotBox *application)
+void CActuatorElectrobot::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

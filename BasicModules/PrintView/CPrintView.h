@@ -55,7 +55,7 @@ public:
     void print_info(CModule *module, QString msg)     { print(module, msg, MSG_INFO); }
     void print_debug(CModule *module, QString msg)    { print(module, msg, MSG_DEBUG); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/bloc_note.png")); }

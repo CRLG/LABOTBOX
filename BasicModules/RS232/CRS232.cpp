@@ -7,7 +7,7 @@
 #include <QThread>
 
 #include "CRS232.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -54,7 +54,7 @@ CRS232::~CRS232()
 *  Initialisation du module
 *
 */
-void CRS232::init(CLaBotBox *application)
+void CRS232::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

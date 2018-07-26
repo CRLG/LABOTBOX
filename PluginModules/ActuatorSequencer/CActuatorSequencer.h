@@ -35,7 +35,7 @@ public:
 
     Ui::ihm_ActuatorSequencer ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
  };
 
 
@@ -61,7 +61,7 @@ public:
 
     Cihm_ActuatorSequencer *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Pr�cise l'ic�ne qui repr�sente le module

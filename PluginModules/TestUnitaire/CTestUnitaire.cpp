@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CTestUnitaire.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -46,7 +46,7 @@ CTestUnitaire::~CTestUnitaire()
 *  Initialisation du module
 *
 */
-void CTestUnitaire::init(CLaBotBox *application)
+void CTestUnitaire::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

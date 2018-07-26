@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CSensorElectroBot.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -44,7 +44,7 @@ CSensorElectroBot::~CSensorElectroBot()
 *  Initialisation du module
 *
 */
-void CSensorElectroBot::init(CLaBotBox *application)
+void CSensorElectroBot::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

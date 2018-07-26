@@ -11,10 +11,10 @@ TARGET = LaBotBox
 TEMPLATE = app
 
 SOURCES +=  main.cpp\
-            CLaBotBox.cpp
+            CApplication.cpp
 
 
-HEADERS  += CLaBotBox.h \
+HEADERS  += CApplication.h \
             CModule.h
 
 RESOURCES+= icons.qrc \

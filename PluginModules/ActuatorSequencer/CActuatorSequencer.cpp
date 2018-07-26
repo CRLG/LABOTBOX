@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CActuatorSequencer.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -55,7 +55,7 @@ CActuatorSequencer::~CActuatorSequencer()
 *  Initialisation du module
 *
 */
-void CActuatorSequencer::init(CLaBotBox *application)
+void CActuatorSequencer::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique � la classe de base l'IHM

@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CModuleTemplate.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -44,7 +44,7 @@ CModuleTemplate::~CModuleTemplate()
 *  Initialisation du module
 *
 */
-void CModuleTemplate::init(CLaBotBox *application)
+void CModuleTemplate::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

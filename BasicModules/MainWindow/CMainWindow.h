@@ -25,7 +25,7 @@ public:
 
     Ui::ihm_main_window ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
 
     void closeEvent(QCloseEvent *event)
     {
@@ -77,7 +77,7 @@ public:
 
     Cihm_main_window *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/peertopeer.png")); }

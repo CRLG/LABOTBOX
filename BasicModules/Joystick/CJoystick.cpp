@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CJoystick.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -44,7 +44,7 @@ CJoystick::~CJoystick()
 *  Initialisation du module
 *
 */
-void CJoystick::init(CLaBotBox *application)
+void CJoystick::init(CApplication *application)
 {
   CModule::init(application);
 

@@ -14,7 +14,7 @@
 #include <QFileInfo>
 
 
-#include "CLaBotBox.h"
+#include "CApplication.h"
 
  /*! \addtogroup Module
    * 
@@ -52,7 +52,7 @@ public:
     /*!
     *  Méthode appelée pour initialiser les ressources du basic module
     */
-    virtual void init(CLaBotBox *application) { m_application = application; }
+    virtual void init(CApplication *application) { m_application = application; }
 
     // _____________________________________________________________________
     /*!
@@ -205,7 +205,7 @@ private:
     QColor m_background_color;
 
 protected:
-    CLaBotBox *m_application;
+    CApplication *m_application;
 
 public slots :
     // _____________________________________________________________________

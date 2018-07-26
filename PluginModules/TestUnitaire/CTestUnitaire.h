@@ -20,7 +20,7 @@ public:
 
     Ui::ihm_TestUnitaire ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
  };
 
 
@@ -46,7 +46,7 @@ public:
 
     Cihm_TestUnitaire *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module

@@ -47,7 +47,7 @@ public:
     CModuleDesigner(const char *plugin_name);
     ~CModuleDesigner();
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void) 	{ return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/designer.png")); }

@@ -7,7 +7,7 @@
 #include <QDateTime>
 
 #include "CDataView.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -48,7 +48,7 @@ CDataView::~CDataView()
 *  Initialisation du module
 *
 */
-void CDataView::init(CLaBotBox *application)
+void CDataView::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

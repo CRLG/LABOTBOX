@@ -42,7 +42,7 @@ CEEPROM::~CEEPROM()
 *
 *  \remarks le nom du fichier est le nom du module .ini
 */
-void CEEPROM::init(CLaBotBox *application)
+void CEEPROM::init(CApplication *application)
 {
   QString pathfilename;
 

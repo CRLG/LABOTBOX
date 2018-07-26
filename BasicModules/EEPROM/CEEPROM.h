@@ -38,7 +38,7 @@ public:
     QVariant read(QString section, QString param, QVariant def_val);
     QVariant read(QString param, QVariant def_val);
 
-    void init(CLaBotBox *application);
+    void init(CApplication *application);
 private:
     //! Mutex de protection d'accès multiple à la ressource partagée
     QMutex m_mutex;

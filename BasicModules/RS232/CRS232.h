@@ -25,7 +25,7 @@ public:
 
     Ui::ihm_RS232 ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
  };
 
 
@@ -51,7 +51,7 @@ public:
 
     Cihm_RS232 *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/terminal.png")); }  // Précise l'icône qui représente le module

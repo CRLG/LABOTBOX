@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CSimuBot.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -70,7 +70,7 @@ CSimuBot::~CSimuBot()
 *   Lecture des valeurs de l'eeprom (contour du robot,
 *
 */
-void CSimuBot::init(CLaBotBox *application)
+void CSimuBot::init(CApplication *application)
 {
     CPluginModule::init(application);
     setGUI(&m_ihm); // indique à la classe de base l'IHM

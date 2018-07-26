@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CUserGuides.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -49,7 +49,7 @@ CUserGuides::~CUserGuides()
 *  Initialisation du module
 *
 */
-void CUserGuides::init(CLaBotBox *application)
+void CUserGuides::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

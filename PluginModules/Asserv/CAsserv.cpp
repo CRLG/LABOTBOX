@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CAsserv.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -44,7 +44,7 @@ CAsserv::~CAsserv()
 *  Initialisation du module
 *
 */
-void CAsserv::init(CLaBotBox *application)
+void CAsserv::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

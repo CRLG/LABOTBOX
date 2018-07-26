@@ -30,7 +30,7 @@ public:
     CDataManager(const char *plugin_name);
     ~CDataManager();
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void) { return(false); }
     virtual QIcon getIcon(void) { return(QIcon("")); }

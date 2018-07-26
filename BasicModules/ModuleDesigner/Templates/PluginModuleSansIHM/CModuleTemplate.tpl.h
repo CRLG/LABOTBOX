@@ -29,7 +29,7 @@ public:
     CModuleTemplate(const char *plugin_name);
     ~CModuleTemplate();
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void) { return(false); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/edit_add.png")); }

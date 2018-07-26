@@ -21,7 +21,7 @@ public:
 
     Ui::ihm_DataGraph ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
  };
 
  /*! \addtogroup DataGraph
@@ -47,7 +47,7 @@ public:
 
     Cihm_DataGraph *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/plot.png")); }  // Précise l'icône qui représente le module

@@ -8,7 +8,7 @@
 #include <QObject>
 #include <QString>
 
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CModule.h"
 
  /*! \addtogroup BasicModule
@@ -28,7 +28,7 @@ public:
         :CModule(name, version, auteur, description)
     {
     }
-    virtual void init(CLaBotBox *application) { CModule::init(application); }
+    virtual void init(CApplication *application) { CModule::init(application); }
     virtual QString getMenuName(void)  { return("BasicModule"); }
 
 };

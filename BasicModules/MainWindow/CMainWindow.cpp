@@ -6,7 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include "CMainWindow.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CEEPROM.h"
 
 
@@ -42,7 +42,7 @@ CMainWindow::~CMainWindow()
 *  Initialisation du module
 *
 */
-void CMainWindow::init(CLaBotBox *application)
+void CMainWindow::init(CApplication *application)
 {
   CBasicModule::init(application);
 

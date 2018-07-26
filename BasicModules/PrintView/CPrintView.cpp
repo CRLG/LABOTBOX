@@ -43,7 +43,7 @@ CPrintView::~CPrintView()
 *  Initialisation du module
 *
 */
-void CPrintView::init(CLaBotBox *application)
+void CPrintView::init(CApplication *application)
 {
   CBasicModule::init(application);
 

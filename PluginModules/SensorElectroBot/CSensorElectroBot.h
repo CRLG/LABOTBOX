@@ -19,7 +19,7 @@ public:
 
     Ui::ihm_SensorElectroBot ui;
 
-    CLaBotBox *m_application;
+    CApplication *m_application;
  };
 
 
@@ -45,7 +45,7 @@ public:
 
     Cihm_SensorElectroBot *getIHM(void) { return(&m_ihm); }
 
-    virtual void init(CLaBotBox *application);
+    virtual void init(CApplication *application);
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/webcam.png")); }  // Précise l'icône qui représente le module

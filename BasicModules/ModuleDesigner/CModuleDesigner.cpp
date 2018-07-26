@@ -8,7 +8,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "CModuleDesigner.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -59,7 +59,7 @@ CModuleDesigner::~CModuleDesigner()
 *  Initialisation du module
 *
 */
-void CModuleDesigner::init(CLaBotBox *application)
+void CModuleDesigner::init(CApplication *application)
 {
   CBasicModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM
@@ -382,7 +382,7 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
 
   // _______________________________________________
   // Ouvre le fichier LaBotBox.h et ajoute le nouveau module
-  pathfilename = repertoire_projet + "/CLaBotBox.h";
+  pathfilename = repertoire_projet + "/CApplication.h";
   QString header_file = readFile(pathfilename); 
   if (header_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
@@ -402,7 +402,7 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
 
   // _______________________________________________
   // Ouvre le fichier LaBotBox.cpp et ajoute le nouveau module
-  pathfilename = repertoire_projet + "/CLaBotBox.cpp";
+  pathfilename = repertoire_projet + "/CApplication.cpp";
   QString cpp_file = readFile(pathfilename); 
   if (header_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
@@ -461,7 +461,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
 
   // _______________________________________________
   // Ouvre le fichier LaBotBox.h et supprime les références au module
-  pathfilename = repertoire_projet + "/CLaBotBox.h";
+  pathfilename = repertoire_projet + "/CApplication.h";
   QString header_file = readFile(pathfilename); 
   if (header_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
@@ -479,7 +479,7 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
 
   // _______________________________________________
   // Ouvre le fichier LaBotBox.cpp et supprime les références au module
-  pathfilename = repertoire_projet + "/CLaBotBox.cpp";
+  pathfilename = repertoire_projet + "/CApplication.cpp";
   QString cpp_file = readFile(pathfilename); 
   if (header_file == "") {
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);

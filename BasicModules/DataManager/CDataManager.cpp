@@ -39,7 +39,7 @@ CDataManager::~CDataManager()
 *
 *  \remarks le nom du fichier est le nom du module .ini
 */
-void CDataManager::init(CLaBotBox *application)
+void CDataManager::init(CApplication *application)
 {
   CBasicModule::init(application);
   loadDataProperties();

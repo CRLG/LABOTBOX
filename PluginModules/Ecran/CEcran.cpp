@@ -4,7 +4,7 @@
  */
 #include <QDebug>
 #include "CEcran.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -45,7 +45,7 @@ CEcran::~CEcran()
 *  Initialisation du module
 *
 */
-void CEcran::init(CLaBotBox *application)
+void CEcran::init(CApplication *application)
 {
   CModule::init(application);
   setGUI(&m_ihm); // indique à la classe de base l'IHM

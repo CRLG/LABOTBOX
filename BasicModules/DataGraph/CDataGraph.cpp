@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "CDataGraph.h"
-#include "CLaBotBox.h"
+#include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
@@ -67,7 +67,7 @@ CDataGraph::~CDataGraph()
 *  Initialisation du module
 *
 */
-void CDataGraph::init(CLaBotBox *application)
+void CDataGraph::init(CApplication *application)
 {
     CModule::init(application);
     setGUI(&m_ihm); // indique à  la classe de base l'IHM

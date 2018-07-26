@@ -1,4 +1,4 @@
-/*! \file CLaBotBox.cpp
+/*! \file CApplication.cpp
  * A brief file description CPP.
  * A more elaborated file description.
  */
@@ -21,7 +21,6 @@
 #include "CJoystick.h"
 #include "CModuleDesigner.h"
 #include "CUserGuides.h"
-//#include "CJoystick.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 
@@ -38,7 +37,7 @@
 #include "CEcran.h"
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
-#include "CLaBotBox.h"
+#include "CApplication.h"
 
 
 /*! \addtogroup DataManager
@@ -51,7 +50,7 @@
 *  Constructeur
 *
 */
-CLaBotBox::CLaBotBox()
+CApplication::CApplication()
     :   m_pathname_log_file("./Log"),
         m_pathname_config_file("./Config")
 {
@@ -69,7 +68,7 @@ CLaBotBox::CLaBotBox()
 *  Destructeur
 *
 */
-CLaBotBox::~CLaBotBox()
+CApplication::~CApplication()
 {
   closePluginModules();
   closeBasicModules();
@@ -87,7 +86,7 @@ CLaBotBox::~CLaBotBox()
 *  Cree chaque basic module et l'ajoute à la liste
 *
 */
-void CLaBotBox::createBasicModules(void)
+void CApplication::createBasicModules(void)
 {
   // Mettre en premier les modules indépendants des autres modules
   m_print_view    = new CPrintView("PrintView");
@@ -125,9 +124,10 @@ void CLaBotBox::createBasicModules(void)
   m_RS232_cmucam   = new CRS232("RS232_cmucam");
   m_list_basic_modules.append(m_RS232_cmucam);
   m_list_modules.append(m_RS232_cmucam);
-//  m_Joystick     = new CJoystick("Joystick");
-//  m_list_basic_modules.append(m_Joystick);
-//  m_list_modules.append(m_Joystick);
+
+  m_Joystick     = new CJoystick("Joystick");
+  m_list_basic_modules.append(m_Joystick);
+  m_list_modules.append(m_Joystick);
 
   m_UserGuides     = new CUserGuides("UserGuides");
   m_list_basic_modules.append(m_UserGuides);
@@ -145,7 +145,7 @@ void CLaBotBox::createBasicModules(void)
 *  Initialise chaque basic module
 *
 */
-void CLaBotBox::initBasicModules(void)
+void CApplication::initBasicModules(void)
 {
   for (int i=0; i<m_list_basic_modules.size(); i++) {
       m_list_basic_modules[i]->init(this);
@@ -157,7 +157,7 @@ void CLaBotBox::initBasicModules(void)
 *
 * \remarks les modules sont déchargés dans le sens inverse du chargement
 */
-void CLaBotBox::closeBasicModules(void)
+void CApplication::closeBasicModules(void)
 {
   for (int i=m_list_basic_modules.size()-1; i>=0; i--) {
       m_list_basic_modules[i]->close();
@@ -170,7 +170,7 @@ void CLaBotBox::closeBasicModules(void)
 *
 * \remarks les modules sont supprimés dans le sens inverse de la création
 */
-void CLaBotBox::deleteBasicModules()
+void CApplication::deleteBasicModules()
 {
     for (int i=m_list_basic_modules.size()-1; i>=0; i--) {
         if (m_list_basic_modules[i]) {
@@ -187,7 +187,7 @@ void CLaBotBox::deleteBasicModules()
 *  Cree chaque plugin module et l'ajoute à la liste
 *
 */
-void CLaBotBox::createPluginModules(void)
+void CApplication::createPluginModules(void)
 {
   m_TestUnitaire     = new CTestUnitaire("TestUnitaire");
   m_list_plugin_modules.append(m_TestUnitaire);
@@ -242,7 +242,7 @@ void CLaBotBox::createPluginModules(void)
 *  Initialise chaque plugin module
 *
 */
-void CLaBotBox::initPluginModules(void)
+void CApplication::initPluginModules(void)
 {
   for (int i=0; i<m_list_plugin_modules.size(); i++) {
       m_list_plugin_modules[i]->init(this);
@@ -254,7 +254,7 @@ void CLaBotBox::initPluginModules(void)
 *
 * \remarks les modules sont déchargés dans le sens inverse du chargement
 */
-void CLaBotBox::closePluginModules(void)
+void CApplication::closePluginModules(void)
 {
   for (int i=m_list_plugin_modules.size()-1; i>=0; i--) {
       m_list_plugin_modules[i]->close();
@@ -267,7 +267,7 @@ void CLaBotBox::closePluginModules(void)
 *
 * \remarks les modules sont supprimés dans le sens inverse de la création
 */
-void CLaBotBox::deletePluginModules()
+void CApplication::deletePluginModules()
 {
     for (int i=m_list_plugin_modules.size()-1; i>=0; i--) {
         if (m_list_plugin_modules[i]) {
@@ -284,7 +284,7 @@ void CLaBotBox::deletePluginModules()
 *  Lance l'application
 *
 */
-void CLaBotBox::run(void)
+void CApplication::run(void)
 {
   initBasicModules();
   initPluginModules();
@@ -312,7 +312,7 @@ void CLaBotBox::run(void)
 *  Fin propre de l'application
 *
 */
-void CLaBotBox::TermineApplication(void)
+void CApplication::TermineApplication(void)
 {
   // commence par informer tous les modules de la fin iminente de l'application
   closePluginModules();
