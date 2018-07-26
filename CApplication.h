@@ -69,16 +69,16 @@ public:
    CPrintView         *m_print_view;
    CEEPROM              *m_eeprom;
    CDataView     *m_DataView;
+   CDataGraph     *m_DataGraph;
    CDataPlayer     *m_DataPlayer;
    CRS232     *m_RS232_robot;
    CRS232     *m_RS232_cmucam;
    CJoystick     *m_Joystick;
-   CEcran     *m_Ecran;
+   CUserGuides     *m_UserGuides;
+   CModuleDesigner       *m_module_creator;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
-   CModuleDesigner       *m_module_creator;
    CTestUnitaire     *m_TestUnitaire;
-   CDataGraph     *m_DataGraph;
    CSimuBot     *m_SimuBot;
    CStrategyDesigner     *m_StrategyDesigner;
    CMessagerieBot     *m_MessagerieBot;
@@ -86,9 +86,9 @@ public:
    CActuatorElectrobot     *m_ActuatorElectrobot;
    CSensorView     *m_SensorView;
    CAsserv     *m_Asserv;
-   CUserGuides     *m_UserGuides;
    CActuatorSequencer     *m_ActuatorSequencer;
    CBotCam     *m_BotCam;
+   CEcran     *m_Ecran;
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
