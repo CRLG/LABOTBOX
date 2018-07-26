@@ -102,10 +102,16 @@ CONFIG += plugins_designer
 
 # __________________________________________________
 # Gestion des webcam et traitements video
+win32 {
+    LIBS += -LC:/win_progs/Qt/5.2.1/mingw48_32/plugins/designer -lqhexeditplugin -lqledplugin -lq7segplugin
+    LIBS += -LC:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
+    INCLUDEPATH += "C:/win_progs/OpenCV/opencv_2_4_9/include"
+}
 #LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
 #INCLUDEPATH += /usr/include/opencv2
 
-LIBS += -LC:/win_progs/Qt/5.2.1/mingw48_32/plugins/designer -lqhexeditplugin -lqledplugin -lq7segplugin
-LIBS += -LC:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
-INCLUDEPATH += "C:/win_progs/OpenCV/opencv_2_4_9/include"
+linux {
+    LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
+    INCLUDEPATH += /usr/include/opencv2
+}
 
