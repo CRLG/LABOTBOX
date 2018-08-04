@@ -21,6 +21,7 @@
 #include "CJoystick.h"
 #include "CModuleDesigner.h"
 #include "CUserGuides.h"
+#include "CExternalControler.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 
@@ -136,6 +137,10 @@ void CApplication::createBasicModules(void)
   m_module_creator    = new CModuleDesigner("ModuleDesigner");
   m_list_basic_modules.append(m_module_creator);
   m_list_modules.append(m_module_creator);
+
+  m_ExternalControler     = new CExternalControler("ExternalControler");
+  m_list_basic_modules.append(m_ExternalControler);
+  m_list_modules.append(m_ExternalControler);
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }

@@ -1,0 +1,42 @@
+                                            
+                                        NetworkServerInterface
+        
+                TcpServer                 WebSocketServer               UdpServer	
+
+
+NetworkServerInterface : 
+	signaux
+	    receivedData(int client_id, QByteArray)
+	    connected(int client_id)
+            disconnected(int client_id)
+            opened()
+            closed()
+
+	slot
+	    write(int client_id, QByteArray data)
+            open()
+            close()
+
+NetworkServerFactory
+	Crée une instance d'une des interface
+
+
+--------------------------------------------------------------------------------
+                                           Instruction
+         Instruction_setData         Instruction_getData         Instruction_Help   ..... 
+
+Instruction : 
+	Instruction(*application)
+	QString help()
+	QByteArray response = execute(QByteArray instruction)
+	bool isValid(QByteArray instruction)
+	Contient la liste des codes d'erreurs
+
+
+CommandsInterpreter:
+	C'est le dispatcher
+		Découpe une commande en une suite d'instructions
+		Aiguille chaque instruction à exécuter
+	Contient une instance de toutes les instructions possibles
+	Liste d'instructions : QMap<QStrig nom_commande, Command *objet)
+	QByteArray execute(QByteArray command)

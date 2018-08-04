@@ -3,7 +3,7 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport
+QT       += core gui testlib xml printsupport serialport network websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,6 +33,7 @@ LIST_BASIC_MODULES+= \
        #Joystick \
         ModuleDesigner \
         UserGuides \
+        ExternalControler \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -54,7 +55,8 @@ LIST_PLUGIN_MODULES+= \
 # __________________________________________________
 # Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
 LIST_TOOLS+= CustomPlot\
-             HtmlTextEditor
+             HtmlTextEditor \
+             NetworkServer
 
 		
 # __________________________________________________

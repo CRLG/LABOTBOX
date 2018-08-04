@@ -23,6 +23,7 @@ class CDataPlayer;
 class CRS232;
 class CJoystick;
 class CEcran;
+class CExternalControler;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -76,6 +77,7 @@ public:
    CJoystick     *m_Joystick;
    CUserGuides     *m_UserGuides;
    CModuleDesigner       *m_module_creator;
+   CExternalControler     *m_ExternalControler;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 
    CTestUnitaire     *m_TestUnitaire;
