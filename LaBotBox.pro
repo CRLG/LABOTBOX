@@ -30,7 +30,7 @@ LIST_BASIC_MODULES+= \
         DataGraph \
         DataPlayer \
         RS232 \ 
-       #Joystick \
+        Joystick \
         ModuleDesigner \
         UserGuides \
         ExternalControler \ 
@@ -100,7 +100,7 @@ CONFIG += plugins_designer
 
 # __________________________________________________
 # Gestion du joystick
-#LIBS += -lsfml-graphics -lsfml-window -lsfml-system
+LIBS += -lsfml-graphics -lsfml-window -lsfml-system
 
 # __________________________________________________
 # Gestion des webcam et traitements video
@@ -109,8 +109,6 @@ win32 {
     LIBS += -LC:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
     INCLUDEPATH += "C:/win_progs/OpenCV/opencv_2_4_9/include"
 }
-#LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
-#INCLUDEPATH += /usr/include/opencv2
 
 linux {
     LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
