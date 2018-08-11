@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/Raspberry_Pi_GPIO_Pins.png</file>
+     </qresource>
+    <qresource prefix="/user_guide">
+        <file>RaspiGPIO.html</file>
+     </qresource>
+</RCC>

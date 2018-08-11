@@ -61,5 +61,6 @@
         <file>icons/wheel.png</file>
         <file>icons/webcam.png</file>
         <file>icons/terrain_2018_simubot.png</file>
+        <file>icons/raspberrypi_logo.png</file>
     </qresource>
 </RCC>

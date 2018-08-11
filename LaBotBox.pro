@@ -10,6 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = LaBotBox
 TEMPLATE = app
 
+#CONFIG += RASPBERRY_PI
+
 SOURCES +=  main.cpp\
             CApplication.cpp
 
@@ -35,6 +37,12 @@ LIST_BASIC_MODULES+= \
         UserGuides \
         ExternalControler \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
+
+RASPBERRY_PI {
+    LIST_BASIC_MODULES+=RaspiGPIO
+    DEFINES += RASPBERRY_PI
+    LIBS += -L/usr/lib -lwiringPi
+}
 
 # __________________________________________________
 # Ajouter ici les plugin modules (nom des répertoires)

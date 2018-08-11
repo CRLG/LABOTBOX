@@ -23,7 +23,9 @@
 #include "CUserGuides.h"
 #include "CExternalControler.h"
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
-
+#ifdef RASPBERRY_PI
+    #include "CRaspiGPIO.h"
+#endif
 
 #include "CTestUnitaire.h"
 #include "CSimuBot.h"
@@ -141,6 +143,12 @@ void CApplication::createBasicModules(void)
   m_ExternalControler     = new CExternalControler("ExternalControler");
   m_list_basic_modules.append(m_ExternalControler);
   m_list_modules.append(m_ExternalControler);
+
+#ifdef RASPBERRY_PI
+  m_RaspiGPIO     = new CRaspiGPIO("RaspiGPIO");
+  m_list_basic_modules.append(m_RaspiGPIO);
+  m_list_modules.append(m_RaspiGPIO);
+#endif
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }

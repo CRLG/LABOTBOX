@@ -24,6 +24,7 @@ class CRS232;
 class CJoystick;
 class CEcran;
 class CExternalControler;
+class CRaspiGPIO;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -79,6 +80,9 @@ public:
    CModuleDesigner       *m_module_creator;
    CExternalControler     *m_ExternalControler;
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
+#ifdef RASPBERRY_PI
+   CRaspiGPIO     *m_RaspiGPIO;
+#endif
 
    CTestUnitaire     *m_TestUnitaire;
    CSimuBot     *m_SimuBot;
