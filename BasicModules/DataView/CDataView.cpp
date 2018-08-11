@@ -203,6 +203,7 @@ void CDataView::activeInspector(bool state)
   m_ihm.ui.liste_variables->setEnabled(!state);
   m_ihm.ui.liste_variables->setEnabled(!state);
   m_ihm.ui.PB_refresh_liste->setEnabled(!state);
+  m_ihm.ui.affiche_diff_seulement->setEnabled(!state);
 }
 
 
@@ -234,7 +235,7 @@ void CDataView::activeInspectorTemporel(void)
   m_ihm.ui.pb_down->setEnabled(false);
 
   // réalise la connexion entre chaque variable cochée et le slot d'affichage
-  connectDiscconnectVariablesTemporel(1);
+  connectDiscconnectVariablesTemporel(1, m_ihm.ui.affiche_diff_seulement->isChecked());
 }
 
 
@@ -247,7 +248,7 @@ void CDataView::activeInspectorTemporel(void)
 void CDataView::finInspectorTemporel(void)
 {
   // réalise la deconnexion entre chaque variable cochée et le slot d'affichage
-  connectDiscconnectVariablesTemporel(0);
+  connectDiscconnectVariablesTemporel(0, m_ihm.ui.affiche_diff_seulement->isChecked());
 }
 
 
@@ -258,26 +259,45 @@ void CDataView::finInspectorTemporel(void)
 *
 *  Crée une connexion entre toutes les variables à surveiller et l'affichage de la valeur
 *  choix : 0=deconnexion / 1=connexion
+*  only_diff : n'affiche que si la variable a changé de valeur
 */
-void CDataView::connectDiscconnectVariablesTemporel(bool choix)
+void CDataView::connectDiscconnectVariablesTemporel(bool choix, bool only_diff)
 {
   // Recopie toutes les variables à surveiller
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
         CData *_data = m_application->m_data_center->getData(m_ihm.ui.liste_variables->item(i)->text());
         if (choix) {
-            connect(_data,
-                  SIGNAL(valueChanged(QVariant)),
-                  this,
-                  SLOT(variableChanged(QVariant))
-                  );
+            if (only_diff) {  // exploite un signal différent en fonction du fait de filtrer sur les différences
+                connect(_data,
+                      SIGNAL(valueChanged(QVariant)),
+                      this,
+                      SLOT(variableChanged(QVariant))
+                      );
+            }
+            else {
+                connect(_data,
+                      SIGNAL(valueUpdated(QVariant)),
+                      this,
+                      SLOT(variableChanged(QVariant))
+                      );
+            }
         }
         else {
-            disconnect(_data,
-                  SIGNAL(valueChanged(QVariant)),
-                  this,
-                  SLOT(variableChanged(QVariant))
-                  );
+            if (only_diff) {  // exploite un signal différent en fonction du fait de filtrer sur les différences
+                disconnect(_data,
+                      SIGNAL(valueChanged(QVariant)),
+                      this,
+                      SLOT(variableChanged(QVariant))
+                      );
+            }
+            else {
+                disconnect(_data,
+                      SIGNAL(valueUpdated(QVariant)),
+                      this,
+                      SLOT(variableChanged(QVariant))
+                      );
+            }
         }
     } // if la variable est à surveiller
   }
@@ -378,9 +398,14 @@ void CDataView::refreshValeursVariables(void)
     CData *data = m_application->m_data_center->getData(var_name);
     if (data)
     {
-        m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_VALEUR)->setText(data->read().toString());
-        double datatime = normaliseTemps(data->getTime());
-        m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_TEMPS)->setText(QString::number(datatime));
+        QString actual_val = m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_VALEUR)->text();
+        QString new_val = data->read().toString();
+        if ( ( m_ihm.ui.affiche_diff_seulement->isChecked() && (actual_val != new_val) )
+            || !m_ihm.ui.affiche_diff_seulement->isChecked() ) {
+            m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_VALEUR)->setText(data->read().toString());
+            double datatime = normaliseTemps(data->getTime());
+            m_ihm.ui.table_variables_valeurs->item(i, Cihm_DataView::COL_TEMPS)->setText(QString::number(datatime));
+        }
     }
     else
     {

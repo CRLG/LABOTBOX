@@ -67,7 +67,7 @@ private :
     void activeInspectorInstantane(void);
     void finInspectorTemporel(void);
     void finInspectorInstantane(void);
-    void connectDiscconnectVariablesTemporel(bool choix);
+    void connectDiscconnectVariablesTemporel(bool choix, bool only_diff);
     void addTraceVariable(QString name, QString value = "", quint64 time=0);
     double normaliseTemps(qint64 ms_epoch);
 

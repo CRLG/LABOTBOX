@@ -54,16 +54,18 @@ private:
     t_map_properties m_properties;
 
 signals:
-    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(QVariant value);
-    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(bool value);
-    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(int value);
-    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(double value);
-    //! Signal emis par la donnee lorsqu'une ecriture est faite
+    //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(QString value);
+    //! Signal emis par la donnee lorsqu'une ecriture est faite sans forcément modification de la valeur
+    void valueUpdated(QVariant value);
 };
 
 

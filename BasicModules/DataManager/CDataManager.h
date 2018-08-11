@@ -59,6 +59,8 @@ private :
 
 signals:
     void valueChanged(CData *data);
+    void valueUpdated(CData *data);
+
 };
 
 #endif // _CDATA_MANAGER_H_

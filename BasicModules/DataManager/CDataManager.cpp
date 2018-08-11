@@ -73,12 +73,14 @@ void CDataManager::write(QString varname, QVariant val)
     data = new CData(varname, val);
     m_map_data.insert(varname, data);
     emit valueChanged(data);
+    emit valueUpdated(data);
   }
   else {
-   if (data->read() != val) {  // Pas d'écriture si la valeur n'a pas changé
-    data->write(val);
+   data->write(val);
+   if (data->read() != val) {
     emit valueChanged(data);
    }
+   emit valueUpdated(data);
   }
   m_mutex.unlock();
 }

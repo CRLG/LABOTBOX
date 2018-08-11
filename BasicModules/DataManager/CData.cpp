@@ -59,9 +59,11 @@ void CData::write(QVariant data)
     emit valueChanged(data.toBool() );
     emit valueChanged(data.toDouble());
     emit valueChanged(data.toString());
+    emit valueUpdated(data);
   }
   else {
     m_data = data;
+    emit valueUpdated(data);
   }
   m_mutex.unlock();
 }
