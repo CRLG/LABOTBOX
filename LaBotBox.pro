@@ -107,9 +107,11 @@ for(i, LIST_TOOLS) {
 CONFIG += plugins_designer
 
 # __________________________________________________
+# Placé en premier, link en priorité avec les librairies contenues dans le répertoire d'installation de Qt (cas de plusieurs versions de librairies Qt installées sur la même machine dans des répertoires différents)
+LIBS += -L$$[QT_INSTALL_LIBS]
+# __________________________________________________
 # Gestion du joystick
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system
-
 # __________________________________________________
 # Gestion des webcam et traitements video
 win32 {
@@ -119,7 +121,5 @@ win32 {
 }
 
 linux {
-    LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc
-    INCLUDEPATH += /usr/include/opencv2
+    LIBS +=`pkg-config opencv --libs`  # Ligne de commande qui renvoie toutes les librairies opencv sous la forme "-lopencv... -lopencv..."
 }
-
