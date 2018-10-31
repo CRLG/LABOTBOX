@@ -376,7 +376,8 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
   }
   // Ajoute le module
   tagName = "# ##_NEW_"+ type_module + "_MODULE_NAME_HERE_##";
-  replaceString = nom_module + " \\ \r\n" + "        " + tagName;
+  replaceString = nom_module + " \\ \r\n";
+  replaceString +=  "        " + tagName;
   pro_file.replace(tagName, replaceString);
   m_application->m_print_view->print_debug(this, pro_file);
   writeFile(pathfilename, pro_file);
@@ -391,11 +392,15 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
   }
   // Remplace les balises
   tagName = "//##_NEW_CLASS_"+ type_module + "_MODULE_HERE_##";
-  replaceString = "class C" + nom_module + ";\r\n" + tagName;
+  replaceString = "class C" + nom_module + ";\r\n";
+  replaceString += tagName;
   header_file.replace(tagName, replaceString);
   
   tagName = "//##_NEW_"+ type_module + "_MODULE_CLASS_POINTER_DEFINITION_##";  // //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
-  replaceString = "   C" + nom_module + "     *m_" + nom_module + ";\r\n" + tagName;  
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "   C" + nom_module + "     *m_" + nom_module + ";\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
+  replaceString += tagName;
   header_file.replace(tagName, replaceString);
 
   // Ecrit le fichier (remplace l'ancien)
@@ -411,14 +416,19 @@ bool CModuleDesigner::integrerModuleAuProjet(QString type_module,
   }
   // Remplace la balise //_##NEW_INCLUDE_BASIC_MODULE_HERE_## -> #include "CnewModule.h"
   tagName = "//_##NEW_INCLUDE_"+ type_module + "_MODULE_HERE_##";
-  replaceString = "#include \"C" + nom_module + ".h\"\r\n" + tagName;
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "   #include \"C" + nom_module + ".h\"\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
+  replaceString += tagName;
   cpp_file.replace(tagName, replaceString);
 
   // Remplace la balise // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_## -> instanciation du module
   tagName = "// ##_NEW_"+ type_module + "_MODULE_INSTANCIATION_HERE_##";
-  replaceString =  "  m_" + nom_module + "     = new C" + nom_module + "(\"" + nom_module + "\");\r\n" ;
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "  m_" + nom_module + "     = new C" + nom_module + "(\"" + nom_module + "\");\r\n" ;
   replaceString += "  m_list_" + type_module.toLower() + "_modules.append(m_" + nom_module + ");\r\n"; 
   replaceString += "  m_list_modules.append(m_" + nom_module + ");\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
   replaceString += "\r\n";
   replaceString += tagName; 
   cpp_file.replace(tagName, replaceString);
@@ -473,7 +483,9 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
   replaceString = "class C" + nom_module + ";\r\n";
   header_file.replace(replaceString, C_RIEN_DU_TOUT);
   
-  replaceString = "   C" + nom_module + "     *m_" + nom_module + ";\r\n";  
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "   C" + nom_module + "     *m_" + nom_module + ";\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
   header_file.replace(replaceString, C_RIEN_DU_TOUT);
 
   // Ecrit le fichier (remplace l'ancien)
@@ -487,13 +499,17 @@ bool CModuleDesigner::desintegrerModuleDuProjet(QString type_module,
     m_application->m_print_view->print_error(this, "Fichier inexistant : " + pathfilename);
     return(false);
   }
-  replaceString = "#include \"C" + nom_module + ".h\"\r\n";
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "   #include \"C" + nom_module + ".h\"\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
   cpp_file.replace(replaceString, C_RIEN_DU_TOUT);
 
   // Supprime le texte ajouté automatiquement à la création du module
-  replaceString =  "  m_" + nom_module + "     = new C" + nom_module + "(\"" + nom_module + "\");\r\n" ;
-  replaceString += "  m_list_" + type_module.toLower() + "_modules.append(m_" + nom_module + ");\r\n"; 
+  replaceString = "#ifdef MODULE_" + nom_module + "\r\n";
+  replaceString += "  m_" + nom_module + "     = new C" + nom_module + "(\"" + nom_module + "\");\r\n" ;
+  replaceString += "  m_list_" + type_module.toLower() + "_modules.append(m_" + nom_module + ");\r\n";
   replaceString += "  m_list_modules.append(m_" + nom_module + ");\r\n";
+  replaceString += "#endif // MODULE_" + nom_module + "\r\n";
   replaceString += "\r\n";
   cpp_file.replace(replaceString, C_RIEN_DU_TOUT);
 
