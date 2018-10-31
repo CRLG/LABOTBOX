@@ -57,7 +57,7 @@ LIST_PLUGIN_MODULES+= \
         Asserv \ 
         ActuatorSequencer \
         BotCam \
-        Ecran \
+        #Ecran \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -73,6 +73,7 @@ INCLUDEPATH +=  ./BasicModules
 HEADERS += $$_PRO_FILE_PWD_/BasicModules/*.h
 
 for(i, LIST_BASIC_MODULES) {
+    DEFINES+= MODULE_$${i}
     INCLUDEPATH+= $$_PRO_FILE_PWD_/BasicModules/$${i}
     SOURCES+= $$files($$_PRO_FILE_PWD_/BasicModules/$${i}/*.cpp)
     HEADERS+= $$files($$_PRO_FILE_PWD_/BasicModules/$${i}/*.h)
@@ -85,6 +86,7 @@ INCLUDEPATH +=  ./PluginModules
 HEADERS += $$_PRO_FILE_PWD_/PluginModules/*.h
 
 for(i, LIST_PLUGIN_MODULES) {
+    DEFINES+= MODULE_$${i}
     INCLUDEPATH+= $$_PRO_FILE_PWD_/PluginModules/$${i}
     SOURCES+= $$files($$_PRO_FILE_PWD_/PluginModules/$${i}/*.cpp)
     HEADERS+= $$files($$_PRO_FILE_PWD_/PluginModules/$${i}/*.h)
@@ -97,6 +99,7 @@ INCLUDEPATH +=  ./Tools
 HEADERS += $$_PRO_FILE_PWD_/Tools/*.h
 
 for(i, LIST_TOOLS) {
+    DEFINES+= MODULE_$${i}
     INCLUDEPATH+= $$_PRO_FILE_PWD_/Tools/$${i}
     SOURCES+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.cpp)
     HEADERS+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.h)

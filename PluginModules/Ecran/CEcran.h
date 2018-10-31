@@ -52,7 +52,7 @@ public:
     virtual void close(void);
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Pr�cise l'ic�ne qui repr�sente le module
-    virtual QString getMenuName(void)   { return("BasicModule"); }                  // Pr�cise le nom du menu de la fen�tre principale dans lequel le module appara�t
+    virtual QString getMenuName(void)   { return("PluginModule"); }                  // Pr�cise le nom du menu de la fen�tre principale dans lequel le module appara�t
 
 private:
     Cihm_Ecran m_ihm;

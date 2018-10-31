@@ -66,35 +66,83 @@ public:
     void run(void);
 
 public:
+#ifdef MODULE_MainWindow
    CMainWindow          *m_main_windows;
+#endif // MODULE_MainWindow
+#ifdef MODULE_DataManager
    CDataManager         *m_data_center;
+#endif // MODULE_DataManager
+#ifdef MODULE_PrintView
    CPrintView         *m_print_view;
+#endif // MODULE_PrintView
+#ifdef MODULE_EEPROM
    CEEPROM              *m_eeprom;
+#endif // MODULE_EEPROM
+#ifdef MODULE_DataView
    CDataView     *m_DataView;
+#endif // MODULE_DataView
+#ifdef MODULE_DataGraph
    CDataGraph     *m_DataGraph;
+#endif // MODULE_DataGraph
+#ifdef MODULE_DataPlayer
    CDataPlayer     *m_DataPlayer;
+#endif // MODULE_DataPlayer
+#ifdef MODULE_RS232
    CRS232     *m_RS232_robot;
+#endif // MODULE_RS232
+#ifdef MODULE_RS232
    CRS232     *m_RS232_cmucam;
+#endif // MODULE_RS232
+#ifdef MODULE_Joystick
    CJoystick     *m_Joystick;
+#endif // MODULE_Joystick
+#ifdef MODULE_UserGuides
    CUserGuides     *m_UserGuides;
+#endif // MODULE_UserGuides
+#ifdef MODULE_ModuleDesigner
    CModuleDesigner       *m_module_creator;
+#endif // MODULE_ModuleDesigner
+#ifdef MODULE_ExternalControler
    CExternalControler     *m_ExternalControler;
-//##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
-#ifdef RASPBERRY_PI
+#endif // MODULE_ExternalControler
+   //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
+#ifdef MODULE_RaspiGPIO
    CRaspiGPIO     *m_RaspiGPIO;
-#endif
+#endif // MODULE_RaspiGPIO
 
+#ifdef MODULE_TestUnitaire
    CTestUnitaire     *m_TestUnitaire;
+#endif // MODULE_TestUnitaire
+#ifdef MODULE_SimuBot
    CSimuBot     *m_SimuBot;
+#endif // MODULE_SimuBot
+#ifdef MODULE_StrategyDesigner
    CStrategyDesigner     *m_StrategyDesigner;
+#endif // MODULE_StrategyDesigner
+#ifdef MODULE_MessagerieBot
    CMessagerieBot     *m_MessagerieBot;
+#endif // MODULE_MessagerieBot
+#ifdef MODULE_SensorElectroBot
    CSensorElectroBot     *m_SensorElectroBot;
+#endif // MODULE_SensorElectroBot
+#ifdef MODULE_ActuatorElectrobot
    CActuatorElectrobot     *m_ActuatorElectrobot;
+#endif // MODULE_ActuatorElectrobot
+#ifdef MODULE_SensorView
    CSensorView     *m_SensorView;
+#endif // MODULE_SensorView
+#ifdef MODULE_Asserv
    CAsserv     *m_Asserv;
+#endif // MODULE_Asserv
+#ifdef MODULE_ActuatorSequencer
    CActuatorSequencer     *m_ActuatorSequencer;
+#endif // MODULE_ActuatorSequencer
+#ifdef MODULE_BotCam
    CBotCam     *m_BotCam;
+#endif // MODULE_BotCam
+#ifdef MODULE_Ecran
    CEcran     *m_Ecran;
+#endif // MODULE_Ecran
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
