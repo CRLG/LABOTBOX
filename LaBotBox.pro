@@ -20,7 +20,7 @@ HEADERS  += CApplication.h \
             CModule.h
 
 RESOURCES+= icons.qrc \
-    code_template.qrc
+            code_template.qrc
 # __________________________________________________
 # Ajouter ici les basic modules (nom des répertoires)
 LIST_BASIC_MODULES+= \
@@ -37,12 +37,6 @@ LIST_BASIC_MODULES+= \
         UserGuides \
         ExternalControler \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
-
-RASPBERRY_PI {
-    LIST_BASIC_MODULES+=RaspiGPIO
-    DEFINES += RASPBERRY_PI
-    LIBS += -L/usr/lib -lwiringPi
-}
 
 # __________________________________________________
 # Ajouter ici les plugin modules (nom des répertoires)
@@ -66,6 +60,18 @@ LIST_TOOLS+= CustomPlot\
              HtmlTextEditor \
              NetworkServer
 
+# __________________________________________________
+# Ajouter ici les modules externes CppRobLib
+LIST_EXT_CPPROBLIB+= ServosAX\
+
+# __________________________________________________
+# Ajouter ici les modules spécifiques à RaspberyPi
+RASPBERRY_PI {
+    #LIST_PLUGIN_MODULES+= RaspiServoAX
+    LIST_BASIC_MODULES+=  RaspiGPIO
+    DEFINES += RASPBERRY_PI
+    LIBS += -L/usr/lib -lwiringPi
+}
 		
 # __________________________________________________
 # Gestion des basic modules
@@ -105,6 +111,17 @@ for(i, LIST_TOOLS) {
     HEADERS+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.h)
     FORMS+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.ui)
     RESOURCES+= $$files($$_PRO_FILE_PWD_/Tools/$${i}/*.qrc)
+}
+# __________________________________________________
+# Gestion des modules CppRobLib
+INCLUDEPATH +=  ./ext/CppRobLib
+
+for(i, LIST_EXT_CPPROBLIB) {
+    INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/CppRobLib/$${i}
+    SOURCES+= $$files($$_PRO_FILE_PWD_/ext/CppRobLib/$${i}/*.cpp)
+    HEADERS+= $$files($$_PRO_FILE_PWD_/ext/CppRobLib/$${i}/*.h)
+    FORMS+= $$files($$_PRO_FILE_PWD_/ext/CppRobLib/$${i}/*.ui)
+    RESOURCES+= $$files($$_PRO_FILE_PWD_/ext/CppRobLib/$${i}/*.qrc)
 }
 
 CONFIG += plugins_designer
