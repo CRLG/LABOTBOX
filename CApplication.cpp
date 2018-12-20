@@ -84,6 +84,12 @@
 #ifdef MODULE_Ecran
    #include "CEcran.h"
 #endif // MODULE_Ecran
+#ifdef MODULE_XBEE
+   #include "CXBEE.h"
+#endif // MODULE_XBEE
+#ifdef MODULE_MessengerNetwork2019
+   #include "CMessengerNetwork2019.h"
+#endif // MODULE_MessengerNetwork2019
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -191,6 +197,13 @@ void CApplication::createBasicModules(void)
   m_list_basic_modules.append(m_RS232_cmucam);
   m_list_modules.append(m_RS232_cmucam);
 #endif // MODULE_RS232
+
+#ifdef MODULE_RS232
+  m_RS232_xbee   = new CRS232("RS232_xbee");
+  m_list_basic_modules.append(m_RS232_xbee);
+  m_list_modules.append(m_RS232_xbee);
+#endif // MODULE_RS232
+
 
 #ifdef MODULE_Joystick
   m_Joystick     = new CJoystick("Joystick");
@@ -339,6 +352,18 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_Ecran);
   m_list_modules.append(m_Ecran);
 #endif // MODULE_Ecran
+
+#ifdef MODULE_XBEE
+  m_XBEE     = new CXBEE("XBEE");
+  m_list_plugin_modules.append(m_XBEE);
+  m_list_modules.append(m_XBEE);
+#endif // MODULE_XBEE
+
+#ifdef MODULE_MessengerNetwork2019
+  m_MessengerNetwork2019     = new CMessengerNetwork2019("MessengerNetwork2019");
+  m_list_plugin_modules.append(m_MessengerNetwork2019);
+  m_list_modules.append(m_MessengerNetwork2019);
+#endif // MODULE_MessengerNetwork2019
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

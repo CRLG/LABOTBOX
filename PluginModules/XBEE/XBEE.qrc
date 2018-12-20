@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/user_guide">
+        <file>XBEE.html</file>
+    </qresource>
+
+</RCC>

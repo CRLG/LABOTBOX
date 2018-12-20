@@ -29,10 +29,10 @@ LIST_BASIC_MODULES+= \
         PrintView \
         EEPROM \
         DataView \ 
-        DataGraph \
+        #DataGraph \
         DataPlayer \
         RS232 \ 
-        Joystick \
+        #Joystick \
         ModuleDesigner \
         UserGuides \
         ExternalControler \ 
@@ -42,16 +42,18 @@ LIST_BASIC_MODULES+= \
 # Ajouter ici les plugin modules (nom des répertoires)
 LIST_PLUGIN_MODULES+= \
         TestUnitaire \ 
-        SimuBot \ 
-        StrategyDesigner \ 
-        MessagerieBot \ 
-        SensorElectroBot \ 
-        ActuatorElectrobot \ 
-        SensorView \ 
-        Asserv \ 
-        ActuatorSequencer \
-        BotCam \
+        #SimuBot \
+        #StrategyDesigner \
+        MessagerieBot \
+        #SensorElectroBot \
+        #ActuatorElectrobot \
+        #SensorView \
+        #Asserv \
+        #ActuatorSequencer \
+        #BotCam \
         #Ecran \
+        XBEE \ 
+        MessengerNetwork2019 \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -62,7 +64,13 @@ LIST_TOOLS+= CustomPlot\
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
-LIST_EXT_CPPROBLIB+= ServosAX\
+DEFINES += MESSENGER_FULL
+LIST_EXT_CPPROBLIB+= \
+        ServosAX \
+        Communication/Messenger \
+        Communication/Messenger/MessagesGeneric \
+        Communication/Messenger/DatabaseXbeeNetwork2019 \
+        Communication/XBEE \
 
 # __________________________________________________
 # Ajouter ici les modules spécifiques à RaspberyPi

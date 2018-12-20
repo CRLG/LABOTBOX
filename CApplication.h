@@ -41,6 +41,8 @@ class CAsserv;
 class CUserGuides;
 class CActuatorSequencer;
 class CBotCam;
+class CXBEE;
+class CMessengerNetwork2019;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -93,6 +95,9 @@ public:
 #ifdef MODULE_RS232
    CRS232     *m_RS232_cmucam;
 #endif // MODULE_RS232
+#ifdef MODULE_RS232
+   CRS232     *m_RS232_xbee;
+#endif // MODULE_RS232
 #ifdef MODULE_Joystick
    CJoystick     *m_Joystick;
 #endif // MODULE_Joystick
@@ -143,6 +148,12 @@ public:
 #ifdef MODULE_Ecran
    CEcran     *m_Ecran;
 #endif // MODULE_Ecran
+#ifdef MODULE_XBEE
+   CXBEE     *m_XBEE;
+#endif // MODULE_XBEE
+#ifdef MODULE_MessengerNetwork2019
+   CMessengerNetwork2019     *m_MessengerNetwork2019;
+#endif // MODULE_MessengerNetwork2019
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
