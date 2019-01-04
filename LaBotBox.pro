@@ -3,7 +3,7 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport network websockets
+QT       += core gui testlib xml printsupport serialport network websockets multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -52,6 +52,7 @@ LIST_PLUGIN_MODULES+= \
         ActuatorSequencer \
         BotCam \
         #Ecran \
+        ImageProcessing \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

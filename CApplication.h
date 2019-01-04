@@ -41,6 +41,7 @@ class CAsserv;
 class CUserGuides;
 class CActuatorSequencer;
 class CBotCam;
+class CImageProcessing;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -143,6 +144,9 @@ public:
 #ifdef MODULE_Ecran
    CEcran     *m_Ecran;
 #endif // MODULE_Ecran
+#ifdef MODULE_ImageProcessing
+   CImageProcessing     *m_ImageProcessing;
+#endif // MODULE_ImageProcessing
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

@@ -84,6 +84,9 @@
 #ifdef MODULE_Ecran
    #include "CEcran.h"
 #endif // MODULE_Ecran
+#ifdef MODULE_ImageProcessing
+   #include "CImageProcessing.h"
+#endif // MODULE_ImageProcessing
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -339,6 +342,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_Ecran);
   m_list_modules.append(m_Ecran);
 #endif // MODULE_Ecran
+
+#ifdef MODULE_ImageProcessing
+  m_ImageProcessing     = new CImageProcessing("ImageProcessing");
+  m_list_plugin_modules.append(m_ImageProcessing);
+  m_list_modules.append(m_ImageProcessing);
+#endif // MODULE_ImageProcessing
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
