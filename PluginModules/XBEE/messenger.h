@@ -38,6 +38,7 @@ public:
 
 
     void test();
+    void initXbee();
     void initApp(CApplication *application);
 
     DatabaseXbeeNetwork2019 m_database;

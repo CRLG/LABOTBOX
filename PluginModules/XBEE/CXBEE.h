@@ -60,6 +60,7 @@ private:
 private slots :
     void onRightClicGUI(QPoint pos);
     void test();
+    void initXbee();
     void receiveSerialData(QByteArray datas);
 };
 

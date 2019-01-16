@@ -53,5 +53,7 @@ void XbeeDriver::write(unsigned char *buff_data, unsigned char buff_size)
 void XbeeDriver::delay_us(unsigned long delay)
 {
     qDebug() << "XbeeDriver:" << "Xbee driver request a delay of " << delay << "usec";
-    QThread::usleep(delay);
+    QTime dieTime= QTime::currentTime().addSecs(1);
+     while (QTime::currentTime() < dieTime)
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }

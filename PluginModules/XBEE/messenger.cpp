@@ -26,6 +26,40 @@ void RobNetworkMessenger::initMessenger()
     m_xbee_driver.setApplication(m_application);
 }
 
+
+// ______________________________________________
+void RobNetworkMessenger::initXbee()
+{
+    // TODO : relier ces paramètres avec le fichier de configuration du XBEE
+    // Créer une fonction spéciale qui est appelée depuis CXBEE
+// XBEE n°1
+    tXbeeSettings xbee_settings;
+    xbee_settings.APIMODE = '1';
+    strcpy(xbee_settings.CHANNEL, "0E");
+    xbee_settings.COORDINATOR = '1';
+    xbee_settings.COORDINATOR_OPTION = '4';
+    strcpy(xbee_settings.PANID, "3321");
+    strcpy(xbee_settings.KEY, "6910DEA76FC0328DEBB4307854EDFC42");
+    xbee_settings.ID = '1';
+    xbee_settings.SECURITY = '1';
+
+/*
+XBEE n°2
+    tXbeeSettings xbee_settings;
+    xbee_settings.APIMODE = '1';
+    strcpy(xbee_settings.CHANNEL, "0E");
+    xbee_settings.COORDINATOR = '0'; // -------------
+    xbee_settings.COORDINATOR_OPTION = 0x04;
+    strcpy(xbee_settings.PANID, "3321");
+    strcpy(xbee_settings.KEY, "6910DEA76FC0328DEBB4307854EDFC42");
+    xbee_settings.ID = '2';  // ------
+    xbee_settings.SECURITY = '1';
+
+ */
+
+    m_xbee_driver.init(xbee_settings);
+}
+
 // ______________________________________________
 void RobNetworkMessenger::test()
 {

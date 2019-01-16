@@ -70,6 +70,7 @@ void CXBEE::init(CApplication *application)
   setBackgroundColor(val.value<QColor>());
 
   connect(m_ihm.ui.pushButton, SIGNAL(clicked(bool)), this,  SLOT(test()));
+  connect(m_ihm.ui.init, SIGNAL(clicked(bool)), this,  SLOT(initXbee()));
 
   m_messenger.initApp(application);
 
@@ -112,7 +113,12 @@ void CXBEE::test()
 }
 
 // _____________________________________________________________________
+void CXBEE::initXbee()
+{
+    m_messenger.initXbee();
+}
 
+// _____________________________________________________________________
 void CXBEE::receiveSerialData(QByteArray datas)
 {
     m_messenger.receiveSerialDatas(datas);
