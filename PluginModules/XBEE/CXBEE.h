@@ -52,6 +52,8 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
 
+    void sendSerialData(QByteArray datas);
+
 private:
     Cihm_XBEE m_ihm;
 
@@ -62,6 +64,9 @@ private slots :
     void test();
     void initXbee();
     void receiveSerialData(QByteArray datas);
+
+signals :
+    void SIG_sendToRS232(QByteArray datas);
 };
 
 #endif // _CPLUGIN_MODULE_XBEE_H_

@@ -75,7 +75,8 @@ void CXBEE::init(CApplication *application)
   m_messenger.initApp(application);
 
   // Connexion avec le module m_rs232_xbee et fait le lien avec la fonction de decodage
-  //connect(m_application->m_RS232_xbee, SIGNAL(readyBytes(QByteArray)), this, SLOT(receiveSerialData(QByteArray)));
+  connect(m_application->m_RS232_xbee, SIGNAL(readyBytes(QByteArray)), this, SLOT(receiveSerialData(QByteArray)));
+  connect(this, SIGNAL(SIG_sendToRS232(QByteArray)), m_application->m_RS232_xbee, SLOT(write(QByteArray)));
 }
 
 
@@ -122,4 +123,11 @@ void CXBEE::initXbee()
 void CXBEE::receiveSerialData(QByteArray datas)
 {
     m_messenger.receiveSerialDatas(datas);
+}
+
+
+// _____________________________________________________________________
+void CXBEE::sendSerialData(QByteArray datas)
+{
+    emit SIG_sendToRS232(datas);
 }

@@ -6,6 +6,7 @@
 #include "messengerinterfacebase.h"
 #include "CApplication.h"
 #include "CRS232.h"
+#include "CXBEE.h"
 
 
 XbeeDriver::XbeeDriver() :
@@ -42,7 +43,8 @@ void XbeeDriver::readyBytes(unsigned char *buff_data, unsigned char buff_size, u
 void XbeeDriver::write(unsigned char *buff_data, unsigned char buff_size)
 {
     qDebug() << "XbeeDriver::XBEE ask to write data";
-    m_application->m_RS232_xbee->write((const char*)buff_data, buff_size);
+    //m_application->m_RS232_xbee->write((const char*)buff_data, buff_size);
+    m_application->m_XBEE->sendSerialData(QByteArray((const char *)buff_data, buff_size));
     for (unsigned int i=0; i<buff_size; i++)
     {
        qDebug() << buff_data[i];
@@ -53,6 +55,7 @@ void XbeeDriver::write(unsigned char *buff_data, unsigned char buff_size)
 void XbeeDriver::delay_us(unsigned long delay)
 {
     qDebug() << "XbeeDriver:" << "Xbee driver request a delay of " << delay << "usec";
+    //QThread::usleep(delay);
     QTime dieTime= QTime::currentTime().addSecs(1);
      while (QTime::currentTime() < dieTime)
          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);

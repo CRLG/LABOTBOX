@@ -71,7 +71,7 @@ void CMessengerNetwork2019::init(CApplication *application)
 
   m_messenger.initApp(application);
 
-  connect(m_application->m_RS232_xbee, SIGNAL(readyBytes(QByteArray)), this, SLOT(receiveSerialData(QByteArray)));
+  //connect(m_application->m_RS232_xbee, SIGNAL(readyBytes(QByteArray)), this, SLOT(receiveSerialData(QByteArray)));
 
   connect(m_ihm.ui.pushButton, SIGNAL(pressed()), this, SLOT(test()));
 }
