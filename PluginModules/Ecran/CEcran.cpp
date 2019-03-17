@@ -85,8 +85,8 @@ void CEcran::init(CApplication *application)
   m_ihm.ui.tps_unit->setNumber(0);
   m_ihm.ui.tabWidget->setCurrentIndex(0);
 
-  connect(m_ihm.ui.pB_Green,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
-  connect(m_ihm.ui.pB_Orange,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.pB_Couleur1,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.pB_Couleur2,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
 
   //pour le mode visu on se connecte aux changements du datamanager
   connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(color_Changed(CData*)));
@@ -137,7 +137,7 @@ void CEcran::onRightClicGUI(QPoint pos)
 void CEcran::onClicColorButton()
 {
     QObject* pB_ColorButton=sender();
-    if(pB_ColorButton->objectName().contains("Orange"))
+    if(pB_ColorButton->objectName().contains("Couleur2"))
     {
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", true);
         m_application->m_data_center->write("valeur_etat_ecran", 1);
@@ -145,7 +145,7 @@ void CEcran::onClicColorButton()
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", false);
 
     }
-    if(pB_ColorButton->objectName().contains("Green"))
+    if(pB_ColorButton->objectName().contains("Couleur1"))
     {
         m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", true);
         m_application->m_data_center->write("valeur_etat_ecran", 0);
