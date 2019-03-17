@@ -89,7 +89,9 @@ void CEcran::init(CApplication *application)
   connect(m_ihm.ui.pB_Couleur2,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
 
   //pour le mode visu on se connecte aux changements du datamanager
-  connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(color_Changed(CData*)));
+
+  connect(m_application->m_data_center->getData("CouleurEquipe"), SIGNAL(valueChanged(QVariant)), this, SLOT(CouleurEquipe_changed(QVariant)));
+  connect(m_application->m_data_center->getData("ModeFonctionnement"), SIGNAL(valueUpdated(QVariant)), this, SLOT(ModeFonctionnement_changed(QVariant)));
   connect(m_application->m_data_center->getData("Vbat"), SIGNAL(valueChanged(QVariant)), this, SLOT(Vbat_changed(QVariant)));
   connect(m_application->m_data_center->getData("TempsMatch"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre1"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre1_changed(QVariant)));
@@ -155,61 +157,44 @@ void CEcran::onClicColorButton()
 
 }
 
-void CEcran::color_Changed(CData *data)
+void CEcran::CouleurEquipe_changed(QVariant val)
 {
-
-
-    QString dataName=data->getName();
-    if(dataName.compare("CouleurEquipe")==0)
+    int colorTeam=val.toInt();
+    if(colorTeam==1)
     {
-        //qDebug() << data->read();
-        int colorTeam=data->read().toInt();
-
-        if(colorTeam==1)
-        {
-            m_ihm.ui.qLed_green->setVisible(false);
-            m_ihm.ui.qLed_orange->setVisible(true);
-        }
-
-        if(colorTeam==0)
-        {    m_ihm.ui.qLed_green->setVisible(true);
-            m_ihm.ui.qLed_orange->setVisible(false);
-        }
+        m_ihm.ui.qLed_green->setVisible(false);
+        m_ihm.ui.qLed_orange->setVisible(true);
     }
 
-    if(dataName.compare("Telemetre3")==0)
-        m_ihm.ui.sb_AVG->setValue(data->read().toInt());
-    if(dataName.compare("Telemetre4")==0)
-        m_ihm.ui.sb_ARG->setValue(data->read().toInt());
-    if(dataName.compare("Telemetre1")==0)
-        m_ihm.ui.sb_AVD->setValue(data->read().toInt());
-    if(dataName.compare("Telemetre2")==0)
-        m_ihm.ui.sb_ARD->setValue(data->read().toInt());
+    if(colorTeam==0)
+    {
+        m_ihm.ui.qLed_green->setVisible(true);
+        m_ihm.ui.qLed_orange->setVisible(false);
+    }
+}
 
-
-    if(dataName.compare("ModeFonctionnement")==0){
-        int value=data->read().toInt();
-        if(value==0)//mode autonome
-        {
-            m_ihm.ui.lbl_ModeFct->setText("Autonome");
-            setBackgroundColor(initColor);
-        }
-       else if (value==1)
-        {
-            m_ihm.ui.lbl_ModeFct->setText("LaBotBox");
-            setBackgroundColor(QColor(255,0,0,255));
-        }
-		else if (value==2)
-		{
-            m_ihm.ui.lbl_ModeFct->setText("Defaillant");
-            setBackgroundColor(QColor(255,0,0,255));
-        }
-		else if (value==2)
-		{
-            m_ihm.ui.lbl_ModeFct->setText("Inopérant");
-            setBackgroundColor(QColor(255,0,0,255));
-        }
-			
+void CEcran::ModeFonctionnement_changed(QVariant val)
+{
+    int value=val.toInt();
+    if(value==0)//mode autonome
+    {
+        m_ihm.ui.lbl_ModeFct->setText("Autonome");
+        setBackgroundColor(initColor);
+    }
+    else if (value==1)
+    {
+        m_ihm.ui.lbl_ModeFct->setText("LaBotBox");
+        setBackgroundColor(QColor(255,0,0,255));
+    }
+    else if (value==2)
+    {
+        m_ihm.ui.lbl_ModeFct->setText("Defaillant");
+        setBackgroundColor(QColor(255,0,0,255));
+    }
+    else if (value==2)
+    {
+        m_ihm.ui.lbl_ModeFct->setText("Inopérant");
+        setBackgroundColor(QColor(255,0,0,255));
     }
 }
 
@@ -221,14 +206,14 @@ void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_ARG->setValue(val.toI
 
 void CEcran::TpsMatch_changed(QVariant val)
 {
-    //m_ihm.ui.VBatt->setValue(val.toDouble());
+    const unsigned char DUREE_MATCH = 100;
 
     int TpsMatch=val.toInt();
     if((TpsMatch>0)&&(TpsMatch<=1))
         m_ihm.ui.tabWidget->setCurrentIndex(1);
-    if((TpsMatch>79)&&(TpsMatch<=80))
+    if((TpsMatch>=(DUREE_MATCH-10)&&(TpsMatch<=(DUREE_MATCH-9))))
         m_ihm.ui.tabWidget->setCurrentIndex(2);
-    if(TpsMatch>99)
+    if(TpsMatch>=(DUREE_MATCH-1))
         m_ihm.ui.tabWidget->setCurrentIndex(3);
 
     if(m_ihm.ui.tabWidget->currentIndex()==1)

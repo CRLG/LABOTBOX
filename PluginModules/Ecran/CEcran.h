@@ -61,7 +61,8 @@ private:
 private slots :
     void onRightClicGUI(QPoint pos);
     void onClicColorButton(void);
-    void color_Changed(CData *data);
+    void CouleurEquipe_changed(QVariant val);
+    void ModeFonctionnement_changed(QVariant val);
     void Vbat_changed(QVariant val);
     void TpsMatch_changed(QVariant val);
     void Telemetre1_changed(QVariant val);
