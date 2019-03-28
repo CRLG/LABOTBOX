@@ -3,6 +3,7 @@
  * A more elaborated file description.
  */
 #include <QDebug>
+#include <QMessageBox>
 #include "CEcran.h"
 #include "CApplication.h"
 #include "CPrintView.h"
@@ -87,6 +88,8 @@ void CEcran::init(CApplication *application)
 
   connect(m_ihm.ui.pB_Couleur1,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
   connect(m_ihm.ui.pB_Couleur2,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
+  connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
 
   //pour le mode visu on se connecte aux changements du datamanager
 
@@ -254,3 +257,28 @@ void CEcran::TpsMatch_changed(QVariant val)
         m_ihm.ui.score_unit->setNumber(unite);
     }
 }
+
+void CEcran::onRPI_Shutdown()
+{
+    int ret = QMessageBox::warning(&m_ihm, tr("Warning"),
+                                   tr("Power Off\n"
+                                      "Are you sure ?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        QProcess *myProcess = new QProcess();
+        myProcess->start("shutdown --poweroff now");
+    }
+}
+
+void CEcran::onRPI_Reboot()
+{
+    int ret = QMessageBox::warning(&m_ihm, tr("Warning"),
+                                   tr("Reboot\n"
+                                      "Are you sure ?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        QProcess *myProcess = new QProcess();
+        myProcess->start("shutdown --reboot now");
+    }
+}
+
