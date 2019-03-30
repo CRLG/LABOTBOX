@@ -78,6 +78,9 @@ void CModuleDesigner::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
+  // Restore le niveau d'affichage
+  val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
+  setNiveauTrace(val.toUInt());
 
   connect(m_ihm.ui.PB_generate, SIGNAL(clicked()), this, SLOT(genererModule()));
   connect(m_ihm.ui.PB_choix_repertoire, SIGNAL(clicked()), this, SLOT(choixRepertoireSortie()));
@@ -103,6 +106,7 @@ void CModuleDesigner::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "repertoire_projet", QVariant(m_ihm.ui.repertoire_projet->text()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+  m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
 }
 
 // _____________________________________________________________________

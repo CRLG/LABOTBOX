@@ -85,6 +85,9 @@ void CDataGraph::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
     if (val.toBool()) { m_ihm.show(); }
     else              { m_ihm.hide(); }
+    // Restore le niveau d'affichage
+    val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
+    setNiveauTrace(val.toUInt());
     // Restore la couleur de fond
     val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
     setBackgroundColor(val.value<QColor>());
@@ -212,6 +215,7 @@ void CDataGraph::close(void)
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+  m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
 
   // mémorise en EEPROM la liste des variables sous surveillance
   QStringList liste_variables_observees;
