@@ -75,12 +75,14 @@ void CEcran::init(CApplication *application)
 
 
   // S'assure que les données existent dans le DataManager
-  m_application->m_data_center->write("Telemetre4",  0);
-  m_application->m_data_center->write("Telemetre3",  0);
-  m_application->m_data_center->write("Telemetre2",  0);
-  m_application->m_data_center->write("Telemetre1",  0);
-  m_application->m_data_center->write("Vbat", 0);
-  m_application->m_data_center->write("TempsMatch", 0);
+  m_application->m_data_center->write("CouleurEquipe",  -1);
+  m_application->m_data_center->write("ModeFonctionnement",  -1);
+  m_application->m_data_center->write("Telemetre4",  -1);
+  m_application->m_data_center->write("Telemetre3",  -1);
+  m_application->m_data_center->write("Telemetre2",  -1);
+  m_application->m_data_center->write("Telemetre1",  -1);
+  m_application->m_data_center->write("Vbat", -1);
+  m_application->m_data_center->write("TempsMatch", -1);
 
   m_ihm.ui.tps_dix->setNumber(0);
   m_ihm.ui.tps_unit->setNumber(0);
