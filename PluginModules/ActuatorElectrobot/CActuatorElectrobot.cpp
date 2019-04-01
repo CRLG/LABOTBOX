@@ -88,7 +88,7 @@ void CActuatorElectrobot::init(CApplication *application)
 
   // Met à jour les labels en fonction de la propriété "Alias" de chaque data
   // Si la data n'a pas d'Alias dans  le data_center,  le label reste celui par défaut
-  updateAliasLabels();
+  updateMotorsAliasLabels();
 
   connect(&m_ihm, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
 
@@ -176,6 +176,24 @@ void CActuatorElectrobot::init(CApplication *application)
 
   // met à jour la liste des commandes possibles sur les servos AX
   initList_ActionsServosAX();
+
+  // _____________________________________________ Power Switch
+  updatePowerSwitchAliasLabels();
+  updatePowerSwitchTooltips();
+  connect(m_ihm.ui.PowerSwitch_StopAll, SIGNAL(clicked()), this, SLOT(PowerSwitch_StopAll_clicked()));
+
+  m_ihm.ui.Send_CdePowerSwitch->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(m_ihm.ui.Send_CdePowerSwitch, SIGNAL(clicked()), this, SLOT(CdePowerSwitchSynchroSend_left_clic()));
+  connect(m_ihm.ui.Send_CdePowerSwitch, SIGNAL(customContextMenuRequested(QPoint)) , this, SLOT(CdePowerSwitchSynchroSend_right_clic(QPoint)));
+
+  connect(m_ihm.ui.PowerSwitch_xt1, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt1_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt2, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt2_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt3, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt3_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt4, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt4_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt5, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt5_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt6, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt6_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt7, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt7_changed(bool)));
+  connect(m_ihm.ui.PowerSwitch_xt8, SIGNAL(clicked(bool)), this, SLOT(CdePowerSwitch_xt8_changed(bool)));
 }
 
 
@@ -210,13 +228,19 @@ void CActuatorElectrobot::onRightClicGUI(QPoint pos)
 void CActuatorElectrobot::keyPressed(int key)
 {
   switch(key) {
-    case Qt::Key_Escape:    Moteurs_StopAll_clicked();      break;
+    case Qt::Key_Escape:
+        Moteurs_StopAll_clicked();
+        PowerSwitch_StopAll_clicked();
+      break;
     // default : ne rien faire
   }
 }
 
+// =============================================================
+//                          MOTEURS
+// =============================================================
 // _____________________________________________________________________
-void CActuatorElectrobot::updateAliasLabels(void)
+void CActuatorElectrobot::updateMotorsAliasLabels(void)
 {
  // Gestion des alias sur les noms de capteurs
  QString str_val;
@@ -321,8 +345,9 @@ void CActuatorElectrobot::Moteurs_StopAll_clicked(void)
 }
 
 
-
-
+// =============================================================
+//                          SERVOS SD20
+// =============================================================
 // _____________________________________________________________
 void CActuatorElectrobot::PosServoMoteur_changed(int id, int position)
 {
@@ -359,6 +384,9 @@ void CActuatorElectrobot::CdeServoMoteur13_changed()
 { PosServoMoteur_changed(13, m_ihm.ui.Servo_slide_13->value()); }
 
 
+// =============================================================
+//                          SERVOS AX
+// =============================================================
 
 // _____________________________________________________________
 void CActuatorElectrobot::PosServoMoteurAX_changed(int id, int position)
@@ -445,4 +473,130 @@ void CActuatorElectrobot::ServosSD20Config_Send_clicked(void)
     m_application->m_data_center->write("commande_sd20", m_ihm.ui.ServosSD20Config_Action->currentIndex());
     m_application->m_data_center->write("valeur_commande_sd20", m_ihm.ui.ServosSD20Config_Value->value());
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync", false);
+}
+
+
+// =============================================================
+//                          POWER SWITCH
+// =============================================================
+void CActuatorElectrobot::updatePowerSwitchAliasLabels(void)
+{
+ // Gestion des alias sur les noms de capteurs
+ QString str_val;
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt1", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt1->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt2", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt2->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt3", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt3->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt4", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt4->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt5", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt5->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt6", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt6->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt7", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt7->setText(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt8", "Alias").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt8->setText(str_val); }
+}
+
+
+
+// _____________________________________________________________________
+void CActuatorElectrobot::updatePowerSwitchTooltips(void)
+{
+ QString str_val;
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt1", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt1->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt2", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt2->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt3", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt3->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt4", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt4->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt5", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt5->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt6", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt6->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt7", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt7->setToolTip(str_val); }
+
+ str_val = m_application->m_data_center->getDataProperty("PowerSwitch_xt8", "Tooltip").toString();
+ if (str_val != "") { m_ihm.ui.PowerSwitch_xt8->setToolTip(str_val); }
+}
+
+
+// _____________________________________________________________________
+void CActuatorElectrobot::CdePowerSwitch_xt1_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt1", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt2_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt2", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt3_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt3", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt4_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt4", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt5_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt5", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt6_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt6", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt7_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt7", val); }
+void CActuatorElectrobot::CdePowerSwitch_xt8_changed(bool val)      { m_application->m_data_center->write("PowerSwitch_xt8", val); }
+
+
+// _____________________________________________________________________
+// Clic gauche : envoie la trame
+// Clic droit : vérouille la trame
+void CActuatorElectrobot::CdePowerSwitchSynchroSend_left_clic(void)
+{
+  // enchaine 1->0 sur le floag de synchro pour forcer l'émission de la trame
+  m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", true);
+  m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", false);
+  m_ihm.ui.Send_CdePowerSwitch->setChecked(false);
+}
+
+void CActuatorElectrobot::CdePowerSwitchSynchroSend_right_clic(QPoint pt)
+{
+  Q_UNUSED(pt)
+  m_ihm.ui.Send_CdePowerSwitch->setCheckable(true);
+  m_ihm.ui.Send_CdePowerSwitch->setChecked(!m_ihm.ui.Send_CdePowerSwitch->isChecked());
+  m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", m_ihm.ui.Send_CdePowerSwitch->isChecked());
+}
+
+// _____________________________________________________________________
+void CActuatorElectrobot::PowerSwitch_StopAll_clicked(void)
+{
+ // Synchro pour qu'une seule trame ne parte
+ m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+
+ m_application->m_data_center->write("PowerSwitch_xt1", false);
+ m_application->m_data_center->write("PowerSwitch_xt2", false);
+ m_application->m_data_center->write("PowerSwitch_xt3", false);
+ m_application->m_data_center->write("PowerSwitch_xt4", false);
+ m_application->m_data_center->write("PowerSwitch_xt5", false);
+ m_application->m_data_center->write("PowerSwitch_xt6", false);
+ m_application->m_data_center->write("PowerSwitch_xt7", false);
+ m_application->m_data_center->write("PowerSwitch_xt8", false);
+
+ // Synchro = 0 : la trame est envoyée
+ m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
+
+ // Met à jour l'IHM
+ m_ihm.ui.PowerSwitch_xt1->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt2->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt3->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt4->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt5->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt6->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt7->setChecked(0);
+ m_ihm.ui.PowerSwitch_xt8->setChecked(0);
+ m_ihm.ui.Send_CdePowerSwitch->setChecked(false);
 }

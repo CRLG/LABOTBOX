@@ -89,6 +89,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_POWER_SWITCH(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_XY(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ASSERV_RESET(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_AUTOAPPRENTISSAGE_ASSERV(m_messagerie_bot, m_data_manager));
@@ -500,6 +501,181 @@ void CTrame_ELECTROBOT_CDE_MOTEURS::Encode(void)
     trame.Data[1] |= (unsigned char)( ( (cde_moteur_2) & 0xFF) );
 
     trame.Data[0] |= (unsigned char)( ( (cde_moteur_1) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME ELECTROBOT_CDE_POWER_SWITCH
+// ========================================================
+CTrame_ELECTROBOT_CDE_POWER_SWITCH::CTrame_ELECTROBOT_CDE_POWER_SWITCH(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ELECTROBOT_CDE_POWER_SWITCH";
+ m_id = ID_ELECTROBOT_CDE_POWER_SWITCH;
+ m_dlc = DLC_ELECTROBOT_CDE_POWER_SWITCH;
+ m_liste_noms_signaux.append("PowerSwitch_xt8");
+ m_liste_noms_signaux.append("PowerSwitch_xt7");
+ m_liste_noms_signaux.append("PowerSwitch_xt6");
+ m_liste_noms_signaux.append("PowerSwitch_xt5");
+ m_liste_noms_signaux.append("PowerSwitch_xt4");
+ m_liste_noms_signaux.append("PowerSwitch_xt3");
+ m_liste_noms_signaux.append("PowerSwitch_xt2");
+ m_liste_noms_signaux.append("PowerSwitch_xt1");
+
+ // Initialise les données de la messagerie
+ PowerSwitch_xt8 = 0;
+ PowerSwitch_xt7 = 0;
+ PowerSwitch_xt6 = 0;
+ PowerSwitch_xt5 = 0;
+ PowerSwitch_xt4 = 0;
+ PowerSwitch_xt3 = 0;
+ PowerSwitch_xt2 = 0;
+ PowerSwitch_xt1 = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("PowerSwitch_xt8",  PowerSwitch_xt8);
+ data_manager->write("PowerSwitch_xt7",  PowerSwitch_xt7);
+ data_manager->write("PowerSwitch_xt6",  PowerSwitch_xt6);
+ data_manager->write("PowerSwitch_xt5",  PowerSwitch_xt5);
+ data_manager->write("PowerSwitch_xt4",  PowerSwitch_xt4);
+ data_manager->write("PowerSwitch_xt3",  PowerSwitch_xt3);
+ data_manager->write("PowerSwitch_xt2",  PowerSwitch_xt2);
+ data_manager->write("PowerSwitch_xt1",  PowerSwitch_xt1);
+ data_manager->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("PowerSwitch_xt8"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt8_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt7"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt7_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt6"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt6_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt5"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt5_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt4"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt4_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt3"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt3_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt2"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt2_changed(QVariant)));
+ connect(data_manager->getData("PowerSwitch_xt1"), SIGNAL(valueChanged(QVariant)), this, SLOT(PowerSwitch_xt1_changed(QVariant)));
+ connect(data_manager->getData("ELECTROBOT_CDE_POWER_SWITCH_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt8_changed(QVariant val)
+{
+  PowerSwitch_xt8 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt7_changed(QVariant val)
+{
+  PowerSwitch_xt7 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt6_changed(QVariant val)
+{
+  PowerSwitch_xt6 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt5_changed(QVariant val)
+{
+  PowerSwitch_xt5 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt4_changed(QVariant val)
+{
+  PowerSwitch_xt4 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt3_changed(QVariant val)
+{
+  PowerSwitch_xt3 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt2_changed(QVariant val)
+{
+  PowerSwitch_xt2 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::PowerSwitch_xt1_changed(QVariant val)
+{
+  PowerSwitch_xt1 = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ELECTROBOT_CDE_POWER_SWITCH::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ELECTROBOT_CDE_POWER_SWITCH;
+  trame.DLC = DLC_ELECTROBOT_CDE_POWER_SWITCH;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[0] |= ( (PowerSwitch_xt1 << 0) |
+                       (PowerSwitch_xt2 << 1) |
+                       (PowerSwitch_xt3 << 2) |
+                       (PowerSwitch_xt4 << 3) |
+                       (PowerSwitch_xt5 << 4) |
+                       (PowerSwitch_xt6 << 5) |
+                       (PowerSwitch_xt7 << 6) |
+                       (PowerSwitch_xt8 << 7) );
 
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);

@@ -65,10 +65,10 @@ private slots :
 private:
     Cihm_ActuatorElectrobot m_ihm;
 
-    void updateAliasLabels(void);
-    void updateMotorsTooltips(void);
-
 // ____________________________________________________Moteurs
+private :
+    void updateMotorsAliasLabels(void);
+    void updateMotorsTooltips(void);
 private slots :
     void CdeMoteursSynchroSend_left_clic(void);
     void CdeMoteursSynchroSend_right_clic(QPoint pt);
@@ -138,6 +138,26 @@ private slots :
     void CdeServoMoteurAX7_changed();
 
     void ServosAXConfig_Send_clicked(void);
+
+    // ____________________________________________________ Power Switch
+private :
+    void updatePowerSwitchAliasLabels(void);
+    void updatePowerSwitchTooltips(void);
+
+private slots :
+    void CdePowerSwitchSynchroSend_left_clic(void);
+    void CdePowerSwitchSynchroSend_right_clic(QPoint pt);
+
+    void CdePowerSwitch_xt1_changed(bool val);
+    void CdePowerSwitch_xt2_changed(bool val);
+    void CdePowerSwitch_xt3_changed(bool val);
+    void CdePowerSwitch_xt4_changed(bool val);
+    void CdePowerSwitch_xt5_changed(bool val);
+    void CdePowerSwitch_xt6_changed(bool val);
+    void CdePowerSwitch_xt7_changed(bool val);
+    void CdePowerSwitch_xt8_changed(bool val);
+
+    void PowerSwitch_StopAll_clicked(void);
 
 private slots :
     void keyPressed(int key);

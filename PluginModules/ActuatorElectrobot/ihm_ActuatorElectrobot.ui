@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>296</width>
-    <height>330</height>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -790,6 +790,86 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="PowerSwitch">
+       <attribute name="title">
+        <string>PowerSwitch</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt5">
+          <property name="text">
+           <string>XT5</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt6">
+          <property name="text">
+           <string>XT6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt7">
+          <property name="text">
+           <string>XT7</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt8">
+          <property name="text">
+           <string>XT8</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt4">
+          <property name="text">
+           <string>XT4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt1">
+          <property name="text">
+           <string>XT1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt3">
+          <property name="text">
+           <string>XT3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="PowerSwitch_xt2">
+          <property name="text">
+           <string>XT2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="PowerSwitch_StopAll">
+          <property name="text">
+           <string>RAZ ALL</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QPushButton" name="Send_CdePowerSwitch">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;clic gauche : envoie trame / clic droit : lock trame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Send /  Lock</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -800,7 +880,7 @@
      <x>0</x>
      <y>0</y>
      <width>296</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

@@ -182,6 +182,42 @@ private slots :
     void Synchro_changed(QVariant val);
 };
 
+// ========================================================
+//             TRAME ELECTROBOT_CDE_POWER_SWITCH
+// ========================================================
+#define ID_ELECTROBOT_CDE_POWER_SWITCH 0x54
+#define DLC_ELECTROBOT_CDE_POWER_SWITCH 1
+class CTrame_ELECTROBOT_CDE_POWER_SWITCH : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ELECTROBOT_CDE_POWER_SWITCH(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CDE_POWER_SWITCH() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    bool PowerSwitch_xt1;
+    bool PowerSwitch_xt2;
+    bool PowerSwitch_xt3;
+    bool PowerSwitch_xt4;
+    bool PowerSwitch_xt5;
+    bool PowerSwitch_xt6;
+    bool PowerSwitch_xt7;
+    bool PowerSwitch_xt8;
+    bool m_synchro_tx;
+
+private slots :
+    void PowerSwitch_xt1_changed(QVariant val);
+    void PowerSwitch_xt2_changed(QVariant val);
+    void PowerSwitch_xt3_changed(QVariant val);
+    void PowerSwitch_xt4_changed(QVariant val);
+    void PowerSwitch_xt5_changed(QVariant val);
+    void PowerSwitch_xt6_changed(QVariant val);
+    void PowerSwitch_xt7_changed(QVariant val);
+    void PowerSwitch_xt8_changed(QVariant val);
+
+    void Synchro_changed(QVariant val);
+};
 
 // ========================================================
 //             TRAME COMMANDE_MVT_XY
