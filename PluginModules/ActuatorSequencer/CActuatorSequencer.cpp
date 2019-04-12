@@ -97,6 +97,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Add_AX,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_SD20,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Motor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  connect(m_ihm.ui.pB_Add_Power,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Wait,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Asser,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Event,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
@@ -118,6 +119,8 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Play_AX, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_AX()));
   connect(m_ihm.ui.pB_Play_Motor, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_motor()));
   connect(m_ihm.ui.pB_Stop_Motor, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_motors()));
+  connect(m_ihm.ui.pB_Play_Power, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_power()));
+  connect(m_ihm.ui.pB_Stop_Power, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_power()));
   connect(m_ihm.ui.pB_Play_Asser, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_asser()));
   connect(m_ihm.ui.pB_Stop_Asser, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_asser()));
 
@@ -194,6 +197,15 @@ void CActuatorSequencer::updateComboBox(void)
      else
          m_ihm.ui.cB_AX->addItem(str_name.setNum(i),QVariant(i));
  }
+ //PowerSwitch
+  for(i=1;i<9;i++){
+      str_name=QString("PowerSwitch_xt%1").arg(i);
+      str_alias = m_application->m_data_center->getDataProperty(str_name, "Alias").toString();
+      if (str_alias != "")
+          m_ihm.ui.cB_Power->addItem(str_alias,QVariant(i));
+      else
+          m_ihm.ui.cB_Power->addItem(str_name.setNum(i),QVariant(i));
+  }
 m_ihm.ui.cB_AX_type_cde->addItem("Position",QVariant(cSERVO_AX_POSITION));
 m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
 
@@ -262,6 +274,16 @@ void CActuatorSequencer::updateTooltip(void)
         m_ihm.ui.tip_Motor->setText(str_tooltip);
         m_ihm.ui.tip_Motor->setCursorPosition(0);
     }
+
+    //PowerSwitch
+    i=m_ihm.ui.cB_Power->currentIndex()+1;
+         str_name=QString("PowerSwitch_xt%1").arg(i);
+         str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
+         if (str_tooltip != "")
+         {
+             m_ihm.ui.tip_Power->setText(str_tooltip);
+             m_ihm.ui.tip_Power->setCursorPosition(0);
+         }
 
  //SD20
  i=m_ihm.ui.cB_SD20->currentIndex()+13;
@@ -436,6 +458,14 @@ void CActuatorSequencer::addSequenceItem(void)
         id=id_int.setNum(m_ihm.ui.cB_Motor->currentIndex()+1);
         comments=m_ihm.ui.cB_Motor->currentText();
         value.setNum(m_ihm.ui.sB_Motor->value());
+    }
+    else if(pB_Add==m_ihm.ui.pB_Add_Power)
+    {
+        type="Power";
+        QString id_int;
+        id=id_int.setNum(m_ihm.ui.cB_Power->currentIndex()+1);
+        comments=m_ihm.ui.cB_Power->currentText();
+        value.setNum(m_ihm.ui.sB_Power->value());
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Event)
     {
@@ -617,6 +647,22 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
                 m_application->m_data_center->write(str_name, value);
                 m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
+            }
+            if(sActuator.compare("Power")==0)
+            {
+                //id_int=table_sequence->item(indexItem,1)->text().toInt();
+                id=table_sequence->item(indexItem,1)->text();
+                value=table_sequence->item(indexItem,2)->text();
+
+                QString str_name=QString("PowerSwitch_xt%1").arg(id);
+                bool bvalue=false;
+                if(value.compare("1")==0)
+                    bvalue=true;
+                //bvalue=(value.compare("1")==0?true:false);
+                //qDebug() << "Power" << str_name << "at" <<bvalue;
+                m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+                m_application->m_data_center->write(str_name, bvalue);
+                m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
             }
             if(sActuator.compare("Wait")==0)
             {
@@ -847,6 +893,16 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
     m_application->m_data_center->write("cde_moteur_5", 0);
     m_application->m_data_center->write("cde_moteur_6", 0);
     m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+    m_application->m_data_center->write("PowerSwitch_xt1", 0);
+    m_application->m_data_center->write("PowerSwitch_xt2", 0);
+    m_application->m_data_center->write("PowerSwitch_xt3", 0);
+    m_application->m_data_center->write("PowerSwitch_xt4", 0);
+    m_application->m_data_center->write("PowerSwitch_xt5", 0);
+    m_application->m_data_center->write("PowerSwitch_xt6", 0);
+    m_application->m_data_center->write("PowerSwitch_xt7", 0);
+    m_application->m_data_center->write("PowerSwitch_xt8", 0);
+    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
     m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", 1);
     m_application->m_data_center->write("PuissanceMotD", 0);
     m_application->m_data_center->write("PuissanceMotG", 0);
@@ -1280,6 +1336,26 @@ void CActuatorSequencer::Slot_Play_only_motor()
     m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
 }
 
+void CActuatorSequencer::Slot_Play_only_power()
+{
+    QString id;
+    QString value;
+    id.setNum(m_ihm.ui.cB_Power->currentIndex()+1);
+    value.setNum(m_ihm.ui.sB_Power->value());
+
+    bool bvalue=false;
+    if(value.compare("1")==0)
+        bvalue=true;
+
+    //bvalue=(value.compare("1")==0?true:false);
+
+    QString str_name=QString("PowerSwitch_xt%1").arg(id);
+    qDebug() << "PowerSwitch" << m_ihm.ui.cB_Power->currentText() << "at" <<bvalue;
+    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+    m_application->m_data_center->write(str_name, bvalue);
+    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
+}
+
 void CActuatorSequencer::Slot_Stop_only_motors()
 {
    qDebug() << "Stop all motors";
@@ -1291,6 +1367,21 @@ void CActuatorSequencer::Slot_Stop_only_motors()
     m_application->m_data_center->write("cde_moteur_5", 0);
     m_application->m_data_center->write("cde_moteur_6", 0);
     m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
+}
+
+void CActuatorSequencer::Slot_Stop_only_power()
+{
+   qDebug() << "Stop all powerswitch";
+m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+m_application->m_data_center->write("PowerSwitch_xt1", false);
+m_application->m_data_center->write("PowerSwitch_xt2", false);
+m_application->m_data_center->write("PowerSwitch_xt3", false);
+m_application->m_data_center->write("PowerSwitch_xt4", false);
+m_application->m_data_center->write("PowerSwitch_xt5", false);
+m_application->m_data_center->write("PowerSwitch_xt6", false);
+m_application->m_data_center->write("PowerSwitch_xt7", false);
+m_application->m_data_center->write("PowerSwitch_xt8", false);
+m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
 }
 
 void CActuatorSequencer::Slot_Play_only_asser()

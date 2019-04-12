@@ -105,6 +105,8 @@ private slots :
     void Slot_Play_only_AX();
     void Slot_Play_only_motor();
     void Slot_Stop_only_motors();
+    void Slot_Play_only_power();
+    void Slot_Stop_only_power();
     QTableWidget *Slot_Add_Sequence();
     void Slot_Remove_Sequence(int index);
     void Slot_Stop_only_asser();
