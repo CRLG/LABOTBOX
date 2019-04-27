@@ -53,6 +53,7 @@ LIST_PLUGIN_MODULES+= \
         BotCam \
         #Ecran \
         ImageProcessing \ 
+        XBEE \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -63,7 +64,12 @@ LIST_TOOLS+= CustomPlot\
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
-LIST_EXT_CPPROBLIB+= ServosAX\
+LIST_EXT_CPPROBLIB+= \
+        ServosAX \
+        Communication/Messenger \
+        Communication/Messenger/MessagesGeneric \
+        Communication/Messenger/DatabaseXbeeNetwork2019 \
+        Communication/XBEE \
 
 # __________________________________________________
 # Ajouter ici les modules spécifiques à RaspberyPi

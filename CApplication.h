@@ -42,6 +42,7 @@ class CUserGuides;
 class CActuatorSequencer;
 class CBotCam;
 class CImageProcessing;
+class CXBEE;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -93,6 +94,9 @@ public:
 #endif // MODULE_RS232
 #ifdef MODULE_RS232
    CRS232     *m_RS232_cmucam;
+#endif // MODULE_RS232
+#ifdef MODULE_RS232
+   CRS232     *m_RS232_xbee;
 #endif // MODULE_RS232
 #ifdef MODULE_Joystick
    CJoystick     *m_Joystick;
@@ -147,6 +151,9 @@ public:
 #ifdef MODULE_ImageProcessing
    CImageProcessing     *m_ImageProcessing;
 #endif // MODULE_ImageProcessing
+#ifdef MODULE_XBEE
+   CXBEE     *m_XBEE;
+#endif // MODULE_XBEE
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

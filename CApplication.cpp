@@ -87,6 +87,9 @@
 #ifdef MODULE_ImageProcessing
    #include "CImageProcessing.h"
 #endif // MODULE_ImageProcessing
+#ifdef MODULE_XBEE
+   #include "CXBEE.h"
+#endif // MODULE_XBEE
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -193,6 +196,12 @@ void CApplication::createBasicModules(void)
   m_RS232_cmucam   = new CRS232("RS232_cmucam");
   m_list_basic_modules.append(m_RS232_cmucam);
   m_list_modules.append(m_RS232_cmucam);
+#endif // MODULE_RS232
+
+#ifdef MODULE_RS232
+  m_RS232_xbee  = new CRS232("RS232_xbee");
+  m_list_basic_modules.append(m_RS232_xbee);
+  m_list_modules.append(m_RS232_xbee);
 #endif // MODULE_RS232
 
 #ifdef MODULE_Joystick
@@ -348,6 +357,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_ImageProcessing);
   m_list_modules.append(m_ImageProcessing);
 #endif // MODULE_ImageProcessing
+
+#ifdef MODULE_XBEE
+  m_XBEE     = new CXBEE("XBEE");
+  m_list_plugin_modules.append(m_XBEE);
+  m_list_modules.append(m_XBEE);
+#endif // MODULE_XBEE
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
