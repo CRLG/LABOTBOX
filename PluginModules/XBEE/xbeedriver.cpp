@@ -25,7 +25,6 @@ void XbeeDriver::setApplication(CApplication *application)
 // ________________________________________________________________
 void XbeeDriver::readyBytes(unsigned char *buff_data, unsigned char buff_size, unsigned short source_id)
 {
-    qDebug() << "XbeeDriver::readyBytes";
     m_application->m_XBEE->XbeeEvt_readyBytes(buff_data, buff_size, source_id);
 }
 
@@ -38,9 +37,9 @@ void XbeeDriver::write(unsigned char *buff_data, unsigned char buff_size)
 // ________________________________________________________________
 void XbeeDriver::delay_us(unsigned long delay)
 {
-    qDebug() << "XbeeDriver:" << "Xbee driver request a delay of " << delay << "usec";
-    //QThread::usleep(delay);
-    QTime dieTime= QTime::currentTime().addSecs(1);
+    //QThread::usleep(delay); // ne pas utiliser cette instruction dans ce cas car les données ne sont plus envoyées vers la RS232 (il faut rendre la main à la boucle principale)
+    int delay_ms = (delay <= 1000) ? 1 : (delay/1000);
+    QTime dieTime= QTime::currentTime().addMSecs(delay_ms);
      while (QTime::currentTime() < dieTime)
          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }

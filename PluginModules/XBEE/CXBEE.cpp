@@ -291,7 +291,7 @@ void CXBEE::XbeeEvt_write(unsigned char *buff_data, unsigned char buff_size)
 */
 void CXBEE::serialReadyBytes(QByteArray data)
 {
-    qDebug() << "serialReadyBytes" << data;
+    //qDebug() << "serialReadyBytes" << data;
     for (int i=0; i<data.size(); i++) {
         m_xbee_driver.decode(data[i]);
     }
