@@ -43,6 +43,7 @@ class CActuatorSequencer;
 class CBotCam;
 class CImageProcessing;
 class CXBEE;
+class CXbeeNetworkMessenger;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -154,6 +155,9 @@ public:
 #ifdef MODULE_XBEE
    CXBEE     *m_XBEE;
 #endif // MODULE_XBEE
+#ifdef MODULE_XbeeNetworkMessenger
+   CXbeeNetworkMessenger     *m_XbeeNetworkMessenger;
+#endif // MODULE_XbeeNetworkMessenger
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

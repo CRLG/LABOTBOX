@@ -90,6 +90,9 @@
 #ifdef MODULE_XBEE
    #include "CXBEE.h"
 #endif // MODULE_XBEE
+#ifdef MODULE_XbeeNetworkMessenger
+   #include "CXbeeNetworkMessenger.h"
+#endif // MODULE_XbeeNetworkMessenger
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -363,6 +366,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_XBEE);
   m_list_modules.append(m_XBEE);
 #endif // MODULE_XBEE
+
+#ifdef MODULE_XbeeNetworkMessenger
+  m_XbeeNetworkMessenger     = new CXbeeNetworkMessenger("XbeeNetworkMessenger");
+  m_list_plugin_modules.append(m_XbeeNetworkMessenger);
+  m_list_modules.append(m_XbeeNetworkMessenger);
+#endif // MODULE_XbeeNetworkMessenger
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

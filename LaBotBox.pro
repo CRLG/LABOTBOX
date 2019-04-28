@@ -54,6 +54,7 @@ LIST_PLUGIN_MODULES+= \
         #Ecran \
         ImageProcessing \ 
         XBEE \ 
+        XbeeNetworkMessenger \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -71,6 +72,7 @@ LIST_EXT_CPPROBLIB+= \
         Communication/Messenger/DatabaseXbeeNetwork2019 \
         Communication/XBEE \
 
+DEFINES+= MESSENGER_FULL
 # __________________________________________________
 # Ajouter ici les modules spécifiques à RaspberyPi
 RASPBERRY_PI {
