@@ -83,6 +83,7 @@ void CEcran::init(CApplication *application)
   m_application->m_data_center->write("Telemetre1",  -1);
   m_application->m_data_center->write("Vbat", -1);
   m_application->m_data_center->write("TempsMatch", -1);
+  m_application->m_data_center->write("Score", 0);
 
   m_ihm.ui.tps_dix->setNumber(0);
   m_ihm.ui.tps_unit->setNumber(0);
@@ -103,7 +104,7 @@ void CEcran::init(CApplication *application)
   connect(m_application->m_data_center->getData("Telemetre2"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre2_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre3_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre4"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre4_changed(QVariant)));
-
+  connect(m_application->m_data_center->getData("Score"), SIGNAL(valueChanged(QVariant)), this, SLOT(Score_changed(QVariant)));
 
 //  int modeMbed=m_application->m_data_center->getData("ModeFonctionnement")->read().toInt();
 //  if(modeMbed==1)
@@ -246,18 +247,18 @@ void CEcran::TpsMatch_changed(QVariant val)
         m_ihm.ui.tps_dix->setNumber(dizaine);
         m_ihm.ui.tps_unit->setNumber(unite);
     }
+}
 
-    if(m_ihm.ui.tabWidget->currentIndex()==3)
-    {
-        int Score=m_application->m_data_center->getData("Score")->read().toInt();
-        qDebug() << Score;
-        int centaine=qFloor(Score/100);
-        int dizaine=qFloor((Score-centaine*100)/10);
-        int unite=qAbs(Score-10*dizaine-100*centaine);
-        m_ihm.ui.score_cent->setNumber(centaine);
-        m_ihm.ui.score_dix->setNumber(dizaine);
-        m_ihm.ui.score_unit->setNumber(unite);
-    }
+void CEcran::Score_changed(QVariant val)
+{
+    int Score = val.toInt();
+    qDebug() << Score;
+    int centaine=qFloor(Score/100);
+    int dizaine=qFloor((Score-centaine*100)/10);
+    int unite=qAbs(Score-10*dizaine-100*centaine);
+    m_ihm.ui.score_cent->setNumber(centaine);
+    m_ihm.ui.score_dix->setNumber(dizaine);
+    m_ihm.ui.score_unit->setNumber(unite);
 }
 
 void CEcran::onRPI_Shutdown()

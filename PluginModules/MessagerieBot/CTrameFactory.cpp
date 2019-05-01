@@ -2333,7 +2333,9 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
 */
 void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 {
-    // Decode les signaux de la trame
+   // Decode les signaux de la trame
+   Score=( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[3])) & 0xFF) << 8 );
+
    ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x3)<< 6 );
 
    DiagBlocage = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x1)<< 5 );
@@ -2346,10 +2348,6 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 
    TempsMatch = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
-   Score=( ( ((long)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((long)(trameRecue->Data[3])) & 0xFF) << 8 );
-
-
-
    // Envoie les données au data manager
    m_data_manager->write("ObstacleDetecte", BRUTE2PHYS_ObstacleDetecte(ObstacleDetecte));
    m_data_manager->write("DiagBlocage", BRUTE2PHYS_DiagBlocage(DiagBlocage));
@@ -2357,7 +2355,7 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write("ModeFonctionnement", BRUTE2PHYS_ModeFonctionnement(ModeFonctionnement));
    m_data_manager->write("CouleurEquipe", CouleurEquipe);
    m_data_manager->write("TempsMatch", BRUTE2PHYS_TempsMatch(TempsMatch));
-   m_data_manager->write("Score", BRUTE2PHYS_TempsMatch(Score));
+   m_data_manager->write("Score", Score);
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

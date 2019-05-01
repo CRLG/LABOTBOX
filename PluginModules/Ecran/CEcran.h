@@ -69,6 +69,7 @@ private slots :
     void Telemetre2_changed(QVariant val);
     void Telemetre3_changed(QVariant val);
     void Telemetre4_changed(QVariant val);
+    void Score_changed(QVariant val);
     void onRPI_Shutdown();
     void onRPI_Reboot();
 };
