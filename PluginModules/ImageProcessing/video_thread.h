@@ -27,6 +27,7 @@ typedef struct
 {
     float result1;
     float result2;
+    float result3;
     std::vector <int>markers_detected;
 }tVideoResult;
 
@@ -40,10 +41,11 @@ class VideoWorker : public QObject
     Q_OBJECT
 public :
     VideoWorker();
-    void init(QString video_name);
+    void init(int video_id, QString parameter_file);
 
 private :
     QString m_video_name;
+    int m_video_id;
     bool m_stop_work_request;
     bool m_dbg_active;
 

@@ -61,13 +61,14 @@ private:
     QList<QCameraInfo> m_cameras;
     QThread m_video_worker_thread;
     VideoWorker *m_video_worker;
+    QString m_camera_parameters;
 
     void refresh_camera_list();
 
 private slots :
     void onRightClicGUI(QPoint pos);
 
-     void video_worker_init(QString video_source);
+     void video_worker_init(int video_source_id);
 
 public slots:
      void videoHandleResults(tVideoResult result);

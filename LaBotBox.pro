@@ -50,7 +50,7 @@ LIST_PLUGIN_MODULES+= \
         SensorView \ 
         Asserv \ 
         ActuatorSequencer \
-        BotCam \
+        #BotCam \
         #Ecran \
         ImageProcessing \ 
         XBEE \ 

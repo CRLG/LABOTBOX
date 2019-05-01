@@ -76,6 +76,9 @@ void CImageProcessing::init(CApplication *application)
   // Restore la couleur de fond
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
+  //parametres intrinseques de la camera
+  val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant(0));
+  m_camera_parameters=val.toString();
 }
 
 
@@ -117,19 +120,22 @@ void CImageProcessing::refresh_camera_list()
         m_ihm.ui.video_devices_list->insertItem(i++, cameraInfo.deviceName());
     }
 
+    if(m_ihm.ui.video_devices_list->count()>0)
+        m_ihm.ui.video_devices_list->setCurrentRow(0);
+
     // insert a dummy camera (for test)
-    m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy1");
-    m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy2");
+    //m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy1");
+    //m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy2");
 }
 
 // ______________________________________________________________________________
-void CImageProcessing::video_worker_init(QString video_source_name)
+void CImageProcessing::video_worker_init(int video_source_id)
 {
     qRegisterMetaType<tVideoInput>();
     qRegisterMetaType<tVideoResult>();
 
     m_video_worker = new VideoWorker;
-    m_video_worker->init(video_source_name);
+    m_video_worker->init(video_source_id,m_camera_parameters);
     m_video_worker->moveToThread(&m_video_worker_thread);
     connect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
     connect(&m_video_worker_thread, &QThread::finished, this, &CImageProcessing::videoThreadStopped);
@@ -145,11 +151,11 @@ void CImageProcessing::video_worker_init(QString video_source_name)
 // ======================================================================
 void CImageProcessing::videoHandleResults(tVideoResult result)
 {
-    qDebug() << "Video result available:";
+    /*qDebug() << "Video result available:";
     qDebug() << "   result1:" << result.result1;
-    qDebug() << "   result2:" << result.result2;
+    qDebug() << "   result2:" << result.result2;*/
     m_ihm.ui.out_data1->setValue(result.result1);
-    m_ihm.ui.out_data2->setValue(result.result2);
+    m_ihm.ui.out_data2->setValue(result.result3);
 }
 
 void CImageProcessing::videoWorkStarted()
@@ -184,14 +190,16 @@ void CImageProcessing::initVideoThread()
 {
     if (m_video_worker == NULL) {
         // récupère le nom du port vidéo sélectionné
-        QList<QListWidgetItem*> list_items = m_ihm.ui.video_devices_list->selectedItems();
+        /*QList<QListWidgetItem*> list_items = m_ihm.ui.video_devices_list->selectedItems();
         QString video_source_name = "";
         if (list_items.count() != 0) {
             video_source_name = list_items.at(0)->text();
-        }
-        qDebug() << video_source_name;
+        }*/
+        int video_source_id=0;
+        video_source_id=m_ihm.ui.video_devices_list->currentRow();
+        qDebug() << "Video device:("<<m_ihm.ui.video_devices_list->currentItem()->text()<<","<<video_source_id;
 
-        video_worker_init(video_source_name);
+        video_worker_init(video_source_id);
     }
 
     if (m_video_worker != NULL) {

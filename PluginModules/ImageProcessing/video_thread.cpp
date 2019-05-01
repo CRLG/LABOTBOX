@@ -22,16 +22,17 @@ void VideoWorker::activeDebug(bool on_off)
 
 // ======================================================
 // ======================================================
-void VideoWorker::init(QString video_name)
+void VideoWorker::init(int video_id, QString parameter_file)
 {
-    m_video_name = video_name;
+    //m_video_name = video_name;
+    m_video_id=video_id;
     //!TODO : transformer le nom du port vidéo en index pour OpenCV
     capture= new cv::VideoCapture(0);
     if(capture->isOpened())
      {
          qDebug()<<"La caméra est opérationnelle.";
          //infos de debug
-         qDebug() << endl <<"camera choisie :" << video_name;
+         qDebug() << endl <<"camera choisie :" << video_id;
          int FourCC=capture->get(CV_CAP_PROP_FOURCC);
          qDebug("FOURCC code: %c%c%c%c", FourCC, FourCC>>8, FourCC>>16, FourCC>>24);
          qDebug() << "Has to be converted to RGB :" << capture->get(CV_CAP_PROP_CONVERT_RGB); //((capture->get(CV_CAP_PROP_CONVERT_RGB)==1) ? "YES":"NO");
@@ -39,13 +40,16 @@ void VideoWorker::init(QString video_name)
          qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,320)) ? "OK" : "NOK") << endl;
          cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
 
-         //calibration de la caméra, il faudra passer le fichier en .ini
-         cv::FileStorage fs("cam_parameters_pc.txt", cv::FileStorage::READ);
+         //calibration de la caméra
+         qDebug() << "Fichier de calibration choisi:"<<parameter_file;
+         cv::FileStorage fs(parameter_file.toStdString(),cv::FileStorage::READ);
+         //cv::FileStorage fs("cam_parameters_pc.txt", cv::FileStorage::READ);
          if(fs.isOpened())
          {
          fs["camera_matrix"] >> camMatrix;
          fs["distortion_coefficients"] >> distCoeffs;
          bCalibrated=true;
+         qDebug() << "Camera calibrée";
          }
          else
              bCalibrated=false;
@@ -53,8 +57,6 @@ void VideoWorker::init(QString video_name)
      }
      else
          qDebug() << endl << "Caméra inopérante :-(" << endl;
-
-
 }
 
 // _________________________________________________________________
@@ -118,6 +120,7 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
 
         if (markerIds.size() > 0)
         {
+
             //on dessine les marqueurs trouvés
             if (m_dbg_active)
                 cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
@@ -129,10 +132,16 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
             cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
             qDebug() << 100*tvecs[0][2] << "cm";
             }*/
-            cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[0], tvecs[0], markerLength * 0.5f);
-            result.result1 = 100*tvecs[0][2];
+            for(unsigned int i = 0; i < markerIds.size(); i++){
+            if(markerIds.at(i)==5){
+            cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+            result.result1 = tvecs[i][0];
+            result.result2 = tvecs[i][1];
+            result.result3 = tvecs[i][2];
             result.markers_detected = markerIds;
-            emit resultReady(result);
+            }
+            emit resultReady(result);}
+
         }
 
         //on affiche l'image traitée
