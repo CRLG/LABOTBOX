@@ -26,8 +26,11 @@ void VideoWorker::init(int video_id, QString parameter_file)
 {
     //m_video_name = video_name;
     m_video_id=video_id;
-    //!TODO : transformer le nom du port vidéo en index pour OpenCV
-    capture= new cv::VideoCapture(0);
+    //ouverture de la vidéo
+    capture= new cv::VideoCapture(m_video_id);
+    if(!(capture->isOpened()))
+        capture= new cv::VideoCapture(-1);
+
     if(capture->isOpened())
      {
          qDebug()<<"La caméra est opérationnelle.";
@@ -38,12 +41,12 @@ void VideoWorker::init(int video_id, QString parameter_file)
          qDebug() << "Has to be converted to RGB :" << capture->get(CV_CAP_PROP_CONVERT_RGB); //((capture->get(CV_CAP_PROP_CONVERT_RGB)==1) ? "YES":"NO");
          qDebug() << "Set height to 240 :" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,240)) ? "OK" : "NOK");
          qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,320)) ? "OK" : "NOK") << endl;
-         cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
+         //cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
 
          //calibration de la caméra
          qDebug() << "Fichier de calibration choisi:"<<parameter_file;
-         cv::FileStorage fs(parameter_file.toStdString(),cv::FileStorage::READ);
-         //cv::FileStorage fs("cam_parameters_pc.txt", cv::FileStorage::READ);
+         //cv::FileStorage fs(parameter_file.toStdString(),cv::FileStorage::READ);
+         cv::FileStorage fs("cam_parameters_pc.txt", cv::FileStorage::READ);
          if(fs.isOpened())
          {
          fs["camera_matrix"] >> camMatrix;
@@ -53,10 +56,12 @@ void VideoWorker::init(int video_id, QString parameter_file)
          }
          else
              bCalibrated=false;
-         markerLength=2.2;
+         markerLength=7;
      }
      else
+    {
          qDebug() << endl << "Caméra inopérante :-(" << endl;
+    }
 }
 
 // _________________________________________________________________
@@ -115,15 +120,17 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
         std::vector<int> markerIds;
         std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
         std::vector< cv::Vec3d > rvecs, tvecs;
+
         cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
         cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
+
 
         if (markerIds.size() > 0)
         {
 
             //on dessine les marqueurs trouvés
             if (m_dbg_active)
-                cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
+            cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
             //on estime leur position en 3D par rapport à la caméra
             cv::aruco::estimatePoseSingleMarkers(markerCorners, markerLength, camMatrix, distCoeffs, rvecs,tvecs);
             //on donne la valeur normale à la caméra dans la console pour cahque marqueur
@@ -132,21 +139,51 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
             cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
             qDebug() << 100*tvecs[0][2] << "cm";
             }*/
-            for(unsigned int i = 0; i < markerIds.size(); i++){
-            if(markerIds.at(i)==5){
-            cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-            result.result1 = tvecs[i][0];
-            result.result2 = tvecs[i][1];
-            result.result3 = tvecs[i][2];
-            result.markers_detected = markerIds;
+            for(unsigned int i = 0; i < markerIds.size(); i++)
+            {
+                if(markerIds.at(i)==1)
+                {
+                    cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+                    result.result1 = tvecs[i][0];
+                    result.result2 = tvecs[i][1];
+                    result.result3 = tvecs[i][2];
+                    result.markers_detected = markerIds;
+                }
+
             }
-            emit resultReady(result);}
 
         }
+        else
+        {
+            result.result1 = 0;
+            result.result2 = 0;
+            result.result3 = 0;
+            //result.markers_detected = markerIds;
+        }
+
+        //recuperation des hauteurs et largeur de l'image
+        int iH = m_frameCloned.rows;
+        int iL = m_frameCloned.cols;
+
+        QImage imgConst(iL,iH,QImage::Format_RGB888); //image du buffer video au format Qt
 
         //on affiche l'image traitée
         if (m_dbg_active)
-            cv::imshow("capture",m_frameCloned);
+        {
+
+
+        //recuperation des donnees de la frame
+        //et referencement dans l'image Qt
+        //ATTENTION: pas de copie des donnees -> garbage collector
+        const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
+        //cv::imwrite("tata.jpg",frame);
+        QImage img(qImageBuffer, iL, iH, QImage::Format_RGB888);
+
+        //copie complete de l'image pour eviter une desallocation sauvage de la frame
+        imgConst=img.copy(QRect(0,0,iL,iH));
+        }
+
+        emit resultReady(result,imgConst);
 
         //QThread::msleep(5);
         inputImage.release();
@@ -177,7 +214,8 @@ void VideoWorker::_video_process_dummy(tVideoInput parameter)
         QThread::sleep(1);
         result.result1 = parameter.data1;
         result.result2 += parameter.data3 + 0.1 ;
-        emit resultReady(result);
+                QImage img( 320, 240, QImage::Format_RGB888);
+        emit resultReady(result,img);
         if (m_dbg_active) {
             qDebug() << "Thread is still running" << ((float)i/total_count)*100. << "%";
         }

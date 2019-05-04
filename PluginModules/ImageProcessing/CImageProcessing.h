@@ -8,6 +8,7 @@
 #include <QMainWindow>
 #include <QThread>
 #include <QCameraInfo>
+#include <QImage>
 
 #include "CPluginModule.h"
 #include "ui_ihm_ImageProcessing.h"
@@ -71,7 +72,7 @@ private slots :
      void video_worker_init(int video_source_id);
 
 public slots:
-     void videoHandleResults(tVideoResult result);
+     void videoHandleResults(tVideoResult result,QImage imgConst);
      void videoThreadStopped();
      void videoWorkStarted();
      void videoWorkFinished();

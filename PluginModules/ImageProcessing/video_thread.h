@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QImage>
 #include <QDebug>
 #include "opencv2/opencv.hpp"
 #include <opencv2/highgui.hpp>
@@ -65,7 +66,7 @@ public slots:
     void activeDebug(bool on_off=true);
 
 signals:
-    void resultReady(tVideoResult result);
+    void resultReady(tVideoResult result,QImage imgConst);
     void workStarted();
     void workFinished();
 

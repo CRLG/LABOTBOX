@@ -140,7 +140,7 @@ void CImageProcessing::video_worker_init(int video_source_id)
     connect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
     connect(&m_video_worker_thread, &QThread::finished, this, &CImageProcessing::videoThreadStopped);
     connect(this, SIGNAL(operate(tVideoInput)), m_video_worker, SLOT(doWork(tVideoInput)));
-    connect(m_video_worker, SIGNAL(resultReady(tVideoResult)), this, SLOT(videoHandleResults(tVideoResult)));
+    connect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
     connect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
     connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
     m_video_worker_thread.start();
@@ -149,13 +149,17 @@ void CImageProcessing::video_worker_init(int video_source_id)
 // ======================================================================
 // Video Worker events
 // ======================================================================
-void CImageProcessing::videoHandleResults(tVideoResult result)
+void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
 {
     /*qDebug() << "Video result available:";
     qDebug() << "   result1:" << result.result1;
     qDebug() << "   result2:" << result.result2;*/
     m_ihm.ui.out_data1->setValue(result.result1);
-    m_ihm.ui.out_data2->setValue(result.result3);
+    m_ihm.ui.out_data2->setValue(result.result2);
+    m_ihm.ui.out_data3->setValue(result.result3);
+    m_ihm.ui.label_5->setPixmap(QPixmap::fromImage(imgConst));
+    //QFrame toto;
+
 }
 
 void CImageProcessing::videoWorkStarted()
@@ -196,8 +200,15 @@ void CImageProcessing::initVideoThread()
             video_source_name = list_items.at(0)->text();
         }*/
         int video_source_id=0;
-        video_source_id=m_ihm.ui.video_devices_list->currentRow();
-        qDebug() << "Video device:("<<m_ihm.ui.video_devices_list->currentItem()->text()<<","<<video_source_id;
+        if(m_ihm.ui.video_devices_list->count()>0)
+        {
+            video_source_id=m_ihm.ui.video_devices_list->currentRow();
+
+            qDebug() << "Video device:("<<m_ihm.ui.video_devices_list->currentItem()->text()<<","<<video_source_id<<")";
+        }
+        else
+            qDebug() << "No video device chosen: try with the first one if any";
+
 
         video_worker_init(video_source_id);
     }
