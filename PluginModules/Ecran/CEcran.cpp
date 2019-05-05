@@ -76,6 +76,7 @@ void CEcran::init(CApplication *application)
 
   // S'assure que les données existent dans le DataManager
   m_application->m_data_center->write("CouleurEquipe",  -1);
+  m_application->m_data_center->write("NumStrategie",  -1);
   m_application->m_data_center->write("ModeFonctionnement",  -1);
   m_application->m_data_center->write("Telemetre4",  -1);
   m_application->m_data_center->write("Telemetre3",  -1);
@@ -91,12 +92,14 @@ void CEcran::init(CApplication *application)
 
   connect(m_ihm.ui.pB_Couleur1,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
   connect(m_ihm.ui.pB_Couleur2,SIGNAL(clicked(bool)),this,SLOT(onClicColorButton()));
+  connect(m_ihm.ui.combo_ChoixStrategie,SIGNAL(activated(int)),this,SLOT(onStrategyChoice_changed(int)));
   connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
   connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
 
   //pour le mode visu on se connecte aux changements du datamanager
 
   connect(m_application->m_data_center->getData("CouleurEquipe"), SIGNAL(valueChanged(QVariant)), this, SLOT(CouleurEquipe_changed(QVariant)));
+  connect(m_application->m_data_center->getData("NumStrategie"), SIGNAL(valueChanged(QVariant)), this, SLOT(NumStrategie_changed(QVariant)));
   connect(m_application->m_data_center->getData("ModeFonctionnement"), SIGNAL(valueUpdated(QVariant)), this, SLOT(ModeFonctionnement_changed(QVariant)));
   connect(m_application->m_data_center->getData("Vbat"), SIGNAL(valueChanged(QVariant)), this, SLOT(Vbat_changed(QVariant)));
   connect(m_application->m_data_center->getData("TempsMatch"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
@@ -112,6 +115,8 @@ void CEcran::init(CApplication *application)
 
   m_ihm.ui.qLed_green->setVisible(false);
   m_ihm.ui.qLed_orange->setVisible(false);
+
+  initStrategies();
 }
 
 
@@ -285,3 +290,65 @@ void CEcran::onRPI_Reboot()
     }
 }
 
+// =======================================================
+//                    STRATEGY
+// =======================================================
+void CEcran::initStrategies()
+{
+    QStringList list;
+    // Lettre ici tous les numéros de stratégie possible
+    // Seuls les numéros déclarés dans la liste ci-dessous seront proposés dans la liste déroulante
+    list << strategyNumToString(0)
+         << strategyNumToString(1)
+         << strategyNumToString(2)
+         << strategyNumToString(3)
+         << strategyNumToString(4)
+         << strategyNumToString(5)
+         << strategyNumToString(6)
+         << strategyNumToString(7);
+    m_ihm.ui.combo_ChoixStrategie->addItems(list);
+}
+
+QString CEcran::strategyNumToString(unsigned char num)
+{
+    // Correspondance entre un numéro et un nom de stratégie
+    // Possibilité de mettre des noms plus parlants si besoin
+    switch(num) {
+        case 0 : return "Homolo 1";
+        case 1 : return "Homolo 2";
+        case 2 : return "Strategie 1";
+        case 3 : return "Strategie 2";
+        case 4 : return "Strategie 3";
+        case 5 : return "Strategie 4";
+        case 6 : return "Strategie 5";
+        case 7 : return "Strategie 6";
+        default : return "!! UNKNOWN STRATEGY: " + QString::number(num);
+    }
+}
+
+void CEcran::onStrategyChoice_changed(int val)
+{
+    m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", true);
+    m_application->m_data_center->write("valeur_etat_ecran", val);
+    m_application->m_data_center->write("commande_etat_ecran", LBB_CMDE_CHOIX_NUMERO_STRATEGIE);
+    m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", false);
+    checkStrategyMatch();
+}
+
+void CEcran::NumStrategie_changed(QVariant val)
+{
+   m_ihm.ui.lbl_RetourStrategie->setText(strategyNumToString(val.toInt()));
+   checkStrategyMatch();
+}
+
+void CEcran::checkStrategyMatch()
+{
+    CData *data = m_application->m_data_center->getData("NumStrategie");
+    if (!data) return;
+    if (data->read().toInt() == m_ihm.ui.combo_ChoixStrategie->currentIndex()) {
+        m_ihm.ui.lbl_RetourStrategie->setStyleSheet(QStringLiteral("color: rgb(78, 154, 6);")); // vert
+    }
+    else  {
+        m_ihm.ui.lbl_RetourStrategie->setStyleSheet(QStringLiteral("color: rgb(239, 41, 41);")); // rouge
+    }
+}

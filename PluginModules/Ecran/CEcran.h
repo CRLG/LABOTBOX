@@ -58,6 +58,10 @@ private:
     Cihm_Ecran m_ihm;
     QColor initColor;
 
+    void initStrategies();
+    QString strategyNumToString(unsigned char num);
+    void checkStrategyMatch();
+
 private slots :
     void onRightClicGUI(QPoint pos);
     void onClicColorButton(void);
@@ -70,8 +74,10 @@ private slots :
     void Telemetre3_changed(QVariant val);
     void Telemetre4_changed(QVariant val);
     void Score_changed(QVariant val);
+    void NumStrategie_changed(QVariant val);
     void onRPI_Shutdown();
     void onRPI_Reboot();
+    void onStrategyChoice_changed(int val);
 };
 
 #endif // _CBASIC_MODULE_Ecran_H_

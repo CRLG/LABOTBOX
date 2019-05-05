@@ -904,7 +904,7 @@ private slots :
 //             TRAME ECRAN_ETAT_MATCH
 // ========================================================
 #define ID_ECRAN_ETAT_MATCH 0x41
-#define DLC_ECRAN_ETAT_MATCH 5
+#define DLC_ECRAN_ETAT_MATCH 6
 #define BRUTE2PHYS_ObstacleDetecte(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_ObstacleDetecte(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_DiagBlocage(val) ( ((float)val * (1.000000)) + (0.000000) )
@@ -934,6 +934,7 @@ public :
     unsigned char ConvergenceAsserv;
     unsigned char ModeFonctionnement;
     unsigned char CouleurEquipe;
+    unsigned char NumStrategie;
     unsigned char TempsMatch;
     unsigned short Score;
 

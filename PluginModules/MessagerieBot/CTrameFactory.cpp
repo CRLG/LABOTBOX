@@ -2334,6 +2334,8 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
 void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 {
    // Decode les signaux de la trame
+   NumStrategie = ( ( ((unsigned char)(trameRecue->Data[5])) & 0xFF) );
+
    Score=( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[3])) & 0xFF) << 8 );
 
    ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x3)<< 6 );
@@ -2356,6 +2358,7 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write("CouleurEquipe", CouleurEquipe);
    m_data_manager->write("TempsMatch", BRUTE2PHYS_TempsMatch(TempsMatch));
    m_data_manager->write("Score", Score);
+   m_data_manager->write("NumStrategie", NumStrategie);
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }
