@@ -150,8 +150,16 @@
           </item>
           <item row="1" column="0" colspan="3">
            <widget class="QComboBox" name="combo_ChoixStrategie">
+            <property name="font">
+             <font>
+              <pointsize>15</pointsize>
+             </font>
+            </property>
             <property name="toolTip">
              <string>Choix d'une stratégie</string>
+            </property>
+            <property name="currentText">
+             <string/>
             </property>
            </widget>
           </item>
