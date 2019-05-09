@@ -56,6 +56,8 @@ public:
     void messengerEncodeRequest(unsigned char *buff_data, unsigned short buff_size, unsigned short dest_address);
     void messengerDisplayAnalyzer(QString str_msg);
 
+    DatabaseXbeeNetwork2019* getDatabase();
+
 private:
     Cihm_XbeeNetworkMessenger m_ihm;
     XbeeMessenger m_xbee_messenger;

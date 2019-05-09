@@ -44,6 +44,7 @@ class CBotCam;
 class CImageProcessing;
 class CXBEE;
 class CXbeeNetworkMessenger;
+class CBalise;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -158,6 +159,9 @@ public:
 #ifdef MODULE_XbeeNetworkMessenger
    CXbeeNetworkMessenger     *m_XbeeNetworkMessenger;
 #endif // MODULE_XbeeNetworkMessenger
+#ifdef MODULE_Balise
+   CBalise     *m_Balise;
+#endif // MODULE_Balise
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

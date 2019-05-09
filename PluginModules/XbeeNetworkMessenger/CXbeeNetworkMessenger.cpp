@@ -123,7 +123,11 @@ void CXbeeNetworkMessenger::onRightClicGUI(QPoint pos)
   menu->exec(m_ihm.mapToGlobal(pos));
 }
 
-
+// _____________________________________________________________________
+DatabaseXbeeNetwork2019* CXbeeNetworkMessenger::getDatabase()
+{
+    return &m_xbee_messenger.m_database;
+}
 
 // _____________________________________________________________________
 /*!

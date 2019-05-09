@@ -55,6 +55,7 @@ LIST_PLUGIN_MODULES+= \
         ImageProcessing \ 
         XBEE \ 
         XbeeNetworkMessenger \ 
+        Balise \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

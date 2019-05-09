@@ -93,6 +93,9 @@
 #ifdef MODULE_XbeeNetworkMessenger
    #include "CXbeeNetworkMessenger.h"
 #endif // MODULE_XbeeNetworkMessenger
+#ifdef MODULE_Balise
+   #include "CBalise.h"
+#endif // MODULE_Balise
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -372,6 +375,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_XbeeNetworkMessenger);
   m_list_modules.append(m_XbeeNetworkMessenger);
 #endif // MODULE_XbeeNetworkMessenger
+
+#ifdef MODULE_Balise
+  m_Balise     = new CBalise("Balise");
+  m_list_plugin_modules.append(m_Balise);
+  m_list_modules.append(m_Balise);
+#endif // MODULE_Balise
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
