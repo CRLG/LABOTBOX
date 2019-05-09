@@ -108,6 +108,10 @@ void CEcran::init(CApplication *application)
   connect(m_application->m_data_center->getData("Telemetre3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre3_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre4"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre4_changed(QVariant)));
   connect(m_application->m_data_center->getData("Score"), SIGNAL(valueChanged(QVariant)), this, SLOT(Score_changed(QVariant)));
+  connect(m_application->m_data_center->getData("ObstacleDetecte"), SIGNAL(valueChanged(QVariant)), this, SLOT(ObstacleDetecte_changed(QVariant)));
+  connect(m_application->m_data_center->getData("DiagBlocage"), SIGNAL(valueChanged(QVariant)), this, SLOT(DiagBlocage_changed(QVariant)));
+  connect(m_application->m_data_center->getData("ConvergenceAsserv"), SIGNAL(valueChanged(QVariant)), this, SLOT(ConvergenceAsserv_changed(QVariant)));
+
 
 //  int modeMbed=m_application->m_data_center->getData("ModeFonctionnement")->read().toInt();
 //  if(modeMbed==1)
@@ -232,18 +236,6 @@ void CEcran::TpsMatch_changed(QVariant val)
        m_ihm.ui.sb_x->setValue(m_application->m_data_center->getData("x_pos")->read().toDouble());
        m_ihm.ui.sb_y->setValue(m_application->m_data_center->getData("y_pos")->read().toDouble());
        m_ihm.ui.sb_teta->setValue(m_application->m_data_center->getData("teta_pos")->read().toDouble());
-
-       QVariant val=m_application->m_data_center->getData("DiagBlocage")->read();
-       if(val.toBool()) m_ihm.ui.qLed_bloc->setValue(true);
-       else m_ihm.ui.qLed_bloc->setValue(true);
-       QVariant val2=m_application->m_data_center->getData("ObstacleDetecte")->read();
-       if(val2.toBool()) m_ihm.ui.qLed_obst->setValue(true);
-       else m_ihm.ui.qLed_bloc->setValue(true);
-       QVariant val3=m_application->m_data_center->getData("ConvergenceAsserv")->read();
-       if(val3.toBool()) m_ihm.ui.qLed_conv->setValue(true);
-       else m_ihm.ui.qLed_bloc->setValue(true);
-
-
     }
     if(m_ihm.ui.tabWidget->currentIndex()==2)
     {
@@ -264,6 +256,22 @@ void CEcran::Score_changed(QVariant val)
     m_ihm.ui.score_cent->setNumber(centaine);
     m_ihm.ui.score_dix->setNumber(dizaine);
     m_ihm.ui.score_unit->setNumber(unite);
+}
+
+void CEcran::ObstacleDetecte_changed(QVariant val)
+{
+    m_ihm.ui.qLed_obst->setValue(val.toBool());
+    m_ihm.ui.qLed_Obstacle->setValue(val.toBool());
+}
+
+void CEcran::DiagBlocage_changed(QVariant val)
+{
+    m_ihm.ui.qLed_bloc->setValue(val.toBool());
+}
+
+void CEcran::ConvergenceAsserv_changed(QVariant val)
+{
+    m_ihm.ui.qLed_conv->setValue(val.toBool());
 }
 
 void CEcran::onRPI_Shutdown()

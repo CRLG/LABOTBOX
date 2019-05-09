@@ -75,6 +75,9 @@ private slots :
     void Telemetre4_changed(QVariant val);
     void Score_changed(QVariant val);
     void NumStrategie_changed(QVariant val);
+    void ObstacleDetecte_changed(QVariant val);
+    void DiagBlocage_changed(QVariant val);
+    void ConvergenceAsserv_changed(QVariant val);
     void onRPI_Shutdown();
     void onRPI_Reboot();
     void onStrategyChoice_changed(int val);
