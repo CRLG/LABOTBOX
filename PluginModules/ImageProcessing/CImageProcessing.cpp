@@ -83,18 +83,18 @@ void CImageProcessing::init(CApplication *application)
   // Crée les variables dans le data manager
   // 3 jeux de données (X, Y, Teta) par robot
   // 4 robots possibles gérés par le plugin (Grosbot, Minibot, robot adverse n°1, robot adverse n°2)
-  m_application->m_data_center->write("Robot1_X",  -1);
-  m_application->m_data_center->write("Robot1_Y",  -1);
-  m_application->m_data_center->write("Robot1_Teta",  -1);
-  m_application->m_data_center->write("Robot2_X",  -1);
-  m_application->m_data_center->write("Robot2_Y",  -1);
-  m_application->m_data_center->write("Robot2_Teta",  -1);
-  m_application->m_data_center->write("Robot3_X",  -1);
-  m_application->m_data_center->write("Robot3_Y",  -1);
-  m_application->m_data_center->write("Robot3_Teta",  -1);
-  m_application->m_data_center->write("Robot4_X",  -1);
-  m_application->m_data_center->write("Robot4_Y",  -1);
-  m_application->m_data_center->write("Robot4_Teta",  -1);
+  m_application->m_data_center->write("Robot1_X",  -32000);
+  m_application->m_data_center->write("Robot1_Y",  -32000);
+  m_application->m_data_center->write("Robot1_Teta",  -32000);
+  m_application->m_data_center->write("Robot2_X",  -32000);
+  m_application->m_data_center->write("Robot2_Y",  -32000);
+  m_application->m_data_center->write("Robot2_Teta",  -32000);
+  m_application->m_data_center->write("Robot3_X",  -32000);
+  m_application->m_data_center->write("Robot3_Y",  -32000);
+  m_application->m_data_center->write("Robot3_Teta",  -32000);
+  m_application->m_data_center->write("Robot4_X",  -32000);
+  m_application->m_data_center->write("Robot4_Y",  -32000);
+  m_application->m_data_center->write("Robot4_Teta",  -32000);
 }
 
 

@@ -76,29 +76,29 @@ void CBalise::init(CApplication *application)
   // Coordonnées X, Y, Teta pour les 4 robots détectés par le module de traitement d'image
   // + coordonnées X, Y, Teta remonté par Grosbot
   // + coordonnées X, Y, Teta remonté par Minibot
-  m_application->m_data_center->write("Robot1_X",  -1);
-  m_application->m_data_center->write("Robot1_Y",  -1);
-  m_application->m_data_center->write("Robot1_Teta",  -1);
+  m_application->m_data_center->write("Robot1_X",  -32000);
+  m_application->m_data_center->write("Robot1_Y",  -32000);
+  m_application->m_data_center->write("Robot1_Teta",  -32000);
 
-  m_application->m_data_center->write("Robot2_X",  -1);
-  m_application->m_data_center->write("Robot2_Y",  -1);
-  m_application->m_data_center->write("Robot2_Teta",  -1);
+  m_application->m_data_center->write("Robot2_X",  -32000);
+  m_application->m_data_center->write("Robot2_Y",  -32000);
+  m_application->m_data_center->write("Robot2_Teta",  -32000);
 
-  m_application->m_data_center->write("Robot3_X",  -1);
-  m_application->m_data_center->write("Robot3_Y",  -1);
-  m_application->m_data_center->write("Robot3_Teta",  -1);
+  m_application->m_data_center->write("Robot3_X",  -32000);
+  m_application->m_data_center->write("Robot3_Y",  -32000);
+  m_application->m_data_center->write("Robot3_Teta",  -32000);
 
-  m_application->m_data_center->write("Robot4_X",  -1);
-  m_application->m_data_center->write("Robot4_Y",  -1);
-  m_application->m_data_center->write("Robot4_Teta",  -1);
+  m_application->m_data_center->write("Robot4_X",  -32000);
+  m_application->m_data_center->write("Robot4_Y",  -32000);
+  m_application->m_data_center->write("Robot4_Teta",  -32000);
 
-  m_application->m_data_center->write("GROSBOT_POSITION.Position_X",  -1);
-  m_application->m_data_center->write("GROSBOT_POSITION.Position_Y",  -1);
-  m_application->m_data_center->write("GROSBOT_POSITION.Angle",  -1);
+  m_application->m_data_center->write("GROSBOT_POSITION.Position_X",  -32000);
+  m_application->m_data_center->write("GROSBOT_POSITION.Position_Y",  -32000);
+  m_application->m_data_center->write("GROSBOT_POSITION.Angle",  -32000);
 
-  m_application->m_data_center->write("ROBOTLEGO_STATUS.Position_X",  -1);
-  m_application->m_data_center->write("ROBOTLEGO_STATUS.Position_Y",  -1);
-  m_application->m_data_center->write("ROBOTLEGO_STATUS.Angle",  -1);
+  m_application->m_data_center->write("ROBOTLEGO_STATUS.Position_X",  -32000);
+  m_application->m_data_center->write("ROBOTLEGO_STATUS.Position_Y",  -32000);
+  m_application->m_data_center->write("ROBOTLEGO_STATUS.Angle",  -32000);
 
    m_application->m_data_center->write("TIMESTAMP_MATCH.Timestamp", -1);
 
