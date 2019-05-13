@@ -83,7 +83,13 @@ private slots :
     void Grosbot_Position_changed();
     void Minibot_Position_changed();
 
+    void video_state_changed(QVariant val);
+    void grosbot_present_changed(QVariant val);
+
     void tick_Log();
+
+    void onRPI_Shutdown();
+    void onRPI_Reboot();
 };
 
 #endif // _CPLUGIN_MODULE_Balise_H_

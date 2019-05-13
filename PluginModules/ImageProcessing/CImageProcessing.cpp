@@ -95,6 +95,7 @@ void CImageProcessing::init(CApplication *application)
   m_application->m_data_center->write("Robot4_X",  -32000);
   m_application->m_data_center->write("Robot4_Y",  -32000);
   m_application->m_data_center->write("Robot4_Teta",  -32000);
+  m_application->m_data_center->write("VideoActive", 0);
 }
 
 

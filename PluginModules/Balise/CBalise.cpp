@@ -3,6 +3,8 @@
  * A more elaborated file description.
  */
 #include <QDebug>
+#include <QMessageBox>
+#include <QProcess>
 #include "CBalise.h"
 #include "CApplication.h"
 #include "CPrintView.h"
@@ -100,7 +102,10 @@ void CBalise::init(CApplication *application)
   m_application->m_data_center->write("ROBOTLEGO_STATUS.Position_Y",  -32000);
   m_application->m_data_center->write("ROBOTLEGO_STATUS.Angle",  -32000);
 
-   m_application->m_data_center->write("TIMESTAMP_MATCH.Timestamp", -1);
+  m_application->m_data_center->write("TIMESTAMP_MATCH.Timestamp", -1);
+  m_application->m_data_center->write("XbeeMsngNodePresent.GROSBOT", 0);
+
+  m_application->m_data_center->write("VideoActive", 0);
 
   connect(m_application->m_data_center->getData("Robot1_X"), SIGNAL(valueChanged(QVariant)), this, SLOT(Robot1_DetectedPosition_changed()));
   connect(m_application->m_data_center->getData("Robot1_Y"), SIGNAL(valueChanged(QVariant)), this, SLOT(Robot1_DetectedPosition_changed()));
@@ -121,7 +126,13 @@ void CBalise::init(CApplication *application)
   connect(m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_Y"), SIGNAL(valueChanged(QVariant)), this, SLOT(Minibot_Position_changed()));
   connect(m_application->m_data_center->getData("ROBOTLEGO_STATUS.Angle"), SIGNAL(valueChanged(QVariant)), this, SLOT(Minibot_Position_changed()));
 
+  connect(m_application->m_data_center->getData("XbeeMsngNodePresent.GROSBOT"), SIGNAL(valueChanged(QVariant)), this, SLOT(grosbot_present_changed(QVariant)));
+  connect(m_application->m_data_center->getData("VideoActive"), SIGNAL(valueChanged(QVariant)), this, SLOT(video_state_changed(QVariant)));
+
   connect(&m_timer_logger, SIGNAL(timeout()), this, SLOT(tick_Log()));
+
+  connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
+  connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
 
   m_data_list_logged << m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp")
                      << m_application->m_data_center->getData("Robot1_X")
@@ -222,6 +233,10 @@ void CBalise::startLogger(QString pathfilename)
     m_application->m_print_view->print_debug(this, "Start logger : " + pathfilename);
     m_elapsed_timer.restart();
     m_timer_logger.start(LOGGER_PERIOD);
+
+    // affiche le nom du fichier
+    QFileInfo fileinfo(pathfilename);
+    m_ihm.ui.log_filename->setText(fileinfo.fileName());
 }
 
 // _____________________________________________________________________
@@ -239,7 +254,6 @@ QString CBalise::getLogFilename()
     for (int i=1; i<10000; i++) {
         pathfilename =  m_application->m_pathname_log_file +
                         "/" +
-                        QString(getName()).replace(" ", "") + // Supprime les espaces dans le nom généré
                         BASE_LOGGER_FILENAME +
                         QString::number(i) +
                         ".csv";
@@ -352,4 +366,48 @@ void CBalise::Minibot_Position_changed()
     m_ihm.ui.Minibot_PosX->setValue(m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_X")->read().toFloat());
     m_ihm.ui.Minibot_PosY->setValue(m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_Y")->read().toFloat());
     m_ihm.ui.Minibot_Teta->setValue(m_application->m_data_center->getData("ROBOTLEGO_STATUS.Angle")->read().toFloat());
+}
+
+// =====================================================================
+//      Extinction Raspberry
+// =====================================================================
+// _____________________________________________________________________
+void CBalise::onRPI_Shutdown()
+{
+    int ret = QMessageBox::warning(&m_ihm, tr("Warning"),
+                                   tr("Power Off\n"
+                                      "Are you sure ?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        QProcess *myProcess = new QProcess();
+        myProcess->start("shutdown --poweroff now");
+    }
+}
+
+// _____________________________________________________________________
+void CBalise::onRPI_Reboot()
+{
+    int ret = QMessageBox::warning(&m_ihm, tr("Warning"),
+                                   tr("Reboot\n"
+                                      "Are you sure ?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        QProcess *myProcess = new QProcess();
+        myProcess->start("shutdown --reboot now");
+    }
+}
+
+// =====================================================================
+//      Gestion des LEDs sur l'onglet "Général"
+// =====================================================================
+// _____________________________________________________________________
+void CBalise::video_state_changed(QVariant val)
+{
+    m_ihm.ui.led_video_state->setValue(val.toBool());
+}
+
+// _____________________________________________________________________
+void CBalise::grosbot_present_changed(QVariant val)
+{
+    m_ihm.ui.led_grosbot_present->setValue(val.toBool());
 }
