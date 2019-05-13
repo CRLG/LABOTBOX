@@ -322,8 +322,8 @@ QString CEcran::strategyNumToString(unsigned char num)
     // Correspondance entre un numéro et un nom de stratégie
     // Possibilité de mettre des noms plus parlants si besoin
     switch(num) {
-        case 0 : return "Homolo 1";
-        case 1 : return "Homolo 2";
+        case 0 : return "Par défaut";
+        case 1 : return "Homolo 1";
         case 2 : return "Strategie 1";
         case 3 : return "Strategie 2";
         case 4 : return "Strategie 3";
