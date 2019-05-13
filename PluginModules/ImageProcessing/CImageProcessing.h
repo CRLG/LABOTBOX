@@ -70,6 +70,7 @@ private slots :
     void onRightClicGUI(QPoint pos);
 
      void video_worker_init(int video_source_id);
+     void getCamState(int state);
 
 public slots:
      void videoHandleResults(tVideoResult result,QImage imgConst);

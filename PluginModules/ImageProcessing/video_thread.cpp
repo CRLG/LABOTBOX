@@ -32,8 +32,8 @@ void VideoWorker::init(int video_id, QString parameter_file)
         capture= new cv::VideoCapture(-1);
 
     if(capture->isOpened())
-     {
-         qDebug()<<"La caméra est opérationnelle.";
+     {     
+        qDebug()<<"La caméra est opérationnelle.";
          //infos de debug
          qDebug() << endl <<"camera choisie :" << video_id;
          int FourCC=capture->get(CV_CAP_PROP_FOURCC);
@@ -42,6 +42,7 @@ void VideoWorker::init(int video_id, QString parameter_file)
          qDebug() << "Set height to 240 :" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,240)) ? "OK" : "NOK");
          qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,320)) ? "OK" : "NOK") << endl;
          //cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
+        emit setCamState(1);
 
          //calibration de la caméra
          qDebug() << "Fichier de calibration choisi:"<<parameter_file;
@@ -60,7 +61,17 @@ void VideoWorker::init(int video_id, QString parameter_file)
      }
      else
     {
-         qDebug() << endl << "Caméra inopérante :-(" << endl;
+        emit setCamState(0);
+        qDebug() << endl << "Caméra inopérante :-(" << endl;
+    }
+}
+
+VideoWorker::~VideoWorker()
+{
+    //on ferme la camera
+    if(capture->isOpened())
+    {
+        capture->release();
     }
 }
 

@@ -43,6 +43,7 @@ class VideoWorker : public QObject
 public :
     VideoWorker();
     void init(int video_id, QString parameter_file);
+    ~VideoWorker();
 
 private :
     QString m_video_name;
@@ -69,6 +70,7 @@ signals:
     void resultReady(tVideoResult result,QImage imgConst);
     void workStarted();
     void workFinished();
+    void setCamState(int state);
 
 
 private:

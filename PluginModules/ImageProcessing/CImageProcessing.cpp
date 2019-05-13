@@ -152,6 +152,7 @@ void CImageProcessing::video_worker_init(int video_source_id)
     qRegisterMetaType<tVideoResult>();
 
     m_video_worker = new VideoWorker;
+    connect(m_video_worker, SIGNAL(setCamState(int)),this, SLOT(getCamState(int)));
     m_video_worker->init(video_source_id,m_camera_parameters);
     m_video_worker->moveToThread(&m_video_worker_thread);
     connect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
@@ -160,6 +161,7 @@ void CImageProcessing::video_worker_init(int video_source_id)
     connect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
     connect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
     connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
+
     m_video_worker_thread.start();
 }
 
@@ -249,12 +251,14 @@ void CImageProcessing::killVideoThread()
     disconnect(m_video_worker, SIGNAL(resultReady(tVideoResult)), this, SLOT(videoHandleResults(tVideoResult)));
     disconnect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
     disconnect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
+    disconnect(m_video_worker, SIGNAL(setCamState(int)),this, SLOT(getCamState(int)));
 
     m_video_worker_thread.quit();
     m_video_worker_thread.wait();
 
     delete m_video_worker;
     m_video_worker = NULL;
+    m_application->m_data_center->write("VideoActive", 0);
 
     bool state = false;
     m_ihm.ui.kill_thread->setEnabled(state);
@@ -285,4 +289,10 @@ void CImageProcessing::stopVideoWork()
 void CImageProcessing::activeDebug(bool on_off)
 {
     if (m_video_worker) m_video_worker->activeDebug(on_off);
+}
+
+void CImageProcessing::getCamState(int state)
+{
+    //initialise l'état caméra
+    m_application->m_data_center->write("VideoActive",  state);
 }
