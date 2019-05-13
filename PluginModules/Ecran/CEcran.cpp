@@ -313,7 +313,8 @@ void CEcran::initStrategies()
          << strategyNumToString(4)
          << strategyNumToString(5)
          << strategyNumToString(6)
-         << strategyNumToString(7);
+         << strategyNumToString(7)
+         << strategyNumToString(8);
     m_ihm.ui.combo_ChoixStrategie->addItems(list);
 }
 
@@ -324,12 +325,13 @@ QString CEcran::strategyNumToString(unsigned char num)
     switch(num) {
         case 0 : return "Par défaut";
         case 1 : return "Homolo 1";
-        case 2 : return "Strategie 1";
-        case 3 : return "Strategie 2";
-        case 4 : return "Strategie 3";
-        case 5 : return "Strategie 4";
-        case 6 : return "Strategie 5";
-        case 7 : return "Strategie 6";
+        case 2 : return "Homolo 2";
+        case 3 : return "Strategie 1";
+        case 4 : return "Strategie 2";
+        case 5 : return "Strategie 3";
+        case 6 : return "Strategie 4";
+        case 7 : return "Strategie 5";
+        case 8 : return "Strategie 6";
         default : return "!! UNKNOWN STRATEGY: " + QString::number(num);
     }
 }
