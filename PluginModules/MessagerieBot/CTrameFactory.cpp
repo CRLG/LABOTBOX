@@ -2338,11 +2338,11 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 
    Score=( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[3])) & 0xFF) << 8 );
 
-   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x3)<< 6 );
+   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) >> 6) & 0x3 );
 
-   DiagBlocage = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x1)<< 5 );
+   DiagBlocage = ( ( ((unsigned char)(trameRecue->Data[2])) >> 5) & 0x1 );
 
-   ConvergenceAsserv = ( ( ((unsigned char)(trameRecue->Data[2])) & 0x1) << 4 );
+   ConvergenceAsserv = ( ( ((unsigned char)(trameRecue->Data[2])) >> 4) & 0x1 );
 
    ModeFonctionnement = ( ( ((unsigned char)(trameRecue->Data[2])) & 0xF) );
 
