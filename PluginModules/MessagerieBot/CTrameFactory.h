@@ -942,6 +942,32 @@ private slots :
 };
 
 // ========================================================
+//             TRAME ETAT_EVITEMENT_OBSTACLE
+// ========================================================
+#define ID_ETAT_EVITEMENT_OBSTACLE 0x42
+#define DLC_ETAT_EVITEMENT_OBSTACLE 8
+class CTrame_ETAT_EVITEMENT_OBSTACLE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_EVITEMENT_OBSTACLE() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    signed char SensDeplacement;
+    unsigned char ObstacleBitfield;
+    unsigned char NumeroEtape;
+    unsigned char NombreTentatives;
+    bool EvitementEnCours;
+    bool ObstacleDetecte;
+    bool ObstacleInhibe;
+    bool ForcageDetectObstacleSansPosition;
+
+private slots :
+};
+
+// ========================================================
 //             TRAME CONFIG_PERIODE_TRAME
 // ========================================================
 #define ID_CONFIG_PERIODE_TRAME 0x108

@@ -83,6 +83,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_2(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_1(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ECRAN_ETAT_MATCH(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_EVITEMENT_OBSTACLE(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
   // Trames en émission
@@ -2363,6 +2364,70 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    m_nombre_recue++;
 }
 
+// ========================================================
+//             TRAME ETAT_EVITEMENT_OBSTACLE
+// ========================================================
+CTrame_ETAT_EVITEMENT_OBSTACLE::CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_EVITEMENT_OBSTACLE";
+ m_id = ID_ETAT_EVITEMENT_OBSTACLE;
+ m_dlc = DLC_ETAT_EVITEMENT_OBSTACLE;
+
+ m_liste_noms_signaux.append("Evit_SensDeplacement");
+ m_liste_noms_signaux.append("Evit_ObstacleBitfield");
+ m_liste_noms_signaux.append("Evit_NumeroEtape");
+ m_liste_noms_signaux.append("Evit_NombreTentatives");
+ m_liste_noms_signaux.append("Evit_EvitementEnCours");
+ m_liste_noms_signaux.append("Evit_ObstacleDetecte");
+ m_liste_noms_signaux.append("Evit_ObstacleInhibe");
+ m_liste_noms_signaux.append("Evit_ForcageDetectObstacleSansPosition");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("Evit_SensDeplacement",  SensDeplacement);
+ data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
+ data_manager->write("Evit_NumeroEtape", NumeroEtape);
+ data_manager->write("Evit_NombreTentatives", NombreTentatives);
+ data_manager->write("Evit_EvitementEnCours", EvitementEnCours);
+ data_manager->write("Evit_ObstacleDetecte", ObstacleDetecte);
+ data_manager->write("Evit_ObstacleInhibe", ObstacleInhibe);
+ data_manager->write("Evit_ForcageDetectObstacleSansPosition", ForcageDetectObstacleSansPosition);
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_EVITEMENT_OBSTACLE::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+
+   NombreTentatives = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
+
+   NumeroEtape = ( ( ((unsigned char)(trameRecue->Data[3])) & 0xFF) );
+
+   ObstacleBitfield = ( ( ((unsigned char)(trameRecue->Data[2])) & 0xFF) );
+
+   SensDeplacement = ( ( ((unsigned char)(trameRecue->Data[1])) & 0xFF) );
+
+   ForcageDetectObstacleSansPosition = ( ( ((unsigned char)(trameRecue->Data[0])) >> 3) & 0x1 );
+   ObstacleInhibe = ( ( ((unsigned char)(trameRecue->Data[0])) >> 2) & 0x1 );
+   EvitementEnCours = ( ( ((unsigned char)(trameRecue->Data[0])) >> 1) & 0x1 );
+   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[0])) >> 0) & 0x1 );
+
+   // Envoie les données au data manager
+   m_data_manager->write("Evit_SensDeplacement",  SensDeplacement);
+   m_data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
+   m_data_manager->write("Evit_NumeroEtape", NumeroEtape);
+   m_data_manager->write("Evit_NombreTentatives", NombreTentatives);
+   m_data_manager->write("Evit_EvitementEnCours", EvitementEnCours);
+   m_data_manager->write("Evit_ObstacleDetecte", ObstacleDetecte);
+   m_data_manager->write("Evit_ObstacleInhibe", ObstacleInhibe);
+   m_data_manager->write("Evit_ForcageDetectObstacleSansPosition", ForcageDetectObstacleSansPosition);
+
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
 
 // ========================================================
 //             TRAME ECRAN_ETAT_ECRAN
