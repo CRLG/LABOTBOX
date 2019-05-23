@@ -959,6 +959,7 @@ public :
     unsigned char ObstacleBitfield;
     unsigned char NumeroEtape;
     unsigned char NombreTentatives;
+    unsigned char ChoixStrategieEvitement;
     bool EvitementEnCours;
     bool ObstacleDetecte;
     bool ObstacleInhibe;

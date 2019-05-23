@@ -2374,6 +2374,7 @@ CTrame_ETAT_EVITEMENT_OBSTACLE::CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *m
  m_id = ID_ETAT_EVITEMENT_OBSTACLE;
  m_dlc = DLC_ETAT_EVITEMENT_OBSTACLE;
 
+ m_liste_noms_signaux.append("Evit_ChoixStrategieEvitement");
  m_liste_noms_signaux.append("Evit_SensDeplacement");
  m_liste_noms_signaux.append("Evit_ObstacleBitfield");
  m_liste_noms_signaux.append("Evit_NumeroEtape");
@@ -2384,6 +2385,7 @@ CTrame_ETAT_EVITEMENT_OBSTACLE::CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *m
  m_liste_noms_signaux.append("Evit_ForcageDetectObstacleSansPosition");
 
  // S'assure que les données existent dans le DataManager
+ data_manager->write("Evit_ChoixStrategieEvitement",  ChoixStrategieEvitement);
  data_manager->write("Evit_SensDeplacement",  SensDeplacement);
  data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
  data_manager->write("Evit_NumeroEtape", NumeroEtape);
@@ -2402,6 +2404,8 @@ void CTrame_ETAT_EVITEMENT_OBSTACLE::Decode(tStructTrameBrute *trameRecue)
 {
    // Decode les signaux de la trame
 
+   ChoixStrategieEvitement = ( ( ((unsigned char)(trameRecue->Data[5])) & 0xFF) );
+
    NombreTentatives = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
 
    NumeroEtape = ( ( ((unsigned char)(trameRecue->Data[3])) & 0xFF) );
@@ -2416,6 +2420,7 @@ void CTrame_ETAT_EVITEMENT_OBSTACLE::Decode(tStructTrameBrute *trameRecue)
    ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[0])) >> 0) & 0x1 );
 
    // Envoie les données au data manager
+   m_data_manager->write("Evit_ChoixStrategieEvitement",  ChoixStrategieEvitement);
    m_data_manager->write("Evit_SensDeplacement",  SensDeplacement);
    m_data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
    m_data_manager->write("Evit_NumeroEtape", NumeroEtape);
