@@ -10,6 +10,7 @@
 #include "CPluginModule.h"
 #include "ui_ihm_Ecran.h"
 #include "CData.h"
+#include "CDataLogger.h"
 
  class Cihm_Ecran : public QMainWindow
 {
@@ -57,10 +58,14 @@ public:
 private:
     Cihm_Ecran m_ihm;
     QColor initColor;
+    CDataLogger m_data_logger;
 
     void initStrategies();
     QString strategyNumToString(unsigned char num);
     void checkStrategyMatch();
+    void initDataLogger();
+    QString getLogFilename();
+
 
 private slots :
     void onRightClicGUI(QPoint pos);

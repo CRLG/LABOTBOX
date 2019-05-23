@@ -73,7 +73,6 @@ void CEcran::init(CApplication *application)
   /*val = m_application->m_eeprom->read(getName(), "isMaximized", QVariant(0));
   m_isMaximized=val.toInt();*/
 
-
   // S'assure que les données existent dans le DataManager
   m_application->m_data_center->write("CouleurEquipe",  -1);
   m_application->m_data_center->write("NumStrategie",  -1);
@@ -121,6 +120,9 @@ void CEcran::init(CApplication *application)
   m_ihm.ui.qLed_orange->setVisible(false);
 
   initStrategies();
+
+  val = m_application->m_eeprom->read(getName(), "logger_active", QVariant(false));
+  if (val.toBool()) initDataLogger();
 }
 
 
@@ -137,6 +139,48 @@ void CEcran::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 }
+
+// _____________________________________________________________________
+/*!
+*  Initialise les données à logger
+*
+*/
+void CEcran::initDataLogger()
+{
+    QVector <CData *> data_list;
+    data_list.append(m_application->m_data_center->getData("TempsMatch"));
+    data_list.append(m_application->m_data_center->getData("ObstacleDetecte"));
+    data_list.append(m_application->m_data_center->getData("DiagBlocage"));
+    data_list.append(m_application->m_data_center->getData("ConvergenceAsserv"));
+    data_list.append(m_application->m_data_center->getData("x_pos"));
+    data_list.append(m_application->m_data_center->getData("y_pos"));
+    data_list.append(m_application->m_data_center->getData("teta_pos"));
+
+    m_data_logger.setDataList(data_list);
+    m_data_logger.activeDatation(true);
+    m_data_logger.setRefreshPeriod(200);
+    QString pathfilename = getLogFilename();
+    m_data_logger.start(pathfilename);
+    m_application->m_print_view->print_debug(this, "Start logger : " + pathfilename);
+}
+
+// _____________________________________________________________________
+QString CEcran::getLogFilename()
+{
+    QString pathfilename;
+
+    for (int i=1; i<10000; i++) {
+        pathfilename =  m_application->m_pathname_log_file +
+                        "/" +
+                        "ecran_log_match_" +
+                        QString::number(i) +
+                        ".csv";
+        QFileInfo fileinfo(pathfilename);
+        if (!fileinfo.exists()) break;
+    }
+    return pathfilename;
+}
+
 
 // _____________________________________________________________________
 /*!
