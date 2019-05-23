@@ -62,7 +62,8 @@ LIST_PLUGIN_MODULES+= \
 # Ajouter ici les utilitaires communs "Tools" (nom des répertoires)
 LIST_TOOLS+= CustomPlot\
              HtmlTextEditor \
-             NetworkServer
+             NetworkServer \
+             DataLogger
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
