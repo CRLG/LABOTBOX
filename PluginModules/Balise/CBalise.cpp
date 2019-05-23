@@ -132,7 +132,8 @@ void CBalise::init(CApplication *application)
   connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
   connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
 
-  initDataLogger();
+  val = m_application->m_eeprom->read(getName(), "logger_active", QVariant(false));
+  if (val.toBool()) initDataLogger();
 
     m_xbee_ntw_database = m_application->m_XbeeNetworkMessenger->getDatabase();
     if (m_xbee_ntw_database) {
