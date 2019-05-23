@@ -129,32 +129,10 @@ void CBalise::init(CApplication *application)
   connect(m_application->m_data_center->getData("XbeeMsngNodePresent.GROSBOT"), SIGNAL(valueChanged(QVariant)), this, SLOT(grosbot_present_changed(QVariant)));
   connect(m_application->m_data_center->getData("VideoActive"), SIGNAL(valueChanged(QVariant)), this, SLOT(video_state_changed(QVariant)));
 
-  connect(&m_timer_logger, SIGNAL(timeout()), this, SLOT(tick_Log()));
-
   connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
   connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
 
-  m_data_list_logged << m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp")
-                     << m_application->m_data_center->getData("Robot1_X")
-                     << m_application->m_data_center->getData("Robot1_Y")
-                     << m_application->m_data_center->getData("Robot1_Teta")
-                     << m_application->m_data_center->getData("Robot2_X")
-                     << m_application->m_data_center->getData("Robot2_Y")
-                     << m_application->m_data_center->getData("Robot2_Teta")
-                     << m_application->m_data_center->getData("Robot3_X")
-                     << m_application->m_data_center->getData("Robot3_Y")
-                     << m_application->m_data_center->getData("Robot3_Teta")
-                     << m_application->m_data_center->getData("Robot4_X")
-                     << m_application->m_data_center->getData("Robot4_Y")
-                     << m_application->m_data_center->getData("Robot4_Teta")
-                     << m_application->m_data_center->getData("GROSBOT_POSITION.Position_X")
-                     << m_application->m_data_center->getData("GROSBOT_POSITION.Position_Y")
-                     << m_application->m_data_center->getData("GROSBOT_POSITION.Angle")
-                     << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_X")
-                     << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_Y")
-                     << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Angle")
-                        ;
-    startLogger();
+  initDataLogger();
 
     m_xbee_ntw_database = m_application->m_XbeeNetworkMessenger->getDatabase();
     if (m_xbee_ntw_database) {
@@ -180,8 +158,6 @@ void CBalise::init(CApplication *application)
 */
 void CBalise::close(void)
 {
-  stopLogger();
-
   // Mémorise en EEPROM l'état de la fenêtre
   m_application->m_eeprom->write(getName(), "geometry", QVariant(m_ihm.geometry()));
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
@@ -206,44 +182,39 @@ void CBalise::onRightClicGUI(QPoint pos)
 //                      Gestion du logger
 // =====================================================================
 // _____________________________________________________________________
-void CBalise::startLogger(QString pathfilename)
+/*!
+*  Initialise les données à logger
+*
+*/
+void CBalise::initDataLogger()
 {
-    if (pathfilename == "") {
-        pathfilename =  getLogFilename();
-    }
-    // Ouvre et construit le fichier
-    m_logger_file.setFileName(pathfilename);
-    if (!m_logger_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
-        return;
-    }
-
-    // Ecrit l'entête du fichier
-    QTextStream out(&m_logger_file);
-    // 1ere ligne du fichier = nom des colonnes
-    out << "DateTime;";
-    for (int i=0; i<m_data_list_logged.size(); i++)
-    {
-        out << m_data_list_logged.at(i)->getName();
-        if (i != (m_data_list_logged.size()-1))
-            out << ";";
-    }
-    out << "\n";
-
+    QVector <CData *> data_list;
+    data_list  << m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp")
+               << m_application->m_data_center->getData("Robot1_X")
+               << m_application->m_data_center->getData("Robot1_Y")
+               << m_application->m_data_center->getData("Robot1_Teta")
+               << m_application->m_data_center->getData("Robot2_X")
+               << m_application->m_data_center->getData("Robot2_Y")
+               << m_application->m_data_center->getData("Robot2_Teta")
+               << m_application->m_data_center->getData("Robot3_X")
+               << m_application->m_data_center->getData("Robot3_Y")
+               << m_application->m_data_center->getData("Robot3_Teta")
+               << m_application->m_data_center->getData("Robot4_X")
+               << m_application->m_data_center->getData("Robot4_Y")
+               << m_application->m_data_center->getData("Robot4_Teta")
+               << m_application->m_data_center->getData("GROSBOT_POSITION.Position_X")
+               << m_application->m_data_center->getData("GROSBOT_POSITION.Position_Y")
+               << m_application->m_data_center->getData("GROSBOT_POSITION.Angle")
+               << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_X")
+               << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Position_Y")
+               << m_application->m_data_center->getData("ROBOTLEGO_STATUS.Angle")
+                  ;
+    m_data_logger.setDataList(data_list);
+    m_data_logger.activeDatation(true);
+    m_data_logger.setRefreshPeriod(LOGGER_PERIOD);
+    QString pathfilename = getLogFilename();
+    m_data_logger.start(pathfilename);
     m_application->m_print_view->print_debug(this, "Start logger : " + pathfilename);
-    m_elapsed_timer.restart();
-    m_timer_logger.start(LOGGER_PERIOD);
-
-    // affiche le nom du fichier
-    QFileInfo fileinfo(pathfilename);
-    m_ihm.ui.log_filename->setText(fileinfo.fileName());
-}
-
-// _____________________________________________________________________
-void CBalise::stopLogger()
-{
-    m_timer_logger.stop();
-    m_logger_file.close();
 }
 
 // _____________________________________________________________________
@@ -261,21 +232,6 @@ QString CBalise::getLogFilename()
         if (!fileinfo.exists()) break;
     }
     return pathfilename;
-}
-
-// _____________________________________________________________________
-void CBalise::tick_Log()
-{
-    QTextStream out(&m_logger_file);
-    out << m_elapsed_timer.elapsed();
-    out << ";";
-    for (int i=0; i<m_data_list_logged.size(); i++)
-    {
-        out << m_data_list_logged.at(i)->read().toFloat();
-        if (i != (m_data_list_logged.size()-1))
-            out << ";";
-    }
-    out << "\n";
 }
 
 // =====================================================================

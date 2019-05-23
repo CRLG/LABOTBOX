@@ -12,6 +12,7 @@
 
 #include "CPluginModule.h"
 #include "ui_ihm_Balise.h"
+#include "CDataLogger.h"
 
  class Cihm_Balise : public QMainWindow
 {
@@ -58,19 +59,14 @@ public:
 
 private:
     Cihm_Balise m_ihm;
-    QList<CData*> m_data_list_logged;
-    QTimer m_timer_logger;
-    QElapsedTimer m_elapsed_timer;
-    QFile m_logger_file;
 
     DatabaseXbeeNetwork2019 *m_xbee_ntw_database;
 
+    CDataLogger m_data_logger;
     static const int LOGGER_PERIOD = 100; // [msec]
     static const QString BASE_LOGGER_FILENAME;
-
+    void initDataLogger();
     QString getLogFilename();
-    void startLogger(QString pathfilename = "");
-    void stopLogger();
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -85,8 +81,6 @@ private slots :
 
     void video_state_changed(QVariant val);
     void grosbot_present_changed(QVariant val);
-
-    void tick_Log();
 
     void onRPI_Shutdown();
     void onRPI_Reboot();
