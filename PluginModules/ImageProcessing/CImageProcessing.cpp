@@ -101,7 +101,7 @@ void CImageProcessing::init(CApplication *application)
   m_application->m_data_center->write("Robot4_Y",  -32000);
   m_application->m_data_center->write("Robot4_Teta",  -32000);
   m_application->m_data_center->write("VideoActive", 0);
-
+  m_application->m_data_center->write("TIMESTAMP_MATCH.Timestamp", 0);
     connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
     b_robStarted=false;
     refresh_camera_list();

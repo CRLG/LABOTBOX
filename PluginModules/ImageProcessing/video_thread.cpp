@@ -1,4 +1,5 @@
 #include <qdebug.h>
+#include <QDir>
 
 #include "video_thread.h"
 
@@ -46,14 +47,10 @@ void VideoWorker::init(int video_id, QString parameter_file)
         emit setCamState(1);
 
          //construction du nom de fichier d'enregistrement de la video
-         QString fileName = "Capture/Match_";
-         QDateTime aujourdhui=QDateTime::currentDateTime();
-         fileName = fileName + aujourdhui.toString("dd_MM_yyyy_hh'h'mm'min'ss's'")+".avi";
-
-         qDebug() << fileName;
+         QString pathfilename = getVideoLogFilename();
 
          //création de l'objet OpenCV qui enregistre des frame
-         record= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),15,cv::Size(640,480),true);
+         record= new cv::VideoWriter(pathfilename.toStdString(),CV_FOURCC('X','V','I','D'),15,cv::Size(640,480),true);
 
          //calibration de la caméra
          qDebug() << "Fichier de calibration choisi:"<<parameter_file;
@@ -273,4 +270,25 @@ void VideoWorker::_video_process_dummy(tVideoInput parameter)
             qDebug() << "Thread is still running" << ((float)i/total_count)*100. << "%";
         }
     }
+}
+
+// _____________________________________________________________________
+QString VideoWorker::getVideoLogFilename()
+{
+    QString path = "./Capture";
+    QDir dir(path);
+    if (!dir.exists()) {
+        dir.mkdir(path);
+    }
+
+    QString pathfilename;
+    for (int i=1; i<10000; i++) {
+        pathfilename =  path +
+                        "/Match_" +
+                        QString::number(i) +
+                        ".avi";
+        QFileInfo fileinfo(pathfilename);
+        if (!fileinfo.exists()) break;
+    }
+    return pathfilename;
 }

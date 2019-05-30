@@ -84,6 +84,8 @@ signals:
 private:
     void _video_process_algo1(tVideoInput parameter);
     void _video_process_dummy(tVideoInput parameter);
+
+    QString getVideoLogFilename();
 };
 
 #endif // VIDEO_THREAD_H
