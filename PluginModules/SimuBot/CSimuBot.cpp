@@ -237,6 +237,8 @@ void CSimuBot::init(CApplication *application)
     connect(this, SIGNAL(displayCoord(qreal,qreal)), GrosBot,SLOT(display_XY(qreal,qreal)));
     connect(this,SIGNAL(displayAngle(qreal)),GrosBot,SLOT(display_theta(qreal)));
 
+
+
     QSlider *horizontalSlider_toggle_simu=m_ihm.findChild<QSlider*>("horizontalSlider_toggle_simu");
     modeVisu=horizontalSlider_toggle_simu->value();
     connect(horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
@@ -298,6 +300,14 @@ void CSimuBot::init(CApplication *application)
 
     //pour calculer une trajectoire d'evitement
     connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
+
+    // Positions x, y, teta du robot physique
+    m_application->m_data_center->write("x_pos", 0);
+    m_application->m_data_center->write("y_pos", 0);
+    m_application->m_data_center->write("teta_pos", 0);
+    connect(m_application->m_data_center->getData("x_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+    connect(m_application->m_data_center->getData("y_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+    connect(m_application->m_data_center->getData("teta_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
 
     //positionnement par défaut
     initEquipe(equipe1);
@@ -722,3 +732,17 @@ void CSimuBot::slot_getPath(void)
 
     }
 }
+
+
+void CSimuBot::real_robot_position_changed()
+{
+    if (modeVisu) {
+        float pos_x = m_application->m_data_center->getData("x_pos")->read().toFloat();
+        float pos_y = m_application->m_data_center->getData("y_pos")->read().toFloat();
+        float teta_pos = m_application->m_data_center->getData("teta_pos")->read().toFloat();
+
+        emit displayCoord(pos_x, pos_y);
+        emit displayAngle(teta_pos);
+    }
+}
+

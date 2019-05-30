@@ -99,6 +99,8 @@ public slots:
     void zoom(int value);
     void slot_dial_turned(void);
     void slot_getPath();
+
+    void real_robot_position_changed();
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_
