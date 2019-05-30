@@ -219,7 +219,7 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_application->m_data_center->write("Robot4_X",  -32000);
     m_application->m_data_center->write("Robot4_Y",  -32000);
     m_application->m_data_center->write("Robot4_Teta",  -32000);*/
-    m_application->m_data_center->write("VideoActive", 0);
+    //m_application->m_data_center->write("VideoActive", 0);
     //QFrame toto;
 
 }
