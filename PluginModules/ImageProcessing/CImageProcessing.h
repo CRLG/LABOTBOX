@@ -64,6 +64,7 @@ private:
     VideoWorker *m_video_worker;
     QString m_camera_parameters;
     bool b_robStarted;
+    bool m_auto_on;
 
     void refresh_camera_list();
 

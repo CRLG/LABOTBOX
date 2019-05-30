@@ -10,8 +10,6 @@
 #include "CEEPROM.h"
 #include "CDataManager.h"
 
-//#define BALISE
-
 /*! \addtogroup Module_ImageProcessing
    * 
    *  @{
@@ -81,6 +79,9 @@ void CImageProcessing::init(CApplication *application)
   //parametres intrinseques de la camera
   val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant(0));
   m_camera_parameters=val.toString();
+  //en cas de balise la camera démarre toute seule
+  val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
+  m_auto_on=val.toBool();
 
   m_application->m_data_center->write("TempsMatch", -1);
 
@@ -104,11 +105,12 @@ void CImageProcessing::init(CApplication *application)
     connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
     b_robStarted=false;
     refresh_camera_list();
-#ifdef BALISE
 
+    if(m_auto_on)
+    {
         initVideoThread();
         startVideoWork(false);
-#endif
+    }
 
 }
 
@@ -125,6 +127,9 @@ void CImageProcessing::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+  //mémorise les paramètres de la caméra
+  m_application->m_eeprom->write(getName(), "auto_on", QVariant(m_auto_on));
+
 }
 
 // _____________________________________________________________________
@@ -193,6 +198,28 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.rob2_angle->setValue(result.robot2_angle);
     m_ihm.ui.fps->setValue(result.m_fps);
     m_ihm.ui.label_5->setPixmap(QPixmap::fromImage(imgConst));
+
+    float ro=sqrt(result.robot1_dist*result.robot1_dist+57*57);
+    float teta=result.robot1_angle;
+
+    m_application->m_data_center->write("Robot1_X",  ro*cos(teta));
+    m_application->m_data_center->write("Robot1_Y",  ro*sin(teta));
+    m_application->m_data_center->write("Robot1_Teta",  teta);
+
+    ro=sqrt(result.robot2_dist*result.robot2_dist+57*57);
+    teta=result.robot2_angle;
+
+    m_application->m_data_center->write("Robot2_X",  ro*cos(teta));
+    m_application->m_data_center->write("Robot2_Y",  ro*sin(teta));
+    m_application->m_data_center->write("Robot2_Teta",  teta);
+    /*
+    m_application->m_data_center->write("Robot3_X",  -32000);
+    m_application->m_data_center->write("Robot3_Y",  -32000);
+    m_application->m_data_center->write("Robot3_Teta",  -32000);
+    m_application->m_data_center->write("Robot4_X",  -32000);
+    m_application->m_data_center->write("Robot4_Y",  -32000);
+    m_application->m_data_center->write("Robot4_Teta",  -32000);*/
+    m_application->m_data_center->write("VideoActive", 0);
     //QFrame toto;
 
 }
