@@ -39,10 +39,21 @@ void VideoWorker::init(int video_id, QString parameter_file)
          int FourCC=capture->get(CV_CAP_PROP_FOURCC);
          qDebug("FOURCC code: %c%c%c%c", FourCC, FourCC>>8, FourCC>>16, FourCC>>24);
          qDebug() << "Has to be converted to RGB :" << capture->get(CV_CAP_PROP_CONVERT_RGB); //((capture->get(CV_CAP_PROP_CONVERT_RGB)==1) ? "YES":"NO");
-         qDebug() << "Set height to 240 :" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,240)) ? "OK" : "NOK");
-         qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,320)) ? "OK" : "NOK") << endl;
+         qDebug() << "Set height to 240 :" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,480)) ? "OK" : "NOK");
+         qDebug() << "Set width to 320 :" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,640)) ? "OK" : "NOK") << endl;
+         qDebug() << "Set exposure to 50 :" << ((capture->set( CV_CAP_PROP_EXPOSURE, 50)) ? "OK" : "NOK") << endl;
          //cv::namedWindow( "capture", cv::WINDOW_AUTOSIZE );// Create a window for display.
         emit setCamState(1);
+
+         //construction du nom de fichier d'enregistrement de la video
+         QString fileName = "Capture/Match_";
+         QDateTime aujourdhui=QDateTime::currentDateTime();
+         fileName = fileName + aujourdhui.toString("dd_MM_yyyy_hh'h'mm'min'ss's'")+".avi";
+
+         qDebug() << fileName;
+
+         //création de l'objet OpenCV qui enregistre des frame
+         record= new cv::VideoWriter(fileName.toStdString(),CV_FOURCC('X','V','I','D'),15,cv::Size(640,480),true);
 
          //calibration de la caméra
          qDebug() << "Fichier de calibration choisi:"<<parameter_file;
@@ -111,6 +122,9 @@ void VideoWorker::doWork(tVideoInput parameter) {
 void VideoWorker::_video_process_algo1(tVideoInput parameter)
 {
     tVideoResult result;
+    QTime t;
+      t.start();
+
 
     //capture d'une image du flux video
     capture->grab();
@@ -123,6 +137,9 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
     {
         //clone de l'image pour la persistence des données
         m_frameCloned=m_frame.clone();
+
+        if(parameter.record)
+            record->write(m_frame);//on enregistre le flux video
 
         //analyse de l'image
 
@@ -152,13 +169,28 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
             }*/
             for(unsigned int i = 0; i < markerIds.size(); i++)
             {
-                if(markerIds.at(i)==1)
+                if((markerIds.at(i)==1)||(markerIds.at(i)==2))
                 {
                     cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-                    result.result1 = tvecs[i][0];
-                    result.result2 = tvecs[i][1];
-                    result.result3 = tvecs[i][2];
-                    result.markers_detected = markerIds;
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
+                    result.robot1_dist = dist;
+                    float teta=0;
+                    if(tvecs[i][1]!=0)
+                        teta=acos(tvecs[i][0]/tvecs[i][1]);
+                    result.robot1_angle=teta;
+                    /*result.markers_detected = markerIds;*/
+                }
+
+                if((markerIds.at(i)==3)||(markerIds.at(i)==4))
+                {
+                    cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
+                    result.robot2_dist = dist;
+                    float teta=0;
+                    if(tvecs[i][1]!=0)
+                        teta=acos(tvecs[i][0]/tvecs[i][1]);
+                    result.robot2_angle=teta;
+                    /*result.markers_detected = markerIds;*/
                 }
 
             }
@@ -166,22 +198,32 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
         }
         else
         {
-            result.result1 = 0;
-            result.result2 = 0;
-            result.result3 = 0;
+            result.robot1_dist = 0;
+            result.robot2_dist = 0;
+            result.robot3_dist = 0;
+            result.robot1_angle = 0;
+            result.robot2_angle = 0;
+            result.robot3_angle = 0;
             //result.markers_detected = markerIds;
         }
+
+        int fps=1000/(t.elapsed());
+        result.m_fps=fps;
 
         //recuperation des hauteurs et largeur de l'image
         int iH = m_frameCloned.rows;
         int iL = m_frameCloned.cols;
+
+        //TIMESTAMP_MATCH.Timestamp
 
         QImage imgConst(iL,iH,QImage::Format_RGB888); //image du buffer video au format Qt
 
         //on affiche l'image traitée
         if (m_dbg_active)
         {
-
+           /* char str[200];
+            sprintf(str,"%d fps",fps);
+            cv::putText(m_frameCloned, str, cv::Point2f(50,50), cv::FONT_HERSHEY_PLAIN, 1,  cv::Scalar(0,125,125,0));*/
 
         //recuperation des donnees de la frame
         //et referencement dans l'image Qt
@@ -223,8 +265,8 @@ void VideoWorker::_video_process_dummy(tVideoInput parameter)
     while(i++<total_count)
     {
         QThread::sleep(1);
-        result.result1 = parameter.data1;
-        result.result2 += parameter.data3 + 0.1 ;
+        result.robot1_dist = parameter.data1;
+        result.robot1_angle += parameter.data3 + 0.1 ;
                 QImage img( 320, 240, QImage::Format_RGB888);
         emit resultReady(result,img);
         if (m_dbg_active) {

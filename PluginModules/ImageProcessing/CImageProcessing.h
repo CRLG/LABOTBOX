@@ -63,6 +63,7 @@ private:
     QThread m_video_worker_thread;
     VideoWorker *m_video_worker;
     QString m_camera_parameters;
+    bool b_robStarted;
 
     void refresh_camera_list();
 
@@ -78,17 +79,19 @@ public slots:
      void videoWorkStarted();
      void videoWorkFinished();
 
-     void startVideoWork();
+     void startVideoWork(bool b_record);
      void stopVideoWork();
 
      void initVideoThread();
      void killVideoThread();
 
      void activeDebug(bool on_off);
+     void TpsMatch_changed(QVariant val);
 
 signals:
     void operate(tVideoInput param);
     void stopWork();
+    void matchStarted();
 };
 
 #endif // _CPLUGIN_MODULE_ImageProcessing_H_

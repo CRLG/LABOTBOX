@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>902</width>
-    <height>405</height>
+    <width>1239</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -148,7 +148,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLed" name="work_status">
+   <widget class="QLed" name="work_status" native="true">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -163,17 +163,8 @@
     <property name="whatsThis">
      <string>Led widget</string>
     </property>
-    <property name="value">
+    <property name="value" stdset="0">
      <bool>false</bool>
-    </property>
-    <property name="onColor">
-     <enum>QLed::Green</enum>
-    </property>
-    <property name="offColor">
-     <enum>QLed::Grey</enum>
-    </property>
-    <property name="shape">
-     <enum>QLed::Circle</enum>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -181,12 +172,12 @@
      <rect>
       <x>10</x>
       <y>260</y>
-      <width>71</width>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>out_data1</string>
+     <string>robot_1 dist</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">
@@ -194,12 +185,12 @@
      <rect>
       <x>10</x>
       <y>290</y>
-      <width>71</width>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>out_data2</string>
+     <string>robot_2 dist</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -228,10 +219,10 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="out_data1">
+   <widget class="QDoubleSpinBox" name="rob1_dist">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>120</x>
       <y>260</y>
       <width>69</width>
       <height>26</height>
@@ -359,10 +350,10 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="out_data2">
+   <widget class="QDoubleSpinBox" name="rob2_dist">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>120</x>
       <y>290</y>
       <width>69</width>
       <height>26</height>
@@ -386,30 +377,30 @@
      <rect>
       <x>560</x>
       <y>30</y>
-      <width>320</width>
-      <height>240</height>
+      <width>640</width>
+      <height>480</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>320</width>
-      <height>240</height>
+      <width>640</width>
+      <height>480</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>320</width>
-      <height>240</height>
+      <width>640</width>
+      <height>480</height>
      </size>
     </property>
     <property name="text">
      <string>TextLabel</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="out_data3">
+   <widget class="QDoubleSpinBox" name="rob3_dist">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>120</x>
       <y>320</y>
       <width>69</width>
       <height>26</height>
@@ -433,12 +424,152 @@
      <rect>
       <x>10</x>
       <y>320</y>
-      <width>71</width>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>out_data3</string>
+     <string>robot_3 dist</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>260</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>robot_1 angle</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>290</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>robot_2 angle</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="rob3_angle">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>320</y>
+      <width>69</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="minimum">
+     <double>-999999999999999983222784.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>1000000000000000019884624838656.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="rob1_angle">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>260</y>
+      <width>69</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="minimum">
+     <double>-999999999999999983222784.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>1000000000000000019884624838656.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>320</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>robot_3 angle</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="rob2_angle">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>290</y>
+      <width>69</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="minimum">
+     <double>-999999999999999983222784.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>1000000000000000019884624838656.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>370</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FPS</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="fps">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>370</y>
+      <width>69</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="minimum">
+     <double>-999999999999999983222784.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>1000000000000000019884624838656.000000000000000</double>
     </property>
    </widget>
   </widget>
@@ -447,7 +578,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>902</width>
+     <width>1239</width>
      <height>22</height>
     </rect>
    </property>

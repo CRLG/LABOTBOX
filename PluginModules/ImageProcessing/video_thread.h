@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QImage>
 #include <QDebug>
+#include <QDateTime>
+#include <QTime>
 #include "opencv2/opencv.hpp"
 #include <opencv2/highgui.hpp>
 #include <opencv2/aruco.hpp>
@@ -21,15 +23,20 @@ typedef struct
     float data1;
     float data2;
     float data3;
+    bool record;
 
 }tVideoInput;
 
 typedef struct
 {
-    float result1;
-    float result2;
-    float result3;
+    double robot1_dist;
+    float robot1_angle;
+    double robot2_dist;
+    float robot2_angle;
+    double robot3_dist;
+    float robot3_angle;
     std::vector <int>markers_detected;
+    int m_fps;
 }tVideoResult;
 
 Q_DECLARE_METATYPE(tVideoInput)
@@ -52,6 +59,7 @@ private :
     bool m_dbg_active;
 
     cv::VideoCapture * capture;
+    cv::VideoWriter * record;
     cv::Mat m_frame; //image du buffer video
     cv::Mat m_frameCloned;
     cv::Mat camMatrix;

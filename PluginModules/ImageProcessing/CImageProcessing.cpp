@@ -10,6 +10,8 @@
 #include "CEEPROM.h"
 #include "CDataManager.h"
 
+//#define BALISE
+
 /*! \addtogroup Module_ImageProcessing
    * 
    *  @{
@@ -80,6 +82,8 @@ void CImageProcessing::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant(0));
   m_camera_parameters=val.toString();
 
+  m_application->m_data_center->write("TempsMatch", -1);
+
   // Crée les variables dans le data manager
   // 3 jeux de données (X, Y, Teta) par robot
   // 4 robots possibles gérés par le plugin (Grosbot, Minibot, robot adverse n°1, robot adverse n°2)
@@ -96,6 +100,16 @@ void CImageProcessing::init(CApplication *application)
   m_application->m_data_center->write("Robot4_Y",  -32000);
   m_application->m_data_center->write("Robot4_Teta",  -32000);
   m_application->m_data_center->write("VideoActive", 0);
+
+    connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
+    b_robStarted=false;
+    refresh_camera_list();
+#ifdef BALISE
+
+        initVideoThread();
+        startVideoWork(false);
+#endif
+
 }
 
 
@@ -173,9 +187,11 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     /*qDebug() << "Video result available:";
     qDebug() << "   result1:" << result.result1;
     qDebug() << "   result2:" << result.result2;*/
-    m_ihm.ui.out_data1->setValue(result.result1);
-    m_ihm.ui.out_data2->setValue(result.result2);
-    m_ihm.ui.out_data3->setValue(result.result3);
+    m_ihm.ui.rob1_dist->setValue(result.robot1_dist);
+    m_ihm.ui.rob1_angle->setValue(result.robot1_angle);
+    m_ihm.ui.rob2_dist->setValue(result.robot2_dist);
+    m_ihm.ui.rob2_angle->setValue(result.robot2_angle);
+    m_ihm.ui.fps->setValue(result.m_fps);
     m_ihm.ui.label_5->setPixmap(QPixmap::fromImage(imgConst));
     //QFrame toto;
 
@@ -270,13 +286,14 @@ void CImageProcessing::killVideoThread()
 
 
 
-void CImageProcessing::startVideoWork()
+void CImageProcessing::startVideoWork(bool b_record)
 {
     tVideoInput param;
     param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
     param.data1 = m_ihm.ui.in_data1->value();
     param.data2 = m_ihm.ui.in_data2->value();
     param.data3 = m_ihm.ui.in_data3->value();
+    param.record=b_record;
     emit operate(param);
 }
 
@@ -295,4 +312,24 @@ void CImageProcessing::getCamState(int state)
 {
     //initialise l'état caméra
     m_application->m_data_center->write("VideoActive",  state);
+}
+
+void CImageProcessing::TpsMatch_changed(QVariant val)
+{
+    const unsigned char DUREE_MATCH = 100;
+
+    int TpsMatch=val.toInt();
+    if((TpsMatch>0)&&(TpsMatch<=DUREE_MATCH))
+    {
+        if(b_robStarted==false)
+        {
+            stopVideoWork();
+            startVideoWork(true);
+            b_robStarted=true;
+        }
+    }
+     if(TpsMatch>DUREE_MATCH)
+         stopVideoWork();
+
+
 }
