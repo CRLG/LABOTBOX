@@ -172,9 +172,9 @@ void CRS232::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 
-  m_application->m_eeprom->write(getName(), "connected", QVariant((int)m_rs232_listener.isOpen()));
   // Si le port était ouvert, c'est que la configuration est bonne -> la mémorise
   if (m_rs232_listener.isOpen()) {
+    m_application->m_eeprom->write(getName(), "connected", QVariant(1));
     // récupère la config
     tConfigRS232 config;
     QString portname;
