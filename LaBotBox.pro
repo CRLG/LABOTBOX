@@ -63,6 +63,7 @@ LIST_PLUGIN_MODULES+= \
 LIST_TOOLS+= CustomPlot\
              HtmlTextEditor \
              NetworkServer \
+             ExternalControlerClient \
              DataLogger
 
 # __________________________________________________
