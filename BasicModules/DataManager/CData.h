@@ -30,7 +30,6 @@ public:
     CData(QString name, QVariant val);
     ~CData();
 
-    void write(QVariant data);
     QVariant read(void);
     QString getName(void) { return(m_name); }
     quint64 getTime() { return m_update_time; }
@@ -66,6 +65,13 @@ signals:
     void valueChanged(QString value);
     //! Signal emis par la donnee lorsqu'une ecriture est faite sans forcément modification de la valeur
     void valueUpdated(QVariant value);
+
+public slots :
+    void write(QVariant data);
+    void write(bool value);
+    void write(int value);
+    void write(double value);
+    void write(QString value);
 };
 
 

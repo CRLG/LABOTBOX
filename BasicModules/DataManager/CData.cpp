@@ -66,6 +66,25 @@ void CData::write(QVariant data)
     emit valueUpdated(data);
   }
   m_mutex.unlock();
+// _____________________________________________________________________
+void CData::write(bool value)
+{
+    write(QVariant(value));
+}
+// _____________________________________________________________________
+void CData::write(int value)
+{
+    write(QVariant(value));
+}
+// _____________________________________________________________________
+void CData::write(double value)
+{
+    write(QVariant(value));
+}
+// _____________________________________________________________________
+void CData::write(QString value)
+{
+    write(QVariant(value));
 }
 
 // _____________________________________________________________________
