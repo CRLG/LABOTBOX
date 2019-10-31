@@ -66,12 +66,13 @@ void CDataManager::close(void)
 */
 void CDataManager::write(QString varname, QVariant val)
 {
-  m_mutex.lock();
   CData *data = getData(varname);
 
   if (data == NULL) { // la variable n'existe pas encore -> la créée
     data = new CData(varname, val);
+    m_mutex.lock();
     m_map_data.insert(varname, data);
+    m_mutex.unlock();
     emit valueChanged(data);
     emit valueUpdated(data);
   }
@@ -82,7 +83,6 @@ void CDataManager::write(QString varname, QVariant val)
    }
    emit valueUpdated(data);
   }
-  m_mutex.unlock();
 }
 
 // _____________________________________________________________________
@@ -96,11 +96,9 @@ void CDataManager::write(QString varname, QVariant val)
 QVariant CDataManager::read(QString varname)
 {
   QVariant ret = "";
-  m_mutex.lock();
   if (isExist(varname)) {
-      ret = m_map_data.value(varname)->read();
+      ret = getData(varname)->read();
   }
-  m_mutex.unlock();
   // sinon, c'est la valeur par défaut "" qui est renvoyée dans le QVariant
   return(ret);
 }
@@ -115,7 +113,8 @@ QVariant CDataManager::read(QString varname)
 */
 CData *CDataManager::getData(QString varname)
 {
- return(m_map_data.value(varname, NULL));
+    QMutexLocker mtx_locker(&m_mutex);
+    return(m_map_data.value(varname, NULL));
 }
 
 
@@ -160,7 +159,8 @@ QString CDataManager::getDataValues(void)
 */
 bool CDataManager::isExist(QString varname)
 {
- return(m_map_data.contains(varname));
+    QMutexLocker mtx_locker(&m_mutex);
+    return(m_map_data.contains(varname));
 }
 
 // _____________________________________________________________________
@@ -190,7 +190,8 @@ void CDataManager::remove(QString varname)
 */
 unsigned long CDataManager::size(void)
 {
- return(m_map_data.size());
+    QMutexLocker mtx_locker(&m_mutex);
+    return(m_map_data.size());
 }
 
 // _____________________________________________________________________

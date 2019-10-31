@@ -20,7 +20,7 @@
 class CDataManager : public CBasicModule
 {
     Q_OBJECT
-#define     VERSION_DATA_MANAGER         "1.0"
+#define     VERSION_DATA_MANAGER         "1.1"
 #define     AUTEUR_DATA_MANAGER          "Nico"
 #define     INFO_DATA_MANAGER            "Gestionnaire de données"
 
