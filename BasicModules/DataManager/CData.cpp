@@ -53,6 +53,7 @@ void CData::write(QVariant data)
   m_update_time = QDateTime::currentMSecsSinceEpoch();
   if (data != m_data) {
     m_data = data;
+    m_mutex.unlock();
     // Emet le signal dans différent format pour faciliter l'utilisations et la mise à jour des IHM
     emit valueChanged(data);
     emit valueChanged(data.toInt());
@@ -63,9 +64,11 @@ void CData::write(QVariant data)
   }
   else {
     m_data = data;
+    m_mutex.unlock();
     emit valueUpdated(data);
   }
-  m_mutex.unlock();
+}
+
 // _____________________________________________________________________
 void CData::write(bool value)
 {
@@ -95,7 +98,8 @@ void CData::write(QString value)
 */
 QVariant CData::read(void)
 {
-  return(m_data);
+    QMutexLocker mtx_locker(&m_mutex);
+    return(m_data);
 }
 
 
