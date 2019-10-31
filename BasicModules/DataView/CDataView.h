@@ -81,7 +81,7 @@ private:
     qint64 m_start_time;
 
 public slots : 
-    void variableChanged(QVariant val);
+    void variableChangedUpdated(QVariant val, quint64 update_time);
     void refreshListeVariables(void);
     void activeInspector(bool state);
     void refreshValeursVariables(void);

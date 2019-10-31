@@ -128,12 +128,12 @@ void CDataView::onRightClicGUI(QPoint pos)
 *  Point d'entrée lorsqu'une variable a été modifiée
 *
 */
-void CDataView::variableChanged(QVariant val)
+void CDataView::variableChangedUpdated(QVariant val, quint64 update_time)
 {
  CData *data = qobject_cast<CData*>(sender()); // récupère l'objet émetteur du signal (pour pouvoir récupérer son nom)
  if (data) {
     m_application->m_print_view->print_debug(this, "Variable modifiee: " + data->getName() + "=" + val.toString() + "(" +  data->read().toString() + ")");
-    addTraceVariable(data->getName(), data->read().toString(), data->getTime());
+    addTraceVariable(data->getName(), val.toString(), update_time);
  }
  else {
     m_application->m_print_view->print_error(this, QString(__FUNCTION__) + ": Erreur sur la récupération de l'objet a l'origine du signal");
@@ -270,32 +270,32 @@ void CDataView::connectDiscconnectVariablesTemporel(bool choix, bool only_diff)
         if (choix) {
             if (only_diff) {  // exploite un signal différent en fonction du fait de filtrer sur les différences
                 connect(_data,
-                      SIGNAL(valueChanged(QVariant)),
+                      SIGNAL(valueChanged(QVariant, quint64)),
                       this,
-                      SLOT(variableChanged(QVariant))
+                      SLOT(variableChangedUpdated(QVariant, quint64))
                       );
             }
             else {
                 connect(_data,
-                      SIGNAL(valueUpdated(QVariant)),
+                      SIGNAL(valueUpdated(QVariant, quint64)),
                       this,
-                      SLOT(variableChanged(QVariant))
+                      SLOT(variableChangedUpdated(QVariant, quint64))
                       );
             }
         }
         else {
             if (only_diff) {  // exploite un signal différent en fonction du fait de filtrer sur les différences
                 disconnect(_data,
-                      SIGNAL(valueChanged(QVariant)),
+                      SIGNAL(valueChanged(QVariant, quint64)),
                       this,
-                      SLOT(variableChanged(QVariant))
+                      SLOT(variableChangedUpdated(QVariant, quint64))
                       );
             }
             else {
                 disconnect(_data,
-                      SIGNAL(valueUpdated(QVariant)),
+                      SIGNAL(valueUpdated(QVariant, quint64)),
                       this,
-                      SLOT(variableChanged(QVariant))
+                      SLOT(variableChangedUpdated(QVariant, quint64))
                       );
             }
         }

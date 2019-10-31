@@ -55,6 +55,7 @@ private:
 signals:
     //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(QVariant value);
+    void valueChanged(QVariant value, quint64 update_time);
     //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
     void valueChanged(bool value);
     //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
@@ -65,6 +66,7 @@ signals:
     void valueChanged(QString value);
     //! Signal emis par la donnee lorsqu'une ecriture est faite sans forcément modification de la valeur
     void valueUpdated(QVariant value);
+    void valueUpdated(QVariant value, quint64 update_time);
 
 public slots :
     void write(QVariant data);

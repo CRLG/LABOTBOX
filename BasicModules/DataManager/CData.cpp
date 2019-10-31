@@ -56,16 +56,19 @@ void CData::write(QVariant data)
     m_mutex.unlock();
     // Emet le signal dans différent format pour faciliter l'utilisations et la mise à jour des IHM
     emit valueChanged(data);
+    emit valueChanged(data, m_update_time);
     emit valueChanged(data.toInt());
     emit valueChanged(data.toBool() );
     emit valueChanged(data.toDouble());
     emit valueChanged(data.toString());
     emit valueUpdated(data);
+    emit valueUpdated(data, m_update_time);
   }
   else {
     m_data = data;
     m_mutex.unlock();
     emit valueUpdated(data);
+    emit valueUpdated(data, m_update_time);
   }
 }
 
