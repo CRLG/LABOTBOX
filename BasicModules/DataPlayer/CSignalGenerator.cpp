@@ -136,6 +136,7 @@ void CSignalGenerator::stop_generator(void)
 {
  if (m_generator_in_progress == false) { return; }
  terminate();
+ wait(50);
  m_generator_in_progress = false;
  emit signalFinished(m_var_name);
 }
