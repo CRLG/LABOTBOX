@@ -74,6 +74,7 @@ void CDataView::init(CApplication *application)
 
   // le bouton refresh met à jour la liste des variables disponibles
   connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(refreshListeVariables()));
+  connect(m_application->m_data_center, SIGNAL(dataCreated(CData*)), this, SLOT(refreshListeVariables()));
   connect(m_ihm.ui.active_trace, SIGNAL(clicked(bool)), this, SLOT(activeInspector(bool)));
   connect(m_ihm.ui.pb_up, SIGNAL(clicked()), this, SLOT(upVariable()));
   connect(m_ihm.ui.pb_down, SIGNAL(clicked()), this, SLOT(downVariable()));
@@ -159,14 +160,26 @@ void CDataView::setVisible(void)
 */
 void CDataView::refreshListeVariables(void)
 {
+  if (!m_ihm.ui.liste_variables->isEnabled()) return;
+
+  // Mémorise d'abord la liste des variables qui étaient à observer (cochées)
+  QStringList liste_variables_observees;
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+    if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+        liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
+    }
+  } // for toutes les variables sous surveillances
+
   QStringList var_list;
   m_application->m_data_center->getListeVariablesName(var_list);
 
   m_ihm.ui.liste_variables->clear();
   m_ihm.ui.liste_variables->addItems(var_list);
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+      QString data_name = m_ihm.ui.liste_variables->item(i)->text();
       m_ihm.ui.liste_variables->item(i)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-      m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+      // Restitue le fait que la case était cochée ou décochée avant la mise à jour de liste
+      m_ihm.ui.liste_variables->item(i)->setCheckState(liste_variables_observees.contains(data_name) ? Qt::Checked : Qt::Unchecked);
   }
 }
 
