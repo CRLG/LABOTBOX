@@ -69,10 +69,7 @@ void CDataManager::write(QString varname, QVariant val)
   CData *data = getData(varname);
 
   if (data == NULL) { // la variable n'existe pas encore -> la créée
-    data = new CData(varname, val);
-    m_mutex.lock();
-    m_map_data.insert(varname, data);
-    m_mutex.unlock();
+    data = createData(varname, val);
     emit valueChanged(data);
     emit valueUpdated(data);
   }
@@ -103,16 +100,42 @@ QVariant CDataManager::read(QString varname)
   return(ret);
 }
 
+
+// _____________________________________________________________________
+/*!
+*  Crée une Data et l'ajoute au DataManager
+*
+*  \param [in] varname nom de la variable
+*  \param [in] init_val : la valeur d'init
+*  \return \li le pointeur sur la nouvelle data de type CData
+*          \li NULL si la data n'éxiste pas
+*/
+CData *CDataManager::createData(QString varname, QVariant init_val)
+{
+    CData *data = new CData(varname, init_val);
+    m_mutex.lock();
+    m_map_data.insert(varname, data);
+    m_mutex.unlock();
+    emit dataCreated(data);
+    return data;
+}
+
+
 // _____________________________________________________________________
 /*!
 *  Récupère un pointeur sur la data pour la manipuer directement sans passer par le DataManager
 *
 *  \param [in] varname nom de la variable
+*  \param [in] force_creation crée la Data si elle n'existe pas
 *  \return \li le pointeur sur la data de type CData
 *          \li NULL si la data n'éxiste pas
 */
-CData *CDataManager::getData(QString varname)
+CData *CDataManager::getData(QString varname, bool force_creation)
 {
+    if (force_creation && !isExist(varname)) {
+        return createData(varname);
+    }
+
     QMutexLocker mtx_locker(&m_mutex);
     return(m_map_data.value(varname, NULL));
 }

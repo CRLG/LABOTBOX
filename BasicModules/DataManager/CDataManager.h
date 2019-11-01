@@ -38,7 +38,8 @@ public:
 
     void            write(QString varname, QVariant val);
     QVariant        read(QString varname);
-    CData           *getData(QString varname);
+    CData           *createData(QString varname, QVariant init_val=QVariant());
+    CData           *getData(QString varname, bool force_creation=false);
     void            debug(void);
     QString         getDataValues(void);
     bool            isExist(QString varname);
@@ -60,6 +61,7 @@ private :
 signals:
     void valueChanged(CData *data);
     void valueUpdated(CData *data);
+    void dataCreated(CData *data);
 
 };
 
