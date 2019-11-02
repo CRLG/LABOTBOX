@@ -96,6 +96,9 @@
 #ifdef MODULE_Balise
    #include "CBalise.h"
 #endif // MODULE_Balise
+#ifdef MODULE_PowerElectrobot
+   #include "CPowerElectrobot.h"
+#endif // MODULE_PowerElectrobot
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -381,6 +384,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_Balise);
   m_list_modules.append(m_Balise);
 #endif // MODULE_Balise
+
+#ifdef MODULE_PowerElectrobot
+  m_PowerElectrobot     = new CPowerElectrobot("PowerElectrobot");
+  m_list_plugin_modules.append(m_PowerElectrobot);
+  m_list_modules.append(m_PowerElectrobot);
+#endif // MODULE_PowerElectrobot
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

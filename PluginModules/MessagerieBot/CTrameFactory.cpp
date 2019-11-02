@@ -86,7 +86,8 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ETAT_EVITEMENT_OBSTACLE(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
-  // Trames en émission
+ m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
+ // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
@@ -104,6 +105,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_COMMANDE_MVT_MANUEL(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ECRAN_ETAT_ECRAN(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_COMMANDE_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -683,6 +685,135 @@ void CTrame_ELECTROBOT_CDE_POWER_SWITCH::Encode(void)
 
   // Comptabilise le nombre de trames émises
   m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME COMMANDE_POWER_ELECTROBOT
+// ========================================================
+CTrame_COMMANDE_POWER_ELECTROBOT::CTrame_COMMANDE_POWER_ELECTROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "COMMANDE_POWER_ELECTROBOT";
+ m_id = ID_COMMANDE_POWER_ELECTROBOT;
+ m_dlc = DLC_COMMANDE_POWER_ELECTROBOT;
+ m_liste_noms_signaux.append("commande");
+ m_liste_noms_signaux.append("value");
+
+ // Initialise les données de la messagerie
+ commande = 0;
+ value = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("PowerElectrobot.commande",  commande);
+ data_manager->write("PowerElectrobot.value",  value);
+ data_manager->write("COMMANDE_POWER_ELECTROBOT_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("PowerElectrobot.commande"), SIGNAL(valueChanged(QVariant)), this, SLOT(commande_changed(QVariant)));
+ connect(data_manager->getData("PowerElectrobot.value"), SIGNAL(valueChanged(QVariant)), this, SLOT(value_changed(QVariant)));
+ connect(data_manager->getData("COMMANDE_POWER_ELECTROBOT_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_POWER_ELECTROBOT::commande_changed(QVariant val)
+{
+  commande = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_POWER_ELECTROBOT::value_changed(QVariant val)
+{
+  value = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_POWER_ELECTROBOT::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_COMMANDE_POWER_ELECTROBOT::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_COMMANDE_POWER_ELECTROBOT;
+  trame.DLC = DLC_COMMANDE_POWER_ELECTROBOT;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+  trame.Data[0] |= commande>>8;
+  trame.Data[1] |= (unsigned char)(commande&0xFF);
+
+  trame.Data[2] |= value>>8;
+  trame.Data[3] |= (unsigned char)(value&0xFF);
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME ETAT_POWER_ELECTROBOT
+// ========================================================
+CTrame_ETAT_POWER_ELECTROBOT::CTrame_ETAT_POWER_ELECTROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_POWER_ELECTROBOT";
+ m_id = ID_ETAT_POWER_ELECTROBOT;
+ m_dlc = DLC_ETAT_POWER_ELECTROBOT;
+ m_liste_noms_signaux.append("PowerElectrobot.battery_voltage_mV");
+ m_liste_noms_signaux.append("PowerElectrobot.global_current_mA");
+ m_liste_noms_signaux.append("PowerElectrobot.current_out1_mA");
+ m_liste_noms_signaux.append("PowerElectrobot.current_out2_mA");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("PowerElectrobot.battery_voltage", BRUTE2PHYS_battery_voltage(battery_voltage_mV));
+ data_manager->write("PowerElectrobot.global_current", BRUTE2PHYS_global_current(global_current_mA));
+ data_manager->write("PowerElectrobot.current_out1", BRUTE2PHYS_current_out1(current_out1_mA));
+ data_manager->write("PowerElectrobot.current_out2", BRUTE2PHYS_current_out2(current_out2_mA));
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_POWER_ELECTROBOT::Decode(tStructTrameBrute *trameRecue)
+{
+    // Decode les signaux de la trame
+    battery_voltage_mV = ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[0])) & 0xFF) << 8 );
+    global_current_mA = ( ( ((unsigned short)(trameRecue->Data[3])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[2])) & 0xFF) << 8 );
+    current_out1_mA = ( ( ((unsigned short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) << 8 );
+    current_out2_mA = ( ( ((unsigned short)(trameRecue->Data[7])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[6])) & 0xFF) << 8 );
+
+   // Envoie les données au data manager
+   m_data_manager->write("PowerElectrobot.battery_voltage", BRUTE2PHYS_battery_voltage(battery_voltage_mV));
+   m_data_manager->write("PowerElectrobot.global_current", BRUTE2PHYS_global_current(global_current_mA));
+   m_data_manager->write("PowerElectrobot.current_out1", BRUTE2PHYS_current_out1(current_out1_mA));
+   m_data_manager->write("PowerElectrobot.current_out2", BRUTE2PHYS_current_out2(current_out2_mA));
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
 }
 
 // ========================================================

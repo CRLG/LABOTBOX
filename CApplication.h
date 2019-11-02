@@ -45,6 +45,7 @@ class CImageProcessing;
 class CXBEE;
 class CXbeeNetworkMessenger;
 class CBalise;
+class CPowerElectrobot;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -162,6 +163,9 @@ public:
 #ifdef MODULE_Balise
    CBalise     *m_Balise;
 #endif // MODULE_Balise
+#ifdef MODULE_PowerElectrobot
+   CPowerElectrobot     *m_PowerElectrobot;
+#endif // MODULE_PowerElectrobot
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

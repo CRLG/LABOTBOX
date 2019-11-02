@@ -220,6 +220,60 @@ private slots :
 };
 
 // ========================================================
+//             TRAME COMMANDE_POWER_ELECTROBOT
+// ========================================================
+#define ID_COMMANDE_POWER_ELECTROBOT 0x60
+#define DLC_COMMANDE_POWER_ELECTROBOT 4
+class CTrame_COMMANDE_POWER_ELECTROBOT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_POWER_ELECTROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_POWER_ELECTROBOT() { }
+    /*virtual*/ void Encode(void);
+
+private :
+    unsigned short commande;
+    unsigned short value;
+    bool m_synchro_tx;
+
+private slots :
+    void commande_changed(QVariant val);
+    void value_changed(QVariant val);
+
+    void Synchro_changed(QVariant val);
+};
+
+// ========================================================
+//             TRAME ETAT_POWER_ELECTROBOT
+// ========================================================
+#define ID_ETAT_POWER_ELECTROBOT 0x62
+#define DLC_ETAT_POWER_ELECTROBOT 8
+#define BRUTE2PHYS_battery_voltage(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_battery_voltage(val) (unsigned char)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_global_current(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_global_current(val) (unsigned char)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_current_out1(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_current_out1(val) (unsigned char)( (val - (0.000000)) / (0.001000) )
+#define BRUTE2PHYS_current_out2(val) ( ((float)val * (0.001000)) + (0.000000) )
+#define PHYS2BRUTE_current_out2(val) (unsigned char)( (val - (0.000000)) / (0.001000) )
+class CTrame_ETAT_POWER_ELECTROBOT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_POWER_ELECTROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_POWER_ELECTROBOT() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned short battery_voltage_mV;
+    unsigned short global_current_mA;
+    unsigned short current_out1_mA;
+    unsigned short current_out2_mA;
+private slots :
+};
+
+// ========================================================
 //             TRAME COMMANDE_MVT_XY
 // ========================================================
 #define ID_COMMANDE_MVT_XY 0x102

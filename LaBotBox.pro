@@ -56,6 +56,7 @@ LIST_PLUGIN_MODULES+= \
         XBEE \ 
         XbeeNetworkMessenger \ 
         #Balise \ 
+        PowerElectrobot \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
