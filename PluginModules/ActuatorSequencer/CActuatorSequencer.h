@@ -67,6 +67,8 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Pr�cise l'ic�ne qui repr�sente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Pr�cise le nom du menu de la fen�tre principale dans lequel le module appara�t
 
+public slots:
+    void Slot_Generate();
 private:
     Cihm_ActuatorSequencer m_ihm;
     bool bPlay,bResume,bStop;

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>999</width>
+    <width>1046</width>
     <height>592</height>
    </rect>
   </property>
@@ -1279,6 +1279,20 @@
       </property>
      </widget>
     </item>
+    <item row="20" column="6">
+     <widget class="QPushButton" name="pB_Generate">
+      <property name="text">
+       <string>Generate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="7" colspan="3">
+     <widget class="QLineEdit" name="strategyName">
+      <property name="text">
+       <string>myStrategy</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -1286,7 +1300,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>999</width>
+     <width>1046</width>
      <height>22</height>
     </rect>
    </property>

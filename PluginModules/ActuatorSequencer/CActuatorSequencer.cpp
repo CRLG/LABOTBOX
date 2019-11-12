@@ -114,6 +114,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Save, SIGNAL(clicked(bool)),this,SLOT(Slot_Save()));
   connect(m_ihm.ui.pB_Load, SIGNAL(clicked(bool)),this,SLOT(Slot_Load()));
   connect(m_ihm.ui.pB_Clear, SIGNAL(clicked(bool)),this,SLOT(Slot_Clear()));
+  connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate()));
 
   connect(m_ihm.ui.pB_Play_SD20, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_SD20()));
   connect(m_ihm.ui.pB_Play_AX, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_AX()));
@@ -1613,4 +1614,190 @@ void CActuatorSequencer::playStep(void)
     //qDebug() << indexPlay;
 
     Slot_Play(true,indexPlay);
+}
+
+void CActuatorSequencer::Slot_Generate()
+{
+    int indexItem=0;
+    int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    QTableWidget * table_sequence=listSequence.at(tabIndex);
+
+    // Creation d'un fichier
+    QString ficName("genratedSequence_");
+    QString temps2=QTime::currentTime().toString("hh_mm");
+    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
+    ficName.append(temps1);
+    ficName.append(temps2);
+    ficName.append(".cpp");
+
+    QString caption("Generate Strategie in CPP file");
+    QString filter("CPP Files (*.cpp)");
+    QString fileName = QFileDialog::getSaveFileName(&m_ihm,caption, ficName,filter);
+
+    QString coreFile="#include \"strategie.h\"\n#include \"mbed.h\"\n#include \"RessourcesHardware.h\"\n\n#include \"CGlobale.h\"\n#include \"ConfigSpecifiqueCoupe.h\"\n#include <math.h>\n\n";
+    coreFile=coreFile+"bool Strategie::%1()\n{\n\tbool isFinished=false;\n\tenum ID{\n%2,\n\t\tFIN\n\t};\n\n\tswitch(current_state)\n\t{%3\n\t\tdefault: isFinished=true; break;\n\t}\n\treturn isFinished;\n}";
+
+    QString champEnum;
+    QString champStrategie;
+
+    bool isInState=false;
+    int numState=0;
+    bool isInTransition=false;
+    int numTransition=0;
+
+    for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+    {
+
+        QString sActuator=table_sequence->item(indexItem,0)->text();
+        QString sId=table_sequence->item(indexItem,1)->text();
+        QString sValue=table_sequence->item(indexItem,2)->text();
+        QString sComments=table_sequence->item(indexItem,3)->text();
+        QString sConverted;
+        bool isState=false;
+        bool isTransition=false;
+
+
+        if(sActuator.compare("SD20")==0)
+        {
+            isState=true;
+            sConverted=sConverted+QString("Application.m_servos_sd20.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+        }
+        if(sActuator.compare("AX-Position")==0)
+        {
+            isState=true;
+            sConverted=sConverted+QString("Application.m_servos_ax.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+        }
+        if(sActuator.compare("AX-Speed")==0)
+        {
+            isState=true;
+            sConverted=sConverted+QString("Application.m_servos_ax.setSpeed(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+        }
+        if(sActuator.compare("Motor")==0)
+        {
+            isState=true;
+            sConverted=sConverted+QString("Application.m_moteurs.CommandeVitesse(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+        }
+        if(sActuator.compare("Wait")==0)
+        {
+            isTransition=true;
+            int msTime=sValue.toInt();
+            float convertedTime=msTime/1000.0;
+            QString str;
+            str.setNum(convertedTime,QLocale::C,3);
+            sConverted=sConverted+QString("timeOut(%1)").arg(str);
+        }
+
+        if(sActuator.compare("Event")==0)
+        {
+            isTransition=true;
+            int msTime=sValue.toInt();
+            float convertedTime=msTime/1000.0;
+            QString str;
+            str.setNum(convertedTime,QLocale::C,3);
+            if(sId.compare("convAsserv")==0)
+                sConverted=sConverted+QString("convMvt(%1)").arg(str);
+            /*if(id.compare("convRack")==0)
+                sConverted=sConverted+QString("convMvt(%1)").arg(sValue);*/
+        }
+        if(sActuator.contains("Sensor"))
+        {
+            isTransition=true;
+            if(sActuator.compare("Sensor_sup")==0)
+                sConverted=sConverted+QString("(%1>%2)").arg(sId).arg(sValue);
+            if(sActuator.compare("Sensor_egal")==0)
+                sConverted=sConverted+QString("(%1==%2)").arg(sId).arg(sValue);
+            if(sActuator.compare("Sensor_inf")==0)
+                sConverted=sConverted+QString("(%1<%2)").arg(sId).arg(sValue);
+        }
+        if(sActuator.compare("Asser")==0)
+        {
+            isState=true;
+            QStringList args=sValue.split(",",QString::SkipEmptyParts);
+            int nb_args=args.count();
+            if((sId.compare("XY")==0)&&(nb_args>=2))
+                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+            if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            //if(id.compare("Rack")==0)
+        }
+        if(isState) //ça fait partie d'un état
+        {
+            if(isInState) //il est initialisé, on ajoute l'action
+                champStrategie=champStrategie+"\n\t\t\t"+sConverted;
+            else //sinon on initialise et on ajoute l'action
+            {
+                QString str;
+                numState++;
+                str.setNum(numState);
+                //est-ce qu'il y avait une transition auparavant
+                if(isInTransition) //oui on la ferme avant de passer à l'action suivante
+                {
+                    champStrategie=champStrategie+") pass(ETAPE_"+str+"); break;\n\n";
+                    isInTransition=false;
+                }
+                champStrategie=champStrategie+"\n\t\tcase ETAPE_"+str+":\n\t\t\t"+sConverted;
+                if((numState<=0)||(numTransition<=0))
+                    champEnum=champEnum+"\t\tETAPE_"+str;
+                else
+                    champEnum=champEnum+",\n\t\tETAPE_"+str;
+                isInState=true;
+            }
+        }
+        if(isTransition)
+        {
+            if(isInTransition) //elle est initialisée, on ajoute la transtition
+                champStrategie=champStrategie+"&&"+sConverted;
+            else //sinon on initialise et on ajoute l'action
+            {
+                QString str;
+                numTransition++;
+                str.setNum(numTransition);
+                //est-ce qu'il y avait un état auparavant
+                if(isInState) //oui on le ferme avant de passer à la transition
+                {
+                    champStrategie=champStrategie+"\n\t\t\tpass(TRANSITION_"+str+"); break;\n";
+                    isInState=false;
+                }
+                champStrategie=champStrategie+"\t\tcase TRANSITION_"+str+": if("+sConverted;
+                if((numState<=0)||(numTransition<=0))
+                    champEnum=champEnum+"\t\tTRANSITION_"+str;
+                else
+                    champEnum=champEnum+",\n\t\tTRANSITION_"+str;
+                isInTransition=true;
+            }
+        }
+    }
+    if(isInState)
+    {
+        champStrategie=champStrategie+"\npass(FIN); break;\n\n\t\tcase FIN: isFinished=true;break;\n";
+        isInState=false;
+    }
+    if(isInTransition)
+    {
+        champStrategie=champStrategie+") pass(FIN); break;\n\n\t\tcase FIN: isFinished=true;break;\n";
+        isInTransition=false;
+    }
+
+    QString nomStrategie;
+    if(m_ihm.ui.strategyName->text().isEmpty())
+            nomStrategie="maStrategie";
+    else
+            nomStrategie=m_ihm.ui.strategyName->text();
+
+    coreFile=coreFile.arg(nomStrategie).arg(champEnum).arg(champStrategie);
+
+    if(!fileName.isEmpty())
+    {
+        QFile fichier(fileName);
+        if(fichier.open(QIODevice::ReadWrite | QIODevice::Text))
+        {
+            QTextStream stream(&fichier);
+            stream << coreFile;
+            fichier.close();
+        }
+        else
+            fichier.close();
+    }
 }
