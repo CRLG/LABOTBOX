@@ -238,7 +238,8 @@ void CSimuBot::init(CApplication *application)
     connect(this,SIGNAL(displayAngle(qreal)),GrosBot,SLOT(display_theta(qreal)));
 
 
-
+    //pour changer de mode visu ou placement
+    //TODO: profiter de l'interface de simubot pour profiter d'un vrai simulateur
     QSlider *horizontalSlider_toggle_simu=m_ihm.findChild<QSlider*>("horizontalSlider_toggle_simu");
     modeVisu=horizontalSlider_toggle_simu->value();
     connect(horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
@@ -263,7 +264,7 @@ void CSimuBot::init(CApplication *application)
 //    terrain->addItem((listSpots.at(0)));
 
 
-    //ajouté par Steph
+    //Mise en place du terrain
     m_ihm.simuView=m_ihm.findChild<QGraphicsView*>("simuGraphicsView");
     m_ihm.simuView->setRenderHint(QPainter::Antialiasing);
     m_ihm.simuView->centerOn(QPointF(163,118));
@@ -288,6 +289,7 @@ void CSimuBot::init(CApplication *application)
 
     GrosBot->isRelativToBot=val.toBool();
     OldGrosBot->isRelativToBot=val.toBool();
+    OtherBot->isRelativToBot=val.toBool();
 
     //affichage et saisi en radian ou en degré
     //setAndGetInRad
@@ -308,6 +310,8 @@ void CSimuBot::init(CApplication *application)
     connect(m_application->m_data_center->getData("x_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
     connect(m_application->m_data_center->getData("y_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
     connect(m_application->m_data_center->getData("teta_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+
+    connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
 
     //positionnement par défaut
     initEquipe(equipe1);
@@ -344,28 +348,34 @@ void CSimuBot::onRightClicGUI(QPoint pos)
 
 
 /*!
- * \brief CSimuBot::viewChanged on met à jour l'IHM - TODO: à relier au data manager et prendre les ref des pointeurs dans la classe qui gère l'IHM
+ * \brief CSimuBot::viewChanged on met à jour l'IHM quand la scene graphique a été modifiée
  * \param regions
+ *
+ * TODO: relier à un simulateur de robot pour donner les interactions avec l'environnement
  */
 void CSimuBot::viewChanged(QList<QRectF> regions)
 {
   Q_UNUSED(regions)
+    //récupération des différentes coordonnées (graphique et réelles)
     qreal x_view=GrosBot->getX();
     qreal y_view=GrosBot->getY();
     qreal x_graphic=GrosBot->x();
     qreal y_graphic=GrosBot->y();
     qreal theta_view=GrosBot->getTheta();
 
+    //récupération des différentes coordonnées (graphique et réelles) pour l'ancienne position du robot
     qreal x_prim_view=OldGrosBot->getX();
     qreal y_prim_view=OldGrosBot->getY();
     qreal x_prim_graphic=OldGrosBot->x();
     qreal y_prim_graphic=OldGrosBot->y();
 
+    //on redessine la ligne entre l'ancienne et la nouvelle position
     liaison_GrosBot->setLine(x_graphic,y_graphic,x_prim_graphic,y_prim_graphic);
 
+    //on calcule la distance entre l'ancienne et la nouvelle position
     deltaDistance= sqrt(pow((x_graphic-x_prim_graphic),2)+pow((y_graphic-y_prim_graphic),2));
 
-    //calcul de l'angle par rapport à l'ancienne position
+    //on calcule de l'angle par rapport à l'ancienne position
     if (x_view==x_prim_view)
     {
         if (y_view>y_prim_view)
@@ -387,21 +397,21 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
             deltaAngle=atan((y_view-y_prim_view)/(x_view-x_prim_view))-Pi;
     }
 
+    //Affichage des nouvelles valeurs position, angle du robot
     if (setAndGetInRad)
         m_ihm.ui.lcdNumber_theta->display(theta_view);
     else
         m_ihm.ui.lcdNumber_theta->display(normalizeAngleDeg(180*theta_view/Pi));
     m_ihm.ui.lcdNumber_x->display(x_view);
     m_ihm.ui.lcdNumber_y->display(y_view);
-
     m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 
-    QString str;
-
-
-    if(modeVisu==0)
+    //Si on est en mode TEST, on affiche les valeurs complémentaires vis à vis de l'ancienne position du robot
+    //et on met à jour le data manager
+    switch(modeVisu)
     {
+    case SIMUBOT::TEST :
         m_ihm.ui.lcdNumber_distance->display(deltaDistance);
         if (setAndGetInRad){
             m_ihm.ui.lcdNumber_angle->display(deltaAngle);
@@ -423,9 +433,18 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         m_application->m_data_center->write("PosX_robot", x_view);
         m_application->m_data_center->write("PosY_robot", y_view);
         m_application->m_data_center->write("DirDistance_robot", deltaDistance);
+        break;
+    case SIMUBOT::VISU :
+        break;
+    case SIMUBOT::SIMU:
+        //TODO SIMU: donner les interactions avec l'environnement au datamanger
+        break;
 
+    default:
+        break;
 
     }
+
 }
 
 void CSimuBot::initView(void){
@@ -433,10 +452,12 @@ void CSimuBot::initView(void){
     if(m_ihm.ui.radioButton_robot_relative->isChecked()){
         GrosBot->isRelativToBot=true;
         OldGrosBot->isRelativToBot=true;
+        OtherBot->isRelativToBot=true;
     }
     else{
         GrosBot->isRelativToBot=false;
         OldGrosBot->isRelativToBot=false;
+        OtherBot->isRelativToBot=false;
     }
 
     if(m_ihm.ui.radioButton_radian->isChecked())
@@ -453,9 +474,12 @@ void CSimuBot::initView(void){
         GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
                                m_ihm.ui.sB_Y_init_asserv->value(),
                                180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
+        OtherBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
+                               m_ihm.ui.sB_Y_init_asserv->value(),
+                               180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
         GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
         OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
-		OtherBot->raz(100,100,0);
+        OtherBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
     }
     else
     {
@@ -466,6 +490,8 @@ void CSimuBot::initView(void){
         OldGrosBot->raz(x_init,y_init,theta_init);
 		OtherBot->raz(100,100,0);
     }
+
+    OtherBot->display_XY(100,0);
 
     qreal x_reel_init=GrosBot->getX();
     qreal y_reel_init=GrosBot->getY();
@@ -491,15 +517,18 @@ void CSimuBot::initEquipe(Coord equipe)
     m_ihm.ui.lineEdit_Y_init->setValue(equipe.y);
     m_ihm.ui.lineEdit_Theta_init->setValue(equipe.teta);
 
+    //sens trigo appliqué au robot placé à gauche sur l'image repère orthogonal
     if(equipe.ortho)
     {
         GrosBot->sensOrtho=1;
         OldGrosBot->sensOrtho=1;
+        OtherBot->sensOrtho=1;
     }
     else
     {
         GrosBot->sensOrtho=-1;
         OldGrosBot->sensOrtho=-1;
+        OtherBot->sensOrtho=-1;
     }
 }
 
@@ -543,12 +572,31 @@ void CSimuBot::returnCapture_Theta()
     }
 }
 
+/*!
+ * \brief CSimuBot::changeMode gère les modes TEST, VISU et SIMU
+ * \param iMode mode choisi
+ *
+ * # COMPORTEMENT
+ * - rend effectif le mode choisi
+ * - Active/Désactive des éléments de l'IHM selon le mode (par exemple il faut rendre impossible la manipulation du robot pendant le mode VISU ou
+ * il est inutile d'afficher l'ancienne position du robot en dehors du mode TEST)
+ */
 void CSimuBot::changeMode(int iMode)
 {
     modeVisu=iMode;
 
-    if (modeVisu==1)
-    {
+    switch (modeVisu) {
+    case SIMUBOT::TEST:
+        GrosBot->setFlag(QGraphicsItem::ItemIsMovable, true);
+        GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        OldGrosBot->show();
+        liaison_GrosBot->show();
+        m_ihm.ui.lineEdit_x->setEnabled(true);
+        m_ihm.ui.lineEdit_y->setEnabled(true);
+        m_ihm.ui.lineEdit_theta->setEnabled(true);
+        break;
+    case SIMUBOT::VISU: //pour l'instant même IHM pour VISU et SIMU
+    case SIMUBOT::SIMU:
         GrosBot->setFlag(QGraphicsItem::ItemIsMovable, false);
         GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
         OldGrosBot->hide();
@@ -562,33 +610,28 @@ void CSimuBot::changeMode(int iMode)
         m_ihm.ui.lineEdit_x->setEnabled(false);
         m_ihm.ui.lineEdit_y->setEnabled(false);
         m_ihm.ui.lineEdit_theta->setEnabled(false);
-
-    }
-    else
-    {
-        GrosBot->setFlag(QGraphicsItem::ItemIsMovable, true);
-        GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
-        OldGrosBot->show();
-        liaison_GrosBot->show();
-        m_ihm.ui.lineEdit_x->setEnabled(true);
-        m_ihm.ui.lineEdit_y->setEnabled(true);
-        m_ihm.ui.lineEdit_theta->setEnabled(true);
+        break;
+    default:
+        break;
     }
 }
 
+/*!
+ * \brief CSimuBot::coordChanged appelé à chaque modification du data manager (on extrait les coordonnées robot)
+ * \param data
+ */
 void CSimuBot::coordChanged(CData *data)
 {
-    if(modeVisu==1)
+    // en mode VISU ou SIMU on extrait les coordonnées qui auraient changé
+    if((modeVisu==SIMUBOT::VISU)||(modeVisu==SIMUBOT::SIMU))
     {
         QString dataName=data->getName();
         if(dataName.compare("PosX_robot")==0)
-        {
-            //qDebug() << data->read();
             GrosBot->display_XY(data->read().toDouble(),5000);
-        }
         if(dataName.compare("PosY_robot")==0)
             GrosBot->display_XY(5000,data->read().toDouble());
-        if(dataName.compare("PosTeta_robot")==0){
+        if(dataName.compare("PosTeta_robot")==0)
+        {
             if(setAndGetInRad)
                 GrosBot->display_theta(data->read().toDouble());
             else
@@ -597,6 +640,11 @@ void CSimuBot::coordChanged(CData *data)
     }
 }
 
+
+/*!
+ * \brief CSimuBot::zoom pour zoomer ou dezoomer l'affichage du terrain
+ * \param value
+ */
 void CSimuBot::zoom(int value)
 {
     float factor=value*1.0;
@@ -734,15 +782,141 @@ void CSimuBot::slot_getPath(void)
 }
 
 
+// _____________________________________________________________________
+/*!
+ * \brief CSimuBot::real_robot_position_changed slot appelé quand l'une des coordonnées du robot issues du datamanager change
+ *
+ * # COMPORTEMENT
+ *  Permet au mode VISU et SIMU de faire évoluer le robot dans le simulateur selon les vrais évolutions des coordonnées
+ */
 void CSimuBot::real_robot_position_changed()
 {
-    if (modeVisu) {
+    //Si on est en mode VISU
+    if ((modeVisu==SIMUBOT::VISU) || (modeVisu==SIMUBOT::SIMU))
+    {
+        //on récupère les nouvelles coordonnées du robot
         float pos_x = m_application->m_data_center->getData("x_pos")->read().toFloat();
         float pos_y = m_application->m_data_center->getData("y_pos")->read().toFloat();
         float teta_pos = m_application->m_data_center->getData("teta_pos")->read().toFloat();
 
+        //mise à jour des coordonnées dans simubot
         emit displayCoord(pos_x, pos_y);
         emit displayAngle(teta_pos);
     }
+}
+
+/*!
+ * \brief CSimuBot::estimateEnvironmentVariables
+ *
+ * # COMPORTEMENT
+ * Calcule toutes les interactions entre le robot et l'environnement
+ * - capteurs US
+ * - blocage terrain
+ */
+
+void CSimuBot::estimate_Environment_Interactions()
+{
+    //estimation de l'environnement US
+    //récupération des différentes coordonnées (graphique et réelles)
+    qreal x_view=OtherBot->getX();
+    qreal y_view=OtherBot->getY();
+    qreal x_graphic=OtherBot->x();
+    qreal y_graphic=OtherBot->y();
+    qreal theta_view=GrosBot->getTheta();
+
+    //récupération des différentes coordonnées (graphique et réelles) pour l'ancienne position du robot
+    qreal x_prim_view=GrosBot->getX();
+    qreal y_prim_view=GrosBot->getY();
+    qreal x_prim_graphic=GrosBot->x();
+    qreal y_prim_graphic=GrosBot->y();
+
+    //on calcule la distance entre l'ancienne et la nouvelle position
+    float distanceAdversaire = sqrt(pow((x_graphic-x_prim_graphic),2)+pow((y_graphic-y_prim_graphic),2));
+    float angleAdversaire=0.0;
+
+    //on calcule l'angle par rapport à l'ancienne position
+    if (x_view==x_prim_view)
+    {
+        if (y_view>y_prim_view)
+            angleAdversaire=Pi/2;
+        else if (y_view==y_prim_view)
+            angleAdversaire=0;
+        else if (y_view<y_prim_view)
+            angleAdversaire=-Pi/2;
+    }
+    else if (x_view>x_prim_view)
+        angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view));
+    else if (x_view<x_prim_view)
+    {
+        if (y_view>y_prim_view)
+            angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view))+Pi;
+        else if (y_view==y_prim_view)
+            angleAdversaire=Pi;
+        else if (y_view<y_prim_view)
+            angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view))-Pi;
+    }
+
+    float adeg= (angleAdversaire-theta_view)*180/Pi; //angle en degré
+    while (adeg < 0)
+        adeg += 360;
+    while (adeg > 360)
+        adeg -= 360;
+    //Affichage des nouvelles valeurs position, angle du robot
+    qDebug() << "coord graphique: G(" <<x_prim_graphic <<","<<y_prim_graphic<<")\tAd("<<x_graphic<<","<<y_graphic<<")";
+    qDebug() << "coord réelles: G(" <<x_prim_view <<","<<y_prim_view<<")\tAd("<<x_view<<","<<y_view<<")";
+    qDebug() << "distance : " << distanceAdversaire;
+     qDebug() << "angle : " << adeg;
+    if(distanceAdversaire<=50)
+    {
+        if(((adeg>=0)&&(adeg<40))||((adeg>320)&&(adeg<=360))) //robot adverse devant
+        {
+            qDebug() << "AVG 1 - AVD 1";
+            qDebug() << "ARG 0 - ARD 0";
+        }
+        else if((adeg>=40)&&(adeg<80)) //robot adverse devant à gauche
+        {
+            qDebug() << "AVG 1 - AVD 0";
+            qDebug() << "ARG 0 - ARD 0\n";
+        }
+        else if((adeg>280)&&(adeg<=320)) //robot adverse devant à droite
+        {
+            qDebug() << "AVG 0 - AVD 1";
+            qDebug() << "ARG 0 - ARD 0";
+        }
+        else if((adeg>100)&&(adeg<=140)) //robot adverse arrière à gauche
+        {
+            qDebug() << "AVG 0 - AVD 0";
+            qDebug() << "ARG 1 - ARD 0";
+        }
+        else if((adeg>140)&&(adeg<220)) //robot adverse arrière
+        {
+            qDebug() << "AVG 0 - AVD 0";
+            qDebug() << "ARG 1 - ARD 1";
+        }
+        else if((adeg>=220)&&(adeg<260)) //robot adverse arrière à droite
+        {
+            qDebug() << "AVG 0 - AVD 0";
+            qDebug() << "ARG 0 - ARD 1";
+        }
+        else //robot adverse dans zones mortes
+        {
+            qDebug() << "AVG 0 - AVD 0";
+            qDebug() << "ARG 0 - ARD 0";
+        }
+    }
+    else
+    {
+        qDebug() << "AVG 0 - AVD 0";
+        qDebug() << "ARG 0 - ARD 0";
+    }
+    qDebug() << "------------------------------------------------------";
+
+
+    //estimation de blocage sur le terrain
+    //l'idée est d'interdire le mouvement d'un côté si un blocage est détecté à gauche ou a droite
+
+    //code copié de simubot 2009 :-)
+
+
 }
 

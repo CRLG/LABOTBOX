@@ -18,6 +18,12 @@
 #include <QtMath>
 #include "CData.h"
 
+enum SIMUBOT{
+    TEST=0,
+    VISU,
+    SIMU
+};
+
  class Cihm_SimuBot : public QMainWindow
 {
     Q_OBJECT
@@ -85,6 +91,7 @@ private:
     Coord equipe1;
     Coord equipe2;
 
+
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
@@ -99,7 +106,7 @@ public slots:
     void zoom(int value);
     void slot_dial_turned(void);
     void slot_getPath();
-
+    void estimate_Environment_Interactions();
     void real_robot_position_changed();
 };
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
+    <width>969</width>
     <height>538</height>
    </rect>
   </property>
@@ -70,13 +70,6 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="16">
-     <widget class="QLabel" name="label_9">
-      <property name="text">
-       <string>Visu</string>
-      </property>
-     </widget>
-    </item>
     <item row="10" column="2">
      <widget class="QLabel" name="label_11">
       <property name="text">
@@ -136,7 +129,7 @@
     <item row="0" column="11">
      <widget class="QLabel" name="label_8">
       <property name="text">
-       <string>Simu</string>
+       <string>TEST</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -183,7 +176,7 @@
     <item row="0" column="13" colspan="2">
      <widget class="QSlider" name="horizontalSlider_toggle_simu">
       <property name="maximum">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="pageStep">
        <number>1</number>
@@ -758,6 +751,30 @@
       </property>
      </widget>
     </item>
+    <item row="12" column="14">
+     <widget class="QPushButton" name="pB_US">
+      <property name="text">
+       <string>Obstacle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="13" colspan="2">
+     <widget class="QLabel" name="label_21">
+      <property name="text">
+       <string>VISU</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignHCenter|Qt::AlignTop</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="15" colspan="2">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>SIMU</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -765,8 +782,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>858</width>
-     <height>21</height>
+     <width>969</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
