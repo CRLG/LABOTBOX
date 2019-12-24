@@ -324,6 +324,17 @@ void CImageProcessing::startVideoWork(bool b_record)
     emit operate(param);
 }
 
+void CImageProcessing::startVideoWork(void)
+{
+    tVideoInput param;
+    param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
+    param.data1 = m_ihm.ui.in_data1->value();
+    param.data2 = m_ihm.ui.in_data2->value();
+    param.data3 = m_ihm.ui.in_data3->value();
+    param.record=false;
+    emit operate(param);
+}
+
 void CImageProcessing::stopVideoWork()
 {
     qDebug() << "UI Stop work";

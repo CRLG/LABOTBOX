@@ -81,6 +81,7 @@ public slots:
      void videoWorkFinished();
 
      void startVideoWork(bool b_record);
+     void startVideoWork(void); //avec enregistrement automatique
      void stopVideoWork();
 
      void initVideoThread();
