@@ -12,8 +12,9 @@
 #include <opencv2/aruco.hpp>
 
 typedef enum {
-    VIDEO_PROCESS_ALGO1 = 0,
-    VIDEO_PROCESS_ALGO2,
+    VIDEO_PROCESS_BALISE_MAT = 0,
+    VIDEO_PROCESS_RECO_ARUCO,
+    VIDEO_PROCESS_RECO_COULEURS,
     VIDEO_PROCESS_DUMMY
 }tVideoProcessAlgoType;
 

@@ -93,7 +93,7 @@ void VideoWorker::doWork(tVideoInput parameter) {
     {
         switch(parameter.video_process_algo)
         {
-            case VIDEO_PROCESS_ALGO1 :
+            case VIDEO_PROCESS_BALISE_MAT :
                 _video_process_algo1(parameter);
             break;
 
@@ -146,7 +146,7 @@ void VideoWorker::_video_process_algo1(tVideoInput parameter)
         std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
         std::vector< cv::Vec3d > rvecs, tvecs;
 
-        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
+        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
         cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
 
 
