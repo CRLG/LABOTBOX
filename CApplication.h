@@ -46,6 +46,7 @@ class CXBEE;
 class CXbeeNetworkMessenger;
 class CBalise;
 class CPowerElectrobot;
+class CSimulia;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -166,6 +167,9 @@ public:
 #ifdef MODULE_PowerElectrobot
    CPowerElectrobot     *m_PowerElectrobot;
 #endif // MODULE_PowerElectrobot
+#ifdef MODULE_Simulia
+   CSimulia     *m_Simulia;
+#endif // MODULE_Simulia
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

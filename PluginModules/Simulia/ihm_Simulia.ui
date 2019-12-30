@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_Simulia</class>
+ <widget class="QMainWindow" name="ihm_Simulia">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>469</width>
+    <height>526</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QSpinBox" name="Obstacle_AVD">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>160</y>
+      <width>61</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_2">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_8">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>70</y>
+      <width>16</width>
+      <height>361</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pb_init_all">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>20</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Init All</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>430</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Vitesse simu</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="TempsMatch">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>310</y>
+      <width>91</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="suffix">
+     <string>[s]</string>
+    </property>
+    <property name="maximum">
+     <double>10000.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="power_electrobot_global_current">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>280</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pb_stop_all">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>20</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop ALL</string>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_4">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>130</y>
+      <width>151</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Power Electrobot out</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>310</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TempsMatch</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="Tirette">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tirette</string>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_7">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="Obstacle_ARD">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>200</y>
+      <width>61</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_1">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="Obstacle_AVG">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>160</y>
+      <width>61</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_6">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="Obstacle_ARG">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>200</y>
+      <width>61</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pb_start_main">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start MAIN</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>140</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Obstacles</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="speed_simu">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>430</y>
+      <width>160</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_5">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_3">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>260</y>
+      <width>231</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PowerElectrobot.GlobalCurrent</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="dde_autotest">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>100</y>
+      <width>111</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>DdeAutotest</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>540</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuConfig">
+    <property name="title">
+     <string>Config</string>
+    </property>
+    <widget class="QMenu" name="menuDebugger">
+     <property name="title">
+      <string>Debugger</string>
+     </property>
+     <addaction name="actionActive_Start"/>
+     <addaction name="actionActive_Stop"/>
+     <addaction name="actionActive_onEntry"/>
+     <addaction name="actionActive_onExit"/>
+     <addaction name="actionActive_Interrupt_Evitement"/>
+    </widget>
+    <addaction name="menuDebugger"/>
+   </widget>
+   <addaction name="menuConfig"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionActive_Start">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active Start</string>
+   </property>
+  </action>
+  <action name="actionActive_Stop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active Stop</string>
+   </property>
+  </action>
+  <action name="actionActive_onEntry">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active onEntry</string>
+   </property>
+  </action>
+  <action name="actionActive_onExit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active onExit</string>
+   </property>
+  </action>
+  <action name="actionActive_Interrupt_Evitement">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active Interrupt Evitement</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QLed</class>
+   <extends>QWidget</extends>
+   <header>qled.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

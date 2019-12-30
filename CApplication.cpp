@@ -99,6 +99,9 @@
 #ifdef MODULE_PowerElectrobot
    #include "CPowerElectrobot.h"
 #endif // MODULE_PowerElectrobot
+#ifdef MODULE_Simulia
+   #include "CSimulia.h"
+#endif // MODULE_Simulia
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -390,6 +393,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_PowerElectrobot);
   m_list_modules.append(m_PowerElectrobot);
 #endif // MODULE_PowerElectrobot
+
+#ifdef MODULE_Simulia
+  m_Simulia     = new CSimulia("Simulia");
+  m_list_plugin_modules.append(m_Simulia);
+  m_list_modules.append(m_Simulia);
+#endif // MODULE_Simulia
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
