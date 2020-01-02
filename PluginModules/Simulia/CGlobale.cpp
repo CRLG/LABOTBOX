@@ -1,11 +1,11 @@
 #include "CGlobale.h"
 
-CGlobale Application;
+CGlobaleSimule Application;
 
-CGlobale::CGlobale()
+CGlobaleSimule::CGlobaleSimule()
 {
 }
 
-CGlobale::~CGlobale()
+CGlobaleSimule::~CGlobaleSimule()
 {
 }

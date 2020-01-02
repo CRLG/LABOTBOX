@@ -71,6 +71,9 @@ void CSimulia::init(CApplication *application)
 
   m_ia.setDebugger(new SM_DebugQDebug());
 
+  // passe à toutes les classes de simulation l'application Simulia
+  Application.m_roues.init(m_application);
+
   // Mise en cohérence de l'IHM avec l'état interne
   m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
   m_ihm.ui.actionActive_Stop->setChecked(m_ia.m_sm_debug->m_active_stop);
@@ -91,6 +94,16 @@ void CSimulia::init(CApplication *application)
   connect(m_ihm.ui.actionActive_onExit, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
   connect(m_ihm.ui.actionActive_Interrupt_Evitement, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
 
+  // Connexions DataManger -> IHM
+  connect(m_application->m_data_center->getData("TempsMatch", true), SIGNAL(valueChanged(double)), m_ihm.ui.TempsMatch, SLOT(setValue(double)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR1", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_1, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR2", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_3, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR3", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_3, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR4", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_4, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR5", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_5, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR6", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_6, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR7", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_7, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR8", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_8, SLOT(setValue(bool)));
 
   m_timer.start(100);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
@@ -137,36 +150,69 @@ void CSimulia::on_pb_stop_all()
 
 void CSimulia::on_pb_init_all()
 {
+    m_timer.stop();
+
+    // initialise l'asservissement et le modèle simulink des moteurs
+    Application.m_asservissement.CommandeManuelle(0, 0);
+    Application.m_asservissement.Init();
+    Application.m_roues.init_model();
+
+    // initialise les machines d'états Modelia du robot
     m_ia.initAllStateMachines();
 
     m_ia.m_sm_recup_bouees_distributeur.setPrioriteExecution(0);
     m_ia.m_sm_activer_phare.setPrioriteExecution(1);
     m_ia.m_inputs_interface.TE_Modele = 0.02f;
+
+    m_timer.start();
 }
 
 void CSimulia::on_timeout()
 {
+    // TODO :
+    //  peut être à revoir l'interface avec le monde extérieur
+    //  passer par les variables du DataManager
+    // Pour l'asservissement, donner la possibilité d'alimenter le modèle
+    //      - Soit à partir de Application.m_asservissement.xxxxx
+    //      - Soit à partir de données du DataManger (de l'IHM)
+
     // IHM -> Inputs
     m_ia.m_inputs_interface.Tirette             = m_ihm.ui.Tirette->isChecked();
     m_ia.m_inputs_interface.obstacle_AVG        = m_ihm.ui.Obstacle_AVG->value();
     m_ia.m_inputs_interface.obstacle_AVD        = m_ihm.ui.Obstacle_AVD->value();
     m_ia.m_inputs_interface.obstacle_ARG        = m_ihm.ui.Obstacle_ARG->value();
     m_ia.m_inputs_interface.obstacle_ARD        = m_ihm.ui.Obstacle_ARD->value();
+    m_ia.m_inputs_interface.obstacleDetecte     = m_ia.m_inputs_interface.obstacle_ARG || m_ia.m_inputs_interface.obstacle_ARD || m_ia.m_inputs_interface.obstacle_AVG || m_ia.m_inputs_interface.obstacle_AVD;
+    m_ia.m_inputs_interface.Convergence         = Application.m_asservissement.convergence_conf;
+    m_ia.m_inputs_interface.Convergence_rapide  = Application.m_asservissement.convergence_rapide;
+    m_ia.m_inputs_interface.X_robot             = Application.m_asservissement.X_robot;
+    m_ia.m_inputs_interface.Y_robot             = Application.m_asservissement.Y_robot;
+    m_ia.m_inputs_interface.angle_robot         = Application.m_asservissement.angle_robot;
     Application.m_power_electrobot.simuSetGlobalCurrent(m_ihm.ui.power_electrobot_global_current->value());
 
     // Step
     m_ia.step();
+    Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
+    Application.m_asservissement.CalculsMouvementsRobots();
 
     // Outputs -> IHM
-    m_ihm.ui.TempsMatch->setValue(m_ia.m_datas_interface.TempsMatch);
-    m_ihm.ui.power_electrobot_sw_1->setValue(Application.m_power_electrobot.getOutputPort()&0x01);
-    m_ihm.ui.power_electrobot_sw_2->setValue(Application.m_power_electrobot.getOutputPort()&0x02);
-    m_ihm.ui.power_electrobot_sw_3->setValue(Application.m_power_electrobot.getOutputPort()&0x04);
-    m_ihm.ui.power_electrobot_sw_4->setValue(Application.m_power_electrobot.getOutputPort()&0x08);
-    m_ihm.ui.power_electrobot_sw_5->setValue(Application.m_power_electrobot.getOutputPort()&0x10);
-    m_ihm.ui.power_electrobot_sw_6->setValue(Application.m_power_electrobot.getOutputPort()&0x20);
-    m_ihm.ui.power_electrobot_sw_7->setValue(Application.m_power_electrobot.getOutputPort()&0x40);
-    m_ihm.ui.power_electrobot_sw_8->setValue(Application.m_power_electrobot.getOutputPort()&0x80);
+    m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
+
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR1", Application.m_power_electrobot.getOutputPort()&0x01);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR2", Application.m_power_electrobot.getOutputPort()&0x02);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR3", Application.m_power_electrobot.getOutputPort()&0x04);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR4", Application.m_power_electrobot.getOutputPort()&0x08);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR5", Application.m_power_electrobot.getOutputPort()&0x10);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR6", Application.m_power_electrobot.getOutputPort()&0x20);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR7", Application.m_power_electrobot.getOutputPort()&0x40);
+    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR8", Application.m_power_electrobot.getOutputPort()&0x80);
+
+    m_application->m_data_center->write("x_pos", Application.m_asservissement.X_robot);
+    m_application->m_data_center->write("y_pos", Application.m_asservissement.Y_robot);
+    m_application->m_data_center->write("teta_pos", Application.m_asservissement.angle_robot);
+    m_application->m_data_center->write("convergence_conf", Application.m_asservissement.convergence_conf);
+    m_application->m_data_center->write("convergence_rapide", Application.m_asservissement.convergence_rapide);
+
 }
 
 void CSimulia::on_speed_simu_valueChanged(int val)

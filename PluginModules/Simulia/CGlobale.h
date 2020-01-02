@@ -5,25 +5,28 @@
 #define _GLOBALE_H_
 
 #include "CAsservissement.h"
+#include "CRoues_simu.h"
 #include "powerelectrobotsimu.h"
+
 
 // -----------------------------
 //! Classe de gestion des options d'exécution passees en ligne de commande
-class CGlobale {
+class CGlobaleSimule {
 public :
     //! L'asservissement de vitesse/position du robot
     // ATTENTION : l'instance de la classe asservisement doit être mise après l'instance de eeprom car CAsservissement utilise CEEPROM dans son constructeur
 
     CAsservissement m_asservissement;
+    CRouesSimu m_roues;
     //! Carte PowerElectrobot
     PowerElectrobotSimu m_power_electrobot;
 
-    CGlobale();
-    ~CGlobale();
+    CGlobaleSimule();
+    ~CGlobaleSimule();
 };
 
 
-extern CGlobale Application;
+extern CGlobaleSimule Application;
 
 
 #endif 

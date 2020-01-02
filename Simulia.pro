@@ -115,6 +115,7 @@ for(i, LIST_EXT_CPPROBLIB) {
 # Spécifiquement pour Simulia
 PATH_SOFT_MBED =        ../Soft_MBED
 PATH_COMMON_ROB =       $$PATH_SOFT_MBED/ext/mbed-common-rob
+PATH_CPPROBLIB =        $$PATH_SOFT_MBED/ext/CppRobLib
 PATH_MODELIA_COMMON =   $$PATH_COMMON_ROB/Modelia
 PATH_MODELIA_ROBOT =    $$PATH_SOFT_MBED/Modelia
 
@@ -122,12 +123,19 @@ INCLUDEPATH +=  $$PATH_MODELIA_COMMON \
                 $$PATH_MODELIA_ROBOT \
                 $$PATH_SOFT_MBED/Includes \
                 $$PATH_COMMON_ROB/Includes \
+                $$PATH_CPPROBLIB/common-rob \
+                ./PluginModules/Simulia/simu_moteurs \
 
 SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
                 $$PATH_MODELIA_ROBOT/*.cpp \
+                $$PATH_CPPROBLIB/common-rob/*.cpp \
+                $$PATH_COMMON_ROB/Sources/CAsservissement.cpp \
+                ./PluginModules/Simulia/simu_moteurs/plateformer_robot.cpp \
 
 HEADERS +=      $$PATH_MODELIA_COMMON/*.h \
                 $$PATH_MODELIA_ROBOT/*.h \
+                $$PATH_CPPROBLIB/common-rob/*.h \
+                $$PATH_COMMON_ROB/Includes/CAsservissement.h \
 
 CONFIG += plugins_designer
 
