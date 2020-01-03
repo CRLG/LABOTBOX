@@ -94,6 +94,8 @@ void CRouesSimu::resetCodeurs(void)
 {
     rtY.RegistrecodeurG = 0;
     rtY.RegistrecodeurD = 0;
+    memset(&rtDW, 0, sizeof(rtDW)); // RAZ nécessaire aussi des données internes au modèle (sinon, pas de réel RAZ des codeurs et les corrdonnées font un saut à la convergence)
+
     if (m_application) {
         m_application->m_data_center->write("CodeurRoueG", rtY.RegistrecodeurG);
         m_application->m_data_center->write("CodeurRoueD", rtY.RegistrecodeurD);
@@ -108,6 +110,10 @@ void CRouesSimu::init_model()
 {
     resetCodeurs();
     plateformer_robot_initialize();
+    memset(&rtDW, 0, sizeof(rtDW));
+    memset(rtM, 0, sizeof(RT_MODEL));
+    memset(&rtU, 0, sizeof(rtU));
+    memset(&rtY, 0, sizeof(rtY));
 }
 
 void CRouesSimu::step_model()
