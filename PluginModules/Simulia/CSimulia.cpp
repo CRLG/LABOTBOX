@@ -73,6 +73,7 @@ void CSimulia::init(CApplication *application)
 
   // passe à toutes les classes de simulation l'application Simulia
   Application.m_roues.init(m_application);
+  Application.m_servos_ax.init(m_application);
 
   // Mise en cohérence de l'IHM avec l'état interne
   m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
@@ -194,6 +195,7 @@ void CSimulia::on_timeout()
     m_ia.step();
     Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
     Application.m_asservissement.CalculsMouvementsRobots();
+    Application.m_servos_ax.simu();
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
