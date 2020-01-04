@@ -129,13 +129,13 @@ INCLUDEPATH +=  $$PATH_MODELIA_COMMON \
 SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
                 $$PATH_MODELIA_ROBOT/*.cpp \
                 $$PATH_CPPROBLIB/common-rob/*.cpp \
-                $$PATH_COMMON_ROB/Sources/CAsservissement.cpp \
+                #$$PATH_COMMON_ROB/Sources/CAsservissement.cpp \
                 ./PluginModules/Simulia/simu_moteurs/plateformer_robot.cpp \
 
 HEADERS +=      $$PATH_MODELIA_COMMON/*.h \
                 $$PATH_MODELIA_ROBOT/*.h \
                 $$PATH_CPPROBLIB/common-rob/*.h \
-                $$PATH_COMMON_ROB/Includes/CAsservissement.h \
+                #$$PATH_COMMON_ROB/Includes/CAsservissement.h \
 
 CONFIG += plugins_designer
 

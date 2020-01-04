@@ -74,6 +74,7 @@ void CSimulia::init(CApplication *application)
   // passe à toutes les classes de simulation l'application Simulia
   Application.m_roues.init(m_application);
   Application.m_servos_ax.init(m_application);
+  Application.m_asservissement.init(m_application);
 
   // Mise en cohérence de l'IHM avec l'état interne
   m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
