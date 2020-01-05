@@ -8,6 +8,7 @@
 #include "CRoues_simu.h"
 #include "powerelectrobotsimu.h"
 #include "CServoMoteurAX_simu.h"
+#include "CServoMoteurSD20_simu.h"
 
 
 // -----------------------------
@@ -19,6 +20,7 @@ public :
     //! Carte PowerElectrobot
     PowerElectrobotSimu m_power_electrobot;
     CServoMoteurAXSimu m_servos_ax;
+    CServoMoteurSD20Simu m_servos_sd20;
 
     CGlobaleSimule();
     ~CGlobaleSimule();

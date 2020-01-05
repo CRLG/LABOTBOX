@@ -75,6 +75,7 @@ void CSimulia::init(CApplication *application)
   Application.m_roues.init(m_application);
   Application.m_servos_ax.init(m_application);
   Application.m_asservissement.init(m_application);
+  Application.m_servos_sd20.init(m_application);
 
   // Mise en cohérence de l'IHM avec l'état interne
   m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
@@ -158,6 +159,7 @@ void CSimulia::on_pb_init_all()
     Application.m_asservissement.CommandeManuelle(0, 0);
     Application.m_asservissement.Init();
     Application.m_roues.init_model();
+    Application.m_servos_sd20.Init();
 
     // initialise les machines d'états Modelia du robot
     m_ia.initAllStateMachines();
@@ -197,6 +199,7 @@ void CSimulia::on_timeout()
     Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
     Application.m_asservissement.CalculsMouvementsRobots();
     Application.m_servos_ax.simu();
+    Application.m_servos_sd20.simu();
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
