@@ -192,36 +192,70 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     /*qDebug() << "Video result available:";
     qDebug() << "   result1:" << result.result1;
     qDebug() << "   result2:" << result.result2;*/
-    m_ihm.ui.rob1_dist->setValue(result.robot1_dist);
-    m_ihm.ui.rob1_angle->setValue(result.robot1_angle);
-    m_ihm.ui.rob2_dist->setValue(result.robot2_dist);
-    m_ihm.ui.rob2_angle->setValue(result.robot2_angle);
-    m_ihm.ui.fps->setValue(result.m_fps);
-    m_ihm.ui.label_5->setPixmap(QPixmap::fromImage(imgConst));
+    //on prend les dimensions de l'image
+    int w = imgConst.width();
+    int h = imgConst.height();
+    //on adapte au zoom demandé
+    int zoom=m_ihm.ui.zoomVideo->value();
 
+    //affichage selon l'onglet sélectionné
+    switch(m_ihm.ui.tabWidget->currentIndex())
+    {
+    case 1:
+        //le zoom est adapté on laisse l'image à sa dimension
+        if((zoom==0 && ((h==240)||(w==320)))||(zoom==1 && ((h==480)||(w==640)))||(zoom==2 && ((h==768)||(w==1024))))
+        {
+            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
+        }
+        else if(zoom==0 && ((h!=240)||(w!=320)))
+        {
+            //zoom QVGA
+            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(320,240,Qt::KeepAspectRatio));
+        }
+        else if(zoom==1 && ((h!=480)||(w!=640)))
+        {
+            //zoom VGA
+            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(640,480,Qt::KeepAspectRatio));
+        }
+        else if(zoom==2 && ((h!=768)||(w!=1024)))
+        {
+            //zoom XGA
+            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(1024,768,Qt::KeepAspectRatio));
+        }
+        else
+        {
+            //dans tous les cas on affiche la vidéo
+            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
+        }
+        break;
+    case 2:
+        m_ihm.ui.rob1_dist->setValue(result.robot1_dist);
+        m_ihm.ui.rob1_angle->setValue(result.robot1_angle);
+        m_ihm.ui.rob2_dist->setValue(result.robot2_dist);
+        m_ihm.ui.rob2_angle->setValue(result.robot2_angle);
+        m_ihm.ui.fps->setValue(result.m_fps);
+        break;
+    default:
+        break;
+    }
+
+    //Robot 1
+    //calcul des cordonnées polaires rapportées au terrain (centre = projection de la caméra
     float ro=sqrt(result.robot1_dist*result.robot1_dist+57*57);
-    float teta=result.robot1_angle;
-
+    float teta=result.robot1_angle; 
+    //envoi des coordonnées cartésiennes
     m_application->m_data_center->write("Robot1_X",  ro*cos(teta));
     m_application->m_data_center->write("Robot1_Y",  ro*sin(teta));
     m_application->m_data_center->write("Robot1_Teta",  teta);
 
+    //Robot 2
+    //calcul des cordonnées polaires rapportées au terrain (centre = projection de la caméra
     ro=sqrt(result.robot2_dist*result.robot2_dist+57*57);
     teta=result.robot2_angle;
-
+    //envoi des coordonnées cartésiennes
     m_application->m_data_center->write("Robot2_X",  ro*cos(teta));
     m_application->m_data_center->write("Robot2_Y",  ro*sin(teta));
     m_application->m_data_center->write("Robot2_Teta",  teta);
-    /*
-    m_application->m_data_center->write("Robot3_X",  -32000);
-    m_application->m_data_center->write("Robot3_Y",  -32000);
-    m_application->m_data_center->write("Robot3_Teta",  -32000);
-    m_application->m_data_center->write("Robot4_X",  -32000);
-    m_application->m_data_center->write("Robot4_Y",  -32000);
-    m_application->m_data_center->write("Robot4_Teta",  -32000);*/
-    //m_application->m_data_center->write("VideoActive", 0);
-    //QFrame toto;
-
 }
 
 void CImageProcessing::videoWorkStarted()

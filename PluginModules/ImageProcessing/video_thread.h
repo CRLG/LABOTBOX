@@ -67,6 +67,10 @@ private :
     cv::Mat distCoeffs;
     bool bCalibrated;
     float markerLength;
+    int iH;
+    int iL;
+    bool parameterConfirmed;
+    bool recordInitialized;
 
 
 
@@ -81,10 +85,11 @@ signals:
     void workFinished();
     void setCamState(int state);
 
-
 private:
     void _video_process_algo1(tVideoInput parameter);
     void _video_process_dummy(tVideoInput parameter);
+    void _video_record(cv::Mat frametoRecord);
+    void _video_confirm_parameters(cv::Mat frameSample);
 
     QString getVideoLogFilename();
 };
