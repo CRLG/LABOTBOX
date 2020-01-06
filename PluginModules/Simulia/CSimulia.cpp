@@ -76,6 +76,11 @@ void CSimulia::init(CApplication *application)
   Application.m_servos_ax.init(m_application);
   Application.m_asservissement.init(m_application);
   Application.m_servos_sd20.init(m_application);
+  Application.m_led1.init(m_application);
+  Application.m_led2.init(m_application);
+  Application.m_led3.init(m_application);
+  Application.m_led4.init(m_application);
+
 
   // Mise en cohérence de l'IHM avec l'état interne
   m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
@@ -107,6 +112,11 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR6", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_6, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR7", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_7, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR8", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_8, SLOT(setValue(bool)));
+
+  connect(m_application->m_data_center->getData("Led1", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_1, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("Led2", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_2, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("Led3", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_3, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData("Led4", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_4, SLOT(setValue(bool)));
 
   m_timer.start(100);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
@@ -149,6 +159,7 @@ void CSimulia::on_pb_active_main()
 void CSimulia::on_pb_stop_all()
 {
   m_ia.stopAllStateMachines();
+  m_timer.stop();
 }
 
 void CSimulia::on_pb_init_all()
@@ -160,6 +171,7 @@ void CSimulia::on_pb_init_all()
     Application.m_asservissement.Init();
     Application.m_roues.init_model();
     Application.m_servos_sd20.Init();
+    Application.m_leds.setState(ALL_LED, 0);
 
     // initialise les machines d'états Modelia du robot
     m_ia.initAllStateMachines();
@@ -200,6 +212,7 @@ void CSimulia::on_timeout()
     Application.m_asservissement.CalculsMouvementsRobots();
     Application.m_servos_ax.simu();
     Application.m_servos_sd20.simu();
+    Application.m_leds.compute();
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);

@@ -463,13 +463,138 @@
      <string>DdeAutotest</string>
     </property>
    </widget>
+   <widget class="QLed" name="led_mbed_1">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>220</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Blue</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Rounded</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>200</y>
+      <width>151</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Power Electrobot out</string>
+    </property>
+   </widget>
+   <widget class="QLed" name="led_mbed_2">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>220</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Blue</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Rounded</enum>
+    </property>
+   </widget>
+   <widget class="QLed" name="led_mbed_3">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>220</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Blue</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Rounded</enum>
+    </property>
+   </widget>
+   <widget class="QLed" name="led_mbed_4">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>220</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Blue</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Rounded</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>540</width>
+     <width>469</width>
      <height>22</height>
     </rect>
    </property>

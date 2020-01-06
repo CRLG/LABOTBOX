@@ -9,6 +9,8 @@
 #include "powerelectrobotsimu.h"
 #include "CServoMoteurAX_simu.h"
 #include "CServoMoteurSD20_simu.h"
+#include "CLed_simu.h"
+#include "CLeds.h"
 
 
 // -----------------------------
@@ -22,8 +24,16 @@ public :
     CServoMoteurAXSimu m_servos_ax;
     CServoMoteurSD20Simu m_servos_sd20;
 
+    // Gestion des LED
+    CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation
+    CLedSimu m_led2;
+    CLedSimu m_led3;
+    CLedSimu m_led4;
+    CLeds m_leds;
+
     CGlobaleSimule();
     ~CGlobaleSimule();
+
 };
 
 
