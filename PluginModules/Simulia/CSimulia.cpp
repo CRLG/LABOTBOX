@@ -80,6 +80,7 @@ void CSimulia::init(CApplication *application)
   Application.m_led2.init(m_application);
   Application.m_led3.init(m_application);
   Application.m_led4.init(m_application);
+  Application.m_power_electrobot.init(m_application);
 
 
   // Mise en cohérence de l'IHM avec l'état interne
@@ -216,15 +217,6 @@ void CSimulia::on_timeout()
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
-
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR1", Application.m_power_electrobot.getOutputPort()&0x01);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR2", Application.m_power_electrobot.getOutputPort()&0x02);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR3", Application.m_power_electrobot.getOutputPort()&0x04);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR4", Application.m_power_electrobot.getOutputPort()&0x08);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR5", Application.m_power_electrobot.getOutputPort()&0x10);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR6", Application.m_power_electrobot.getOutputPort()&0x20);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR7", Application.m_power_electrobot.getOutputPort()&0x40);
-    m_application->m_data_center->write("PowerElectrobot.OUTPUT_STOR8", Application.m_power_electrobot.getOutputPort()&0x80);
 
     m_application->m_data_center->write("x_pos", Application.m_asservissement.X_robot);
     m_application->m_data_center->write("y_pos", Application.m_asservissement.Y_robot);
