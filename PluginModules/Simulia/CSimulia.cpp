@@ -81,6 +81,7 @@ void CSimulia::init(CApplication *application)
   Application.m_led3.init(m_application);
   Application.m_led4.init(m_application);
   Application.m_power_electrobot.init(m_application);
+  Application.m_messenger_xbee_ntw.init(m_application);
 
 
   // Mise en cohérence de l'IHM avec l'état interne
@@ -214,6 +215,7 @@ void CSimulia::on_timeout()
     Application.m_servos_ax.simu();
     Application.m_servos_sd20.simu();
     Application.m_leds.compute();
+    Application.m_messenger_xbee_ntw.execute();
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);

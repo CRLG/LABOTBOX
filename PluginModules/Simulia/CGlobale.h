@@ -11,6 +11,7 @@
 #include "CServoMoteurSD20_simu.h"
 #include "CLed_simu.h"
 #include "CLeds.h"
+#include "MessengerXbeeNetwork_simu.h"
 
 
 // -----------------------------
@@ -23,6 +24,7 @@ public :
     PowerElectrobotSimu m_power_electrobot;
     CServoMoteurAXSimu m_servos_ax;
     CServoMoteurSD20Simu m_servos_sd20;
+    MessengerXbeeNetworkSimu m_messenger_xbee_ntw;
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation
