@@ -1622,22 +1622,101 @@ void CActuatorSequencer::Slot_Generate()
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * table_sequence=listSequence.at(tabIndex);
 
-    // Creation d'un fichier
-    QString ficName("genratedSequence_");
-    QString temps2=QTime::currentTime().toString("hh_mm");
-    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
-    ficName.append(temps1);
-    ficName.append(temps2);
-    ficName.append(".cpp");
+    //utile
+    QString N1T="\n\t";
+    QString N2T="\n\t\t";
+    QString N3T="\n\t\t\t";
+    QString stateEnumFormat=N2T+"case STATE_%1 :\t\treturn \"STATE_%1\";";
+    QString stateFormat=N1T+"// ___________________________"+
+            N1T+"case STATE_%1 :"+
+            N2T+"if (onEntry()) {";
+    QString closePreviousState=N2T+"if (onExit()) { }"+
+            N2T+"break;";
+
+    //Nom de la strategie
+    QString nomStrategie;
+    if(m_ihm.ui.strategyName->text().isEmpty())
+            nomStrategie="myStrategie";
+    else
+            nomStrategie=m_ihm.ui.strategyName->text();
+    //on en déduit le nom de la classe
+    QString strClassName="SM_"+nomStrategie;
+
+    // on en déduit également les noms des fichiers de la classe
+    QString ficName_cpp="sm_"+nomStrategie.toLower()+".cpp";
+    QString ficName_h="sm_"+nomStrategie.toLower()+".h";
 
     QString caption("Generate Strategie in CPP file");
     QString filter("CPP Files (*.cpp)");
-    QString fileName = QFileDialog::getSaveFileName(&m_ihm,caption, ficName,filter);
+    QString fileName_cpp = QFileDialog::getSaveFileName(&m_ihm,caption, ficName_cpp,filter);
 
-    QString coreFile="#include \"strategie.h\"\n#include \"mbed.h\"\n#include \"RessourcesHardware.h\"\n\n#include \"CGlobale.h\"\n#include \"ConfigSpecifiqueCoupe.h\"\n#include <math.h>\n\n";
-    coreFile=coreFile+"bool Strategie::%1()\n{\n\tbool isFinished=false;\n\tenum ID{\n%2,\n\t\tFIN\n\t};\n\n\tswitch(current_state)\n\t{%3\n\t\tdefault: isFinished=true; break;\n\t}\n\treturn isFinished;\n}";
+    /*
+      * pour le fichier .cpp
+      */
 
-    QString champEnum;
+    QString strWholeFile_cpp;
+    QString strComments;
+    QString strInclude;
+    QString strConstructor;
+    QString strGetName;
+    QString strState2Name;
+    QString strEnumStates;
+    QString strStep;
+
+    //construction du commentaire
+    QString strTime=QTime::currentTime().toString("hh_mm");
+    QString strDate=QDate::currentDate().toString("dd_MM_yyyy");
+    strComments="/**\n * Generated "+strDate+" at "+strTime+"\n */\n\n";
+
+    //construction des include
+    strInclude="#include \""+ficName_h+"\"\n#include \"CGlobale.h\"\n\n";
+
+    //construction du constructeur de la classe
+    strConstructor=strClassName+"::"+strClassName+"()\n{\n\tm_main_mission_type = true;\n\tm_max_score = 0;\n}\n\n";
+
+    //construction du getName()
+    strGetName="const char* SM_RecupBoueesDistributeur::getName()\n{\n\treturn \""+strClassName+"\";\n}\n\n";
+
+    //construction du StepToName() - A COMPLETER PENDANT LA SEQUENCE
+    strState2Name="const char* "+strClassName+"::stateToName(unsigned short state)"+
+            "\n{"+
+            N1T+"switch(state)"+
+            N1T+"{"+
+            "%1"+
+            N2T+"case FIN_MISSION :\treturn \"FIN_MISSION\";"+
+            N1T+"}"+
+            N1T+"return \"UNKNOWN_STATE\";"+
+            "\n}\n\n";
+
+    //construction du step() - A COMPLETER PENDANT LA SEQUENCE
+    strStep="// _____________________________________\nvoid "+strClassName+"::step()\n{"+
+            N1T+"switch (m_state)"+
+            N1T+"{"+
+            "\n%1\n"+
+            N1T+"// ___________________________"+
+            N1T+"case FIN_MISSION :"+
+            N2T+"m_succes = true;"+
+            N2T+"m_score = m_max_score;"+
+            N2T+"stop();"+
+            N2T+"break;"+
+            N1T+"}"+
+            "\n}\n";
+
+
+    /*
+     * Pour le fichier .h
+     */
+
+    QString strHeader=strComments+
+                    "#ifndef SM_"+nomStrategie.toUpper()+"_H\n#define SM_"+nomStrategie.toUpper()+"_H\n\n#include \"sm_statemachinebase.h\"\n\n"+
+                    "class "+strClassName+" : public SM_StateMachineBase\n{\npublic:"+
+                    N1T+strClassName+"();"+
+                    N1T+"void step();"+
+                    N1T+"const char* getName();"+
+                    N1T+"const char* stateToName(unsigned short state);\n"+
+                    N1T+"typedef enum {"+
+                    N1T+"STATE_1 = SM_StateMachineBase::SM_FIRST_STATE,";
+
     QString champStrategie;
 
     bool isInState=false;
@@ -1655,6 +1734,9 @@ void CActuatorSequencer::Slot_Generate()
         QString sConverted;
         bool isState=false;
         bool isTransition=false;
+        //numéro de l'état suivant
+        QString strNumNextState;
+        strNumNextState.setNum(numState+1);
 
 
         if(sActuator.compare("SD20")==0)
@@ -1662,53 +1744,36 @@ void CActuatorSequencer::Slot_Generate()
             isState=true;
             sConverted=sConverted+QString("Application.m_servos_sd20.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
         }
+
         if(sActuator.compare("AX-Position")==0)
         {
             isState=true;
             sConverted=sConverted+QString("Application.m_servos_ax.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
         }
+
         if(sActuator.compare("AX-Speed")==0)
         {
             isState=true;
             sConverted=sConverted+QString("Application.m_servos_ax.setSpeed(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
         }
+
         if(sActuator.compare("Motor")==0)
         {
             isState=true;
             sConverted=sConverted+QString("Application.m_moteurs.CommandeVitesse(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
         }
-        if(sActuator.compare("Wait")==0)
+
+        if(sActuator.compare("Power")==0)
         {
-            isTransition=true;
-            int msTime=sValue.toInt();
-            float convertedTime=msTime/1000.0;
-            QString str;
-            str.setNum(convertedTime,QLocale::C,3);
-            sConverted=sConverted+QString("timeOut(%1)").arg(str);
+            isState=true;
+            QString strConsigne;
+            if(sValue.compare("1")==0)
+                strConsigne="true";
+            else
+                strConsigne="false";
+            sConverted=sConverted+QString("Application.m_power_switch.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
         }
 
-        if(sActuator.compare("Event")==0)
-        {
-            isTransition=true;
-            int msTime=sValue.toInt();
-            float convertedTime=msTime/1000.0;
-            QString str;
-            str.setNum(convertedTime,QLocale::C,3);
-            if(sId.compare("convAsserv")==0)
-                sConverted=sConverted+QString("convMvt(%1)").arg(str);
-            /*if(id.compare("convRack")==0)
-                sConverted=sConverted+QString("convMvt(%1)").arg(sValue);*/
-        }
-        if(sActuator.contains("Sensor"))
-        {
-            isTransition=true;
-            if(sActuator.compare("Sensor_sup")==0)
-                sConverted=sConverted+QString("(%1>%2)").arg(sId).arg(sValue);
-            if(sActuator.compare("Sensor_egal")==0)
-                sConverted=sConverted+QString("(%1==%2)").arg(sId).arg(sValue);
-            if(sActuator.compare("Sensor_inf")==0)
-                sConverted=sConverted+QString("(%1<%2)").arg(sId).arg(sValue);
-        }
         if(sActuator.compare("Asser")==0)
         {
             isState=true;
@@ -1720,84 +1785,171 @@ void CActuatorSequencer::Slot_Generate()
                 sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
             if((sId.compare("DistAng")==0)&&(nb_args>=2))
                 sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
-            //if(id.compare("Rack")==0)
+            if(sId.compare("Rack")==0)
+                sConverted=sConverted+QString("Application.m_rack.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
         }
+
+        if(sActuator.compare("Wait")==0)
+        {
+            isTransition=true;
+            sConverted=sConverted+QString("gotoStateAfter(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+        }
+
+        if(sActuator.compare("Event")==0)
+        {
+            isTransition=true;
+            if(sId.compare("convAsserv")==0)
+                sConverted=sConverted+QString("gotoStateIfConvergence(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+            if(sId.compare("convRack")==0)
+                sConverted=sConverted+QString("gotoStateIfConvergenceRack(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+        }
+
+        if(sActuator.contains("Sensor"))
+        {
+            isTransition=true;
+            if(sActuator.compare("Sensor_sup")==0)
+                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2>%3));").arg(strNumNextState).arg(sId).arg(sValue);
+            if(sActuator.compare("Sensor_egal")==0)
+                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2==%3));").arg(strNumNextState).arg(sId).arg(sValue);
+            if(sActuator.compare("Sensor_inf")==0)
+                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2<%3));").arg(strNumNextState).arg(sId).arg(sValue);
+        }
+
+        //Ajout de la l'action ou la transition
         if(isState) //ça fait partie d'un état
         {
             if(isInState) //il est initialisé, on ajoute l'action
-                champStrategie=champStrategie+"\n\t\t\t"+sConverted;
+                champStrategie=champStrategie+N3T+sConverted;
             else //sinon on initialise et on ajoute l'action
             {
-                QString str;
+                //numéro de l'état
                 numState++;
-                str.setNum(numState);
+                QString strNumState;
+                strNumState.setNum(numState);
+
+                //on complète l'enum des états
+                QString strThisState=stateEnumFormat.arg(strNumState);
+                strEnumStates.append(strThisState);
+
                 //est-ce qu'il y avait une transition auparavant
                 if(isInTransition) //oui on la ferme avant de passer à l'action suivante
                 {
-                    champStrategie=champStrategie+") pass(ETAPE_"+str+"); break;\n\n";
+                    champStrategie=champStrategie+closePreviousState;
                     isInTransition=false;
                 }
-                champStrategie=champStrategie+"\n\t\tcase ETAPE_"+str+":\n\t\t\t"+sConverted;
-                if((numState<=0)||(numTransition<=0))
-                    champEnum=champEnum+"\t\tETAPE_"+str;
-                else
-                    champEnum=champEnum+",\n\t\tETAPE_"+str;
+
+                //ajout de l'action
+                champStrategie=champStrategie+stateFormat.arg(strNumState)+N3T+sConverted;
+
                 isInState=true;
             }
         }
         if(isTransition)
         {
             if(isInTransition) //elle est initialisée, on ajoute la transtition
-                champStrategie=champStrategie+"&&"+sConverted;
+                //TODO:champStrategie=champStrategie+"&&"+sConverted;
+                champStrategie=champStrategie+N3T+sConverted;
             else //sinon on initialise et on ajoute l'action
             {
-                QString str;
                 numTransition++;
-                str.setNum(numTransition);
-                //est-ce qu'il y avait un état auparavant
+
+                if(numState<=0) //on commence par une transition ajout d'un état vide
+                {
+                    //numéro de l'état
+                    numState++;
+                    QString strNumState;
+                    strNumState.setNum(numState);
+
+                    //on complète l'enum des états
+                    QString strThisState=stateEnumFormat.arg(strNumState);
+                    strEnumStates.append(strThisState);
+
+                    //ajout de l'action
+                    champStrategie=champStrategie+stateFormat.arg(strNumState)+N3T+"//AUCUNE ACTION";
+
+                    isInState=true;
+                }
+
+                //est-ce qu'il y avait une(des) action(s) auparavant
                 if(isInState) //oui on le ferme avant de passer à la transition
                 {
-                    champStrategie=champStrategie+"\n\t\t\tpass(TRANSITION_"+str+"); break;\n";
+                    champStrategie=champStrategie+N2T+"}\n";
                     isInState=false;
                 }
-                champStrategie=champStrategie+"\t\tcase TRANSITION_"+str+": if("+sConverted;
-                if((numState<=0)||(numTransition<=0))
-                    champEnum=champEnum+"\t\tTRANSITION_"+str;
-                else
-                    champEnum=champEnum+",\n\t\tTRANSITION_"+str;
+
+                //ajout de la transition
+                champStrategie=champStrategie+N3T+sConverted;
+
                 isInTransition=true;
             }
         }
     }
     if(isInState)
     {
-        champStrategie=champStrategie+"\npass(FIN); break;\n\n\t\tcase FIN: isFinished=true;break;\n";
+        champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState;
         isInState=false;
     }
-    if(isInTransition)
+    if(isInTransition) //on termine avec une transition, ajout d'un état vide
     {
-        champStrategie=champStrategie+") pass(FIN); break;\n\n\t\tcase FIN: isFinished=true;break;\n";
+        //on ferme l'action précédente avant l'état vide
+        champStrategie=champStrategie+closePreviousState;
+
+        //numéro de l'état
+        numState++;
+        QString strNumState;
+        strNumState.setNum(numState);
+
+        //on complète l'enum des états
+        QString strThisState=stateEnumFormat.arg(strNumState);
+        strEnumStates.append(strThisState);
+
+        //ajout de l'action
+        champStrategie=champStrategie+stateFormat.arg(strNumState)+N3T+"//AUCUNE ACTION";
+
+        champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState;
         isInTransition=false;
     }
 
-    QString nomStrategie;
-    if(m_ihm.ui.strategyName->text().isEmpty())
-            nomStrategie="maStrategie";
-    else
-            nomStrategie=m_ihm.ui.strategyName->text();
 
-    coreFile=coreFile.arg(nomStrategie).arg(champEnum).arg(champStrategie);
+    //assemblage du cpp
+    strWholeFile_cpp= strComments + strInclude + strConstructor + strGetName + strState2Name.arg(strEnumStates)+strStep.arg(champStrategie);
 
-    if(!fileName.isEmpty())
+    //bool isAlreadyExist=false;
+    if(!fileName_cpp.isEmpty())
     {
-        QFile fichier(fileName);
-        if(fichier.open(QIODevice::ReadWrite | QIODevice::Text))
+        QFile file_cpp(fileName_cpp);
+        if(file_cpp.open(QIODevice::ReadWrite | QIODevice::Text))
         {
-            QTextStream stream(&fichier);
-            stream << coreFile;
-            fichier.close();
+            QTextStream stream(&file_cpp);
+            stream << strWholeFile_cpp;
+            file_cpp.close();
         }
-        else
-            fichier.close();
+        else{
+            //isAlreadyExist=true;
+            file_cpp.close();
+        }
     }
+
+    //assemblage du .h
+    for(int j=2;j<numState+15;j++){ //on ajoute quelques états
+        //numéro de l'état
+        QString strNumState;
+        strNumState.setNum(j);
+        strHeader=strHeader+N1T+"STATE_"+strNumState+",";
+    }
+
+    strHeader=strHeader+N1T+"FIN_MISSION"+N1T+"}tState;\n};\n\n#endif // SM_"+nomStrategie.toUpper()+"_H";
+
+    QString fileName_h=fileName_cpp.replace(".cpp", ".h");
+    QFile file_h(fileName_h);
+    if(file_h.open(QIODevice::ReadWrite | QIODevice::Text))
+    {
+        QTextStream stream(&file_h);
+        stream << strHeader;
+        file_h.close();
+    }
+    else
+        file_h.close();
+
+
 }
