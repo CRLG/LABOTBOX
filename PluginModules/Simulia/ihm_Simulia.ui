@@ -86,7 +86,7 @@
       <x>260</x>
       <y>70</y>
       <width>16</width>
-      <height>361</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="orientation">
@@ -110,7 +110,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
+      <y>400</y>
       <width>101</width>
       <height>17</height>
      </rect>
@@ -372,10 +372,13 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>430</y>
+      <y>400</y>
       <width>160</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="maximum">
+     <number>50</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -501,7 +504,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Power Electrobot out</string>
+     <string>LED MBED</string>
     </property>
    </widget>
    <widget class="QLed" name="led_mbed_2">
@@ -586,6 +589,45 @@
     </property>
     <property name="shape">
      <enum>QLed::Rounded</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="StepSimu">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>430</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1xStep</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="PauseSimu">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>400</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="PlaySimu">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>370</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Play</string>
     </property>
    </widget>
   </widget>

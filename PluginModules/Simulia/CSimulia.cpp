@@ -94,10 +94,14 @@ void CSimulia::init(CApplication *application)
   connect(m_ihm.ui.pb_start_main, SIGNAL(pressed()), this, SLOT(on_pb_active_main()));
   connect(m_ihm.ui.pb_stop_all, SIGNAL(pressed()), this, SLOT(on_pb_stop_all()));
   connect(m_ihm.ui.pb_init_all, SIGNAL(pressed()), this, SLOT(on_pb_init_all()));
-  connect(m_ihm.ui.speed_simu, SIGNAL(valueChanged(int)), this, SLOT(on_speed_simu_valueChanged(int)));
   connect(m_ihm.ui.dde_autotest, SIGNAL(pressed()), this, SLOT(on_dde_autotest_pressed()));
 
   connect(&m_timer, SIGNAL(timeout()), this, SLOT(on_timeout()));
+  connect(m_ihm.ui.PlaySimu, SIGNAL(clicked(bool)), &m_timer, SLOT(start()));
+  connect(m_ihm.ui.PauseSimu, SIGNAL(clicked(bool)), &m_timer, SLOT(stop()));
+  connect(m_ihm.ui.StepSimu, SIGNAL(clicked(bool)), this, SLOT(step()));
+  connect(m_ihm.ui.speed_simu, SIGNAL(valueChanged(int)), this, SLOT(on_speed_simu_valueChanged(int)));
+
   connect(m_ihm.ui.actionActive_Start, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
   connect(m_ihm.ui.actionActive_Stop, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
   connect(m_ihm.ui.actionActive_onEntry, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
@@ -120,7 +124,7 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("Led3", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_3, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("Led4", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_4, SLOT(setValue(bool)));
 
-  m_timer.start(100);
+  m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
 }
 
@@ -188,6 +192,11 @@ void CSimulia::on_pb_init_all()
 
 void CSimulia::on_timeout()
 {
+    step();
+}
+
+void CSimulia::step()
+{
     // TODO :
     //  peut être à revoir l'interface avec le monde extérieur
     //  passer par les variables du DataManager
@@ -210,13 +219,7 @@ void CSimulia::on_timeout()
     Application.m_power_electrobot.simuSetGlobalCurrent(m_ihm.ui.power_electrobot_global_current->value());
 
     // Step
-    m_ia.step();
-    Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
-    Application.m_asservissement.CalculsMouvementsRobots();
-    Application.m_servos_ax.simu();
-    Application.m_servos_sd20.simu();
-    Application.m_leds.compute();
-    Application.m_messenger_xbee_ntw.execute();
+    simu_task_sequencer();
 
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
@@ -228,6 +231,68 @@ void CSimulia::on_timeout()
     m_application->m_data_center->write("convergence_rapide", Application.m_asservissement.convergence_rapide);
 
 }
+
+// L'objectif de cette fonction est de reprendre les mêmes rapports de temps
+// que sur le robot pour que la simulation soit la plus représentative
+void CSimulia::simu_task_sequencer()
+{
+    static unsigned int cpt10msec = 0;
+    static unsigned int cpt20msec = 0;
+    static unsigned int cpt50msec = 0;
+    static unsigned int cpt100msec = 0;
+    static unsigned int cpt200msec = 0;
+    static unsigned int cpt500msec = 0;
+    static unsigned int cpt1sec = 0;
+
+    Application.m_servos_ax.simu();
+    Application.m_servos_sd20.simu();
+    // ______________________________
+    cpt10msec++;
+    if (cpt10msec >= 1) {
+      cpt10msec = 0;
+    }
+
+    // ______________________________
+    cpt20msec++;
+    if (cpt20msec >= 2) {
+      cpt20msec = 0;
+
+      Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
+      Application.m_asservissement.CalculsMouvementsRobots();
+
+      // Execute un pas de calcul du modele
+      m_ia.step();
+   }
+    // ______________________________
+    cpt50msec++;
+    if (cpt50msec >= 5) {
+      cpt50msec = 0;
+
+      Application.m_messenger_xbee_ntw.execute();
+      Application.m_leds.compute();
+    }
+    // ______________________________
+    cpt100msec++;
+    if (cpt100msec >= 10) {
+      cpt100msec = 0;
+    }
+    // ______________________________
+    cpt200msec++;
+    if (cpt200msec >= 20) {
+      cpt200msec = 0;
+    }
+    // ______________________________
+    cpt500msec++;
+    if (cpt500msec >= 50) {
+      cpt500msec = 0;
+    }
+    // ______________________________
+    cpt1sec++;
+    if (cpt1sec >= 100) {
+      cpt1sec = 0;
+    }
+}
+
 
 void CSimulia::on_speed_simu_valueChanged(int val)
 {

@@ -59,6 +59,7 @@ public:
 
 private:
     Cihm_Simulia m_ihm;
+    void simu_task_sequencer();
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -67,6 +68,7 @@ private slots :
     void on_pb_active_main();
     void on_pb_stop_all();
     void on_timeout();
+    void step();
     void on_config_debugger_changed();
     // autoconnect
     void on_speed_simu_valueChanged(int va);
