@@ -72,6 +72,19 @@ void CServoMoteurAXSimu::init(CApplication *application)
     m_application = application;
 }
 
+void CServoMoteurAXSimu::Init()
+{
+    // RAZ de la position du servo dans le DataManager si elle existe
+    for (unsigned int i=0; i<NOMBRE_MAX_SERVOS; i++) {
+        m_servos[i].position = 0;
+        m_servos[i].target_position = m_servos[i].position;
+        QString data_name = "ServoAX_" + QString::number(i) + ".Position";
+        if (m_application->m_data_center->isExist(data_name)) {
+            m_application->m_data_center->write(data_name, m_servos[i].position);
+        }
+    }
+}
+
 // ____________________________________________________________
 // Simule un déplacement du servo vers la position attendue
 void CServoMoteurAXSimu::simu()

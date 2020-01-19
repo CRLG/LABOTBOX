@@ -173,6 +173,7 @@ void CSimulia::on_pb_init_all()
     Application.m_asservissement.Init();
     Application.m_roues.init_model();
     Application.m_servos_sd20.Init();
+    Application.m_servos_ax.Init();
     Application.m_leds.setState(ALL_LED, 0);
 
     // initialise les machines d'états Modelia du robot

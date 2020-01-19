@@ -30,6 +30,7 @@ public:
     virtual tAxErr setLimitPositionMax(unsigned char id, unsigned short pos);
 
     void init(CApplication *application);
+    void Init();
 
     void simu();
 
