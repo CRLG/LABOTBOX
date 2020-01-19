@@ -95,6 +95,7 @@ private:
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
+    void setSequence();
 public slots:
     void viewChanged(QList<QRectF> regions);
     void initView(void);
@@ -108,6 +109,7 @@ public slots:
     void slot_getPath();
     void estimate_Environment_Interactions();
     void real_robot_position_changed();
+    void catchDoubleClick();
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_

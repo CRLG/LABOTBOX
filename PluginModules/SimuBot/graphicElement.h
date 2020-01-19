@@ -66,6 +66,7 @@ public:
 
 signals:
     void center(qreal x_new, qreal y_new,float speed);
+    void isDoubleClicked();
 
 public slots:
     void replace(qreal x_new, qreal y_new,float speed);

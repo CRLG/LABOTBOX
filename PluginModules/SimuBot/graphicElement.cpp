@@ -114,6 +114,7 @@ void GraphicElement::mousePressEvent(QGraphicsSceneMouseEvent *event){
 void GraphicElement::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     emit center(x(),y(),0.0);
+    emit isDoubleClicked();
     QGraphicsPolygonItem::mouseDoubleClickEvent(event);
 }
 

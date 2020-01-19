@@ -9,6 +9,7 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include "CSimuBot.h"
 #include <QTest>
 #include <QFile>
 #include <QDate>
@@ -134,6 +135,9 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.tool_rad,SIGNAL(returnPressed()),this,SLOT(Slot_convert_to_deg()));
 
   connect(m_ihm.ui.cB_bRepeatSequence, SIGNAL(toggled(bool)),this,SLOT(setEnableRepetition(bool)));
+
+  connect(m_ihm.ui.pB_get_XYTeta, SIGNAL(clicked(bool)),this,SLOT(Slot_get_XYTeta()));
+  connect(m_application->m_SimuBot,SIGNAL(setSequence()),this, SLOT(Slot_SetPosFromSimu()));
 }
 
 
@@ -1519,6 +1523,36 @@ void CActuatorSequencer::Slot_convert_to_deg()
     m_ihm.ui.tool_deg->setText(deg_value);
 }
 
+void CActuatorSequencer::Slot_get_XYTeta()
+{
+    QString id=m_ihm.ui.cB_Asser->currentText();
+    QVariant val;
+    if(id=="XY")
+    {
+        val = m_application->m_data_center->read("PosX_robot");
+        m_ihm.ui.lE_Asser_1->setValue(val.toInt());
+        val = m_application->m_data_center->read("PosY_robot");
+        m_ihm.ui.lE_Asser_2->setValue(val.toInt());
+    }
+    if(id=="XYTheta")
+    {
+        val = m_application->m_data_center->read("PosX_robot");
+        m_ihm.ui.lE_Asser_1->setValue(val.toInt());
+        val = m_application->m_data_center->read("PosY_robot");
+        m_ihm.ui.lE_Asser_2->setValue(val.toInt());
+        val = m_application->m_data_center->read("PosTeta_robot");
+        m_ihm.ui.lE_Asser_3->setValue(val.toDouble());
+    }
+
+    if(id=="DistAng")
+    {
+        val = m_application->m_data_center->read("DirDistance_robot");
+        m_ihm.ui.lE_Asser_1->setValue(val.toInt());
+        val = m_application->m_data_center->read("PosTeta_robot");
+        m_ihm.ui.lE_Asser_3->setValue(val.toDouble());
+    }
+}
+
 void CActuatorSequencer::Slot_up()
 {
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
@@ -1952,4 +1986,14 @@ void CActuatorSequencer::Slot_Generate()
         file_h.close();
 
 
+}
+
+void CActuatorSequencer::Slot_SetPosFromSimu()
+{
+    m_ihm.ui.cB_Asser->setCurrentIndex(1);
+    Slot_get_XYTeta();
+    m_ihm.ui.sB_TimeOut->setValue(5000);
+    m_ihm.ui.cB_Events->setCurrentIndex(0);
+    m_ihm.ui.pB_Add_Asser->click();
+    m_ihm.ui.pB_Add_Event->click();
 }

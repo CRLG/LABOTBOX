@@ -1013,20 +1013,13 @@
       </property>
      </widget>
     </item>
-    <item row="14" column="15">
-     <widget class="QPushButton" name="pB_Remove">
-      <property name="minimumSize">
-       <size>
-        <width>30</width>
-        <height>23</height>
-       </size>
+    <item row="16" column="9" rowspan="2">
+     <widget class="QLabel" name="label_nbSequence">
+      <property name="enabled">
+       <bool>false</bool>
       </property>
       <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/minus.png</normaloff>:/icons/minus.png</iconset>
+       <string>times</string>
       </property>
      </widget>
     </item>
@@ -1051,13 +1044,20 @@
       </property>
      </widget>
     </item>
-    <item row="16" column="9" rowspan="2">
-     <widget class="QLabel" name="label_nbSequence">
-      <property name="enabled">
-       <bool>false</bool>
+    <item row="14" column="15">
+     <widget class="QPushButton" name="pB_Remove">
+      <property name="minimumSize">
+       <size>
+        <width>30</width>
+        <height>23</height>
+       </size>
       </property>
       <property name="text">
-       <string>times</string>
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/minus.png</normaloff>:/icons/minus.png</iconset>
       </property>
      </widget>
     </item>
@@ -1090,6 +1090,13 @@
       </property>
      </widget>
     </item>
+    <item row="19" column="0" colspan="16">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
     <item row="17" column="1" rowspan="2">
      <widget class="QPushButton" name="pB_Resume">
       <property name="enabled">
@@ -1113,38 +1120,6 @@
       <property name="icon">
        <iconset resource="../../icons.qrc">
         <normaloff>:/icons/player_pause.png</normaloff>:/icons/player_pause.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>32</width>
-        <height>32</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="17" column="3" rowspan="2">
-     <widget class="QPushButton" name="pB_Stop">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/stop.png</normaloff>:/icons/stop.png</iconset>
       </property>
       <property name="iconSize">
        <size>
@@ -1183,33 +1158,6 @@
       </property>
      </widget>
     </item>
-    <item row="18" column="4" colspan="3">
-     <widget class="QCheckBox" name="cB_bRepeatSequence">
-      <property name="text">
-       <string>repeat the sequence</string>
-      </property>
-     </widget>
-    </item>
-    <item row="18" column="7">
-     <widget class="QSpinBox" name="sB_numberOfSequence">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="minimum">
-       <number>1</number>
-      </property>
-      <property name="maximum">
-       <number>10</number>
-      </property>
-     </widget>
-    </item>
-    <item row="19" column="0" colspan="16">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
     <item row="20" column="0" colspan="2">
      <widget class="QPushButton" name="pB_Clear">
       <property name="minimumSize">
@@ -1230,6 +1178,58 @@
       <property name="icon">
        <iconset resource="../../icons.qrc">
         <normaloff>:/icons/supprimer.png</normaloff>:/icons/supprimer.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="4" colspan="3">
+     <widget class="QCheckBox" name="cB_bRepeatSequence">
+      <property name="text">
+       <string>repeat the sequence</string>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="7">
+     <widget class="QSpinBox" name="sB_numberOfSequence">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>10</number>
+      </property>
+     </widget>
+    </item>
+    <item row="17" column="3" rowspan="2">
+     <widget class="QPushButton" name="pB_Stop">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/stop.png</normaloff>:/icons/stop.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
       </property>
      </widget>
     </item>
@@ -1256,6 +1256,13 @@
       </property>
      </widget>
     </item>
+    <item row="20" column="6">
+     <widget class="QPushButton" name="pB_Generate">
+      <property name="text">
+       <string>Generate</string>
+      </property>
+     </widget>
+    </item>
     <item row="20" column="4">
      <widget class="QPushButton" name="pB_Load">
       <property name="minimumSize">
@@ -1279,14 +1286,14 @@
       </property>
      </widget>
     </item>
-    <item row="20" column="6">
-     <widget class="QPushButton" name="pB_Generate">
+    <item row="4" column="5" rowspan="3">
+     <widget class="QPushButton" name="pB_get_XYTeta">
       <property name="text">
-       <string>Generate</string>
+       <string>getData</string>
       </property>
      </widget>
     </item>
-    <item row="20" column="7" colspan="3">
+    <item row="20" column="7" colspan="4">
      <widget class="QLineEdit" name="strategyName">
       <property name="text">
        <string>myStrategy</string>

@@ -69,6 +69,7 @@ public:
 
 public slots:
     void Slot_Generate();
+    void Slot_SetPosFromSimu();
 private:
     Cihm_ActuatorSequencer m_ihm;
     bool bPlay,bResume,bStop;
@@ -115,6 +116,7 @@ private slots :
     void Slot_Play_only_asser();
     void Slot_convert_to_rad();
     void Slot_convert_to_deg();
+    void Slot_get_XYTeta();
     void Slot_up();
     void Slot_down();
     void setEnableRepetition(bool state);

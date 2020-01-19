@@ -249,6 +249,7 @@ void CSimuBot::init(CApplication *application)
     // pour l'instant c'est en dur dans le constructeur
     connect(terrain, SIGNAL(changed(QList<QRectF>)), this, SLOT(viewChanged(QList<QRectF>)));
     connect(GrosBot,SIGNAL(center(qreal,qreal,float)),OldGrosBot,SLOT(replace(qreal,qreal,float)));
+    connect(GrosBot,SIGNAL(isDoubleClicked()),this,SLOT(catchDoubleClick()));
 	
 	
     terrain->addItem(OldGrosBot);
@@ -594,6 +595,7 @@ void CSimuBot::changeMode(int iMode)
         m_ihm.ui.lineEdit_x->setEnabled(true);
         m_ihm.ui.lineEdit_y->setEnabled(true);
         m_ihm.ui.lineEdit_theta->setEnabled(true);
+        m_ihm.ui.checkBox_setSequence->setEnabled(true);
         break;
     case SIMUBOT::VISU: //pour l'instant même IHM pour VISU et SIMU
     case SIMUBOT::SIMU:
@@ -610,6 +612,8 @@ void CSimuBot::changeMode(int iMode)
         m_ihm.ui.lineEdit_x->setEnabled(false);
         m_ihm.ui.lineEdit_y->setEnabled(false);
         m_ihm.ui.lineEdit_theta->setEnabled(false);
+        m_ihm.ui.checkBox_setSequence->setChecked(false);
+        m_ihm.ui.checkBox_setSequence->setEnabled(false);
         break;
     default:
         break;
@@ -803,6 +807,12 @@ void CSimuBot::real_robot_position_changed()
         emit displayCoord(pos_x, pos_y);
         emit displayAngle(teta_pos);
     }
+}
+
+void CSimuBot::catchDoubleClick()
+{
+    if(m_ihm.ui.checkBox_setSequence->isChecked())
+        emit setSequence();
 }
 
 /*!
