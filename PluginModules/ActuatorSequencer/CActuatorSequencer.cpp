@@ -1709,7 +1709,7 @@ void CActuatorSequencer::Slot_Generate()
     strConstructor=strClassName+"::"+strClassName+"()\n{\n\tm_main_mission_type = true;\n\tm_max_score = 0;\n}\n\n";
 
     //construction du getName()
-    strGetName="const char* SM_RecupBoueesDistributeur::getName()\n{\n\treturn \""+strClassName+"\";\n}\n\n";
+    strGetName="const char* "+strClassName+"::getName()\n{\n\treturn \""+strClassName+"\";\n}\n\n";
 
     //construction du StepToName() - A COMPLETER PENDANT LA SEQUENCE
     strState2Name="const char* "+strClassName+"::stateToName(unsigned short state)"+
@@ -1782,7 +1782,7 @@ void CActuatorSequencer::Slot_Generate()
         if(sActuator.compare("AX-Position")==0)
         {
             isState=true;
-            sConverted=sConverted+QString("Application.m_servos_ax.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+            sConverted=sConverted+QString("Application.m_servos_ax.setPosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
         }
 
         if(sActuator.compare("AX-Speed")==0)
@@ -1805,7 +1805,7 @@ void CActuatorSequencer::Slot_Generate()
                 strConsigne="true";
             else
                 strConsigne="false";
-            sConverted=sConverted+QString("Application.m_power_switch.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
+            sConverted=sConverted+QString("Application.m_power_electrobot.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
         }
 
         if(sActuator.compare("Asser")==0)
