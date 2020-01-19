@@ -150,7 +150,7 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2019_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2020_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
