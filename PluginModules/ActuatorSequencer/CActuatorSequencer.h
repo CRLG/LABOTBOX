@@ -76,6 +76,8 @@ private:
 
     QList<QTableWidget *> listSequence;
 
+    QString defaultPath;
+
     void updateComboBox();
     void update_sequenceButtons();
 

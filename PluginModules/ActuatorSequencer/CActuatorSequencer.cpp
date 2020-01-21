@@ -79,6 +79,9 @@ void CActuatorSequencer::init(CApplication *application)
   // Restore la couleur de fond
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
+  //restaure le répertoire par défaut pour les sauvegardes
+  val = m_application->m_eeprom->read(getName(), "default_path", QVariant("."));
+  defaultPath=val.toString();
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
   QTableWidget * newSequence= new QTableWidget;
@@ -1682,7 +1685,8 @@ void CActuatorSequencer::Slot_Generate()
 
     QString caption("Generate Strategie in CPP file");
     QString filter("CPP Files (*.cpp)");
-    QString fileName_cpp = QFileDialog::getSaveFileName(&m_ihm,caption, ficName_cpp,filter);
+    QString fullPathFile=defaultPath+"/"+ficName_cpp;
+    QString fileName_cpp = QFileDialog::getSaveFileName(&m_ihm,caption, fullPathFile,filter);
 
     /*
       * pour le fichier .cpp
