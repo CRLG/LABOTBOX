@@ -1952,7 +1952,7 @@ void CActuatorSequencer::Slot_Generate()
     if(!fileName_cpp.isEmpty())
     {
         QFile file_cpp(fileName_cpp);
-        if(file_cpp.open(QIODevice::ReadWrite | QIODevice::Text))
+        if(file_cpp.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
         {
             QTextStream stream(&file_cpp);
             stream << strWholeFile_cpp;
@@ -1976,7 +1976,7 @@ void CActuatorSequencer::Slot_Generate()
 
     QString fileName_h=fileName_cpp.replace(".cpp", ".h");
     QFile file_h(fileName_h);
-    if(file_h.open(QIODevice::ReadWrite | QIODevice::Text))
+    if(file_h.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
     {
         QTextStream stream(&file_h);
         stream << strHeader;
