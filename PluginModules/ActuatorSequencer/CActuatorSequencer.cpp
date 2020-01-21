@@ -1770,7 +1770,12 @@ void CActuatorSequencer::Slot_Generate()
         bool isTransition=false;
         //numéro de l'état suivant
         QString strNumNextState;
+        QString strNextSate;
         strNumNextState.setNum(numState+1);
+        if(indexItem==(table_sequence->rowCount())-1)
+            strNextSate="FIN_MISSION";
+        else
+            strNextSate="STATE_"+strNumNextState;
 
 
         if(sActuator.compare("SD20")==0)
@@ -1826,27 +1831,27 @@ void CActuatorSequencer::Slot_Generate()
         if(sActuator.compare("Wait")==0)
         {
             isTransition=true;
-            sConverted=sConverted+QString("gotoStateAfter(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+            sConverted=sConverted+QString("gotoStateAfter(%1,%2);").arg(strNextSate).arg(sValue);
         }
 
         if(sActuator.compare("Event")==0)
         {
             isTransition=true;
             if(sId.compare("convAsserv")==0)
-                sConverted=sConverted+QString("gotoStateIfConvergence(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+                sConverted=sConverted+QString("gotoStateIfConvergence(%1,%2);").arg(strNextSate).arg(sValue);
             if(sId.compare("convRack")==0)
-                sConverted=sConverted+QString("gotoStateIfConvergenceRack(STATE_%1,%2);").arg(strNumNextState).arg(sValue);
+                sConverted=sConverted+QString("gotoStateIfConvergenceRack(%1,%2);").arg(strNextSate).arg(sValue);
         }
 
         if(sActuator.contains("Sensor"))
         {
             isTransition=true;
             if(sActuator.compare("Sensor_sup")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2>%3));").arg(strNumNextState).arg(sId).arg(sValue);
+                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2>%3));").arg(strNextSate).arg(sId).arg(sValue);
             if(sActuator.compare("Sensor_egal")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2==%3));").arg(strNumNextState).arg(sId).arg(sValue);
+                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2==%3));").arg(strNextSate).arg(sId).arg(sValue);
             if(sActuator.compare("Sensor_inf")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(STATE_%1,(%2<%3));").arg(strNumNextState).arg(sId).arg(sValue);
+                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2<%3));").arg(strNextSate).arg(sId).arg(sValue);
         }
 
         //Ajout de la l'action ou la transition
@@ -1927,20 +1932,6 @@ void CActuatorSequencer::Slot_Generate()
     {
         //on ferme l'action précédente avant l'état vide
         champStrategie=champStrategie+closePreviousState;
-
-        //numéro de l'état
-        numState++;
-        QString strNumState;
-        strNumState.setNum(numState);
-
-        //on complète l'enum des états
-        QString strThisState=stateEnumFormat.arg(strNumState);
-        strEnumStates.append(strThisState);
-
-        //ajout de l'action
-        champStrategie=champStrategie+stateFormat.arg(strNumState)+N3T+"//AUCUNE ACTION";
-
-        champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState;
         isInTransition=false;
     }
 
