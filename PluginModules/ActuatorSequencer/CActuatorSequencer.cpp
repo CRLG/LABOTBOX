@@ -106,6 +106,10 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Add_Asser,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Event,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Sensor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  connect(m_ihm.ui.pB_Add_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  connect(m_ihm.ui.pB_Add_Free_Action,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  connect(m_ihm.ui.pB_Add_Edit_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeAction()));
+  connect(m_ihm.ui.pB_Add_Edit_Action_2,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeAction()));
 
   connect(m_ihm.ui.pB_Remove, SIGNAL(clicked(bool)),this,SLOT(removeSequenceItem()));
   connect(m_ihm.ui.pB_Up, SIGNAL(clicked(bool)),this,SLOT(Slot_up()));
@@ -508,7 +512,18 @@ void CActuatorSequencer::addSequenceItem(void)
             value=value+","+other_value;
         }
     }
-
+    else if(pB_Add==m_ihm.ui.pB_Add_Free_Transition)
+    {
+        type="FreeEvent";
+        id="0";
+        value=m_ihm.ui.freeTransition->toPlainText();
+    }
+    else if(pB_Add==m_ihm.ui.pB_Add_Free_Action)
+    {
+        type="FreeAction";
+        id="0";
+        value=m_ihm.ui.freeAction->toPlainText();
+    }
     QTableWidgetItem *newItem_type = new QTableWidgetItem(type);
     QTableWidgetItem *newItem_id = new QTableWidgetItem(id);
     QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
@@ -1857,6 +1872,17 @@ void CActuatorSequencer::Slot_Generate()
             if(sActuator.compare("Sensor_inf")==0)
                 sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2<%3));").arg(strNextSate).arg(sId).arg(sValue);
         }
+        if(sActuator.contains("FreeEvent"))
+        {
+            isTransition=true;
+            sConverted=sConverted+QString("gotoStateIfTrue(%1,%2);").arg(strNextSate).arg(sValue);
+        }
+        if(sActuator.contains("FreeAction"))
+        {
+            isState=true;
+            QString strFreeAction=sValue.replace("\n",N3T);
+            sConverted=sConverted+N3T+QString("%1\n").arg(strFreeAction);
+        }
 
         //Ajout de la l'action ou la transition
         if(isState) //ça fait partie d'un état
@@ -1991,4 +2017,47 @@ void CActuatorSequencer::Slot_SetPosFromSimu()
     m_ihm.ui.cB_Events->setCurrentIndex(0);
     m_ihm.ui.pB_Add_Asser->click();
     m_ihm.ui.pB_Add_Event->click();
+}
+
+void CActuatorSequencer::Slot_editFreeAction()
+{
+    int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    QTableWidget * currentSequence=listSequence.at(tabIndex);
+
+    QString type="NA";
+
+    QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
+    if(!list_item_selected.isEmpty())
+    {
+        QTableWidgetItem* item_selected=list_item_selected.first();
+        int row_selected=item_selected->row();
+        type=currentSequence->item(row_selected,0)->text();
+        if(type.contains("FreeAction"))
+        {
+            m_ihm.ui.freeAction->clear();
+            m_ihm.ui.freeAction->setText(currentSequence->item(row_selected,2)->text());
+        }
+    }
+}
+
+void CActuatorSequencer::Slot_loadFreeAction()
+{
+    int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    QTableWidget * currentSequence=listSequence.at(tabIndex);
+
+    QString type="NA";
+
+    QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
+    if(!list_item_selected.isEmpty())
+    {
+        QTableWidgetItem* item_selected=list_item_selected.first();
+        int row_selected=item_selected->row();
+        type=currentSequence->item(row_selected,0)->text();
+        if(type.contains("FreeAction"))
+        {
+            QTableWidgetItem* item_selected=currentSequence->item(row_selected,2);
+            item_selected->setText(m_ihm.ui.freeAction->toPlainText());
+            m_ihm.ui.freeAction->clear();
+        }
+    }
 }
