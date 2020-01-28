@@ -108,8 +108,10 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Add_Sensor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Free_Action,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Edit_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeAction()));
-  connect(m_ihm.ui.pB_Add_Edit_Action_2,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeAction()));
+  connect(m_ihm.ui.pB_Edit_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeItem()));
+  connect(m_ihm.ui.pB_Load_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeItem()));
+  connect(m_ihm.ui.pB_Edit_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeItem()));
+  connect(m_ihm.ui.pB_Load_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeItem()));
 
   connect(m_ihm.ui.pB_Remove, SIGNAL(clicked(bool)),this,SLOT(removeSequenceItem()));
   connect(m_ihm.ui.pB_Up, SIGNAL(clicked(bool)),this,SLOT(Slot_up()));
@@ -514,39 +516,51 @@ void CActuatorSequencer::addSequenceItem(void)
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Free_Transition)
     {
-        type="FreeEvent";
-        id="0";
-        value=m_ihm.ui.freeTransition->toPlainText();
+        QString FreeText=m_ihm.ui.freeTransition->toPlainText();
+        if(!FreeText.isEmpty())
+        {
+            type="FreeEvent";
+            id="0";
+            value=FreeText;
+        }
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Free_Action)
     {
-        type="FreeAction";
-        id="0";
-        value=m_ihm.ui.freeAction->toPlainText();
+        QString FreeText=m_ihm.ui.freeAction->toPlainText();
+        if(!FreeText.isEmpty())
+        {
+            type="FreeAction";
+            id="0";
+            value=FreeText;
+        }
     }
-    QTableWidgetItem *newItem_type = new QTableWidgetItem(type);
-    QTableWidgetItem *newItem_id = new QTableWidgetItem(id);
-    QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
-    QTableWidgetItem *newItem_comments = new QTableWidgetItem(comments);
 
-
-    int indexAdd=currentSequence->rowCount();
-
-    QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
-    if(!list_item_selected.isEmpty())
+    if(type!="NA")
     {
-        QTableWidgetItem* item_selected=list_item_selected.first();
-        int row_selected=item_selected->row();
-        if(row_selected>=0)
-            indexAdd=row_selected+1;
-    }
+        QTableWidgetItem *newItem_type = new QTableWidgetItem(type);
+        QTableWidgetItem *newItem_id = new QTableWidgetItem(id);
+        QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
+        QTableWidgetItem *newItem_comments = new QTableWidgetItem(comments);
 
-    currentSequence->insertRow(indexAdd);
-    currentSequence->setItem(indexAdd, 0, newItem_type);
-    currentSequence->setItem(indexAdd, 1, newItem_id);
-    currentSequence->setItem(indexAdd, 2, newItem_value);
-    currentSequence->setItem(indexAdd, 3, newItem_comments);
-    currentSequence->selectRow(indexAdd);
+
+        int indexAdd=currentSequence->rowCount();
+
+        QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
+        if(!list_item_selected.isEmpty())
+        {
+            QTableWidgetItem* item_selected=list_item_selected.first();
+            int row_selected=item_selected->row();
+            if(row_selected>=0)
+                indexAdd=row_selected+1;
+        }
+
+        currentSequence->insertRow(indexAdd);
+        currentSequence->setItem(indexAdd, 0, newItem_type);
+        currentSequence->setItem(indexAdd, 1, newItem_id);
+        currentSequence->setItem(indexAdd, 2, newItem_value);
+        currentSequence->setItem(indexAdd, 3, newItem_comments);
+        currentSequence->selectRow(indexAdd);
+    }
 }
 
 void CActuatorSequencer::removeSequenceItem()
@@ -1844,7 +1858,7 @@ void CActuatorSequencer::Slot_Generate()
             if((sId.compare("DistAng")==0)&&(nb_args>=2))
                 sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
             if(sId.compare("Rack")==0)
-                sConverted=sConverted+QString("Application.m_rack.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
+                sConverted=sConverted+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
         }
 
         if(sActuator.compare("Wait")==0)
@@ -2019,10 +2033,11 @@ void CActuatorSequencer::Slot_SetPosFromSimu()
     m_ihm.ui.pB_Add_Event->click();
 }
 
-void CActuatorSequencer::Slot_editFreeAction()
+void CActuatorSequencer::Slot_editFreeItem()
 {
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * currentSequence=listSequence.at(tabIndex);
+    QObject * pB_Edit=sender();
 
     QString type="NA";
 
@@ -2032,19 +2047,24 @@ void CActuatorSequencer::Slot_editFreeAction()
         QTableWidgetItem* item_selected=list_item_selected.first();
         int row_selected=item_selected->row();
         type=currentSequence->item(row_selected,0)->text();
-        if(type.contains("FreeAction"))
+        if((pB_Edit==m_ihm.ui.pB_Edit_Free_Action)&&(type.contains("FreeAction")))
         {
             m_ihm.ui.freeAction->clear();
             m_ihm.ui.freeAction->setText(currentSequence->item(row_selected,2)->text());
         }
+        if((pB_Edit==m_ihm.ui.pB_Edit_Free_Transition)&&(type.contains("FreeEvent")))
+        {
+            m_ihm.ui.freeTransition->clear();
+            m_ihm.ui.freeTransition->setText(currentSequence->item(row_selected,2)->text());
+        }
     }
 }
 
-void CActuatorSequencer::Slot_loadFreeAction()
+void CActuatorSequencer::Slot_loadFreeItem()
 {
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * currentSequence=listSequence.at(tabIndex);
-
+    QObject * pB_Load_Free=sender();
     QString type="NA";
 
     QList<QTableWidgetItem*> list_item_selected=currentSequence->selectedItems();
@@ -2053,11 +2073,25 @@ void CActuatorSequencer::Slot_loadFreeAction()
         QTableWidgetItem* item_selected=list_item_selected.first();
         int row_selected=item_selected->row();
         type=currentSequence->item(row_selected,0)->text();
-        if(type.contains("FreeAction"))
+        if((pB_Load_Free==m_ihm.ui.pB_Load_Free_Action)&&(type.contains("FreeAction")))
         {
             QTableWidgetItem* item_selected=currentSequence->item(row_selected,2);
-            item_selected->setText(m_ihm.ui.freeAction->toPlainText());
+            QString FreeText=m_ihm.ui.freeAction->toPlainText();
+            if(!FreeText.isEmpty())
+            {
+            item_selected->setText(FreeText);
             m_ihm.ui.freeAction->clear();
+            }
+        }
+        if((pB_Load_Free==m_ihm.ui.pB_Load_Free_Transition)&&(type.contains("FreeEvent")))
+        {
+            QTableWidgetItem* item_selected=currentSequence->item(row_selected,2);
+            QString FreeText=m_ihm.ui.freeTransition->toPlainText();
+            if(!FreeText.isEmpty())
+            {
+                item_selected->setText(FreeText);
+                m_ihm.ui.freeTransition->clear();
+            }
         }
     }
 }

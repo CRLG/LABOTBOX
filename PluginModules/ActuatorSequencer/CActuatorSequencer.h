@@ -123,8 +123,8 @@ private slots :
     void Slot_down();
     void setEnableRepetition(bool state);
     void playStep();
-    void Slot_editFreeAction();
-    void Slot_loadFreeAction();
+    void Slot_editFreeItem();
+    void Slot_loadFreeItem();
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_
