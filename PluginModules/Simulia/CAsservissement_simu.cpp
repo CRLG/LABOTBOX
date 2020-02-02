@@ -10,8 +10,8 @@
 #include <QDebug>
 
 // Constantes spécifiques au robot
-const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G = 0.00325568f;  // valeur par défaut reprise de GROSBOT
-const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D = 0.00325568f;
+const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G = 0.00325568f*20;  // valeur par défaut reprise de GROSBOT
+const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D = 0.00325568f*20;
 const float CAsservissementBase::VOIE_ROBOT = 31.6867261f;
 
 // Cartos spécifique au robo
