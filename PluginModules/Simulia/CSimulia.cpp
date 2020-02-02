@@ -82,6 +82,7 @@ void CSimulia::init(CApplication *application)
   Application.m_led4.init(m_application);
   Application.m_power_electrobot.init(m_application);
   Application.m_messenger_xbee_ntw.init(m_application);
+  Application.m_asservissement_chariot.init(m_application);
 
 
   // Mise en cohérence de l'IHM avec l'état interne
@@ -123,6 +124,8 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("Led2", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_2, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("Led3", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_3, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("Led4", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_4, SLOT(setValue(bool)));
+
+  connect(m_ihm.ui.Tirette, SIGNAL(clicked(bool)), m_application->m_data_center->getData("Tirette", true), SLOT(write(bool)));
 
   m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
@@ -179,6 +182,8 @@ void CSimulia::on_pb_init_all()
     Application.m_servos_sd20.Init();
     Application.m_servos_ax.Init();
     Application.m_leds.setState(ALL_LED, 0);
+    Application.m_asservissement_chariot.Init();
+    Application.m_asservissement_chariot.Recal_Chariot();
 
     // initialise les machines d'états Modelia du robot
     m_ia.initAllStateMachines();
@@ -205,7 +210,8 @@ void CSimulia::step()
     //      - Soit à partir de données du DataManger (de l'IHM)
 
     // IHM -> Inputs
-    m_ia.m_inputs_interface.Tirette             = m_ihm.ui.Tirette->isChecked();
+    m_ia.m_inputs_interface.Tirette             = m_application->m_data_center->getData("Tirette")->read().toBool();
+//            m_ihm.ui.Tirette->isChecked();
     m_ia.m_inputs_interface.obstacle_AVG        = m_ihm.ui.Obstacle_AVG->value();
     m_ia.m_inputs_interface.obstacle_AVD        = m_ihm.ui.Obstacle_AVD->value();
     m_ia.m_inputs_interface.obstacle_ARG        = m_ihm.ui.Obstacle_ARG->value();
@@ -246,6 +252,7 @@ void CSimulia::simu_task_sequencer()
 
     Application.m_servos_ax.simu();
     Application.m_servos_sd20.simu();
+    Application.m_asservissement_chariot.simu();
     // ______________________________
     cpt10msec++;
     if (cpt10msec >= 1) {
@@ -259,6 +266,7 @@ void CSimulia::simu_task_sequencer()
 
       Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
       Application.m_asservissement.CalculsMouvementsRobots();
+      Application.m_asservissement_chariot.Asser_chariot();
 
       // Execute un pas de calcul du modele
       m_ia.step();

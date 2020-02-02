@@ -12,6 +12,8 @@
 #include "CLed_simu.h"
 #include "CLeds.h"
 #include "MessengerXbeeNetwork_simu.h"
+#include "CAsservissementChariot_simu.h"
+
 
 
 // -----------------------------
@@ -25,6 +27,7 @@ public :
     CServoMoteurAXSimu m_servos_ax;
     CServoMoteurSD20Simu m_servos_sd20;
     MessengerXbeeNetworkSimu m_messenger_xbee_ntw;
+    CAsservissementChariotSimu m_asservissement_chariot;
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation
