@@ -19,7 +19,6 @@ HEADERS  += CApplication.h \
 
 RESOURCES+= icons.qrc \
             code_template.qrc
-
 # __________________________________________________
 # Ajouter ici les basic modules (nom des répertoires)
 LIST_BASIC_MODULES+= \
@@ -51,7 +50,8 @@ LIST_TOOLS+= CustomPlot\
              HtmlTextEditor \
              NetworkServer \
              ExternalControlerClient \
-             DataLogger
+             DataLogger \
+             CsvParser
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib

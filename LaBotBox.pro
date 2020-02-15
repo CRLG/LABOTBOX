@@ -65,7 +65,8 @@ LIST_TOOLS+= CustomPlot\
              HtmlTextEditor \
              NetworkServer \
              ExternalControlerClient \
-             DataLogger
+             DataLogger \
+             CsvParser
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
