@@ -43,7 +43,7 @@ public:
 class CDataView : public CBasicModule
 {
     Q_OBJECT
-#define     VERSION_DataView   "1.1"
+#define     VERSION_DataView   "1.2"
 #define     AUTEUR_DataView    "Nico"
 #define     INFO_DataView      "Visualise l'évolution d'une ou plusieurs données du DataCenter"
 

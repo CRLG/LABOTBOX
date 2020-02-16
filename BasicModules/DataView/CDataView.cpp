@@ -72,6 +72,24 @@ void CDataView::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
+  //Restore les dernières variables loggées (créé la data dans le DataManager + l'ajoute sur l'IHM + coche la case)
+  val = m_application->m_eeprom->read(getName(), "datalist_logged", "");
+  QStringList datalist_memo = val.toStringList();
+  for (int i=0; i<datalist_memo.count(); i++) {
+      QString dataname = datalist_memo.at(i);
+      if (dataname.simplified() != "") {
+          m_application->m_data_center->write(dataname, "");  //crée la donnée si elle n'existe pas
+          m_ihm.ui.liste_variables->addItem(datalist_memo.at(i));
+      }
+  }
+  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+      if (datalist_memo.contains(m_ihm.ui.liste_variables->item(i)->text())) {
+          m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
+      }
+  }
+  refreshListeVariables();
+
+
   // le bouton refresh met à jour la liste des variables disponibles
   connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(refreshListeVariables()));
   connect(m_application->m_data_center, SIGNAL(dataCreated(CData*)), this, SLOT(refreshListeVariables()));
@@ -100,14 +118,14 @@ void CDataView::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
 
-  // mémorise en EEPROM la liste des variables sous surveillance
+  // mémorise en EEPROM la liste des variables sous surveillance (cochées sur l'IHM)
   QStringList liste_variables_observees;
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-    if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
-        liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
-    }
-  } // for toutes les variables sous surveillances
-  m_application->m_eeprom->write(getName(), "liste_variables_observees", QVariant(liste_variables_observees));
+      if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+          liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
+      }
+  }
+  m_application->m_eeprom->write(getName(), "datalist_logged", QVariant(liste_variables_observees));
 }
 
 // _____________________________________________________________________
