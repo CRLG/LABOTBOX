@@ -13,6 +13,7 @@
 #include "CLeds.h"
 #include "MessengerXbeeNetwork_simu.h"
 #include "CAsservissementChariot_simu.h"
+#include "CTelemetres_simu.h"
 
 
 
@@ -28,6 +29,7 @@ public :
     CServoMoteurSD20Simu m_servos_sd20;
     MessengerXbeeNetworkSimu m_messenger_xbee_ntw;
     CAsservissementChariotSimu m_asservissement_chariot;
+    CTelemetresSimu m_telemetres;
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation

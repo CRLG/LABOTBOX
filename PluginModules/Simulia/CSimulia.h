@@ -73,6 +73,8 @@ private slots :
     // autoconnect
     void on_speed_simu_valueChanged(int va);
     void on_dde_autotest_pressed();
+    void on_origine_telemetre_changed();
+    void on_telemetres_gui_changed();
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_
