@@ -244,18 +244,13 @@ void CSimulia::step_sequencer()
     //      - Soit à partir de Application.m_asservissement.xxxxx
     //      - Soit à partir de données du DataManger (de l'IHM)
 
-    // IHM -> Inputs
 
     //TODO déplacer les liens avec le modèle dans IA.cpp lorsqu'il n'y a pas de lien avec le hardware
     // pour être un maximum commun au robot et à la simulation
     m_ia.m_inputs_interface.Tirette             = m_application->m_data_center->getData("Tirette")->read().toBool();
-//            m_ihm.ui.Tirette->isChecked();
-    m_ia.m_inputs_interface.obstacle_AVG        = Application.m_detection_obstacles.isObstacleAVG();
-    m_ia.m_inputs_interface.obstacle_AVD        = Application.m_detection_obstacles.isObstacleAVD();
-    m_ia.m_inputs_interface.obstacle_ARG        = Application.m_detection_obstacles.isObstacleARG();
-    m_ia.m_inputs_interface.obstacle_ARD        = Application.m_detection_obstacles.isObstacleARD();
-    m_ia.m_inputs_interface.obstacleDetecte     = Application.m_detection_obstacles.isObstacle();
-    m_ihm.ui.led_isObstacle->setValue(m_ia.m_inputs_interface.obstacleDetecte);
+
+    // Mise en cohérence de l'IHM de simu avec le reste du modèle
+    m_ihm.ui.led_isObstacle->setValue(m_ia.m_inputs_interface.obstacleDetecte); // La LED représente une détection d'obstacle confirmée
     if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() != CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
         m_ihm.ui.detectionObstacle_AVG->setChecked(m_ia.m_inputs_interface.obstacle_AVG);
         m_ihm.ui.detectionObstacle_AVD->setChecked(m_ia.m_inputs_interface.obstacle_AVD);
@@ -263,11 +258,6 @@ void CSimulia::step_sequencer()
         m_ihm.ui.detectionObstacle_ARD->setChecked(m_ia.m_inputs_interface.obstacle_ARD);
     }
 
-
-    m_ia.m_inputs_interface.Telemetre_AVG       = Application.m_telemetres.getDistanceAVG();
-    m_ia.m_inputs_interface.Telemetre_AVD       = Application.m_telemetres.getDistanceAVD();
-    m_ia.m_inputs_interface.Telemetre_ARG       = Application.m_telemetres.getDistanceARG();
-    m_ia.m_inputs_interface.Telemetre_ARD       = Application.m_telemetres.getDistanceARD();
     if (m_ihm.ui.OrigineTelemetres->currentIndex() != CTelemetresSimu::TELEMETRES_FROM_GUI) {
         // Mise à jour des valeurs télémètres en fonction de leur provenance
         m_ihm.ui.Telemetre_AVG->setValue(m_ia.m_inputs_interface.Telemetre_AVG);
@@ -276,12 +266,6 @@ void CSimulia::step_sequencer()
         m_ihm.ui.Telemetre_ARD->setValue(m_ia.m_inputs_interface.Telemetre_ARD);
     }
 
-    m_ia.m_inputs_interface.Convergence         = Application.m_asservissement.convergence_conf;
-    m_ia.m_inputs_interface.Convergence_rapide  = Application.m_asservissement.convergence_rapide;
-    m_ia.m_inputs_interface.ConvergenceRack     = Application.m_asservissement_chariot.isConverged();
-    m_ia.m_inputs_interface.X_robot             = Application.m_asservissement.X_robot;
-    m_ia.m_inputs_interface.Y_robot             = Application.m_asservissement.Y_robot;
-    m_ia.m_inputs_interface.angle_robot         = Application.m_asservissement.angle_robot;
     Application.m_power_electrobot.simuSetGlobalCurrent(m_ihm.ui.power_electrobot_global_current->value());
 
     // Step
