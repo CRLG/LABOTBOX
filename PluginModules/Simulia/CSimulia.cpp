@@ -119,7 +119,7 @@ void CSimulia::init(CApplication *application)
   connect(&m_timer, SIGNAL(timeout()), this, SLOT(on_timeout()));
   connect(m_ihm.ui.PlaySimu, SIGNAL(clicked(bool)), &m_timer, SLOT(start()));
   connect(m_ihm.ui.PauseSimu, SIGNAL(clicked(bool)), &m_timer, SLOT(stop()));
-  connect(m_ihm.ui.StepSimu, SIGNAL(clicked(bool)), this, SLOT(step()));
+  connect(m_ihm.ui.StepSimu, SIGNAL(clicked(bool)), this, SLOT(step_sequencer()));
   connect(m_ihm.ui.speed_simu, SIGNAL(valueChanged(int)), this, SLOT(on_speed_simu_valueChanged(int)));
 
   connect(m_ihm.ui.actionActive_Start, SIGNAL(changed()), this, SLOT(on_config_debugger_changed()));
