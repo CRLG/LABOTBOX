@@ -118,15 +118,16 @@ for(i, LIST_EXT_CPPROBLIB) {
 # __________________________________________________
 # Spécifiquement pour Simulia
 PATH_SOFT_MBED =        ../Soft_MBED
-PATH_COMMON_ROB =       $$PATH_SOFT_MBED/ext/mbed-common-rob
 PATH_CPPROBLIB =        $$PATH_SOFT_MBED/ext/CppRobLib
+PATH_COMMON_ROB =       $$PATH_CPPROBLIB/common-rob
+PATH_MBED_COMMON_ROB =  $$PATH_SOFT_MBED/ext/mbed-common-rob
 PATH_MODELIA_COMMON =   $$PATH_COMMON_ROB/Modelia
 PATH_MODELIA_ROBOT =    $$PATH_SOFT_MBED/Modelia
 DEFINES+= MESSENGER_FULL
 INCLUDEPATH +=  $$PATH_MODELIA_COMMON \
                 $$PATH_MODELIA_ROBOT \
                 $$PATH_SOFT_MBED/Includes \
-                $$PATH_COMMON_ROB/Includes \
+                $$PATH_MBED_COMMON_ROB/Includes \
                 ./PluginModules/Simulia/simu_moteurs \
 
 SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
