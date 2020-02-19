@@ -232,10 +232,10 @@ void CSimulia::on_pb_init_all()
 
 void CSimulia::on_timeout()
 {
-    step();
+    step_sequencer();
 }
 
-void CSimulia::step()
+void CSimulia::step_sequencer()
 {
     // TODO :
     //  peut être à revoir l'interface avec le monde extérieur

@@ -68,7 +68,7 @@ private slots :
     void on_pb_active_main();
     void on_pb_stop_all();
     void on_timeout();
-    void step();
+    void step_sequencer();
     void on_config_debugger_changed();
     // autoconnect
     void on_speed_simu_valueChanged(int va);
