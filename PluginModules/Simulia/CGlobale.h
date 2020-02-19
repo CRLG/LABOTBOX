@@ -14,6 +14,7 @@
 #include "MessengerXbeeNetwork_simu.h"
 #include "CAsservissementChariot_simu.h"
 #include "CTelemetres_simu.h"
+#include "CDetectionObstacles_simu.h"
 
 
 
@@ -30,6 +31,7 @@ public :
     MessengerXbeeNetworkSimu m_messenger_xbee_ntw;
     CAsservissementChariotSimu m_asservissement_chariot;
     CTelemetresSimu m_telemetres;
+    CDetectionObstaclesSimu m_detection_obstacles;
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation

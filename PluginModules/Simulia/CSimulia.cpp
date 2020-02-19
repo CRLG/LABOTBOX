@@ -54,6 +54,10 @@ void CSimulia::init(CApplication *application)
   m_ihm.ui.OrigineTelemetres->addItem("FROM SIMU");
   m_ihm.ui.OrigineTelemetres->addItem("FROM GUI");
   m_ihm.ui.OrigineTelemetres->addItem("FROM SIMUBOT");
+  // ordre identique à l'enum CDetectionObstacles_simu
+  m_ihm.ui.OrigineDetectionObstacles->addItem("FROM SIMU");
+  m_ihm.ui.OrigineDetectionObstacles->addItem("FROM GUI");
+  m_ihm.ui.OrigineDetectionObstacles->addItem("FROM TELEMETRES");
 
   // Gère les actions sur clic droit sur le panel graphique du module
   m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
@@ -77,6 +81,10 @@ void CSimulia::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "origine_donnees_telemetres", QVariant(CTelemetresSimu::TELEMETRES_FROM_SIMU));
   m_ihm.ui.OrigineTelemetres->setCurrentIndex(val.toInt());
   on_origine_telemetre_changed();
+  // Restore la provenance des données détection d'obstacle
+  val = m_application->m_eeprom->read(getName(), "origine_donnees_detection_obstacle", QVariant(CDetectionObstaclesSimu::OBSTACLES_FROM_TELEMETRES));
+  m_ihm.ui.OrigineDetectionObstacles->setCurrentIndex(val.toInt());
+  on_origine_detect_obstacle_changed();
 
   m_ia.setDebugger(new SM_DebugQDebug());
 
@@ -93,6 +101,7 @@ void CSimulia::init(CApplication *application)
   Application.m_messenger_xbee_ntw.init(m_application);
   Application.m_asservissement_chariot.init(m_application);
   Application.m_telemetres.init(m_application);
+  Application.m_detection_obstacles.init(m_application);
 
 
   // Mise en cohérence de l'IHM avec l'état interne
@@ -124,6 +133,12 @@ void CSimulia::init(CApplication *application)
   connect(m_ihm.ui.Telemetre_AVD, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
   connect(m_ihm.ui.Telemetre_ARG, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
   connect(m_ihm.ui.Telemetre_ARD, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
+
+  connect(m_ihm.ui.OrigineDetectionObstacles, SIGNAL(currentIndexChanged(int)), this, SLOT(on_origine_detect_obstacle_changed()));
+  connect(m_ihm.ui.detectionObstacle_AVG, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
+  connect(m_ihm.ui.detectionObstacle_AVD, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
+  connect(m_ihm.ui.detectionObstacle_ARG, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
+  connect(m_ihm.ui.detectionObstacle_ARD, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
 
   // Connexions DataManger -> IHM
   connect(m_application->m_data_center->getData("TempsMatch", true), SIGNAL(valueChanged(double)), m_ihm.ui.TempsMatch, SLOT(setValue(double)));
@@ -161,6 +176,7 @@ void CSimulia::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "origine_donnees_telemetres", QVariant(m_ihm.ui.OrigineTelemetres->currentIndex()));
+  m_application->m_eeprom->write(getName(), "origine_donnees_detection_obstacle", QVariant(m_ihm.ui.OrigineDetectionObstacles->currentIndex()));
 }
 
 // _____________________________________________________________________
@@ -202,6 +218,7 @@ void CSimulia::on_pb_init_all()
     Application.m_asservissement_chariot.Init();
     Application.m_asservissement_chariot.Recal_Chariot();
     Application.m_telemetres.Init();
+    Application.m_detection_obstacles.Init();
 
     // initialise les machines d'états Modelia du robot
     m_ia.initAllStateMachines();
@@ -228,28 +245,40 @@ void CSimulia::step()
     //      - Soit à partir de données du DataManger (de l'IHM)
 
     // IHM -> Inputs
+
+    //TODO déplacer les liens avec le modèle dans IA.cpp lorsqu'il n'y a pas de lien avec le hardware
+    // pour être un maximum commun au robot et à la simulation
     m_ia.m_inputs_interface.Tirette             = m_application->m_data_center->getData("Tirette")->read().toBool();
 //            m_ihm.ui.Tirette->isChecked();
-    /* TODO : faire le lien
-    m_ia.m_inputs_interface.obstacle_AVG        = m_ihm.ui.Obstacle_AVG->value();
-    m_ia.m_inputs_interface.obstacle_AVD        = m_ihm.ui.Obstacle_AVD->value();
-    m_ia.m_inputs_interface.obstacle_ARG        = m_ihm.ui.Obstacle_ARG->value();
-    m_ia.m_inputs_interface.obstacle_ARD        = m_ihm.ui.Obstacle_ARD->value();
-    */
+    m_ia.m_inputs_interface.obstacle_AVG        = Application.m_detection_obstacles.isObstacleAVG();
+    m_ia.m_inputs_interface.obstacle_AVD        = Application.m_detection_obstacles.isObstacleAVD();
+    m_ia.m_inputs_interface.obstacle_ARG        = Application.m_detection_obstacles.isObstacleARG();
+    m_ia.m_inputs_interface.obstacle_ARD        = Application.m_detection_obstacles.isObstacleARD();
+    m_ia.m_inputs_interface.obstacleDetecte     = Application.m_detection_obstacles.isObstacle();
+    m_ihm.ui.led_isObstacle->setValue(m_ia.m_inputs_interface.obstacleDetecte);
+    if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() != CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
+        m_ihm.ui.detectionObstacle_AVG->setChecked(m_ia.m_inputs_interface.obstacle_AVG);
+        m_ihm.ui.detectionObstacle_AVD->setChecked(m_ia.m_inputs_interface.obstacle_AVD);
+        m_ihm.ui.detectionObstacle_ARG->setChecked(m_ia.m_inputs_interface.obstacle_ARG);
+        m_ihm.ui.detectionObstacle_ARD->setChecked(m_ia.m_inputs_interface.obstacle_ARD);
+    }
+
 
     m_ia.m_inputs_interface.Telemetre_AVG       = Application.m_telemetres.getDistanceAVG();
     m_ia.m_inputs_interface.Telemetre_AVD       = Application.m_telemetres.getDistanceAVD();
     m_ia.m_inputs_interface.Telemetre_ARG       = Application.m_telemetres.getDistanceARG();
     m_ia.m_inputs_interface.Telemetre_ARD       = Application.m_telemetres.getDistanceARD();
-    // Mise à jour des valeurs télémètres en fonction de leur provenance
-    m_ihm.ui.Telemetre_AVG->setValue(m_ia.m_inputs_interface.Telemetre_AVG);
-    m_ihm.ui.Telemetre_AVD->setValue(m_ia.m_inputs_interface.Telemetre_AVD);
-    m_ihm.ui.Telemetre_ARG->setValue(m_ia.m_inputs_interface.Telemetre_ARG);
-    m_ihm.ui.Telemetre_ARD->setValue(m_ia.m_inputs_interface.Telemetre_ARD);
+    if (m_ihm.ui.OrigineTelemetres->currentIndex() != CTelemetresSimu::TELEMETRES_FROM_GUI) {
+        // Mise à jour des valeurs télémètres en fonction de leur provenance
+        m_ihm.ui.Telemetre_AVG->setValue(m_ia.m_inputs_interface.Telemetre_AVG);
+        m_ihm.ui.Telemetre_AVD->setValue(m_ia.m_inputs_interface.Telemetre_AVD);
+        m_ihm.ui.Telemetre_ARG->setValue(m_ia.m_inputs_interface.Telemetre_ARG);
+        m_ihm.ui.Telemetre_ARD->setValue(m_ia.m_inputs_interface.Telemetre_ARD);
+    }
 
-    m_ia.m_inputs_interface.obstacleDetecte     = m_ia.m_inputs_interface.obstacle_ARG || m_ia.m_inputs_interface.obstacle_ARD || m_ia.m_inputs_interface.obstacle_AVG || m_ia.m_inputs_interface.obstacle_AVD;
     m_ia.m_inputs_interface.Convergence         = Application.m_asservissement.convergence_conf;
     m_ia.m_inputs_interface.Convergence_rapide  = Application.m_asservissement.convergence_rapide;
+    m_ia.m_inputs_interface.ConvergenceRack     = Application.m_asservissement_chariot.isConverged();
     m_ia.m_inputs_interface.X_robot             = Application.m_asservissement.X_robot;
     m_ia.m_inputs_interface.Y_robot             = Application.m_asservissement.Y_robot;
     m_ia.m_inputs_interface.angle_robot         = Application.m_asservissement.angle_robot;
@@ -371,6 +400,13 @@ void CSimulia::on_origine_telemetre_changed()
     bool enabled = false;
     if (m_ihm.ui.OrigineTelemetres->currentIndex() == CTelemetresSimu::TELEMETRES_FROM_GUI) {
         enabled = true;
+        // Met des valeurs neutres au changement de source
+        float val_neutre= 1000;
+        m_ihm.ui.Telemetre_AVG->setValue(val_neutre);
+        m_ihm.ui.Telemetre_AVD->setValue(val_neutre);
+        m_ihm.ui.Telemetre_ARG->setValue(val_neutre);
+        m_ihm.ui.Telemetre_ARD->setValue(val_neutre);
+        on_telemetres_gui_changed();
     }
     m_ihm.ui.Telemetre_AVG->setEnabled(enabled);
     m_ihm.ui.Telemetre_AVD->setEnabled(enabled);
@@ -378,3 +414,33 @@ void CSimulia::on_origine_telemetre_changed()
     m_ihm.ui.Telemetre_ARD->setEnabled(enabled);
     Application.m_telemetres.setOrigineTelemetre(m_ihm.ui.OrigineTelemetres->currentIndex());
 }
+
+// ___________________________________________________
+void CSimulia::on_detect_obstacle_gui_changed()
+{
+    Application.m_detection_obstacles.setObstacleDetecteFromGui(
+        m_ihm.ui.detectionObstacle_AVG->isChecked(),
+        m_ihm.ui.detectionObstacle_AVD->isChecked(),
+        m_ihm.ui.detectionObstacle_ARG->isChecked(),
+        m_ihm.ui.detectionObstacle_ARD->isChecked());
+}
+
+void CSimulia::on_origine_detect_obstacle_changed()
+{
+    bool enabled = false;
+    if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() == CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
+        enabled = true;
+        // Met des valeurs neutres au changement de source
+        m_ihm.ui.detectionObstacle_AVG->setChecked(false);
+        m_ihm.ui.detectionObstacle_AVD->setChecked(false);
+        m_ihm.ui.detectionObstacle_ARG->setChecked(false);
+        m_ihm.ui.detectionObstacle_ARD->setChecked(false);
+        on_detect_obstacle_gui_changed();
+    }
+    m_ihm.ui.detectionObstacle_AVG->setEnabled(enabled);
+    m_ihm.ui.detectionObstacle_AVD->setEnabled(enabled);
+    m_ihm.ui.detectionObstacle_ARG->setEnabled(enabled);
+    m_ihm.ui.detectionObstacle_ARD->setEnabled(enabled);
+    Application.m_detection_obstacles.setOrigineDetection(m_ihm.ui.OrigineDetectionObstacles->currentIndex());
+}
+
