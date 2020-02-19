@@ -14,7 +14,9 @@
    \return --
 */
 CRouesSimu::CRouesSimu()
-    :m_application(nullptr)
+    :m_application(nullptr),
+      m_force_blocage_roue_G(false),
+      m_force_blocage_roue_D(false)
 {
     init_model();
 }
@@ -23,6 +25,17 @@ CRouesSimu::CRouesSimu()
 void CRouesSimu::init(CApplication *application)
 {
     m_application = application;
+}
+
+
+//___________________________________________________________________________
+void CRouesSimu::forceBlocageRoueG(bool state)
+{
+    m_force_blocage_roue_G = state;
+}
+void CRouesSimu::forceBlocageRoueD(bool state)
+{
+    m_force_blocage_roue_D = state;
 }
 
 //___________________________________________________________________________
@@ -135,10 +148,22 @@ void CRouesSimu::step_model()
     /* Set model inputs here */
 
     // IHM -> Entrées modele
-    rtU.ubatt = 12;
+    rtU.ubatt = 15; //[V]
+
+    // Mémorise l'ancienne position pour forcer le blocage
+    real_T old_CodeurRoueG = rtY.RegistrecodeurG;
+    real_T old_CodeurRoueD = rtY.RegistrecodeurD;
 
     /* Step the model */
     plateformer_robot_step();
+
+    // Gestion du blocage de la roue
+    if (m_force_blocage_roue_G) {
+        rtY.RegistrecodeurG = old_CodeurRoueG;
+    }
+    if (m_force_blocage_roue_D) {
+        rtY.RegistrecodeurD = old_CodeurRoueD;
+    }
 
     /* Get model outputs here */
     m_application->m_data_center->write("CodeurRoueG", rtY.RegistrecodeurG);

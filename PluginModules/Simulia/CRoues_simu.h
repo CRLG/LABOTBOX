@@ -26,7 +26,14 @@ public :
 
     void init(CApplication *application);
 
+    void forceBlocageRoueG(bool state);
+    void forceBlocageRoueD(bool state);
+
+private :
     CApplication *m_application;
+
+    bool m_force_blocage_roue_G;
+    bool m_force_blocage_roue_D;
 };
 
 #endif

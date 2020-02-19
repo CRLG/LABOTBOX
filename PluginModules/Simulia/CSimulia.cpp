@@ -158,6 +158,9 @@ void CSimulia::init(CApplication *application)
 
   connect(m_ihm.ui.Tirette, SIGNAL(clicked(bool)), m_application->m_data_center->getData("Tirette", true), SLOT(write(bool)));
 
+  connect(m_application->m_data_center->getData("Simubot.blocage.gauche", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_G(bool)));
+  connect(m_application->m_data_center->getData("Simubot.blocage.droite", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_D(bool)));
+
   m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
 }
@@ -427,4 +430,17 @@ void CSimulia::on_origine_detect_obstacle_changed()
     m_ihm.ui.detectionObstacle_ARD->setEnabled(enabled);
     Application.m_detection_obstacles.setOrigineDetection(m_ihm.ui.OrigineDetectionObstacles->currentIndex());
 }
+
+
+// ___________________________________________________
+// Gestion des demandes de blocage de roues
+void CSimulia::on_force_blocage_roue_G(bool val)
+{
+    Application.m_roues.forceBlocageRoueG(val);
+}
+void CSimulia::on_force_blocage_roue_D(bool val)
+{
+    Application.m_roues.forceBlocageRoueD(val);
+}
+
 

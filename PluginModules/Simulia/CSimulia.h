@@ -78,6 +78,8 @@ private slots :
     void on_origine_detect_obstacle_changed();
     void on_detect_obstacle_gui_changed();
 
+    void on_force_blocage_roue_G(bool val);
+    void on_force_blocage_roue_D(bool val);
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_
