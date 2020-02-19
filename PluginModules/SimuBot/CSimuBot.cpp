@@ -439,6 +439,7 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         break;
     case SIMUBOT::SIMU:
         //TODO SIMU: donner les interactions avec l'environnement au datamanger
+        estimate_Environment_Interactions();
         break;
 
     default:
@@ -866,60 +867,54 @@ void CSimuBot::estimate_Environment_Interactions()
             angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view))-Pi;
     }
 
-    float adeg= (angleAdversaire-theta_view)*180/Pi; //angle en degré
+    double arad=angleAdversaire-theta_view; //angle en radian
+    double adeg= arad*180/Pi; //angle en degré
+    //modulo 360 degré
     while (adeg < 0)
         adeg += 360;
     while (adeg > 360)
         adeg -= 360;
+    /*
     //Affichage des nouvelles valeurs position, angle du robot
     qDebug() << "coord graphique: G(" <<x_prim_graphic <<","<<y_prim_graphic<<")\tAd("<<x_graphic<<","<<y_graphic<<")";
     qDebug() << "coord réelles: G(" <<x_prim_view <<","<<y_prim_view<<")\tAd("<<x_view<<","<<y_view<<")";
     qDebug() << "distance : " << distanceAdversaire;
-     qDebug() << "angle : " << adeg;
-    if(distanceAdversaire<=50)
+    qDebug() << "angle : " << adeg;
+    */
+    double US_AVG=99;
+    double US_AVD=99;
+    double US_ARG=99;
+    double US_ARD=99;
+    if(distanceAdversaire<=120)
     {
-        if(((adeg>=0)&&(adeg<40))||((adeg>320)&&(adeg<=360))) //robot adverse devant
+        if(((adeg>=0)&&(adeg<80))||((adeg>340)&&(adeg<=360))) //robot adverse devant à gauche
         {
-            qDebug() << "AVG 1 - AVD 1";
-            qDebug() << "ARG 0 - ARD 0";
+            US_AVG=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)-16),2));
         }
-        else if((adeg>=40)&&(adeg<80)) //robot adverse devant à gauche
+        if(((adeg>280)&&(adeg<=360))||((adeg>=0)&&(adeg<20))) //robot adverse devant à droite
         {
-            qDebug() << "AVG 1 - AVD 0";
-            qDebug() << "ARG 0 - ARD 0\n";
+            US_AVD=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)+16),2));
         }
-        else if((adeg>280)&&(adeg<=320)) //robot adverse devant à droite
+        if((adeg>100)&&(adeg<=200)) //robot adverse arrière à gauche
         {
-            qDebug() << "AVG 0 - AVD 1";
-            qDebug() << "ARG 0 - ARD 0";
+            US_ARG=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)-16),2));
         }
-        else if((adeg>100)&&(adeg<=140)) //robot adverse arrière à gauche
+        if((adeg>=160)&&(adeg<260)) //robot adverse arrière à droite
         {
-            qDebug() << "AVG 0 - AVD 0";
-            qDebug() << "ARG 1 - ARD 0";
-        }
-        else if((adeg>140)&&(adeg<220)) //robot adverse arrière
-        {
-            qDebug() << "AVG 0 - AVD 0";
-            qDebug() << "ARG 1 - ARD 1";
-        }
-        else if((adeg>=220)&&(adeg<260)) //robot adverse arrière à droite
-        {
-            qDebug() << "AVG 0 - AVD 0";
-            qDebug() << "ARG 0 - ARD 1";
-        }
-        else //robot adverse dans zones mortes
-        {
-            qDebug() << "AVG 0 - AVD 0";
-            qDebug() << "ARG 0 - ARD 0";
+            US_ARD=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)+16),2));
         }
     }
-    else
-    {
-        qDebug() << "AVG 0 - AVD 0";
-        qDebug() << "ARG 0 - ARD 0";
-    }
+
+    m_application->m_data_center->write("Simubot.Telemetres.AVG", US_AVG);
+    m_application->m_data_center->write("Simubot.Telemetres.AVD", US_AVD);
+    m_application->m_data_center->write("Simubot.Telemetres.ARG", US_ARG);
+    m_application->m_data_center->write("Simubot.Telemetres.ARD", US_ARD);
+
+    /*
+    qDebug() << "AVG "<<US_AVG<<" - AVD "<<US_AVD;
+    qDebug() << "ARG "<<US_ARG<<" - ARD "<<US_ARD;
     qDebug() << "------------------------------------------------------";
+    */
 
 
     //estimation de blocage sur le terrain
