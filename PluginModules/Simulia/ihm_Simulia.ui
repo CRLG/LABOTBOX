@@ -706,11 +706,14 @@
      <widget class="QDoubleSpinBox" name="Telemetre_ARG">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>30</x>
         <y>100</y>
-        <width>61</width>
+        <width>81</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre ARG</string>
       </property>
       <property name="maximum">
        <double>999999999999999.000000000000000</double>
@@ -724,9 +727,12 @@
        <rect>
         <x>130</x>
         <y>100</y>
-        <width>61</width>
+        <width>81</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre ARD</string>
       </property>
       <property name="maximum">
        <double>999999999999999.000000000000000</double>
@@ -766,9 +772,12 @@
        <rect>
         <x>130</x>
         <y>60</y>
-        <width>61</width>
+        <width>81</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre AVD</string>
       </property>
       <property name="maximum">
        <double>999999999999999.000000000000000</double>
@@ -780,11 +789,14 @@
      <widget class="QDoubleSpinBox" name="Telemetre_AVG">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>30</x>
         <y>60</y>
-        <width>61</width>
+        <width>81</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre AVG</string>
       </property>
       <property name="maximum">
        <double>999999999999999.000000000000000</double>

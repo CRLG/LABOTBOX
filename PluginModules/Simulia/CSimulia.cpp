@@ -381,9 +381,9 @@ void CSimulia::on_telemetres_gui_changed()
 //
 void CSimulia::on_origine_telemetre_changed()
 {
-    bool enabled = false;
+    bool read_only = true;
     if (m_ihm.ui.OrigineTelemetres->currentIndex() == CTelemetresSimu::TELEMETRES_FROM_GUI) {
-        enabled = true;
+        read_only = false;
         // Met des valeurs neutres au changement de source
         float val_neutre= 1000;
         m_ihm.ui.Telemetre_AVG->setValue(val_neutre);
@@ -392,10 +392,10 @@ void CSimulia::on_origine_telemetre_changed()
         m_ihm.ui.Telemetre_ARD->setValue(val_neutre);
         on_telemetres_gui_changed();
     }
-    m_ihm.ui.Telemetre_AVG->setEnabled(enabled);
-    m_ihm.ui.Telemetre_AVD->setEnabled(enabled);
-    m_ihm.ui.Telemetre_ARG->setEnabled(enabled);
-    m_ihm.ui.Telemetre_ARD->setEnabled(enabled);
+    m_ihm.ui.Telemetre_AVG->setReadOnly(read_only);
+    m_ihm.ui.Telemetre_AVD->setReadOnly(read_only);
+    m_ihm.ui.Telemetre_ARG->setReadOnly(read_only);
+    m_ihm.ui.Telemetre_ARD->setReadOnly(read_only);
     Application.m_telemetres.setOrigineTelemetre(m_ihm.ui.OrigineTelemetres->currentIndex());
 }
 
