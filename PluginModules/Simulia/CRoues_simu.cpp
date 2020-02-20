@@ -47,10 +47,15 @@ void CRouesSimu::forceBlocageRoueD(bool state)
 */
 void CRouesSimu::AdapteCommandeMoteur_G(float vitesse)
 {
-    rtU.cde_mot_G = vitesse;
-    //qDebug() << "Moteur G = " << rtU.cde_mot_G;
-    m_cde_roue_G = vitesse;
-    m_application->m_data_center->write("Cde_MotG", vitesse);
+    if (m_force_blocage_roue_G) {
+        m_cde_roue_G = 0.f;
+    }
+    else {
+        m_cde_roue_G = vitesse;
+    }
+    //qDebug() << "Moteur G = " << m_cde_roue_G;
+    rtU.cde_mot_G = m_cde_roue_G;
+    m_application->m_data_center->write("Cde_MotG", m_cde_roue_G);
 }
 
 
@@ -63,10 +68,15 @@ void CRouesSimu::AdapteCommandeMoteur_G(float vitesse)
 */
 void CRouesSimu::AdapteCommandeMoteur_D(float vitesse)
 {
-    rtU.cde_mot_D = vitesse;
-    //qDebug() << "Moteur D = " << rtU.cde_mot_D;
-    m_cde_roue_D = vitesse;
-    m_application->m_data_center->write("Cde_MotD", vitesse);
+    if (m_force_blocage_roue_D) {
+        m_cde_roue_D = 0.f;
+    }
+    else {
+        m_cde_roue_D = vitesse;
+    }
+    //qDebug() << "Moteur D = " << m_cde_roue_D;
+    rtU.cde_mot_D = m_cde_roue_D;
+    m_application->m_data_center->write("Cde_MotD", m_cde_roue_D);
 }
 
 
