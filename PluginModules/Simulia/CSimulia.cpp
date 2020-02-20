@@ -226,11 +226,10 @@ void CSimulia::on_pb_init_all()
     Application.m_detection_obstacles.Init();
 
     // initialise les machines d'états Modelia du robot
-    m_ia.initAllStateMachines();
+    m_ia.init();
 
     m_ia.m_sm_recup_bouees_distributeur.setPrioriteExecution(0);
     m_ia.m_sm_activer_phare.setPrioriteExecution(1);
-    m_ia.m_inputs_interface.TE_Modele = 0.02f;
 
     m_timer.start();
 }
