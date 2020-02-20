@@ -213,8 +213,8 @@ void CSimuBot::init(CApplication *application)
 	
 	//ajout d'un robot adverse
     QPolygonF ref_BotForme;
-    ref_BotForme << QPointF(5,-7) << QPointF(-5,-7)<< QPointF(-7,-5)<< QPointF(-7,5) << QPointF(-5,7);
-    ref_BotForme << QPointF(5,7) << QPointF(7,5) << QPointF(7,-5) << QPointF(5,-7);
+    ref_BotForme << QPointF(9,-15) << QPointF(-9,-15)<< QPointF(-15,-9)<< QPointF(-15,9) << QPointF(-9,15);
+    ref_BotForme << QPointF(9,15) << QPointF(15,9) << QPointF(15,-9) << QPointF(9,-15);
     OtherBot= new GraphicElement(ref_BotForme,255,255,255);
     OtherBot->setFlag(QGraphicsItem::ItemIsMovable, true);
     OtherBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -493,7 +493,7 @@ void CSimuBot::initView(void){
 		OtherBot->raz(100,100,0);
     }
 
-    OtherBot->display_XY(100,0);
+    OtherBot->display_XY(200,0);
 
     qreal x_reel_init=GrosBot->getX();
     qreal y_reel_init=GrosBot->getY();
@@ -881,6 +881,7 @@ void CSimuBot::estimate_Environment_Interactions()
     qDebug() << "distance : " << distanceAdversaire;
     qDebug() << "angle : " << adeg;
     */
+    distanceAdversaire=distanceAdversaire-15; //prise en compte du diamètre moyen du robot adverse
     double US_AVG=99;
     double US_AVD=99;
     double US_ARG=99;
@@ -920,8 +921,39 @@ void CSimuBot::estimate_Environment_Interactions()
     //estimation de blocage sur le terrain
     //l'idée est d'interdire le mouvement d'un côté si un blocage est détecté à gauche ou a droite
 
-    //code copié de simubot 2009 :-)
-
+    //conversion en degre
+    double teta_deg= theta_view*180/Pi; //angle en degré
+    //modulo 360 degré
+    while (teta_deg < 0)
+        teta_deg += 360;
+    while (teta_deg > 360)
+        teta_deg -= 360;
+    //collision avec la bordure en x=0
+    double x_limit=fabs(23.5*sin(theta_view+(Pi/4)));
+    if(m_ihm.ui.checkBox_enableBlocking->isChecked())
+    {
+        if(x_prim_graphic<=x_limit)
+        {
+            if((teta_deg<=1)||(teta_deg>=359))
+            {
+                m_application->m_data_center->write("Simubot.blocage.gauche", true);
+                m_application->m_data_center->write("Simubot.blocage.droite", true);
+            }
+            else if ((teta_deg>1)&&(teta_deg<90))
+            {
+                m_application->m_data_center->write("Simubot.blocage.gauche", true);
+            }
+            else if ((teta_deg>270)&&(teta_deg<359))
+            {
+                m_application->m_data_center->write("Simubot.blocage.droite", true);
+            }
+        }
+        else
+        {
+            m_application->m_data_center->write("Simubot.blocage.gauche", false);
+            m_application->m_data_center->write("Simubot.blocage.droite", false);
+        }
+    }
 
 }
 
