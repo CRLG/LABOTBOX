@@ -86,7 +86,7 @@ void CSimulia::init(CApplication *application)
   m_ihm.ui.OrigineDetectionObstacles->setCurrentIndex(val.toInt());
   on_origine_detect_obstacle_changed();
 
-  m_ia.setDebugger(new SM_DebugQDebug());
+  Application.m_modelia.setDebugger(new SM_DebugQDebug());
 
   // passe à toutes les classes de simulation l'application Simulia
   Application.m_capteurs.init(m_application);
@@ -106,11 +106,11 @@ void CSimulia::init(CApplication *application)
 
 
   // Mise en cohérence de l'IHM avec l'état interne
-  m_ihm.ui.actionActive_Start->setChecked(m_ia.m_sm_debug->m_active_start);
-  m_ihm.ui.actionActive_Stop->setChecked(m_ia.m_sm_debug->m_active_stop);
-  m_ihm.ui.actionActive_onEntry->setChecked(m_ia.m_sm_debug->m_active_on_entry);
-  m_ihm.ui.actionActive_onExit->setChecked(m_ia.m_sm_debug->m_active_on_exit);
-  m_ihm.ui.actionActive_Interrupt_Evitement->setChecked(m_ia.m_sm_debug->m_active_interrupt_evitement);
+  m_ihm.ui.actionActive_Start->setChecked(Application.m_modelia.m_sm_debug->m_active_start);
+  m_ihm.ui.actionActive_Stop->setChecked(Application.m_modelia.m_sm_debug->m_active_stop);
+  m_ihm.ui.actionActive_onEntry->setChecked(Application.m_modelia.m_sm_debug->m_active_on_entry);
+  m_ihm.ui.actionActive_onExit->setChecked(Application.m_modelia.m_sm_debug->m_active_on_exit);
+  m_ihm.ui.actionActive_Interrupt_Evitement->setChecked(Application.m_modelia.m_sm_debug->m_active_interrupt_evitement);
 
   connect(m_ihm.ui.pb_start_main, SIGNAL(pressed()), this, SLOT(on_pb_active_main()));
   connect(m_ihm.ui.pb_stop_all, SIGNAL(pressed()), this, SLOT(on_pb_stop_all()));
@@ -199,12 +199,12 @@ void CSimulia::onRightClicGUI(QPoint pos)
 
 void CSimulia::on_pb_active_main()
 {
-    m_ia.m_sm_main.start();
+    Application.m_modelia.m_sm_main.start();
 }
 
 void CSimulia::on_pb_stop_all()
 {
-  m_ia.stopAllStateMachines();
+  Application.m_modelia.stopAllStateMachines();
   m_timer.stop();
 }
 
@@ -226,10 +226,8 @@ void CSimulia::on_pb_init_all()
     Application.m_detection_obstacles.Init();
 
     // initialise les machines d'états Modelia du robot
-    m_ia.init();
-
-    m_ia.m_sm_recup_bouees_distributeur.setPrioriteExecution(0);
-    m_ia.m_sm_activer_phare.setPrioriteExecution(1);
+    Application.m_modelia.init();
+    Application.m_modelia.setStrategie(STRATEGIE_TEST_01);
 
     m_timer.start();
 }
@@ -242,20 +240,20 @@ void CSimulia::on_timeout()
 void CSimulia::step_sequencer()
 {
     // Mise en cohérence de l'IHM de simu avec le reste du modèle
-    m_ihm.ui.led_isObstacle->setValue(m_ia.m_inputs_interface.obstacleDetecte); // La LED représente une détection d'obstacle confirmée
+    m_ihm.ui.led_isObstacle->setValue(Application.m_modelia.m_inputs_interface.obstacleDetecte); // La LED représente une détection d'obstacle confirmée
     if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() != CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
-        m_ihm.ui.detectionObstacle_AVG->setChecked(m_ia.m_inputs_interface.obstacle_AVG);
-        m_ihm.ui.detectionObstacle_AVD->setChecked(m_ia.m_inputs_interface.obstacle_AVD);
-        m_ihm.ui.detectionObstacle_ARG->setChecked(m_ia.m_inputs_interface.obstacle_ARG);
-        m_ihm.ui.detectionObstacle_ARD->setChecked(m_ia.m_inputs_interface.obstacle_ARD);
+        m_ihm.ui.detectionObstacle_AVG->setChecked(Application.m_modelia.m_inputs_interface.obstacle_AVG);
+        m_ihm.ui.detectionObstacle_AVD->setChecked(Application.m_modelia.m_inputs_interface.obstacle_AVD);
+        m_ihm.ui.detectionObstacle_ARG->setChecked(Application.m_modelia.m_inputs_interface.obstacle_ARG);
+        m_ihm.ui.detectionObstacle_ARD->setChecked(Application.m_modelia.m_inputs_interface.obstacle_ARD);
     }
 
     if (m_ihm.ui.OrigineTelemetres->currentIndex() != CTelemetresSimu::TELEMETRES_FROM_GUI) {
         // Mise à jour des valeurs télémètres en fonction de leur provenance
-        m_ihm.ui.Telemetre_AVG->setValue(m_ia.m_inputs_interface.Telemetre_AVG);
-        m_ihm.ui.Telemetre_AVD->setValue(m_ia.m_inputs_interface.Telemetre_AVD);
-        m_ihm.ui.Telemetre_ARG->setValue(m_ia.m_inputs_interface.Telemetre_ARG);
-        m_ihm.ui.Telemetre_ARD->setValue(m_ia.m_inputs_interface.Telemetre_ARD);
+        m_ihm.ui.Telemetre_AVG->setValue(Application.m_modelia.m_inputs_interface.Telemetre_AVG);
+        m_ihm.ui.Telemetre_AVD->setValue(Application.m_modelia.m_inputs_interface.Telemetre_AVD);
+        m_ihm.ui.Telemetre_ARG->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARG);
+        m_ihm.ui.Telemetre_ARD->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARD);
     }
 
     Application.m_power_electrobot.simuSetGlobalCurrent(m_ihm.ui.power_electrobot_global_current->value());
@@ -264,7 +262,7 @@ void CSimulia::step_sequencer()
     simu_task_sequencer();
 
     // Outputs -> IHM
-    m_application->m_data_center->write("TempsMatch", m_ia.m_datas_interface.TempsMatch);
+    m_application->m_data_center->write("TempsMatch", Application.m_modelia.m_datas_interface.TempsMatch);
 
     m_application->m_data_center->write("x_pos", Application.m_asservissement.X_robot);
     m_application->m_data_center->write("y_pos", Application.m_asservissement.Y_robot);
@@ -305,7 +303,7 @@ void CSimulia::simu_task_sequencer()
       Application.m_asservissement_chariot.Asser_chariot();
 
       // Execute un pas de calcul du modele
-      m_ia.step();
+      Application.m_modelia.step();
    }
     // ______________________________
     cpt50msec++;
@@ -347,16 +345,16 @@ void CSimulia::on_speed_simu_valueChanged(int val)
 
 void CSimulia::on_dde_autotest_pressed()
 {
-    m_ia.m_inputs_interface.dde_test_actionneurs = 1;
+    Application.m_modelia.m_inputs_interface.dde_test_actionneurs = 1;
 }
 
 void CSimulia::on_config_debugger_changed()
 {
-    m_ia.m_sm_debug->m_active_start = m_ihm.ui.actionActive_Start->isChecked();
-    m_ia.m_sm_debug->m_active_stop = m_ihm.ui.actionActive_Stop->isChecked();
-    m_ia.m_sm_debug->m_active_on_entry = m_ihm.ui.actionActive_onEntry->isChecked();
-    m_ia.m_sm_debug->m_active_on_exit = m_ihm.ui.actionActive_onExit->isChecked();
-    m_ia.m_sm_debug->m_active_interrupt_evitement = m_ihm.ui.actionActive_Interrupt_Evitement->isChecked();
+    Application.m_modelia.m_sm_debug->m_active_start = m_ihm.ui.actionActive_Start->isChecked();
+    Application.m_modelia.m_sm_debug->m_active_stop = m_ihm.ui.actionActive_Stop->isChecked();
+    Application.m_modelia.m_sm_debug->m_active_on_entry = m_ihm.ui.actionActive_onEntry->isChecked();
+    Application.m_modelia.m_sm_debug->m_active_on_exit = m_ihm.ui.actionActive_onExit->isChecked();
+    Application.m_modelia.m_sm_debug->m_active_interrupt_evitement = m_ihm.ui.actionActive_Interrupt_Evitement->isChecked();
 }
 
 

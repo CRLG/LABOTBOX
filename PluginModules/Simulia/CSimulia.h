@@ -11,7 +11,7 @@
 #include "ui_ihm_Simulia.h"
 
 #include <QTimer>
-#include "ia.h"
+//#include "ia.h"
 
  class Cihm_Simulia : public QMainWindow
 {
@@ -54,7 +54,7 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
 
-    IA m_ia;
+//    IA m_ia;
     QTimer m_timer;
 
 private:
