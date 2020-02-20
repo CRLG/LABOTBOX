@@ -15,6 +15,7 @@
 #include "CAsservissementChariot_simu.h"
 #include "CTelemetres_simu.h"
 #include "CDetectionObstacles_simu.h"
+#include "CCapteurs_simu.h"
 
 
 
@@ -22,16 +23,16 @@
 //! Classe de gestion des options d'exécution passees en ligne de commande
 class CGlobaleSimule {
 public :
-    CAsservissementSimule m_asservissement;
-    CRouesSimu m_roues;
-    //! Carte PowerElectrobot
-    PowerElectrobotSimu m_power_electrobot;
-    CServoMoteurAXSimu m_servos_ax;
-    CServoMoteurSD20Simu m_servos_sd20;
-    MessengerXbeeNetworkSimu m_messenger_xbee_ntw;
-    CAsservissementChariotSimu m_asservissement_chariot;
-    CTelemetresSimu m_telemetres;
-    CDetectionObstaclesSimu m_detection_obstacles;
+    CCapteursSimu               m_capteurs;
+    CAsservissementSimule       m_asservissement;
+    CRouesSimu                  m_roues;
+    PowerElectrobotSimu         m_power_electrobot;
+    CServoMoteurAXSimu          m_servos_ax;
+    CServoMoteurSD20Simu        m_servos_sd20;
+    MessengerXbeeNetworkSimu    m_messenger_xbee_ntw;
+    CAsservissementChariotSimu  m_asservissement_chariot;
+    CTelemetresSimu             m_telemetres;
+    CDetectionObstaclesSimu     m_detection_obstacles;
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation

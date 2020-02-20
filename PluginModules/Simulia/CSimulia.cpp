@@ -89,6 +89,7 @@ void CSimulia::init(CApplication *application)
   m_ia.setDebugger(new SM_DebugQDebug());
 
   // passe à toutes les classes de simulation l'application Simulia
+  Application.m_capteurs.init(m_application);
   Application.m_roues.init(m_application);
   Application.m_servos_ax.init(m_application);
   Application.m_asservissement.init(m_application);
@@ -156,7 +157,7 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("Led3", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_3, SLOT(setValue(bool)));
   connect(m_application->m_data_center->getData("Led4", true), SIGNAL(valueChanged(bool)), m_ihm.ui.led_mbed_4, SLOT(setValue(bool)));
 
-  connect(m_ihm.ui.Tirette, SIGNAL(clicked(bool)), m_application->m_data_center->getData("Tirette", true), SLOT(write(bool)));
+  connect(m_ihm.ui.Tirette, SIGNAL(clicked(bool)), m_application->m_data_center->getData("Capteurs.Tirette", true), SLOT(write(bool)));
 
   connect(m_application->m_data_center->getData("Simubot.blocage.gauche", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_G(bool)));
   connect(m_application->m_data_center->getData("Simubot.blocage.droite", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_D(bool)));
@@ -212,6 +213,7 @@ void CSimulia::on_pb_init_all()
     m_timer.stop();
 
     // initialise l'asservissement et le modèle simulink des moteurs
+    Application.m_capteurs.Init();
     Application.m_asservissement.CommandeManuelle(0, 0);
     Application.m_asservissement.Init();
     Application.m_roues.init_model();
@@ -240,18 +242,6 @@ void CSimulia::on_timeout()
 
 void CSimulia::step_sequencer()
 {
-    // TODO :
-    //  peut être à revoir l'interface avec le monde extérieur
-    //  passer par les variables du DataManager
-    // Pour l'asservissement, donner la possibilité d'alimenter le modèle
-    //      - Soit à partir de Application.m_asservissement.xxxxx
-    //      - Soit à partir de données du DataManger (de l'IHM)
-
-
-    //TODO déplacer les liens avec le modèle dans IA.cpp lorsqu'il n'y a pas de lien avec le hardware
-    // pour être un maximum commun au robot et à la simulation
-    m_ia.m_inputs_interface.Tirette             = m_application->m_data_center->getData("Tirette")->read().toBool();
-
     // Mise en cohérence de l'IHM de simu avec le reste du modèle
     m_ihm.ui.led_isObstacle->setValue(m_ia.m_inputs_interface.obstacleDetecte); // La LED représente une détection d'obstacle confirmée
     if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() != CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
@@ -335,6 +325,8 @@ void CSimulia::simu_task_sequencer()
     cpt200msec++;
     if (cpt200msec >= 20) {
       cpt200msec = 0;
+
+      Application.m_capteurs.Traitement();
     }
     // ______________________________
     cpt500msec++;
