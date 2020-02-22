@@ -342,7 +342,7 @@ void GraphicElement::moveAtSpeed(void)
             {
                 isConvergence=true;
                 is_init_target=false;
-                qDebug()<<"Arrived at ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
+                //qDebug()<<"Arrived at ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
                 setPos(x_internal_target,y_internal_target);
             }
         }
@@ -388,6 +388,7 @@ void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
     isConvergence=false;
 
     is_init_target=true;
+    /*
     qDebug() << "New target ("<<x_internal_target<<","<<y_internal_target<<") from ("<<x_internal_hold<<","<<y_internal_hold<<")";
     qDebug() << "Internal parameters:";
     qDebug() << "Speed = "<<vitesse<<"cm/s";
@@ -401,6 +402,7 @@ void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
         qDebug() << "dY = "<<m_target<<"*dX+"<<p_target;
     }
     qDebug() << "Time of moving estimated at "<<nb_step_target*0.025<<" secondes";
+    */
 }
 
 

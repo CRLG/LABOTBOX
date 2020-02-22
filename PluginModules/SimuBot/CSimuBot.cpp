@@ -316,6 +316,15 @@ void CSimuBot::init(CApplication *application)
     //init de ces variables dans le data manager
     m_application->m_data_center->write("Cde_MotG", 0);
     m_application->m_data_center->write("Cde_MotD", 0);
+    m_application->m_data_center->write("Simubot.Telemetres.AVG", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.AVD", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.ARG", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.ARD", 99);
+    m_application->m_data_center->write("Simubot.OtherBot.x", 0);
+    m_application->m_data_center->write("Simubot.OtherBot.y", 0);
+    m_application->m_data_center->write("Simubot.Bot.x", 0);
+    m_application->m_data_center->write("Simubot.Bot.y", 0);
+    m_application->m_data_center->write("Simubot.Bot.teta", 0);
     //pour la simu
     cadenceur=new QTimer();
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
@@ -453,12 +462,27 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         m_application->m_data_center->write("PosX_robot", x_view);
         m_application->m_data_center->write("PosY_robot", y_view);
         m_application->m_data_center->write("DirDistance_robot", deltaDistance);
+        m_application->m_data_center->write("Simubot.Bot.x", GrosBot->getX_terrain());
+        m_application->m_data_center->write("Simubot.Bot.y", GrosBot->getY_terrain());
+        m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
+        m_application->m_data_center->write("Simubot.OtherBot.x", OtherBot->getX_terrain());
+        m_application->m_data_center->write("Simubot.OtherBot.y", OtherBot->getY_terrain());
         break;
     case SIMUBOT::VISU :
         break;
     case SIMUBOT::SIMU:
         //TODO SIMU: donner les interactions avec l'environnement au datamanger
         estimate_Environment_Interactions();
+        /*m_application->m_data_center->write("Simubot.Bot.x", GrosBot->x());
+        m_application->m_data_center->write("Simubot.Bot.y", GrosBot->y());
+        m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
+        m_application->m_data_center->write("Simubot.OtherBot.x", OtherBot->x());
+        m_application->m_data_center->write("Simubot.OtherBot.y", OtherBot->y());*/
+        m_application->m_data_center->write("Simubot.Bot.x", GrosBot->getX_terrain());
+        m_application->m_data_center->write("Simubot.Bot.y", GrosBot->getY_terrain());
+        m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
+        m_application->m_data_center->write("Simubot.OtherBot.x", OtherBot->getX_terrain());
+        m_application->m_data_center->write("Simubot.OtherBot.y", OtherBot->getY_terrain());
         break;
 
     default:
@@ -848,48 +872,48 @@ void CSimuBot::catchDoubleClick()
 void CSimuBot::estimate_Environment_Interactions()
 {
     //estimation de l'environnement US
-    //récupération des différentes coordonnées (graphique et réelles)
-    qreal x_view=OtherBot->getX();
-    qreal y_view=OtherBot->getY();
-    qreal x_graphic=OtherBot->x();
-    qreal y_graphic=OtherBot->y();
-    qreal theta_view=GrosBot->getTheta();
+    //récupération des différentes coordonnées (graphique et réelles) de l'adversaire
+    qreal x_other_graphic=OtherBot->getX_terrain();
+    qreal y_other_graphic=OtherBot->getY_terrain();
 
-    //récupération des différentes coordonnées (graphique et réelles) pour l'ancienne position du robot
-    qreal x_prim_view=GrosBot->getX();
-    qreal y_prim_view=GrosBot->getY();
-    qreal x_prim_graphic=GrosBot->x();
-    qreal y_prim_graphic=GrosBot->y();
+    //récupération des différentes coordonnées (graphique et réelles) de notre robot
+    qreal x_bot_graphic=GrosBot->getX_terrain();
+    qreal y_bot_graphic=GrosBot->getY_terrain();
+    qreal theta_bot=GrosBot->getTheta();
 
     //on calcule la distance entre l'ancienne et la nouvelle position
-    float distanceAdversaire = sqrt(pow((x_graphic-x_prim_graphic),2)+pow((y_graphic-y_prim_graphic),2));
+    float distanceAdversaire = sqrt(pow((x_other_graphic-x_bot_graphic),2)+pow((y_other_graphic-y_bot_graphic),2));
     float angleAdversaire=0.0;
 
-    //on calcule l'angle par rapport à l'ancienne position
-    if (x_view==x_prim_view)
+    //on calcule l'angle entre les 2 robots
+    if (x_other_graphic==x_bot_graphic)
     {
-        if (y_view>y_prim_view)
+        if (y_other_graphic>y_bot_graphic)
             angleAdversaire=Pi/2;
-        else if (y_view==y_prim_view)
+        else if (y_other_graphic==y_bot_graphic)
             angleAdversaire=0;
-        else if (y_view<y_prim_view)
+        else if (y_other_graphic<y_bot_graphic)
             angleAdversaire=-Pi/2;
     }
-    else if (x_view>x_prim_view)
-        angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view));
-    else if (x_view<x_prim_view)
+    else if (x_other_graphic>x_bot_graphic)
     {
-        if (y_view>y_prim_view)
-            angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view))+Pi;
-        else if (y_view==y_prim_view)
+        angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic));
+    }
+    else if (x_other_graphic<x_bot_graphic)
+    {
+        if (y_other_graphic>y_bot_graphic)
+            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))+Pi;
+        else if (y_other_graphic==y_bot_graphic)
             angleAdversaire=Pi;
-        else if (y_view<y_prim_view)
-            angleAdversaire=atan((y_view-y_prim_view)/(x_view-x_prim_view))-Pi;
+        else if (y_other_graphic<y_bot_graphic)
+            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))-Pi;
     }
 
-    double arad=angleAdversaire-theta_view; //angle en radian
+    double arad=angleAdversaire-theta_bot; //angle en radian
+    if(GrosBot->sensOrtho<0)
+        arad=arad+Pi;
     double adeg= arad*180/Pi; //angle en degré
-    //modulo 360 degré
+    //modulo 360
     while (adeg < 0)
         adeg += 360;
     while (adeg > 360)
@@ -901,26 +925,27 @@ void CSimuBot::estimate_Environment_Interactions()
     qDebug() << "distance : " << distanceAdversaire;
     qDebug() << "angle : " << adeg;
     */
-    distanceAdversaire=distanceAdversaire-15; //prise en compte du diamètre moyen du robot adverse
+    distanceAdversaire=distanceAdversaire-15.0; //prise en compte du diamètre moyen du robot adverse
     double US_AVG=99;
     double US_AVD=99;
     double US_ARG=99;
     double US_ARD=99;
+    //qDebug() << distanceAdversaire << "," << adeg;
     if(distanceAdversaire<=120)
     {
-        if(((adeg>=0)&&(adeg<80))||((adeg>340)&&(adeg<=360))) //robot adverse devant à gauche
+        if(((adeg>=0)&&(adeg<45))||((adeg>340)&&(adeg<=360))) //robot adverse devant à gauche
         {
             US_AVG=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)-16),2));
         }
-        if(((adeg>280)&&(adeg<=360))||((adeg>=0)&&(adeg<20))) //robot adverse devant à droite
+        if(((adeg>315)&&(adeg<=360))||((adeg>=0)&&(adeg<20))) //robot adverse devant à droite
         {
             US_AVD=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)+16),2));
         }
-        if((adeg>100)&&(adeg<=200)) //robot adverse arrière à gauche
+        if((adeg>135)&&(adeg<=200)) //robot adverse arrière à gauche
         {
             US_ARG=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)-16),2));
         }
-        if((adeg>=160)&&(adeg<260)) //robot adverse arrière à droite
+        if((adeg>=160)&&(adeg<225)) //robot adverse arrière à droite
         {
             US_ARD=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)+16),2));
         }
@@ -948,16 +973,16 @@ void CSimuBot::estimate_Environment_Interactions()
         bool blocage_D=false;
 
         //conversion en degre
-        double teta_deg= theta_view*180/Pi; //angle en degré
+        double teta_deg= theta_bot*180/Pi; //angle en degré
         //modulo 360 degré
         while (teta_deg < 0)
             teta_deg += 360;
         while (teta_deg > 360)
             teta_deg -= 360;
         //collision avec la bordure en x=0
-        double x_limit=fabs(23.5*sin(theta_view+(Pi/4)));
+        double x_limit=fabs(23.5*sin(theta_bot+(Pi/4)));
 
-        if(x_prim_graphic<=x_limit)
+        if(x_bot_graphic<=x_limit)
         {
             if(((teta_deg<=1)||(teta_deg>=359))&&(cmde_MotG<0)&&(cmde_MotD<0))
             {
@@ -1014,8 +1039,8 @@ void CSimuBot::playOther()
                 OtherBot->setSpeed(speedOther);
                 float x_record=str_x_record.toFloat();
                 float y_record=str_y_record.toFloat();
-                qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
-                float teta_record=str_teta_record.toFloat();
+                //float teta_record=str_teta_record.toFloat();
+                //qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
                 OtherBot->display_XY(x_record,y_record);
                 cadenceur->start(25);
             }
@@ -1054,7 +1079,7 @@ void CSimuBot::nextStepOther()
                     float x_record=str_x_record.toFloat();
                     float y_record=str_y_record.toFloat();
                     //float teta_record=str_teta_record.toFloat();
-                    qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
+                    //qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
                     OtherBot->display_XY(x_record,y_record);
                 }
                 else
