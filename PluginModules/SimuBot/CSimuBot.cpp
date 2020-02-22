@@ -312,10 +312,29 @@ void CSimuBot::init(CApplication *application)
     connect(m_application->m_data_center->getData("y_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
     connect(m_application->m_data_center->getData("teta_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
 
+
+    //init de ces variables dans le data manager
+    m_application->m_data_center->write("Cde_MotG", 0);
+    m_application->m_data_center->write("Cde_MotD", 0);
+    //pour la simu
+    cadenceur=new QTimer();
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
+    connect(m_ihm.ui.pB_playOther,SIGNAL(clicked(bool)),this,SLOT(playOther()));
+    connect(m_ihm.ui.pB_stopOther,SIGNAL(clicked(bool)),this,SLOT(stopOther()));
+    connect(cadenceur, SIGNAL(timeout()), this, SLOT(nextStepOther()));
+    connect(m_ihm.ui.chkBox_enableMoveOther, SIGNAL(stateChanged(int)), this, SLOT(enableMoveOther(int)));
+    QStringList QS_Labels;
+    QS_Labels << "x" << "y" << "teta";
+    m_ihm.ui.tableWidget->setHorizontalHeaderLabels(QS_Labels);
+    addLineOther(0,-50,0,0);
+    addLineOther(200,-50,0,1);
+    addLineOther(200,70,0,2);
+    addLineOther(0,70,0,3);
+    addLineOther(0,0,0,4);
+
 
     //positionnement par défaut
-    initEquipe(equipe1);
+    initEquipe(equipe1, equipe2);
     initView();
 }
 
@@ -476,24 +495,21 @@ void CSimuBot::initView(void){
         GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
                                m_ihm.ui.sB_Y_init_asserv->value(),
                                180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
-        OtherBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
-                               m_ihm.ui.sB_Y_init_asserv->value(),
-                               180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
+        OtherBot->setAsservInit(0,0,0);
         GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
         OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
-        OtherBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
+        OtherBot->raz(equipeOther.x,equipeOther.y,normalizeAngleDeg(180*equipeOther.teta/Pi));
     }
     else
     {
         GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
                                m_ihm.ui.sB_Y_init_asserv->value(),
                                m_ihm.ui.sB_Theta_init_asserv->value());
+        OtherBot->setAsservInit(0,0,0);
         GrosBot->raz(x_init,y_init,theta_init);
         OldGrosBot->raz(x_init,y_init,theta_init);
-		OtherBot->raz(100,100,0);
+        OtherBot->raz(equipeOther.x,equipeOther.y,equipeOther.teta);
     }
-
-    OtherBot->display_XY(200,0);
 
     qreal x_reel_init=GrosBot->getX();
     qreal y_reel_init=GrosBot->getY();
@@ -511,13 +527,16 @@ void CSimuBot::initView(void){
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 }
 
-void CSimuBot::initEquipe(Coord equipe)
+void CSimuBot::initEquipe(Coord equipe, Coord equipe_adverse)
 {
-    QString texteValue;
-
     m_ihm.ui.lineEdit_X_init->setValue(equipe.x);
     m_ihm.ui.lineEdit_Y_init->setValue(equipe.y);
     m_ihm.ui.lineEdit_Theta_init->setValue(equipe.teta);
+
+    //sauvegarde des coordonnées d'init du robot adverse
+    equipeOther.x=equipe_adverse.x;
+    equipeOther.y=equipe_adverse.y;
+    equipeOther.teta=equipe_adverse.teta;
 
     //sens trigo appliqué au robot placé à gauche sur l'image repère orthogonal
     if(equipe.ortho)
@@ -546,14 +565,15 @@ void CSimuBot::changeEquipe(void)
 
     if(name_radio_button.compare("radioButton_couleur_1")==0) //bleu
     {
-        initEquipe(equipe1);
-        qDebug() << "bleu";
+        initEquipe(equipe1,equipe2);
+        //qDebug() << "bleu";
     }
     else if(name_radio_button.compare("radioButton_couleur_2")==0) //jaune
     {
-        initEquipe(equipe2);
-        qDebug() << "jaune";
+        initEquipe(equipe2,equipe1);
+        //qDebug() << "jaune";
     }
+    initView();
 }
 
 void CSimuBot::returnCapture_Theta()
@@ -920,40 +940,168 @@ void CSimuBot::estimate_Environment_Interactions()
 
     //estimation de blocage sur le terrain
     //l'idée est d'interdire le mouvement d'un côté si un blocage est détecté à gauche ou a droite
-
-    //conversion en degre
-    double teta_deg= theta_view*180/Pi; //angle en degré
-    //modulo 360 degré
-    while (teta_deg < 0)
-        teta_deg += 360;
-    while (teta_deg > 360)
-        teta_deg -= 360;
-    //collision avec la bordure en x=0
-    double x_limit=fabs(23.5*sin(theta_view+(Pi/4)));
     if(m_ihm.ui.checkBox_enableBlocking->isChecked())
     {
+        float cmde_MotG = m_application->m_data_center->getData("Cde_MotG")->read().toFloat();
+        float cmde_MotD = m_application->m_data_center->getData("Cde_MotD")->read().toFloat();
+        bool blocage_G=false;
+        bool blocage_D=false;
+
+        //conversion en degre
+        double teta_deg= theta_view*180/Pi; //angle en degré
+        //modulo 360 degré
+        while (teta_deg < 0)
+            teta_deg += 360;
+        while (teta_deg > 360)
+            teta_deg -= 360;
+        //collision avec la bordure en x=0
+        double x_limit=fabs(23.5*sin(theta_view+(Pi/4)));
+
         if(x_prim_graphic<=x_limit)
         {
-            if((teta_deg<=1)||(teta_deg>=359))
+            if(((teta_deg<=1)||(teta_deg>=359))&&(cmde_MotG<0)&&(cmde_MotD<0))
             {
-                m_application->m_data_center->write("Simubot.blocage.gauche", true);
-                m_application->m_data_center->write("Simubot.blocage.droite", true);
+                blocage_G=true;
+                blocage_D=true;
             }
-            else if ((teta_deg>1)&&(teta_deg<90))
+            else if (((teta_deg>1)&&(teta_deg<90))&&(cmde_MotG<0))
             {
-                m_application->m_data_center->write("Simubot.blocage.gauche", true);
+                blocage_G=true;
             }
-            else if ((teta_deg>270)&&(teta_deg<359))
+            else if (((teta_deg>270)&&(teta_deg<359))&&(cmde_MotD<0))
             {
-                m_application->m_data_center->write("Simubot.blocage.droite", true);
+                blocage_D=true;
+            }
+        }
+
+        m_application->m_data_center->write("Simubot.blocage.gauche", blocage_G);
+        m_application->m_data_center->write("Simubot.blocage.droite", blocage_D);
+
+    }
+
+}
+
+/*!
+ * \brief CSimuBot::estimateEnvironmentVariables
+ *
+ * # COMPORTEMENT
+ * Calcule toutes les interactions entre le robot et l'environnement
+ * - capteurs US
+ * - blocage terrain
+ */
+
+void CSimuBot::playOther()
+{
+
+    double speedOther=m_ihm.ui.doubleSpinBox_speed->value();
+    if(speedOther>0)
+    {
+        currentIndex=0;
+        QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
+        QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
+        QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
+        if((widget_x)&&(widget_y)&&(widget_teta))
+        {
+            QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
+            QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
+            QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
+            if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
+            {
+                m_ihm.ui.pB_playOther->setDisabled(true);
+                m_ihm.ui.doubleSpinBox_speed->setDisabled(true);
+                m_ihm.ui.pB_stopOther->setDisabled(false);
+
+                OtherBot->setSpeed(speedOther);
+                float x_record=str_x_record.toFloat();
+                float y_record=str_y_record.toFloat();
+                qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
+                float teta_record=str_teta_record.toFloat();
+                OtherBot->display_XY(x_record,y_record);
+                cadenceur->start(25);
+            }
+        }
+    }
+}
+
+void CSimuBot::stopOther()
+{
+    cadenceur->stop();
+    currentIndex=0;
+    OtherBot->setSpeed(0);
+
+    m_ihm.ui.pB_playOther->setDisabled(false);
+    m_ihm.ui.doubleSpinBox_speed->setDisabled(false);
+    m_ihm.ui.pB_stopOther->setDisabled(true);
+}
+
+void CSimuBot::nextStepOther()
+{
+    if(OtherBot->isConvergence)
+    {
+        currentIndex++;
+        if(currentIndex<=10)
+        {
+            QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
+            QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
+            QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
+            if((widget_x)&&(widget_y)&&(widget_teta))
+            {
+                QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
+                QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
+                QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
+                if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
+                {
+                    float x_record=str_x_record.toFloat();
+                    float y_record=str_y_record.toFloat();
+                    //float teta_record=str_teta_record.toFloat();
+                    qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
+                    OtherBot->display_XY(x_record,y_record);
+                }
+                else
+                    stopOther();
+            }
+            else
+            {
+                stopOther();
             }
         }
         else
         {
-            m_application->m_data_center->write("Simubot.blocage.gauche", false);
-            m_application->m_data_center->write("Simubot.blocage.droite", false);
+            stopOther();
         }
     }
+    else
+        OtherBot->moveAtSpeed();
+}
 
+void CSimuBot::addLineOther(double x, double y, double teta, int row)
+{
+    QTableWidgetItem * qTbW_x=new QTableWidgetItem();
+    QTableWidgetItem * qTbW_y=new QTableWidgetItem();
+    QTableWidgetItem * qTbW_teta=new QTableWidgetItem();
+
+    QString str_x, str_y, str_teta;
+    qTbW_x->setText(str_x.setNum(x));
+    qTbW_y->setText(str_y.setNum(y));
+    qTbW_teta->setText(str_teta.setNum(teta));
+
+    m_ihm.ui.tableWidget->setItem(row,0,qTbW_x);
+    m_ihm.ui.tableWidget->setItem(row,1,qTbW_y);
+    m_ihm.ui.tableWidget->setItem(row,2,qTbW_teta);
+}
+
+void CSimuBot::enableMoveOther(int state)
+{
+    if(state==Qt::Checked)
+    {
+        m_ihm.ui.pB_playOther->setDisabled(false);
+        m_ihm.ui.doubleSpinBox_speed->setDisabled(false);
+    }
+    else
+    {
+        stopOther();
+        m_ihm.ui.pB_playOther->setDisabled(true);
+        m_ihm.ui.doubleSpinBox_speed->setDisabled(true);
+    }
 }
 

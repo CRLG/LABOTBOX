@@ -48,6 +48,10 @@ GraphicElement::GraphicElement(float R, float G, float B)
     x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
     sensOrtho=1;
+    vitesse=0.0;
+    isConvergence=true;
+    is_init_target=false;
+
 }
 
 /*!
@@ -72,6 +76,9 @@ GraphicElement::GraphicElement(QPolygonF forme, float R, float G, float B)
     x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
     sensOrtho=1;
+    vitesse=0.0;
+    isConvergence=true;
+    is_init_target=false;
 }
 
 /*!
@@ -96,6 +103,9 @@ GraphicElement::GraphicElement()
     setFillRule(Qt::WindingFill);
     isRelativToBot=true;
     sensOrtho=1;
+    vitesse=0.0;
+    isConvergence=true;
+    is_init_target=false;
 }
 
 /*!
@@ -205,6 +215,12 @@ void GraphicElement::setAsservInit(qreal x_init, qreal y_init, qreal angle_init)
     angle_asserv_init=angle_init;
 }
 
+void GraphicElement::setSpeed(double newVitesse)
+{
+    vitesse=newVitesse;
+    is_init_target=false;
+}
+
 /*!
  * \brief GraphicElement::replace repositionne l'élément aux coordonnées indiquées et à la vitesse donnée de façon
  * linéaire. si la vitesse est nulle alors le déplacement est instantané.
@@ -214,27 +230,15 @@ void GraphicElement::setAsservInit(qreal x_init, qreal y_init, qreal angle_init)
  */
 void GraphicElement::replace(qreal x_new, qreal y_new, float speed){
 
-    if (speed==0.0)
+    if (vitesse==0.0)
         setPos(x_new,y_new);
     else
     {
-        qreal x_sauv=x();
-        qreal y_sauv=y();
-//        qreal x_temp=x_sauv;
-//        qreal y_temp=y_sauv;
-        //y=m*x+p
-        double m=((y_new-y_sauv)/(x_new-x_sauv));
-        double p=(y_new-m*x_new);
-        double distance_restante=sqrt(pow((x_new-x_sauv),2)+pow((y_new-y_sauv),2));
-        //double nb_pas=(distance_restante/speed)/0.025;
-        double nb_pas=(distance_restante/speed)/0.025;
-        double dX=(x_new-x_sauv)/nb_pas;
-        for (int i=1;i<nb_pas;i++)
+        if(!is_init_target)
         {
-            setPos(x_sauv+i*dX,(m*(x_sauv+i*dX)+p));
-            QTest::qWait(25);
+            moveInit(x(),y(),x_new,y_new);
+            moveAtSpeed();
         }
-        setPos(x_new,y_new);
     }
 }
 
@@ -312,6 +316,91 @@ void GraphicElement::display_theta(qreal theta_reel_new)
         this->setRotation(-(180*(theta_reel_new)/Pi)-angle_offset+angle_asserv_init);
     else
         this->setRotation(-(180*(theta_reel_new)/Pi));
+}
+
+void GraphicElement::moveAtSpeed(void)
+{
+    if(is_init_target)
+    {
+        count_step_target++;
+
+        if(count_step_target<nb_step_target)
+        {
+            double dX=count_step_target*dX_target;
+            double dY=count_step_target*dY_target;
+            //qDebug()<<"Next step to move ("<<x_internal_hold+dX<<","<<(m_target*(x_internal_hold*dX)+p_target)<<")";
+            if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
+                setPos(x_internal_target,y_internal_hold+dY);
+            else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
+                setPos(x_internal_hold+dX,y_internal_target);
+            else
+                setPos(x_internal_hold+dX,m_target*(x_internal_hold+dX)+p_target);
+        }
+        else
+        {
+            if(!isConvergence)
+            {
+                isConvergence=true;
+                is_init_target=false;
+                qDebug()<<"Arrived at ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
+                setPos(x_internal_target,y_internal_target);
+            }
+        }
+    }
+}
+
+void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
+{
+    count_step_target=0;
+    x_internal_hold=fromX;
+    y_internal_hold=fromY;
+    x_internal_target=toX;
+    y_internal_target=toY;
+    dY_target=0.0;
+    dX_target=0.0;
+
+    //distance à parcourir
+    double distance_to_move=sqrt(pow((x_internal_target-x_internal_hold),2)+pow((y_internal_target-y_internal_hold),2));
+    //nombre de pas de déplacement et distance de déplacement à chaque pas
+    nb_step_target=(distance_to_move/vitesse)/0.025;
+
+    //y=m*x+p
+    if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
+    {
+        m_target=0.0;
+        p_target=0.0;
+        dY_target=(y_internal_target-y_internal_hold)/nb_step_target;
+    }
+    else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
+    {
+        m_target=0.0;
+        p_target=y_internal_hold;
+        dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
+    }
+    else
+    {
+        m_target=(y_internal_target-y_internal_hold)/(x_internal_target-x_internal_hold);
+        p_target=(y_internal_target-m_target*x_internal_target);
+        dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
+    }
+
+
+    isConvergence=false;
+
+    is_init_target=true;
+    qDebug() << "New target ("<<x_internal_target<<","<<y_internal_target<<") from ("<<x_internal_hold<<","<<y_internal_hold<<")";
+    qDebug() << "Internal parameters:";
+    qDebug() << "Speed = "<<vitesse<<"cm/s";
+    if((x_internal_target-x_internal_hold)<0.01) //x constant
+        qDebug() << "X constant at ("<< x_internal_target-x_internal_hold <<") => dY = "<<dY_target<<" cm every 25ms";
+    else if((y_internal_target-y_internal_hold)<0.01) //y constant
+        qDebug() << "Y constant at ("<< y_internal_target-y_internal_hold <<") => dX = "<<dX_target<<" cm every 25ms";
+    else
+    {
+        qDebug() << "dX = "<<dX_target<<" cm every 25ms";
+        qDebug() << "dY = "<<m_target<<"*dX+"<<p_target;
+    }
+    qDebug() << "Time of moving estimated at "<<nb_step_target*0.025<<" secondes";
 }
 
 

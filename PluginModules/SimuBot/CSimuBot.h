@@ -16,6 +16,7 @@
 #include "graphicEnvironnement.h"
 #include <QDebug>
 #include <QtMath>
+#include <QTimer>
 #include "CData.h"
 
 enum SIMUBOT{
@@ -70,6 +71,10 @@ public:
 private slots :
     void onRightClicGUI(QPoint pos);
 
+    void playOther();
+        void stopOther();
+        void nextStepOther();
+        void enableMoveOther(int state);
 private:
     Cihm_SimuBot m_ihm;
 
@@ -86,12 +91,19 @@ private:
     //bool isRelativToBot;
     bool setAndGetInRad;
 
-    void initEquipe(Coord equipe);
+    void initEquipe(Coord equipe, Coord equipe_adverse);
 
     Coord equipe1;
     Coord equipe2;
+    Coord equipeOther;
+
+    //pour la stratégie du robot adverse
+    int currentIndex;
+    int convergenceOther;
+    QTimer * cadenceur;
 
 
+    void addLineOther(double x, double y, double teta, int row);
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);

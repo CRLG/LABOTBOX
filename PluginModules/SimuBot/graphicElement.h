@@ -8,7 +8,9 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QObject>
+#include <QtMath>
 #include <QtTest/QTest>
+#include <QTimer>
 
 static const double Pi = 3.14159265358979323846264338327950288419717;
 static const double TwoPi = 2.0 * Pi;
@@ -51,9 +53,23 @@ private:
     qreal x_offset, y_offset, angle_offset;
     qreal x_asserv_init, y_asserv_init, angle_asserv_init;
     QColor color;
+    //pour les déplacements non instantanés
+    double vitesse;
+    qreal x_internal_hold;
+    qreal y_internal_hold;
+    qreal teta_internal_hold;
+    qreal x_internal_target;
+    qreal y_internal_target;
+    qreal teta_internal_target;
+    float m_target;
+    float p_target;
+    int count_step_target;
+    int nb_step_target;
+    double dX_target;
+    double dY_target;
+    bool is_init_target;
 
-
-
+    void moveInit(float fromX, float fromY, float toX, float toY);
 public:
     qreal getTheta(void);
     qreal getX(void);
@@ -63,10 +79,13 @@ public:
     bool isRelativToBot;
    int sensOrtho;
    void setAsservInit(qreal x_init, qreal y_init, qreal angle_init);
+   void setSpeed(double newVitesse);
+       bool isConvergence;
 
 signals:
     void center(qreal x_new, qreal y_new,float speed);
     void isDoubleClicked();
+    void newConvergence();
 
 public slots:
     void replace(qreal x_new, qreal y_new,float speed);
@@ -75,6 +94,8 @@ public slots:
     void display_XY(qreal x_reel_new,qreal y_reel_new);
     //void display_Y(qreal y_reel_new);
     void display_theta(qreal theta_reel_new);
+    void moveAtSpeed(void);
+
 };
 
 #endif

@@ -980,7 +980,7 @@
         <column/>
         <column/>
        </widget>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="chkBox_enableOther">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -993,7 +993,7 @@
          <string>Utilisation robot adverse</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="chkBox_enableMoveOther">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1006,7 +1006,10 @@
          <string>Déplacement auto</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_speed">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>230</x>
@@ -1014,6 +1017,9 @@
           <width>111</width>
           <height>26</height>
          </rect>
+        </property>
+        <property name="value">
+         <double>40.000000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_22">
@@ -1029,7 +1035,10 @@
          <string>Vitesse</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pB_playOther">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1042,7 +1051,10 @@
          <string>Play</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pB_resumeOther">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>110</x>
@@ -1055,7 +1067,10 @@
          <string>Resume</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pB_stopOther">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>220</x>
