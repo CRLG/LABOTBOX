@@ -955,9 +955,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>100</y>
+          <y>140</y>
           <width>351</width>
-          <height>301</height>
+          <height>261</height>
          </rect>
         </property>
         <property name="rowCount">
@@ -1013,7 +1013,7 @@
         <property name="geometry">
          <rect>
           <x>230</x>
-          <y>40</y>
+          <y>70</y>
           <width>111</width>
           <height>26</height>
          </rect>
@@ -1042,7 +1042,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>70</y>
+          <y>100</y>
           <width>89</width>
           <height>25</height>
          </rect>
@@ -1058,7 +1058,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>70</y>
+          <y>100</y>
           <width>89</width>
           <height>25</height>
          </rect>
@@ -1074,13 +1074,29 @@
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>70</y>
+          <y>100</y>
           <width>89</width>
           <height>25</height>
          </rect>
         </property>
         <property name="text">
          <string>Stop</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="chkBox_syncMeanBot">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>201</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Synchro avec Tirette</string>
         </property>
        </widget>
       </widget>

@@ -332,6 +332,7 @@ void CSimuBot::init(CApplication *application)
     connect(m_ihm.ui.pB_stopOther,SIGNAL(clicked(bool)),this,SLOT(stopOther()));
     connect(cadenceur, SIGNAL(timeout()), this, SLOT(nextStepOther()));
     connect(m_ihm.ui.chkBox_enableMoveOther, SIGNAL(stateChanged(int)), this, SLOT(enableMoveOther(int)));
+    connect(m_application->m_data_center->getData("Capteurs.Tirette", true), SIGNAL(valueChanged(bool)),this , SLOT(syncMove(bool)));
     QStringList QS_Labels;
     QS_Labels << "x" << "y" << "teta";
     m_ihm.ui.tableWidget->setHorizontalHeaderLabels(QS_Labels);
@@ -340,6 +341,8 @@ void CSimuBot::init(CApplication *application)
     addLineOther(200,70,0,2);
     addLineOther(0,70,0,3);
     addLineOther(0,0,0,4);
+    isStarted=false;
+    isStarted_old=false;
 
 
     //positionnement par défaut
@@ -1121,12 +1124,30 @@ void CSimuBot::enableMoveOther(int state)
     {
         m_ihm.ui.pB_playOther->setDisabled(false);
         m_ihm.ui.doubleSpinBox_speed->setDisabled(false);
+        m_ihm.ui.chkBox_syncMeanBot->setDisabled(false);
     }
     else
     {
         stopOther();
         m_ihm.ui.pB_playOther->setDisabled(true);
         m_ihm.ui.doubleSpinBox_speed->setDisabled(true);
+        m_ihm.ui.chkBox_syncMeanBot->setDisabled(true);
+    }
+}
+
+void CSimuBot::syncMove(bool activated)
+{
+    if(activated&&(m_ihm.ui.chkBox_enableMoveOther->isChecked())&&(m_ihm.ui.chkBox_syncMeanBot->isChecked()))
+    {
+        /*qDebug() << "\n\ntirette old "<<isStarted_old << "et new "<<isStarted<<"\n\n";
+        if(isStarted == !isStarted_old)
+            qDebug()<< "[SimuBot] Valeur tirette modifiée de " << isStarted_old << " à "<<isStarted;*/
+
+        if(!cadenceur->isActive()) //front montant tirette
+       {
+            qDebug() << "[Simubot] Tirette levée!";
+            playOther();
+        }
     }
 }
 

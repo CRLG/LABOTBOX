@@ -75,6 +75,7 @@ private slots :
         void stopOther();
         void nextStepOther();
         void enableMoveOther(int state);
+        void syncMove(bool activated);
 private:
     Cihm_SimuBot m_ihm;
 
@@ -101,6 +102,8 @@ private:
     int currentIndex;
     int convergenceOther;
     QTimer * cadenceur;
+    bool isStarted;
+    bool isStarted_old;
 
 
     void addLineOther(double x, double y, double teta, int row);
