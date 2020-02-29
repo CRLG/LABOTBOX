@@ -268,6 +268,13 @@ void CSimulia::step_sequencer()
     // Outputs -> IHM
     m_application->m_data_center->write("TempsMatch", Application.m_modelia.m_datas_interface.TempsMatch);
 
+    m_application->m_data_center->write("DetectionObstacle.proximite_bordure_Xdroite", Application.m_modelia.m_datas_interface.proximite_bordure_Xdroite);
+    m_application->m_data_center->write("DetectionObstacle.proximite_bordure_Xgauche", Application.m_modelia.m_datas_interface.proximite_bordure_Xgauche);
+    m_application->m_data_center->write("DetectionObstacle.proximite_bordure_Ybasse", Application.m_modelia.m_datas_interface.proximite_bordure_Ybasse);
+    m_application->m_data_center->write("DetectionObstacle.proximite_bordure_Yhaute", Application.m_modelia.m_datas_interface.proximite_bordure_Yhaute);
+    m_application->m_data_center->write("DetectionObstacle.inhibe_detection_AV", Application.m_modelia.m_datas_interface.inhibe_detection_AV);
+    m_application->m_data_center->write("DetectionObstacle.inhibe_detection_AR", Application.m_modelia.m_datas_interface.inhibe_detection_AR);
+
     m_application->m_data_center->write("x_pos", Application.m_asservissement.X_robot);
     m_application->m_data_center->write("y_pos", Application.m_asservissement.Y_robot);
     m_application->m_data_center->write("teta_pos", Application.m_asservissement.angle_robot);
