@@ -80,6 +80,8 @@ private slots :
 
     void on_force_blocage_roue_G(bool val);
     void on_force_blocage_roue_D(bool val);
+
+    void updatePositionFromSimubot();
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_

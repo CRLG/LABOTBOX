@@ -162,6 +162,10 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("Simubot.blocage.gauche", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_G(bool)));
   connect(m_application->m_data_center->getData("Simubot.blocage.droite", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_D(bool)));
 
+  connect(m_application->m_data_center->getData("PosX_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
+  connect(m_application->m_data_center->getData("PosY_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
+  connect(m_application->m_data_center->getData("PosTeta_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
+
   m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
 }
@@ -430,6 +434,18 @@ void CSimulia::on_force_blocage_roue_G(bool val)
 void CSimulia::on_force_blocage_roue_D(bool val)
 {
     Application.m_roues.forceBlocageRoueD(val);
+}
+
+// ___________________________________________________
+// Quand Simubot est en mode "Test", les coordonnées du robot
+//  sur le terrain sont envoyées dans les 3 datas PosX_robot, ...
+// Met en cohérence l'asservissement avec la position sur le terrain dans ce mode
+void CSimulia::updatePositionFromSimubot()
+{
+    float x = m_application->m_data_center->read("PosX_robot").toFloat();
+    float y = m_application->m_data_center->read("PosY_robot").toFloat();
+    float teta = m_application->m_data_center->read("PosTeta_robot").toFloat();
+    Application.m_asservissement.setPosition_XYTeta(x, y, teta);
 }
 
 
