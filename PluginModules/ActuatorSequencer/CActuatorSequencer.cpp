@@ -992,24 +992,11 @@ void CActuatorSequencer::update_sequenceButtons()
     m_ihm.ui.pB_Stop->setEnabled(!bStop);
 }
 
-
-void CActuatorSequencer::Slot_Save()
+void CActuatorSequencer::generateXML(QString strPath)
 {
     int indexItem=0;
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * table_sequence=listSequence.at(tabIndex);
-
-    // Creation d'un objet XML
-    QString ficName("savedSequence_");
-    QString temps2=QTime::currentTime().toString("hh_mm");
-    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
-    ficName.append(temps1);
-    ficName.append(temps2);
-    ficName.append(".xml");
-    //qDebug() << ficName;
-    QString caption("Open XML Strategie File");
-    QString filter("XML Files (*.xml)");
-    QString fileName = QFileDialog::getSaveFileName(&m_ihm,caption, ficName,filter);
 
     QDomDocument doc("sequence_xml");
     // root node
@@ -1236,9 +1223,9 @@ void CActuatorSequencer::Slot_Save()
     }
 
 
-    if(!fileName.isEmpty())
+    if(!strPath.isEmpty())
     {
-        QFile fichier(fileName);
+        QFile fichier(strPath);
         if(fichier.open(QIODevice::ReadWrite | QIODevice::Text))
         {
             QTextStream stream(&fichier);
@@ -1249,6 +1236,24 @@ void CActuatorSequencer::Slot_Save()
         else
             fichier.close();
     }
+}
+
+
+void CActuatorSequencer::Slot_Save()
+{
+    // Creation d'un objet XML
+    QString ficName("savedSequence_");
+    QString temps2=QTime::currentTime().toString("hh_mm");
+    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
+    ficName.append(temps1);
+    ficName.append(temps2);
+    ficName.append(".xml");
+    //qDebug() << ficName;
+    QString caption("Open XML Strategie File");
+    QString filter("XML Files (*.xml)");
+    QString fileName = QFileDialog::getSaveFileName(&m_ihm,caption, ficName,filter);
+
+    generateXML(fileName);
 }
 
 void CActuatorSequencer::Slot_Load()
@@ -2019,6 +2024,17 @@ void CActuatorSequencer::Slot_Generate()
     }
     else
         file_h.close();
+
+    // Creation d'un objet XML : sauvegarde_auto
+    QString xmlExtension;
+    QString temps2=QTime::currentTime().toString("hh_mm");
+    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
+    xmlExtension.append(temps1);
+    xmlExtension.append(temps2);
+    xmlExtension.append(".xml");
+    QString fileName_xml=fileName_h.replace(".h",xmlExtension);
+    //qDebug() << fileName_xml;
+    generateXML(fileName_xml);
 
 
 }

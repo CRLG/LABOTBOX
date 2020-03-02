@@ -80,6 +80,7 @@ private:
 
     void updateComboBox();
     void update_sequenceButtons();
+    void generateXML(QString strPath);
 
     //! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
     // (enum commun MBED<->LaBotBox)
