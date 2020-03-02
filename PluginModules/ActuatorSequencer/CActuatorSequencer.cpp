@@ -87,7 +87,7 @@ void CActuatorSequencer::init(CApplication *application)
   QTableWidget * newSequence= new QTableWidget;
   newSequence->setColumnCount(4);
   QStringList QS_Labels;
-  QS_Labels << "type" << "id" << "value" << "comments 1";
+  QS_Labels << "type" << "id" << "value" << "comments";
   newSequence->setHorizontalHeaderLabels(QS_Labels);
   listSequence.append(newSequence);
   QHBoxLayout * hLayout=new QHBoxLayout;
@@ -124,6 +124,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Save, SIGNAL(clicked(bool)),this,SLOT(Slot_Save()));
   connect(m_ihm.ui.pB_Load, SIGNAL(clicked(bool)),this,SLOT(Slot_Load()));
   connect(m_ihm.ui.pB_Clear, SIGNAL(clicked(bool)),this,SLOT(Slot_Clear()));
+  connect(m_ihm.ui.pB_New, SIGNAL(clicked(bool)), this, SLOT(Slot_Add_Sequence()));
   connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate()));
 
   connect(m_ihm.ui.pB_Play_SD20, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_SD20()));

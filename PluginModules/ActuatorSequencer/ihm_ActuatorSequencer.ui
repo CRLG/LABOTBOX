@@ -1452,6 +1452,29 @@
       </property>
      </widget>
     </item>
+    <item row="22" column="1">
+     <widget class="QPushButton" name="pB_New">
+      <property name="minimumSize">
+       <size>
+        <width>75</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>75</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>New</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/validate.png</normaloff>:/icons/validate.png</iconset>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
