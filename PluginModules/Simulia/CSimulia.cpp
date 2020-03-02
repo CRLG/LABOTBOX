@@ -232,6 +232,9 @@ void CSimulia::on_pb_init_all()
     // initialise les machines d'états Modelia du robot
     Application.m_modelia.init();
     Application.m_modelia.setStrategie(STRATEGIE_TEST_01);
+    // Remet la tirette en position
+    m_application->m_data_center->write("Capteurs.Tirette", false);
+    m_ihm.ui.Tirette->setChecked(false);
 
     m_timer.start();
 }
