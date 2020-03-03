@@ -470,6 +470,8 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
         m_application->m_data_center->write("Simubot.OtherBot.x", OtherBot->getX_terrain());
         m_application->m_data_center->write("Simubot.OtherBot.y", OtherBot->getY_terrain());
+        // capteurs US et detection bordure
+        estimate_Environment_Interactions();
         break;
     case SIMUBOT::VISU :
         break;
