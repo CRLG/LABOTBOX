@@ -134,6 +134,8 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Load, SIGNAL(clicked(bool)),this,SLOT(Slot_Load()));
   connect(m_ihm.ui.pB_Clear, SIGNAL(clicked(bool)),this,SLOT(Slot_Clear()));
   connect(m_ihm.ui.pB_New, SIGNAL(clicked(bool)), this, SLOT(Slot_Add_Sequence()));
+  connect(m_ihm.ui.pB_Delete, SIGNAL(clicked(bool)), this, SLOT(Slot_Delete()));
+  connect(m_ihm.ui.pB_Clone, SIGNAL(clicked(bool)), this, SLOT(Slot_Clone()));
   connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate()));
 
   connect(m_ihm.ui.pB_Play_SD20, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_SD20()));
@@ -1558,6 +1560,62 @@ QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
     m_ihm.ui.tW_TabSequences->setCurrentWidget(newTab);
 
     return newSequence;
+}
+
+void CActuatorSequencer::Slot_Delete()
+{
+    Slot_Remove_Sequence(m_ihm.ui.tW_TabSequences->currentIndex());
+}
+
+void CActuatorSequencer::Slot_Clone()
+{
+    int prevIndex=0;
+    prevIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    QString strName=m_ihm.ui.strategyName->text();
+    QTableWidget * prev_table_sequence=listSequence.at(prevIndex);
+
+    if(prev_table_sequence->rowCount()>0)//on ne clone que les sequences non vides
+    {
+        //creation sequence vide
+        QTableWidget * newSequence= new QTableWidget;
+        newSequence->setColumnCount(4);
+        QStringList QS_Labels;
+        QS_Labels << "type" << "id" << "value" << "comments";
+        newSequence->setHorizontalHeaderLabels(QS_Labels);
+
+        //on l'ajoute à la liste des séquences
+        listSequence.append(newSequence);
+
+        //on remplit la sequence
+        for(int i=0;i<prev_table_sequence->rowCount();i++)
+        {
+            QTableWidgetItem *newItem_type = new QTableWidgetItem(prev_table_sequence->item(i,0)->text());
+            QTableWidgetItem *newItem_id = new QTableWidgetItem(prev_table_sequence->item(i,1)->text());
+            QTableWidgetItem *newItem_value = new QTableWidgetItem(prev_table_sequence->item(i,2)->text());
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(prev_table_sequence->item(i,3)->text());
+
+            newSequence->insertRow(i);
+            newSequence->setItem(i, 0, newItem_type);
+            newSequence->setItem(i, 1, newItem_id);
+            newSequence->setItem(i, 2, newItem_value);
+            newSequence->setItem(i, 3, newItem_comments);
+        }
+
+
+        QHBoxLayout * hLayout=new QHBoxLayout;
+        hLayout->addWidget(newSequence);
+        QWidget * newTab=new QWidget();
+
+        QString tabLabel=strName+"_cloned";
+        m_ihm.ui.tW_TabSequences->addTab(newTab,tabLabel);
+        newTab->setLayout(hLayout);
+
+        QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
+        tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, new QCheckBox());
+
+        m_ihm.ui.tW_TabSequences->setCurrentWidget(newTab);
+    }
+
 }
 
 void CActuatorSequencer::Slot_Remove_Sequence(int index)
