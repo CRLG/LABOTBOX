@@ -93,10 +93,19 @@ void CActuatorSequencer::init(CApplication *application)
   QHBoxLayout * hLayout=new QHBoxLayout;
   hLayout->addWidget(newSequence);
   m_ihm.ui.tW_TabSequences->currentWidget()->setLayout(hLayout);
+
+  QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
+  tabBar->setTabButton(0, QTabBar::LeftSide, new QCheckBox());
+
+  m_ihm.ui.tW_TabSequences->setTabText(0,m_ihm.ui.strategyName->text());
+
   connect(m_ihm.ui.tW_TabSequences,SIGNAL(tabCloseRequested(int)),this,SLOT(Slot_Remove_Sequence(int)));
 
   updateComboBox();
   updateTooltip();
+
+  connect(m_ihm.ui.strategyName, SIGNAL(textEdited(QString)), this, SLOT(Slot_setStrategyName_tab(QString)));
+  connect(m_ihm.ui.tW_TabSequences, SIGNAL(currentChanged(int)), this, SLOT(Slot_setStrategyName_text(int)));
 
   connect(m_ihm.ui.pB_Add_AX,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_SD20,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
@@ -1002,6 +1011,7 @@ void CActuatorSequencer::generateXML(QString strPath)
     QDomDocument doc("sequence_xml");
     // root node
     QDomElement strategieNode = doc.createElement("sequence");
+    strategieNode.setAttribute("name",m_ihm.ui.strategyName->text());
     doc.appendChild(strategieNode);
 
     //commentaire global
@@ -1284,6 +1294,12 @@ void CActuatorSequencer::Slot_Load()
             QDomDocument doc("sequence_xml");
             if (doc.setContent(&fichier)) {
                 QDomElement docElem = doc.documentElement();
+                if(docElem.tagName().compare("sequence")==0)
+                {
+                    QString strateName=docElem.attribute("name","myStrategy");
+                    m_ihm.ui.tW_TabSequences->setTabText(m_ihm.ui.tW_TabSequences->currentIndex(),strateName);
+                    m_ihm.ui.strategyName->setText(strateName);
+                }
                 QDomNode n = docElem.firstChild();
                 while(!n.isNull()) {
                     QDomElement e = n.toElement();
@@ -1295,6 +1311,11 @@ void CActuatorSequencer::Slot_Load()
 //                            QTextEdit *textEdit_comment=m_ihm.findChild<QTextEdit*>("textEdit_comment");
 //                            textEdit_comment->setPlainText(e.text());
 //                        }
+                        if(e.tagName().compare("sequence")==0)
+                        {
+                            QString strateName=e.attribute("name","myStrategy");
+                            qDebug()<<strateName;
+                        }
 
                         if(e.tagName().compare("ligne")==0)
                         {
@@ -1527,6 +1548,9 @@ QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
     QString tabLabel=QString("Sequence%1").arg(listSequence.count());
     m_ihm.ui.tW_TabSequences->addTab(newTab,tabLabel);
     newTab->setLayout(hLayout);
+
+    QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
+    tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, new QCheckBox());
 
     if(prev_table_sequence->rowCount()<=0)
         this->Slot_Remove_Sequence(prevIndex);
@@ -2111,4 +2135,15 @@ void CActuatorSequencer::Slot_loadFreeItem()
             }
         }
     }
+}
+
+void CActuatorSequencer::Slot_setStrategyName_tab(QString strName)
+{
+    m_ihm.ui.tW_TabSequences->setTabText(m_ihm.ui.tW_TabSequences->currentIndex(),strName);
+}
+
+void CActuatorSequencer::Slot_setStrategyName_text(int index)
+{
+    QString strName=m_ihm.ui.tW_TabSequences->tabText(index);
+    m_ihm.ui.strategyName->setText(strName);
 }

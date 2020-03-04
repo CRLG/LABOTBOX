@@ -126,6 +126,8 @@ private slots :
     void playStep();
     void Slot_editFreeItem();
     void Slot_loadFreeItem();
+    void Slot_setStrategyName_tab(QString strName);
+    void Slot_setStrategyName_text(int index);
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_
