@@ -75,6 +75,8 @@ private:
     bool bPlay,bResume,bStop;
 
     QList<QTableWidget *> listSequence;
+    QList<QCheckBox *> listChoice;
+    QList<int> strategies2Combine;
 
     QString defaultPath;
 
@@ -130,6 +132,9 @@ private slots :
     void Slot_setStrategyName_text(int index);
     void Slot_Delete();
     void Slot_Clone();
+    void Slot_chooseStrategy(int state);
+    void Slot_combineStrategies();
+    void Slot_moveStrategy();
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_

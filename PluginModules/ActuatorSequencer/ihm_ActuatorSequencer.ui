@@ -47,7 +47,7 @@
     <item row="1" column="0" colspan="2">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_create">
        <attribute name="title">
@@ -1680,14 +1680,17 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QRadioButton" name="radioButton">
+            <widget class="QRadioButton" name="rdB_combine1">
              <property name="text">
-              <string>Concat and insert after the selected row of the first one</string>
+              <string>Concat and insert before the selected row of the first one</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_2">
+            <widget class="QRadioButton" name="rdB_combine2">
              <property name="text">
               <string>concat all the strategies</string>
              </property>

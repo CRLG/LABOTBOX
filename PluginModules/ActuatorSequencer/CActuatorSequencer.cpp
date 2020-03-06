@@ -95,7 +95,10 @@ void CActuatorSequencer::init(CApplication *application)
   m_ihm.ui.tW_TabSequences->currentWidget()->setLayout(hLayout);
 
   QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-  tabBar->setTabButton(0, QTabBar::LeftSide, new QCheckBox());
+  QCheckBox *newCheck=new QCheckBox();
+  listChoice.append(newCheck);
+  connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
+  tabBar->setTabButton(0, QTabBar::LeftSide, newCheck);
 
   m_ihm.ui.tW_TabSequences->setTabText(0,m_ihm.ui.strategyName->text());
 
@@ -137,6 +140,10 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Delete, SIGNAL(clicked(bool)), this, SLOT(Slot_Delete()));
   connect(m_ihm.ui.pB_Clone, SIGNAL(clicked(bool)), this, SLOT(Slot_Clone()));
   connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate()));
+  connect(m_ihm.ui.pB_Strategies_combine,SIGNAL(clicked(bool)),this,SLOT(Slot_combineStrategies()));
+  //connect(m_ihm.ui.pB_Strategy_up,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
+  //connect(m_ihm.ui.pB_Strategy_down,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
+
 
   connect(m_ihm.ui.pB_Play_SD20, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_SD20()));
   connect(m_ihm.ui.pB_Play_AX, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_AX()));
@@ -1552,7 +1559,10 @@ QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
     newTab->setLayout(hLayout);
 
     QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-    tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, new QCheckBox());
+    QCheckBox *newCheck=new QCheckBox();
+    listChoice.append(newCheck);
+    connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
+    tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, newCheck);
 
     if(prev_table_sequence->rowCount()<=0)
         this->Slot_Remove_Sequence(prevIndex);
@@ -1611,7 +1621,10 @@ void CActuatorSequencer::Slot_Clone()
         newTab->setLayout(hLayout);
 
         QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-        tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, new QCheckBox());
+        QCheckBox *newCheck=new QCheckBox();
+        listChoice.append(newCheck);
+        connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
+        tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, newCheck);
 
         m_ihm.ui.tW_TabSequences->setCurrentWidget(newTab);
     }
@@ -1622,8 +1635,18 @@ void CActuatorSequencer::Slot_Remove_Sequence(int index)
 {
     if(m_ihm.ui.tW_TabSequences->count()>1)
     {
-    listSequence.removeAt(index);
-    m_ihm.ui.tW_TabSequences->removeTab(index);
+        listSequence.removeAt(index);
+        listChoice.removeAt(index);
+        for(int i=0;i<strategies2Combine.count();i++)
+        {
+            if(strategies2Combine.at(i)==index)
+            {
+                strategies2Combine.removeAt(i);
+                delete m_ihm.ui.list_Strategies->takeItem(i);
+                break;
+            }
+        }
+        m_ihm.ui.tW_TabSequences->removeTab(index);
     }
 }
 
@@ -2197,11 +2220,199 @@ void CActuatorSequencer::Slot_loadFreeItem()
 
 void CActuatorSequencer::Slot_setStrategyName_tab(QString strName)
 {
-    m_ihm.ui.tW_TabSequences->setTabText(m_ihm.ui.tW_TabSequences->currentIndex(),strName);
+    int index=m_ihm.ui.tW_TabSequences->currentIndex();
+    m_ihm.ui.tW_TabSequences->setTabText(index,strName);
+    for(int i=0;i<strategies2Combine.count();i++)
+    {
+        if(strategies2Combine.at(i)==index)
+        {
+            m_ihm.ui.list_Strategies->item(i)->setText(strName);
+        }
+    }
 }
 
 void CActuatorSequencer::Slot_setStrategyName_text(int index)
 {
     QString strName=m_ihm.ui.tW_TabSequences->tabText(index);
     m_ihm.ui.strategyName->setText(strName);
+}
+
+void CActuatorSequencer::Slot_chooseStrategy(int state)
+{
+    if(state==Qt::Checked)
+    {
+        QCheckBox* check = qobject_cast<QCheckBox*>(sender());
+        for(int idx=0; idx<listChoice.count();idx++)
+        {
+            if(check==listChoice.at(idx))
+            {
+                QTableWidget * currentSequence=listSequence.at(idx);
+                if(currentSequence->rowCount()>=2)
+                {
+                    strategies2Combine.append(idx);
+                    m_ihm.ui.list_Strategies->insertItem(strategies2Combine.count(),m_ihm.ui.tW_TabSequences->tabText(idx));
+                }
+                else
+                    check->setCheckState(Qt::Unchecked);
+            }
+        }
+    }
+    if(state==Qt::Unchecked)
+    {
+        QCheckBox* check = qobject_cast<QCheckBox*>(sender());
+        for(int idx=0; idx<listChoice.count();idx++)
+        {
+            if(check==listChoice.at(idx))
+            {
+                for(int i=0;i<strategies2Combine.count();i++)
+                {
+                    if(strategies2Combine.at(i)==idx)
+                    {
+                        strategies2Combine.removeAt(i);
+                        delete m_ihm.ui.list_Strategies->takeItem(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CActuatorSequencer::Slot_combineStrategies(void)
+{
+    if(strategies2Combine.count()>=2)
+    {
+        QTableWidget * newStrategy=this->Slot_Add_Sequence();
+        int row=0;
+        int idx=0;
+
+        //quelle façon de combiner
+        int how=0;
+        if(m_ihm.ui.rdB_combine1->isChecked())
+            how=0;
+        else if(m_ihm.ui.rdB_combine2->isChecked())
+            how=1;
+
+        //premiere stratégie de la liste
+        QTableWidget * firstStrategy=listSequence.at(strategies2Combine.at(0));
+
+        //on détermine si une ligne est sélectionnée
+        int indexAdd=firstStrategy->rowCount();
+        if(how==0)
+        {
+            QList<QTableWidgetItem*> list_item_selected=firstStrategy->selectedItems();
+            if(!list_item_selected.isEmpty())
+            {
+                QTableWidgetItem* item_selected=list_item_selected.first();
+                int row_selected=item_selected->row();
+                if(row_selected>=0)
+                    indexAdd=row_selected;
+            }
+        }
+
+        //Tout ou partie de la première stratégie
+        for(int i=0;i<indexAdd;i++)
+        {
+            QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
+            QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
+            QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+
+            newStrategy->insertRow(row);
+            newStrategy->setItem(row, 0, newItem_type);
+            newStrategy->setItem(row, 1, newItem_id);
+            newStrategy->setItem(row, 2, newItem_value);
+            newStrategy->setItem(row, 3, newItem_comments);
+
+            row++;
+        }
+
+        //le reste des strategie
+        for(idx=1;idx<strategies2Combine.count();idx++)
+        {
+            QTableWidget * otherStrategy=listSequence.at(strategies2Combine.at(idx));
+            //on remplit la sequence
+            for(int i=0;i<otherStrategy->rowCount();i++)
+            {
+                QTableWidgetItem *newItem_type = new QTableWidgetItem(otherStrategy->item(i,0)->text());
+                QTableWidgetItem *newItem_id = new QTableWidgetItem(otherStrategy->item(i,1)->text());
+                QTableWidgetItem *newItem_value = new QTableWidgetItem(otherStrategy->item(i,2)->text());
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(otherStrategy->item(i,3)->text());
+
+                newStrategy->insertRow(row);
+                newStrategy->setItem(row, 0, newItem_type);
+                newStrategy->setItem(row, 1, newItem_id);
+                newStrategy->setItem(row, 2, newItem_value);
+                newStrategy->setItem(row, 3, newItem_comments);
+
+                row++;
+            }
+        }
+
+        //le reste de la première stratégie s'il le faut
+        if(indexAdd<firstStrategy->rowCount())
+        {
+            for(int i=indexAdd;i<firstStrategy->rowCount();i++)
+            {
+                QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
+                QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
+                QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+
+                newStrategy->insertRow(row);
+                newStrategy->setItem(row, 0, newItem_type);
+                newStrategy->setItem(row, 1, newItem_id);
+                newStrategy->setItem(row, 2, newItem_value);
+                newStrategy->setItem(row, 3, newItem_comments);
+
+                row++;
+            }
+        }
+    }
+}
+
+void CActuatorSequencer::Slot_moveStrategy(void)
+{
+    QObject * button=sender();
+    bool b_up=false;
+    bool b_down=false;
+    if(button==m_ihm.ui.pB_Strategy_up)
+        b_up=true;
+    if(button==m_ihm.ui.pB_Strategy_down)
+        b_down=true;
+
+    QList<QListWidgetItem*> list_item_selected=m_ihm.ui.list_Strategies->selectedItems();
+    if(!list_item_selected.isEmpty())
+    {
+        QListWidgetItem* item_selected=list_item_selected.first();
+        int row_selected=m_ihm.ui.list_Strategies->row(item_selected);
+        if(((row_selected>0)&&(b_up))||((row_selected<m_ihm.ui.list_Strategies->count())&&(b_down)))
+        {
+
+            int row_target=-1;
+            if(b_up)
+                   row_target=row_selected-1;
+            if(b_down)
+                   row_target=row_selected+1;
+            if(row_target>0)
+            {
+                QListWidgetItem * rowItem;
+                QListWidgetItem * rowItem1;
+
+                rowItem = m_ihm.ui.list_Strategies->takeItem(row_selected);
+                rowItem1 = m_ihm.ui.list_Strategies->takeItem(row_target);
+
+
+                m_ihm.ui.list_Strategies->insertItem(row_target, rowItem);
+                m_ihm.ui.list_Strategies->insertItem(row_selected, rowItem1);
+
+
+                m_ihm.ui.list_Strategies->setCurrentRow(row_target);
+
+                strategies2Combine.move(row_selected,row_target);
+            }
+        }
+    }
+
+
 }
