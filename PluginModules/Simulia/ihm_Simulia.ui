@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
+    <width>537</width>
     <height>626</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <widget class="QLed" name="power_electrobot_sw_2">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>370</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -45,7 +45,7 @@
    <widget class="QLed" name="power_electrobot_sw_8">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>490</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -73,7 +73,7 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>330</x>
       <y>70</y>
       <width>16</width>
       <height>301</height>
@@ -86,7 +86,7 @@
    <widget class="QPushButton" name="pb_init_all">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>20</x>
       <y>20</y>
       <width>89</width>
       <height>25</height>
@@ -112,7 +112,7 @@
    <widget class="QDoubleSpinBox" name="TempsMatch">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>440</x>
       <y>310</y>
       <width>91</width>
       <height>26</height>
@@ -141,7 +141,7 @@
    <widget class="QPushButton" name="pb_stop_all">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>120</x>
       <y>20</y>
       <width>89</width>
       <height>25</height>
@@ -152,73 +152,6 @@
     </property>
    </widget>
    <widget class="QLed" name="power_electrobot_sw_4">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>150</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Binary Led</string>
-    </property>
-    <property name="whatsThis">
-     <string>Led widget</string>
-    </property>
-    <property name="value">
-     <bool>false</bool>
-    </property>
-    <property name="onColor">
-     <enum>QLed::Red</enum>
-    </property>
-    <property name="offColor">
-     <enum>QLed::Grey</enum>
-    </property>
-    <property name="shape">
-     <enum>QLed::Circle</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>130</y>
-      <width>151</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Power Electrobot out</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>310</y>
-      <width>101</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TempsMatch</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="Tirette">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>100</y>
-      <width>92</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Tirette</string>
-    </property>
-   </widget>
-   <widget class="QLed" name="power_electrobot_sw_7">
     <property name="geometry">
      <rect>
       <x>410</x>
@@ -246,10 +179,77 @@
      <enum>QLed::Circle</enum>
     </property>
    </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>130</y>
+      <width>151</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Power Electrobot out</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>310</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TempsMatch</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="Tirette">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tirette</string>
+    </property>
+   </widget>
+   <widget class="QLed" name="power_electrobot_sw_7">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>150</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Binary Led</string>
+    </property>
+    <property name="whatsThis">
+     <string>Led widget</string>
+    </property>
+    <property name="value">
+     <bool>false</bool>
+    </property>
+    <property name="onColor">
+     <enum>QLed::Red</enum>
+    </property>
+    <property name="offColor">
+     <enum>QLed::Grey</enum>
+    </property>
+    <property name="shape">
+     <enum>QLed::Circle</enum>
+    </property>
+   </widget>
    <widget class="QLed" name="power_electrobot_sw_1">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>350</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -277,7 +277,7 @@
    <widget class="QLed" name="power_electrobot_sw_6">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>450</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -305,8 +305,8 @@
    <widget class="QPushButton" name="pb_start_main">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>20</y>
+      <x>20</x>
+      <y>50</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -334,7 +334,7 @@
    <widget class="QLed" name="power_electrobot_sw_5">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>430</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -362,7 +362,7 @@
    <widget class="QLed" name="power_electrobot_sw_3">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>390</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -416,7 +416,7 @@
    <widget class="QLed" name="led_mbed_1">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>350</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -444,7 +444,7 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>350</x>
       <y>200</y>
       <width>151</width>
       <height>17</height>
@@ -457,7 +457,7 @@
    <widget class="QLed" name="led_mbed_2">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>380</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -485,7 +485,7 @@
    <widget class="QLed" name="led_mbed_3">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>410</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -513,7 +513,7 @@
    <widget class="QLed" name="led_mbed_4">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>440</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -582,7 +582,7 @@
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>261</width>
+      <width>321</width>
       <height>171</height>
      </rect>
     </property>
@@ -807,13 +807,94 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QComboBox" name="CouleurEquipe">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>10</y>
+      <width>111</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Couleur de l'équipe</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>COULEUR 1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>COULEUR 2</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="StrategieMatch">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>40</y>
+      <width>121</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Choix de la stratégie</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 0</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>STRATEGIE 8</string>
+     </property>
+    </item>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>641</width>
+     <width>537</width>
      <height>22</height>
     </rect>
    </property>

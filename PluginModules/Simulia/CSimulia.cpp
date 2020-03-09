@@ -85,6 +85,14 @@ void CSimulia::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "origine_donnees_detection_obstacle", QVariant(CDetectionObstaclesSimu::OBSTACLES_FROM_TELEMETRES));
   m_ihm.ui.OrigineDetectionObstacles->setCurrentIndex(val.toInt());
   on_origine_detect_obstacle_changed();
+  // Restore la couleur de l'équipe
+  val = m_application->m_eeprom->read(getName(), "couleur_equipe", QVariant(0));
+  m_ihm.ui.CouleurEquipe->setCurrentIndex(val.toInt());
+  Application.m_modelia.m_inputs_interface.dde_couleur_equipe = val.toInt();
+  // Restore le numéro de stratégie de match
+  val = m_application->m_eeprom->read(getName(), "choix_strategie", QVariant(0));
+  m_ihm.ui.StrategieMatch->setCurrentIndex(val.toInt());
+  Application.m_modelia.setStrategie(val.toInt());
 
   Application.m_modelia.setDebugger(new SM_DebugQDebug());
 
@@ -141,6 +149,9 @@ void CSimulia::init(CApplication *application)
   connect(m_ihm.ui.detectionObstacle_ARG, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
   connect(m_ihm.ui.detectionObstacle_ARD, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
 
+  connect(m_ihm.ui.CouleurEquipe, SIGNAL(currentIndexChanged(int)), this, SLOT(on_select_couleur_equipe(int)));
+  connect(m_ihm.ui.StrategieMatch, SIGNAL(currentIndexChanged(int)), this, SLOT(on_select_strategie_match(int)));
+
   // Connexions DataManger -> IHM
   connect(m_application->m_data_center->getData("TempsMatch", true), SIGNAL(valueChanged(double)), m_ihm.ui.TempsMatch, SLOT(setValue(double)));
   connect(m_application->m_data_center->getData("PowerElectrobot.OUTPUT_STOR1", true), SIGNAL(valueChanged(bool)), m_ihm.ui.power_electrobot_sw_1, SLOT(setValue(bool)));
@@ -185,6 +196,8 @@ void CSimulia::close(void)
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "origine_donnees_telemetres", QVariant(m_ihm.ui.OrigineTelemetres->currentIndex()));
   m_application->m_eeprom->write(getName(), "origine_donnees_detection_obstacle", QVariant(m_ihm.ui.OrigineDetectionObstacles->currentIndex()));
+  m_application->m_eeprom->write(getName(), "couleur_equipe", QVariant(m_ihm.ui.CouleurEquipe->currentIndex()));
+  m_application->m_eeprom->write(getName(), "choix_strategie", QVariant(m_ihm.ui.StrategieMatch->currentIndex()));
 }
 
 // _____________________________________________________________________
@@ -231,7 +244,9 @@ void CSimulia::on_pb_init_all()
 
     // initialise les machines d'états Modelia du robot
     Application.m_modelia.init();
-    Application.m_modelia.setStrategie(STRATEGIE_TEST_01);
+    Application.m_modelia.setStrategie(m_ihm.ui.StrategieMatch->currentIndex());
+    Application.m_modelia.m_inputs_interface.dde_couleur_equipe = m_ihm.ui.CouleurEquipe->currentIndex();
+
     // Remet la tirette en position
     m_application->m_data_center->write("Capteurs.Tirette", false);
     m_ihm.ui.Tirette->setChecked(false);
@@ -284,6 +299,12 @@ void CSimulia::step_sequencer()
     m_application->m_data_center->write("convergence_conf", Application.m_asservissement.convergence_conf);
     m_application->m_data_center->write("convergence_rapide", Application.m_asservissement.convergence_rapide);
 
+    // Position du robot dans le repère absolue terrain
+    m_application->m_data_center->write("x_pos_terrain", Application.m_modelia.m_inputs_interface.X_robot_terrain);
+    m_application->m_data_center->write("y_pos_terrain", Application.m_modelia.m_inputs_interface.Y_robot_terrain);
+    m_application->m_data_center->write("teta_pos_terrain", Application.m_modelia.m_inputs_interface.angle_robot_terrain);
+
+    m_application->m_data_center->write("consigne_vitesse_avance", Application.m_asservissement.consigne_vitesse_avance);
 }
 
 // L'objectif de cette fonction est de reprendre les mêmes rapports de temps
@@ -456,6 +477,18 @@ void CSimulia::updatePositionFromSimubot()
     float y = m_application->m_data_center->read("PosY_robot").toFloat();
     float teta = m_application->m_data_center->read("PosTeta_robot").toFloat();
     Application.m_asservissement.setPosition_XYTeta(x, y, teta);
+}
+
+
+// ___________________________________________________
+void CSimulia::on_select_couleur_equipe(int val)
+{
+    Application.m_modelia.m_inputs_interface.dde_couleur_equipe = val;
+}
+// ___________________________________________________
+void CSimulia::on_select_strategie_match(int val)
+{
+    Application.m_modelia.setStrategie(val);
 }
 
 

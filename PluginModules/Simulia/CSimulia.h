@@ -81,6 +81,9 @@ private slots :
     void on_force_blocage_roue_G(bool val);
     void on_force_blocage_roue_D(bool val);
 
+    void on_select_couleur_equipe(int val);
+    void on_select_strategie_match(int val);
+
     void updatePositionFromSimubot();
 };
 
