@@ -85,9 +85,9 @@ void CActuatorSequencer::init(CApplication *application)
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
   QTableWidget * newSequence= new QTableWidget;
-  newSequence->setColumnCount(4);
+  newSequence->setColumnCount(5);
   QStringList QS_Labels;
-  QS_Labels << "type" << "id" << "value" << "comments";
+  QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
   newSequence->setHorizontalHeaderLabels(QS_Labels);
   listSequence.append(newSequence);
   QHBoxLayout * hLayout=new QHBoxLayout;
@@ -139,7 +139,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_New, SIGNAL(clicked(bool)), this, SLOT(Slot_Add_Sequence()));
   connect(m_ihm.ui.pB_Delete, SIGNAL(clicked(bool)), this, SLOT(Slot_Delete()));
   connect(m_ihm.ui.pB_Clone, SIGNAL(clicked(bool)), this, SLOT(Slot_Clone()));
-  connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate()));
+  connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate_CPP()));
   connect(m_ihm.ui.pB_Strategies_combine,SIGNAL(clicked(bool)),this,SLOT(Slot_combineStrategies()));
   //connect(m_ihm.ui.pB_Strategy_up,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
   //connect(m_ihm.ui.pB_Strategy_down,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
@@ -559,6 +559,7 @@ void CActuatorSequencer::addSequenceItem(void)
         QTableWidgetItem *newItem_type = new QTableWidgetItem(type);
         QTableWidgetItem *newItem_id = new QTableWidgetItem(id);
         QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
+        QTableWidgetItem *newItem_state = new QTableWidgetItem("");
         QTableWidgetItem *newItem_comments = new QTableWidgetItem(comments);
 
 
@@ -577,7 +578,8 @@ void CActuatorSequencer::addSequenceItem(void)
         currentSequence->setItem(indexAdd, 0, newItem_type);
         currentSequence->setItem(indexAdd, 1, newItem_id);
         currentSequence->setItem(indexAdd, 2, newItem_value);
-        currentSequence->setItem(indexAdd, 3, newItem_comments);
+        currentSequence->setItem(indexAdd, 3, newItem_state);
+        currentSequence->setItem(indexAdd, 4, newItem_comments);
         currentSequence->selectRow(indexAdd);
     }
 }
@@ -1011,7 +1013,7 @@ void CActuatorSequencer::update_sequenceButtons()
     m_ihm.ui.pB_Stop->setEnabled(!bStop);
 }
 
-void CActuatorSequencer::generateXML(QString strPath)
+void CActuatorSequencer::Slot_Generate_XML(QString strPath)
 {
     int indexItem=0;
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
@@ -1035,13 +1037,15 @@ void CActuatorSequencer::generateXML(QString strPath)
         ligneNode.setAttribute("type",table_sequence->item(indexItem,0)->text());
         ligneNode.setAttribute("id",table_sequence->item(indexItem,1)->text());
         ligneNode.setAttribute("value",table_sequence->item(indexItem,2)->text());
-        ligneNode.setAttribute("comments",table_sequence->item(indexItem,3)->text());
+        ligneNode.setAttribute("state",table_sequence->item(indexItem,3)->text());
+        ligneNode.setAttribute("comments",table_sequence->item(indexItem,4)->text());
         strategieNode.appendChild(ligneNode);
 
-        QString sActuator=table_sequence->item(indexItem,0)->text();
+        /*QString sActuator=table_sequence->item(indexItem,0)->text();
         QString sId=table_sequence->item(indexItem,1)->text();
         QString sValue=table_sequence->item(indexItem,2)->text();
-        QString sComments=table_sequence->item(indexItem,3)->text();
+        QString sState=table_sequence->item(indexItem,3)->text();
+        QString sComments=table_sequence->item(indexItem,4)->text();
         QString sConverted;
 
         if(sActuator.compare("SD20")==0)
@@ -1055,190 +1059,8 @@ void CActuatorSequencer::generateXML(QString strPath)
             sConverted=sConverted+"//"+sComments+ "\n";
             sConverted=sConverted+QString("ax.setPos(%1,%2);\n\n").arg(sId).arg(sValue);
             qDebug() << sConverted;
-        }
-        /*
-        if(sActuator.compare("AX-Speed")==0)
-        {
-            id=table_sequence->item(indexItem,1)->text();
-            value=table_sequence->item(indexItem,2)->text();
-            qDebug() << "AX number" << id << "speed at" <<value;
-            m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
-            m_application->m_data_center->write("num_servo_ax", id);
-            m_application->m_data_center->write("commande_ax", cSERVO_AX_VITESSE);
-            m_application->m_data_center->write("valeur_commande_ax", value);
-            m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
-            QTest::qWait(100); //Pour eviter la non prise en compte I2C
-        }
-        if(sActuator.compare("Motor")==0)
-        {
-            //id_int=table_sequence->item(indexItem,1)->text().toInt();
-            id=table_sequence->item(indexItem,1)->text();
-            value=table_sequence->item(indexItem,2)->text();
-
-            QString str_name=QString("cde_moteur_%1").arg(id);
-            qDebug() << "Motor" << str_name << "at" <<value;
-            m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
-            m_application->m_data_center->write(str_name, value);
-            m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
-        }
-        if(sActuator.compare("Wait")==0)
-        {
-            value=table_sequence->item(indexItem,2)->text();
-            qDebug() << "Wait during" << value << "ms";
-            QTest::qWait(value.toInt()); //no waiting if invalid cast
-        }
-        if(sActuator.compare("Event")==0)
-        {
-            //evenement
-            bool bConv=false;
-
-            id=table_sequence->item(indexItem,1)->text();
-            value=table_sequence->item(indexItem,2)->text();
-
-            //init du timeout et du compteur associe
-            short cmptTe=0;
-            int timeOut=value.toInt();
-
-            if(id.compare("convAsserv")==0)
-            {
-                bConv=false;
-
-                qDebug() << "Attente convergence asservissement ou " << timeOut << "ms";
-                while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
-                {
-                    QTest::qWait(40);
-                    if((m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)&& (cmptTe>10))
-                        bConv=true;
-                    cmptTe++;
-                }
-            }
-            if(id.compare("convRack")==0)
-            {
-                bConv=false;
-
-                qDebug() << "Attente convergence RACK ou " << timeOut << "ms";
-                while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
-                {
-                    QTest::qWait(40);
-                    if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
-                        bConv=true;
-                    cmptTe++;
-                    //qDebug() << m_application->m_data_center->read("rack_convergence").toBool() << "-->" << bConv << "ou" << (cmptTe<(timeOut/40)) << "--" << cmptTe << "<" <<(timeOut/40) ;
-                }
-            }
-        }
-        if(sActuator.contains("Sensor"))
-        {
-            //evenement
-            bool bReachCondition=false;
-
-            id=table_sequence->item(indexItem,1)->text();
-            value=table_sequence->item(indexItem,2)->text();
-
-//                //init du timeout et du compteur associe
-//                short cmptTe=0;
-//                int timeOut=value.toInt();
-
-            if(sActuator.compare("Sensor_sup")==0)
-            {
-                bReachCondition=false;
-
-                qDebug() << "Wait " << id << ">" << value;
-                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                {
-                    QTest::qWait(40);
-                    if(m_application->m_data_center->read(id).toFloat()> value.toFloat()) //&& (cmptTe>10))
-                        bReachCondition=true;
-                    //cmptTe++;
-                }
-            }
-            if(sActuator.compare("Sensor_egal")==0)
-            {
-                bReachCondition=false;
-
-                qDebug() << "Wait " << id << "=" << value;
-                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                {
-                    QTest::qWait(40);
-                    if(m_application->m_data_center->read(id).toFloat()== value.toFloat()) //&& (cmptTe>10))
-                        bReachCondition=true;
-                    //cmptTe++;
-                }
-            }
-            if(sActuator.compare("Sensor_inf")==0)
-            {
-                bReachCondition=false;
-
-                qDebug() << "Wait " << id << "<" << value;
-                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                {
-                    QTest::qWait(40);
-                    if(m_application->m_data_center->read(id).toFloat()< value.toFloat()) //&& (cmptTe>10))
-                        bReachCondition=true;
-                    //cmptTe++;
-                }
-            }
-        }
-        if(sActuator.compare("Asser")==0)
-        {
-            id=table_sequence->item(indexItem,1)->text();
-            value=table_sequence->item(indexItem,2)->text();
-            QStringList args=value.split(",",QString::SkipEmptyParts);
-            int nb_args=args.count();
-            //"XY","DistAng","Rack"
-            if(id.compare("XY")==0)
-            {
-                if(nb_args==2)
-                {
-                    qDebug() << "MVT XYTheta" << args;
-                    m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 1);
-                    m_application->m_data_center->write("X_consigne", args.at(0).toFloat());
-                    m_application->m_data_center->write("Y_consigne", args.at(1).toFloat());
-                    m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 0);
-                }
-            }
-            if(id.compare("XYTheta")==0)
-                if(nb_args==3)
-                {
-                    qDebug() << "MVT XYTheta" << args;
-                    m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 1);
-                    m_application->m_data_center->write("XYT_X_consigne", args.at(0).toFloat());
-                    m_application->m_data_center->write("XYT_Y_consigne", args.at(1).toFloat());
-                    m_application->m_data_center->write("XYT_angle_consigne", args.at(2).toFloat());
-                    m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
-                }
-            if(id.compare("DistAng")==0)
-            {
-                if(nb_args==2)
-                {
-                    qDebug() << "MVT XY" << args;
-                    m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 1);
-                    m_application->m_data_center->write("distance_consigne",args.at(0).toFloat());
-                    m_application->m_data_center->write("angle_consigne", args.at(1).toFloat());
-                    m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
-                }
-            }
-            qDebug() << id;
-            if(id.compare("Rack")==0)
-            {
-                if(nb_args==1)
-                {
-                    qDebug() << "Asser Rack" << args;
-                    float consigne=args.at(0).toInt();
-                    int sens_position=0;
-                    if(consigne>=0)
-                        sens_position=5;
-                    else
-                        sens_position=15;
-                    float consigne_messagerie=qRound(qAbs(consigne)/10.0);
-                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
-                    m_application->m_data_center->write("NumeroServoMoteur1", 50);
-                    m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
-                    m_application->m_data_center->write("VitesseServoMoteur1", sens_position);
-                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
-                }
-            }
         }*/
+
 
     }
 
@@ -1273,7 +1095,7 @@ void CActuatorSequencer::Slot_Save()
     QString filter("XML Files (*.xml)");
     QString fileName = QFileDialog::getSaveFileName(&m_ihm,caption, ficName,filter);
 
-    generateXML(fileName);
+    Slot_Generate_XML(fileName);
 }
 
 void CActuatorSequencer::Slot_Load()
@@ -1298,7 +1120,7 @@ void CActuatorSequencer::Slot_Load()
             for (int i=nb_lignes-1;i>=0;i--)
                 table_sequence->removeRow(i);
 
-            qDebug() << "remove" << nb_lignes << "rows";
+            //qDebug() << "remove" << nb_lignes << "rows";
 
             QDomDocument doc("sequence_xml");
             if (doc.setContent(&fichier)) {
@@ -1323,7 +1145,7 @@ void CActuatorSequencer::Slot_Load()
                         if(e.tagName().compare("sequence")==0)
                         {
                             QString strateName=e.attribute("name","myStrategy");
-                            qDebug()<<strateName;
+                            //qDebug()<<strateName;
                         }
 
                         if(e.tagName().compare("ligne")==0)
@@ -1331,13 +1153,15 @@ void CActuatorSequencer::Slot_Load()
                             QTableWidgetItem *newItem_type = new QTableWidgetItem(e.attribute("type","Wait"));
                             QTableWidgetItem *newItem_id = new QTableWidgetItem(e.attribute("id",""));
                             QTableWidgetItem *newItem_value = new QTableWidgetItem(e.attribute("value","1000"));
+                            QTableWidgetItem *newItem_state = new QTableWidgetItem(e.attribute("state",""));
                             QTableWidgetItem *newItem_comments = new QTableWidgetItem(e.attribute("comments",""));
                             table_sequence->insertRow(indexItem);
                             table_sequence->setItem(indexItem, 0, newItem_type);
                             table_sequence->setItem(indexItem, 1, newItem_id);
                             table_sequence->setItem(indexItem, 2, newItem_value);
-                            table_sequence->setItem(indexItem, 3, newItem_comments);
-                            qDebug() << "insert" << e.attribute("type","Wait") << "at row number" << indexItem;
+                            table_sequence->setItem(indexItem, 3, newItem_state);
+                            table_sequence->setItem(indexItem, 4, newItem_comments);
+                            //qDebug() << "insert" << e.attribute("type","Wait") << "at row number" << indexItem;
                             indexItem++;
                         }
                     }
@@ -1546,9 +1370,9 @@ QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
 
 
     QTableWidget * newSequence= new QTableWidget;
-    newSequence->setColumnCount(4);
+    newSequence->setColumnCount(5);
     QStringList QS_Labels;
-    QS_Labels << "type" << "id" << "value" << "comments";
+    QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
     newSequence->setHorizontalHeaderLabels(QS_Labels);
     listSequence.append(newSequence);
     QHBoxLayout * hLayout=new QHBoxLayout;
@@ -1588,9 +1412,9 @@ void CActuatorSequencer::Slot_Clone()
     {
         //creation sequence vide
         QTableWidget * newSequence= new QTableWidget;
-        newSequence->setColumnCount(4);
+        newSequence->setColumnCount(5);
         QStringList QS_Labels;
-        QS_Labels << "type" << "id" << "value" << "comments";
+        QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
         newSequence->setHorizontalHeaderLabels(QS_Labels);
 
         //on l'ajoute à la liste des séquences
@@ -1602,13 +1426,15 @@ void CActuatorSequencer::Slot_Clone()
             QTableWidgetItem *newItem_type = new QTableWidgetItem(prev_table_sequence->item(i,0)->text());
             QTableWidgetItem *newItem_id = new QTableWidgetItem(prev_table_sequence->item(i,1)->text());
             QTableWidgetItem *newItem_value = new QTableWidgetItem(prev_table_sequence->item(i,2)->text());
-            QTableWidgetItem *newItem_comments = new QTableWidgetItem(prev_table_sequence->item(i,3)->text());
+            QTableWidgetItem *newItem_state = new QTableWidgetItem(prev_table_sequence->item(i,3)->text());
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(prev_table_sequence->item(i,4)->text());
 
             newSequence->insertRow(i);
             newSequence->setItem(i, 0, newItem_type);
             newSequence->setItem(i, 1, newItem_id);
             newSequence->setItem(i, 2, newItem_value);
-            newSequence->setItem(i, 3, newItem_comments);
+            newSequence->setItem(i, 3, newItem_state);
+            newSequence->setItem(i, 4, newItem_comments);
         }
 
 
@@ -1793,19 +1619,20 @@ void CActuatorSequencer::playStep(void)
     Slot_Play(true,indexPlay);
 }
 
-void CActuatorSequencer::Slot_Generate()
+void CActuatorSequencer::Slot_Generate_CPP()
 {
     int indexItem=0;
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * table_sequence=listSequence.at(tabIndex);
 
     //utile
+    QString UnamedState="STATE_%1";
     QString N1T="\n\t";
     QString N2T="\n\t\t";
     QString N3T="\n\t\t\t";
-    QString stateEnumFormat=N2T+"case STATE_%1 :\t\treturn \"STATE_%1\";";
+    QString stateEnumFormat=N2T+"case %1 :\t\treturn \"%1\";";
     QString stateFormat=N1T+"// ___________________________"+
-            N1T+"case STATE_%1 :"+
+            N1T+"case %1 :"+
             N2T+"if (onEntry()) {";
     QString closePreviousState=N2T+"if (onExit()) { }"+
             N2T+"break;";
@@ -1884,7 +1711,7 @@ void CActuatorSequencer::Slot_Generate()
     /*
      * Pour le fichier .h
      */
-
+    QString strAddedStates;
     QString strHeader=strComments+
                     "#ifndef SM_"+nomStrategie.toUpper()+"_H\n#define SM_"+nomStrategie.toUpper()+"_H\n\n#include \"sm_statemachinebase.h\"\n\n"+
                     "class "+strClassName+" : public SM_StateMachineBase\n{\npublic:"+
@@ -1908,18 +1735,40 @@ void CActuatorSequencer::Slot_Generate()
         QString sActuator=table_sequence->item(indexItem,0)->text();
         QString sId=table_sequence->item(indexItem,1)->text();
         QString sValue=table_sequence->item(indexItem,2)->text();
-        QString sComments=table_sequence->item(indexItem,3)->text();
+        QString sState=table_sequence->item(indexItem,3)->text();
+        QString sComments=table_sequence->item(indexItem,4)->text();
         QString sConverted;
         bool isState=false;
         bool isTransition=false;
         //numéro de l'état suivant
         QString strNumNextState;
         QString strNextSate;
-        strNumNextState.setNum(numState+1);
+        //recherche du prochain état si on est dans une transition
+        QString strFoundState;
+        bool foundedState=false;
+        for(int i=indexItem+1;i<table_sequence->rowCount();i++)
+        {
+            QString sType=table_sequence->item(i,0)->text();
+            if(!foundedState)
+            {
+                QString strNameState=table_sequence->item(i,3)->text();
+                if((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
+                       (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) )
+                {
+                    strFoundState=strNameState;
+                    foundedState=true;
+                }
+            }
+        }
+        if(strFoundState.isEmpty())
+        {
+            strNumNextState.setNum(numState+1);
+            strNextSate="STATE_"+strNumNextState;
+        }
+        else
+            strNextSate=strFoundState;
         if(indexItem==(table_sequence->rowCount())-1)
             strNextSate="FIN_MISSION";
-        else
-            strNextSate="STATE_"+strNumNextState;
 
 
         if(sActuator.compare("SD20")==0)
@@ -2016,14 +1865,30 @@ void CActuatorSequencer::Slot_Generate()
                 champStrategie=champStrategie+N3T+sConverted;
             else //sinon on initialise et on ajoute l'action
             {
-                //numéro de l'état
+                //numéro de l'état qu'on incrémente quoiqu'il arrive
                 numState++;
-                QString strNumState;
-                strNumState.setNum(numState);
 
-                //on complète l'enum des états
-                QString strThisState=stateEnumFormat.arg(strNumState);
-                strEnumStates.append(strThisState);
+                //on récupère le nom de l'état s'il existe
+                QString strThisState;
+                QString strThisEnum;
+                if(sState.isEmpty())
+                {
+                    QString strNumState;
+                    strNumState.setNum(numState);
+                    QString strUnamedState=UnamedState.arg(strNumState);
+                    strThisState=strUnamedState;
+                    strThisEnum=stateEnumFormat.arg(strUnamedState);
+                }
+                else
+                {
+                    strThisState=sState;
+                    strThisEnum=stateEnumFormat.arg(sState);
+                    //on complète l'entete
+                    strAddedStates=strAddedStates+N1T+sState+",";
+                }
+
+                //on complète l'enum des états et l'entete
+                strEnumStates.append(strThisEnum);
 
                 //est-ce qu'il y avait une transition auparavant
                 if(isInTransition) //oui on la ferme avant de passer à l'action suivante
@@ -2033,7 +1898,7 @@ void CActuatorSequencer::Slot_Generate()
                 }
 
                 //ajout de l'action
-                champStrategie=champStrategie+stateFormat.arg(strNumState)+N3T+sConverted;
+                champStrategie=champStrategie+stateFormat.arg(strThisState)+N3T+sConverted;
 
                 isInState=true;
             }
@@ -2043,11 +1908,11 @@ void CActuatorSequencer::Slot_Generate()
             if(isInTransition) //elle est initialisée, on ajoute la transtition
                 //TODO:champStrategie=champStrategie+"&&"+sConverted;
                 champStrategie=champStrategie+N3T+sConverted;
-            else //sinon on initialise et on ajoute l'action
+            else //sinon on initialise et on ajoute la transition
             {
                 numTransition++;
 
-                if(numState<=0) //on commence par une transition ajout d'un état vide
+                if(numState<=0) //on commence la stratégie par une transition: ajout d'un état vide
                 {
                     //numéro de l'état
                     numState++;
@@ -2117,7 +1982,7 @@ void CActuatorSequencer::Slot_Generate()
         strNumState.setNum(j);
         strHeader=strHeader+N1T+"STATE_"+strNumState+",";
     }
-
+    strHeader=strHeader+strAddedStates;
     strHeader=strHeader+N1T+"FIN_MISSION"+N1T+"}tState;\n};\n\n#endif // SM_"+nomStrategie.toUpper()+"_H";
 
     QString fileName_h=fileName_cpp.replace(".cpp", ".h");
@@ -2140,7 +2005,7 @@ void CActuatorSequencer::Slot_Generate()
     xmlExtension.append(".xml");
     QString fileName_xml=fileName_h.replace(".h",xmlExtension);
     //qDebug() << fileName_xml;
-    generateXML(fileName_xml);
+    Slot_Generate_XML(fileName_xml);
 
 
 }
@@ -2316,13 +2181,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
             QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
             QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
             QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
-            QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+            QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
 
             newStrategy->insertRow(row);
             newStrategy->setItem(row, 0, newItem_type);
             newStrategy->setItem(row, 1, newItem_id);
             newStrategy->setItem(row, 2, newItem_value);
-            newStrategy->setItem(row, 3, newItem_comments);
+            newStrategy->setItem(row, 3, newItem_state);
+            newStrategy->setItem(row, 4, newItem_comments);
 
             row++;
         }
@@ -2337,13 +2204,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 QTableWidgetItem *newItem_type = new QTableWidgetItem(otherStrategy->item(i,0)->text());
                 QTableWidgetItem *newItem_id = new QTableWidgetItem(otherStrategy->item(i,1)->text());
                 QTableWidgetItem *newItem_value = new QTableWidgetItem(otherStrategy->item(i,2)->text());
-                QTableWidgetItem *newItem_comments = new QTableWidgetItem(otherStrategy->item(i,3)->text());
+                QTableWidgetItem *newItem_state = new QTableWidgetItem(otherStrategy->item(i,3)->text());
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(otherStrategy->item(i,4)->text());
 
                 newStrategy->insertRow(row);
                 newStrategy->setItem(row, 0, newItem_type);
                 newStrategy->setItem(row, 1, newItem_id);
                 newStrategy->setItem(row, 2, newItem_value);
-                newStrategy->setItem(row, 3, newItem_comments);
+                newStrategy->setItem(row, 3, newItem_state);
+                newStrategy->setItem(row, 4, newItem_comments);
 
                 row++;
             }
@@ -2357,13 +2226,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
                 QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
                 QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
-                QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+                QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
 
                 newStrategy->insertRow(row);
                 newStrategy->setItem(row, 0, newItem_type);
                 newStrategy->setItem(row, 1, newItem_id);
                 newStrategy->setItem(row, 2, newItem_value);
-                newStrategy->setItem(row, 3, newItem_comments);
+                newStrategy->setItem(row, 3, newItem_state);
+                newStrategy->setItem(row, 4, newItem_comments);
 
                 row++;
             }

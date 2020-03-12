@@ -68,7 +68,7 @@ public:
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Pr�cise le nom du menu de la fen�tre principale dans lequel le module appara�t
 
 public slots:
-    void Slot_Generate();
+    void Slot_Generate_CPP();
     void Slot_SetPosFromSimu();
 private:
     Cihm_ActuatorSequencer m_ihm;
@@ -82,7 +82,7 @@ private:
 
     void updateComboBox();
     void update_sequenceButtons();
-    void generateXML(QString strPath);
+
 
     //! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
     // (enum commun MBED<->LaBotBox)
@@ -135,6 +135,7 @@ private slots :
     void Slot_chooseStrategy(int state);
     void Slot_combineStrategies();
     void Slot_moveStrategy();
+    void Slot_Generate_XML(QString strPath);
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_
