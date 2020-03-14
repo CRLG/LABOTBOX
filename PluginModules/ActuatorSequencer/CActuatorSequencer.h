@@ -98,6 +98,7 @@ private:
     }eCOMMANDES_SERVOS_AX;
 
 
+    bool isTransition(QString sType);
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);
@@ -136,6 +137,7 @@ private slots :
     void Slot_combineStrategies();
     void Slot_moveStrategy();
     void Slot_Generate_XML(QString strPath);
+    //void Slot_formatStrategy(QColor newColor);
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_

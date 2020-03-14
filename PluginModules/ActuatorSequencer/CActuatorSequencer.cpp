@@ -101,6 +101,7 @@ void CActuatorSequencer::init(CApplication *application)
   tabBar->setTabButton(0, QTabBar::LeftSide, newCheck);
 
   m_ihm.ui.tW_TabSequences->setTabText(0,m_ihm.ui.strategyName->text());
+  //connect(newSequence, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(Slo)t);
 
   connect(m_ihm.ui.tW_TabSequences,SIGNAL(tabCloseRequested(int)),this,SLOT(Slot_Remove_Sequence(int)));
 
@@ -432,6 +433,8 @@ void CActuatorSequencer::addSequenceItem(void)
     QString value="0";
     QString comments;
 
+    bool bFormat=false;
+
     if(pB_Add==m_ihm.ui.pB_Add_AX)
     {
         switch(m_ihm.ui.cB_AX_type_cde->currentData().toInt())
@@ -474,6 +477,7 @@ void CActuatorSequencer::addSequenceItem(void)
             break;
         }
         comments=m_ihm.ui.cB_Sensors->currentText()+m_ihm.ui.cB_Conditions->currentText()+value;
+        bFormat=true;
 
     }
     else if(pB_Add==m_ihm.ui.pB_Add_SD20)
@@ -507,12 +511,14 @@ void CActuatorSequencer::addSequenceItem(void)
         id=m_ihm.ui.cB_Events->currentText();
         //comments=m_ihm.ui.cB_Motor->currentText();
         value=m_ihm.ui.sB_TimeOut->text();
+        bFormat=true;
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Wait)
     {
         type="Wait";
         id="0";
         value.setNum(m_ihm.ui.sB_Wait->value());
+        bFormat=true;
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Asser)
     {
@@ -541,6 +547,7 @@ void CActuatorSequencer::addSequenceItem(void)
             type="FreeEvent";
             id="0";
             value=FreeText;
+            bFormat=true;
         }
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Free_Action)
@@ -561,6 +568,15 @@ void CActuatorSequencer::addSequenceItem(void)
         QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
         QTableWidgetItem *newItem_state = new QTableWidgetItem("");
         QTableWidgetItem *newItem_comments = new QTableWidgetItem(comments);
+
+        if(bFormat)
+        {
+            newItem_type->setBackgroundColor(Qt::cyan);
+            newItem_id->setBackgroundColor(Qt::cyan);
+            newItem_value->setBackgroundColor(Qt::cyan);
+            newItem_state->setBackgroundColor(Qt::cyan);
+            newItem_comments->setBackgroundColor(Qt::cyan);
+        }
 
 
         int indexAdd=currentSequence->rowCount();
@@ -909,7 +925,12 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(table_sequence->rowCount()>0)
                     for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
-                        table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
+                    {
+                        if(isTransition(table_sequence->item(indexItem,0)->text()))
+                            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::cyan);
+                        else
+                            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
+                    }
 
                 m_ihm.ui.label_showNbSequence->clear();
 
@@ -1155,6 +1176,16 @@ void CActuatorSequencer::Slot_Load()
                             QTableWidgetItem *newItem_value = new QTableWidgetItem(e.attribute("value","1000"));
                             QTableWidgetItem *newItem_state = new QTableWidgetItem(e.attribute("state",""));
                             QTableWidgetItem *newItem_comments = new QTableWidgetItem(e.attribute("comments",""));
+
+                            if(isTransition(e.attribute("type","Wait")))
+                            {
+                                newItem_type->setBackgroundColor(Qt::cyan);
+                                newItem_id->setBackgroundColor(Qt::cyan);
+                                newItem_value->setBackgroundColor(Qt::cyan);
+                                newItem_state->setBackgroundColor(Qt::cyan);
+                                newItem_comments->setBackgroundColor(Qt::cyan);
+                            }
+
                             table_sequence->insertRow(indexItem);
                             table_sequence->setItem(indexItem, 0, newItem_type);
                             table_sequence->setItem(indexItem, 1, newItem_id);
@@ -1428,6 +1459,15 @@ void CActuatorSequencer::Slot_Clone()
             QTableWidgetItem *newItem_value = new QTableWidgetItem(prev_table_sequence->item(i,2)->text());
             QTableWidgetItem *newItem_state = new QTableWidgetItem(prev_table_sequence->item(i,3)->text());
             QTableWidgetItem *newItem_comments = new QTableWidgetItem(prev_table_sequence->item(i,4)->text());
+
+            if(isTransition(prev_table_sequence->item(i,0)->text()))
+            {
+                newItem_type->setBackgroundColor(Qt::cyan);
+                newItem_id->setBackgroundColor(Qt::cyan);
+                newItem_value->setBackgroundColor(Qt::cyan);
+                newItem_state->setBackgroundColor(Qt::cyan);
+                newItem_comments->setBackgroundColor(Qt::cyan);
+            }
 
             newSequence->insertRow(i);
             newSequence->setItem(i, 0, newItem_type);
@@ -2184,6 +2224,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
             QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
             QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
 
+            if(isTransition(firstStrategy->item(i,0)->text()))
+            {
+                newItem_type->setBackgroundColor(Qt::cyan);
+                newItem_id->setBackgroundColor(Qt::cyan);
+                newItem_value->setBackgroundColor(Qt::cyan);
+                newItem_state->setBackgroundColor(Qt::cyan);
+                newItem_comments->setBackgroundColor(Qt::cyan);
+            }
+
             newStrategy->insertRow(row);
             newStrategy->setItem(row, 0, newItem_type);
             newStrategy->setItem(row, 1, newItem_id);
@@ -2207,6 +2256,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 QTableWidgetItem *newItem_state = new QTableWidgetItem(otherStrategy->item(i,3)->text());
                 QTableWidgetItem *newItem_comments = new QTableWidgetItem(otherStrategy->item(i,4)->text());
 
+                if(isTransition(otherStrategy->item(i,0)->text()))
+                {
+                    newItem_type->setBackgroundColor(Qt::cyan);
+                    newItem_id->setBackgroundColor(Qt::cyan);
+                    newItem_value->setBackgroundColor(Qt::cyan);
+                    newItem_state->setBackgroundColor(Qt::cyan);
+                    newItem_comments->setBackgroundColor(Qt::cyan);
+                }
+
                 newStrategy->insertRow(row);
                 newStrategy->setItem(row, 0, newItem_type);
                 newStrategy->setItem(row, 1, newItem_id);
@@ -2228,6 +2286,15 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
                 QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
                 QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
+
+                if(isTransition(firstStrategy->item(i,0)->text()))
+                {
+                    newItem_type->setBackgroundColor(Qt::cyan);
+                    newItem_id->setBackgroundColor(Qt::cyan);
+                    newItem_value->setBackgroundColor(Qt::cyan);
+                    newItem_state->setBackgroundColor(Qt::cyan);
+                    newItem_comments->setBackgroundColor(Qt::cyan);
+                }
 
                 newStrategy->insertRow(row);
                 newStrategy->setItem(row, 0, newItem_type);
@@ -2285,5 +2352,12 @@ void CActuatorSequencer::Slot_moveStrategy(void)
         }
     }
 
+
+}
+
+bool CActuatorSequencer::isTransition(QString sType)
+{
+    return (!((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
+           (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) ));
 
 }
