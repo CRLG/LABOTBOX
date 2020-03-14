@@ -1169,20 +1169,6 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="5">
-         <widget class="QLabel" name="label_showNbSequence">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="18" column="11">
          <widget class="QPushButton" name="pB_Remove">
           <property name="minimumSize">
@@ -1334,7 +1320,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5" rowspan="2">
+        <item row="0" column="5" rowspan="3">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -1347,37 +1333,7 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QCheckBox" name="cB_bRepeatSequence">
-          <property name="text">
-           <string>repeat the sequence</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="sB_numberOfSequence">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLabel" name="label_nbSequence">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>times</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4">
+        <item row="1" column="0">
          <widget class="QPushButton" name="pB_Play_Step">
           <property name="minimumSize">
            <size>
@@ -1406,18 +1362,62 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="6">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+        <item row="1" column="4" rowspan="2">
+         <widget class="QLabel" name="label_showNbSequence">
+          <property name="minimumSize">
            <size>
-            <width>828</width>
-            <height>373</height>
+            <width>50</width>
+            <height>30</height>
            </size>
           </property>
-         </spacer>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="cB_bRepeatSequence">
+          <property name="text">
+           <string>repeat the sequence</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="sB_numberOfSequence">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="label_nbSequence">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>times</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="6">
+         <widget class="QTextEdit" name="txtPlayInfo">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

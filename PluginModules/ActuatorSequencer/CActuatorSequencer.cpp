@@ -615,351 +615,442 @@ void CActuatorSequencer::removeSequenceItem()
     }
 }
 
+/*!
+ * \brief CActuatorSequencer::Slot_Play
+ * \param oneStep à mettre à vrai si on veut executer une seule ligne de la stratégie
+ * \param idStart index de la ligne à jouer si oneStep est vrai
+ */
 void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 {
-    int idxMin=0;
-    int idxMax=0;
-
+    //maj de l'ihm
     bStop=false;
     bPlay=true;
     bResume=false;
     update_sequenceButtons();
+    m_ihm.ui.txtPlayInfo->clear();
 
+    //index et ses bornes pour parcourir les états et transitions de la stratégie
     int indexItem=0;
+    int idxMin=0;
+    int idxMax=0;
+    int nextSate=-1;
 
+    //On se positionne sur la bonne stratégie et on récupère pointeur et index
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * table_sequence=listSequence.at(tabIndex);
     int numberOfIndex=m_ihm.ui.tW_TabSequences->count();
+
+    //On désactive temporairement les autres stratégies
     for(int i=0;i<numberOfIndex;i++)
     {
         if(i!=tabIndex)
             m_ihm.ui.tW_TabSequences->widget(i)->setEnabled(false);
     }
 
+    //pour récupérer les infos des états et transitions
     QString sActuator;
     QString id;
     QString value;
 
+    //pour dérouler la stratégie n fois en boucle
     int nbSequence=1;
-
     if ((m_ihm.ui.cB_bRepeatSequence->isChecked())&&(!oneStep))
         nbSequence=m_ihm.ui.sB_numberOfSequence->value();
 
+    /*------------------------------------------------------------
+     * DEBUT DU DEROULEMENT DE LA STRATEGIE
+     *------------------------------------------------------------*/
+    //donc on déroule autant de fois que nbSequence la stratégie
+    QTime chrono;
+    int t0=chrono.msecsSinceStartOfDay();
+    qDebug()<<t0;
+    QString msg="DEBUT STRATEGIE "+m_ihm.ui.strategyName->text();
+    setPlayMessage(t0,"INFO",msg);
     for(int i=0;i<nbSequence;i++)
     {
+        //le bouton stop a été actionné on sort de la boucle
+        if((!bPlay)&&(!bResume))
+            break;
 
-    if(table_sequence->rowCount()>0)
-    {
-        if (oneStep)
+        //on ne déroule la stratégie que s'il y a au moins une ligne
+        if(table_sequence->rowCount()>0)
         {
-            idxMax=qMax(0,idStart);
-            idxMin=qMin(table_sequence->rowCount(),idStart);
-        }
-        else{
-            idxMax=table_sequence->rowCount()-1;
-            idxMin=0;
-        }
-        //QString modeAndRange=oneStep?"Step":"whole sequence";
-        //qDebug() << modeAndRange << "min" << idxMin << "max" << idxMax;
-
-
-        QString showNubSequence;
-        showNubSequence.setNum(i+1);
-        m_ihm.ui.label_showNbSequence->setText(showNubSequence);
-
-        for (indexItem=idxMin;indexItem<idxMax+1;indexItem++)
-        {
-            sActuator=table_sequence->item(indexItem,0)->text();
-            //qDebug() << sActuator;
-
-            //color index to tag the sequence
-            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::red);
-
-            if(sActuator.compare("SD20")==0)
+            //pour executer une seule ligne de la stratégie
+            if (oneStep)
             {
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-                //qDebug() << "SD20 number" << id << "at" <<value;
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
-                m_application->m_data_center->write("NumeroServoMoteur1", id);
-                m_application->m_data_center->write("PositionServoMoteur1", value);
-                m_application->m_data_center->write("VitesseServoMoteur1", 0);
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+                idxMax=qMax(0,idStart);
+                idxMin=qMin(table_sequence->rowCount(),idStart);
             }
-            if(sActuator.compare("AX-Position")==0)
+            else
             {
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-                //qDebug() << "AX number" << id << "position at" <<value;
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
-                m_application->m_data_center->write("num_servo_ax", id);
-                m_application->m_data_center->write("commande_ax", cSERVO_AX_POSITION);
-                m_application->m_data_center->write("valeur_commande_ax", value);
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
-                QTest::qWait(100); //Pour eviter la non prise en compte I2C
+                idxMax=table_sequence->rowCount()-1;
+                idxMin=0;
             }
-            if(sActuator.compare("AX-Speed")==0)
+
+            //affichage du nombre de fois qu'on déroule la stratégie
+            QString showNubSequence;
+            showNubSequence.setNum(i+1);
+            m_ihm.ui.label_showNbSequence->setText(showNubSequence);
+            if(nbSequence>1)
             {
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-                //qDebug() << "AX number" << id << "speed at" <<value;
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
-                m_application->m_data_center->write("num_servo_ax", id);
-                m_application->m_data_center->write("commande_ax", cSERVO_AX_VITESSE);
-                m_application->m_data_center->write("valeur_commande_ax", value);
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
-                QTest::qWait(100); //Pour eviter la non prise en compte I2C
+                msg="REPETITION STRATEGIE n°"+showNubSequence;
+                setPlayMessage(t0,"INFO",msg);
             }
-            if(sActuator.compare("Motor")==0)
-            {            
-                //id_int=table_sequence->item(indexItem,1)->text().toInt();
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
 
-                QString str_name=QString("cde_moteur_%1").arg(id);
-                //qDebug() << "Motor" << str_name << "at" <<value;
-                m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
-                m_application->m_data_center->write(str_name, value);
-                m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
-            }
-            if(sActuator.compare("Power")==0)
+            //on déroule la séquence
+            indexItem=idxMin;
+            while(indexItem<idxMax+1)
+            //for (indexItem=idxMin;indexItem<idxMax+1;indexItem++)
             {
-                //id_int=table_sequence->item(indexItem,1)->text().toInt();
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
+                //récupération de type de ligne (actionneur, transition, événement,...)
+                sActuator=table_sequence->item(indexItem,0)->text();
 
-                QString str_name=QString("PowerSwitch_xt%1").arg(id);
-                bool bvalue=false;
-                if(value.compare("1")==0)
-                    bvalue=true;
-                //bvalue=(value.compare("1")==0?true:false);
-                //qDebug() << "Power" << str_name << "at" <<bvalue;
-                m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
-                m_application->m_data_center->write(str_name, bvalue);
-                m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
-            }
-            if(sActuator.compare("Wait")==0)
-            {
-                value=table_sequence->item(indexItem,2)->text();
-                //qDebug() << "Wait during" << value << "ms";
-                QTest::qWait(value.toInt()); //no waiting if invalid cast
-            }
-            if(sActuator.compare("Event")==0)
-            {
-                //evenement
-                bool bConv=false;
+                //on met en rouge que la ligne actuellement jouée (ne seront visibles dans les faits que les transitions)
+                formatSequence(table_sequence);
+                table_sequence->item(indexItem,0)->setBackgroundColor(Qt::red);
 
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-
-                //init du timeout et du compteur associe
-                short cmptTe=0;
-                int timeOut=value.toInt();
-
-                if(id.compare("convAsserv")==0)
+                if(sActuator.compare("SD20")==0) //SERVO SD20
                 {
-                    bConv=false;
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+                    m_application->m_data_center->write("NumeroServoMoteur1", id);
+                    m_application->m_data_center->write("PositionServoMoteur1", value);
+                    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+                    msg="SERVO SD20 "+id+" à la position "+value;
+                    setPlayMessage(t0,"ACTION",msg);
+                }
 
-                    //qDebug() << "Attente convergence asservissement ou " << timeOut << "ms";
-                    while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
+                if(sActuator.compare("AX-Position")==0) //SERVO AX position
+                {
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
+                    m_application->m_data_center->write("num_servo_ax", id);
+                    m_application->m_data_center->write("commande_ax", cSERVO_AX_POSITION);
+                    m_application->m_data_center->write("valeur_commande_ax", value);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
+                    QTest::qWait(100); //Pour eviter la non prise en compte I2C
+                    msg="SERVO AX "+id+" à la position "+value;
+                    setPlayMessage(t0,"ACTION",msg);
+                }
+
+                if(sActuator.compare("AX-Speed")==0) //SERVO AX vitesse
+                {
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
+                    m_application->m_data_center->write("num_servo_ax", id);
+                    m_application->m_data_center->write("commande_ax", cSERVO_AX_VITESSE);
+                    m_application->m_data_center->write("valeur_commande_ax", value);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
+                    QTest::qWait(100); //Pour eviter la non prise en compte I2C
+                    msg="SERVO AX "+id+" vitesse à la valeur "+value;
+                    setPlayMessage(t0,"ACTION",msg);
+                }
+
+                if(sActuator.compare("Motor")==0) //MOTEUR
+                {
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    QString str_name=QString("cde_moteur_%1").arg(id);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
+                    m_application->m_data_center->write(str_name, value);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
+                    msg="MOTEUR "+id+" à la valeur "+value;
+                    setPlayMessage(t0,"ACTION",msg);
+                }
+
+                if(sActuator.compare("Power")==0) //POWERSWITCH
+                {
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    QString str_name=QString("PowerSwitch_xt%1").arg(id);
+                    bool bvalue=false;
+                    if(value.compare("1")==0)
+                        bvalue=true;
+                    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+                    m_application->m_data_center->write(str_name, bvalue);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
+                    msg="POWERSWITCH "+id+" à "+ (bvalue?"ON":"OFF");
+                    setPlayMessage(t0,"ACTION",msg);
+                }
+
+                if(sActuator.compare("Wait")==0) //TEMPO
+                {
+                    value=table_sequence->item(indexItem,2)->text();
+                    //qDebug() << "Wait during" << value << "ms";
+                    msg="Attente de "+value+" ms";
+                    setPlayMessage(t0,"TRANSITION",msg);
+                    QTest::qWait(value.toInt()); //no waiting if invalid cast
+                }
+
+                if(sActuator.compare("Event")==0) //EVENEMENT
+                {
+                    //flag de convergence
+                    bool bConv=false;
+
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+
+                    //init du timeout et du compteur associe
+                    short cmptTe=0;
+                    int timeOut=value.toInt();
+
+                    if(id.compare("convAsserv")==0) // événement de convergence d'asservissement
                     {
-                        QTest::qWait(40);
-                        if((m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)&& (cmptTe>10))
-                            bConv=true;
-                        cmptTe++;
+                        bConv=false;
+                        msg="Attente de convergence asservissement OU "+value+" ms";
+                        setPlayMessage(t0,"TRANSITION",msg);
+                        while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
+                        {
+                            QTest::qWait(40);
+                            if((m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)&& (cmptTe>10))
+                                bConv=true;
+                            cmptTe++;
+                        }
+                    }
+
+                    if(id.compare("convRack")==0) // événement de convergence de l'asenceur
+                    {
+                        bConv=false;
+                        msg="Attente de convergence rack OU "+value+" ms";
+                        setPlayMessage(t0,"TRANSITION",msg);
+                        while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
+                        {
+                            QTest::qWait(40);
+                            if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
+                                bConv=true;
+                            cmptTe++;
+                        }
                     }
                 }
-                if(id.compare("convRack")==0)
-                {
-                    bConv=false;
 
-                    //qDebug() << "Attente convergence RACK ou " << timeOut << "ms";
-                    while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
+                if(sActuator.contains("Sensor")) //CAPTEUR
+                {
+                    //flag d'evenement
+                    bool bReachCondition=false;
+
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+
+    //                //init du timeout et du compteur associe
+    //                short cmptTe=0;
+    //                int timeOut=value.toInt();
+
+                    if(sActuator.compare("Sensor_sup")==0)
                     {
-                        QTest::qWait(40);
-                        if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
-                            bConv=true;
-                        cmptTe++;
-                        //qDebug() << m_application->m_data_center->read("rack_convergence").toBool() << "-->" << bConv << "ou" << (cmptTe<(timeOut/40)) << "--" << cmptTe << "<" <<(timeOut/40) ;
+                        bReachCondition=false;
+                        msg="Attente de "+id+" > "+value;
+                        setPlayMessage(t0,"TRANSITION",msg);
+                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                        {
+                            QTest::qWait(40);
+                            if(m_application->m_data_center->read(id).toFloat()> value.toFloat()) //&& (cmptTe>10))
+                                bReachCondition=true;
+                            //cmptTe++;
+                        }
+                    }
+
+                    if(sActuator.compare("Sensor_egal")==0)
+                    {
+                        bReachCondition=false;
+                        msg="Attente de "+id+" = "+value;
+                        setPlayMessage(t0,"TRANSITION",msg);
+                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                        {
+                            QTest::qWait(40);
+                            if(m_application->m_data_center->read(id).toFloat()== value.toFloat()) //&& (cmptTe>10))
+                                bReachCondition=true;
+                            //cmptTe++;
+                        }
+                    }
+
+                    if(sActuator.compare("Sensor_inf")==0)
+                    {
+                        bReachCondition=false;
+                        msg="Attente de "+id+" < "+value;
+                        setPlayMessage(t0,"TRANSITION",msg);
+                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                        {
+                            QTest::qWait(40);
+                            if(m_application->m_data_center->read(id).toFloat()< value.toFloat()) //&& (cmptTe>10))
+                                bReachCondition=true;
+                            //cmptTe++;
+                        }
                     }
                 }
-            }
-            if(sActuator.contains("Sensor"))
-            {
-                //evenement
-                bool bReachCondition=false;
 
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-
-//                //init du timeout et du compteur associe
-//                short cmptTe=0;
-//                int timeOut=value.toInt();
-
-                if(sActuator.compare("Sensor_sup")==0)
+                if(sActuator.compare("Asser")==0) //ASSERVISSEMENT
                 {
-                    bReachCondition=false;
-
-                    //qDebug() << "Wait " << id << ">" << value;
-                    while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                    id=table_sequence->item(indexItem,1)->text();
+                    value=table_sequence->item(indexItem,2)->text();
+                    QStringList args=value.split(",",QString::SkipEmptyParts);
+                    int nb_args=args.count();
+                    //"XY","DistAng","Rack"
+                    if(id.compare("XY")==0)
                     {
-                        QTest::qWait(40);
-                        if(m_application->m_data_center->read(id).toFloat()> value.toFloat()) //&& (cmptTe>10))
-                            bReachCondition=true;
-                        //cmptTe++;
+                        if(nb_args==2)
+                        {
+                            msg="Commande (X,Y) = ("+value+")";
+                            setPlayMessage(t0,"ACTION",msg);
+                            m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 1);
+                            m_application->m_data_center->write("X_consigne", args.at(0).toFloat());
+                            m_application->m_data_center->write("Y_consigne", args.at(1).toFloat());
+                            m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 0);
+                        }
+                    }
+                    if(id.compare("XYTheta")==0)
+                        if(nb_args==3)
+                        {
+                            msg="Commande (X,Y,TETA) = ("+value+")";
+                            setPlayMessage(t0,"ACTION",msg);
+                            m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 1);
+                            m_application->m_data_center->write("XYT_X_consigne", args.at(0).toFloat());
+                            m_application->m_data_center->write("XYT_Y_consigne", args.at(1).toFloat());
+                            m_application->m_data_center->write("XYT_angle_consigne", args.at(2).toFloat());
+                            m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
+                        }
+                    if(id.compare("DistAng")==0)
+                    {
+                        if(nb_args==2)
+                        {
+                            msg="Commande (Distance,Angle) = ("+value+")";
+                            setPlayMessage(t0,"ACTION",msg);
+                            m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 1);
+                            m_application->m_data_center->write("distance_consigne",args.at(0).toFloat());
+                            m_application->m_data_center->write("angle_consigne", args.at(1).toFloat());
+                            m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
+                        }
+                    }
+                    if(id.compare("Rack")==0)
+                    {
+                        if(nb_args==1)
+                        {
+                            float consigne=args.at(0).toInt();
+                            int sens_position=0;
+                            if(consigne>=0)
+                                sens_position=5;
+                            else
+                                sens_position=15;
+                            float consigne_messagerie=qRound(qAbs(consigne)/10.0);
+                            msg="Commande rack à la valeur "+value;
+                            setPlayMessage(t0,"ACTION",msg);
+                            m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+                            m_application->m_data_center->write("NumeroServoMoteur1", 50);
+                            m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
+                            m_application->m_data_center->write("VitesseServoMoteur1", sens_position);
+                            m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+                        }
                     }
                 }
-                if(sActuator.compare("Sensor_egal")==0)
-                {
-                    bReachCondition=false;
 
-                    //qDebug() << "Wait " << id << "=" << value;
-                    while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                    {
-                        QTest::qWait(40);
-                        if(m_application->m_data_center->read(id).toFloat()== value.toFloat()) //&& (cmptTe>10))
-                            bReachCondition=true;
-                        //cmptTe++;
-                    }
-                }
-                if(sActuator.compare("Sensor_inf")==0)
+                //Si la transition contient un nom d'état on y va
+                if(isTransition(sActuator))
                 {
-                    bReachCondition=false;
-
-                    qDebug() << "Wait " << id << "<" << value;
-                    while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                    QString strStateName=getSateName(table_sequence,indexItem);
+                    if(!strStateName.isEmpty())
                     {
-                        QTest::qWait(40);
-                        if(m_application->m_data_center->read(id).toFloat()< value.toFloat()) //&& (cmptTe>10))
-                            bReachCondition=true;
-                        //cmptTe++;
-                    }
-                }
-            }
-            if(sActuator.compare("Asser")==0)
-            {
-                id=table_sequence->item(indexItem,1)->text();
-                value=table_sequence->item(indexItem,2)->text();
-                QStringList args=value.split(",",QString::SkipEmptyParts);
-                int nb_args=args.count();
-                //"XY","DistAng","Rack"
-                if(id.compare("XY")==0)
-                {
-                    if(nb_args==2)
-                    {
-                        qDebug() << "MVT XYTheta" << args;
-                        m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 1);
-                        m_application->m_data_center->write("X_consigne", args.at(0).toFloat());
-                        m_application->m_data_center->write("Y_consigne", args.at(1).toFloat());
-                        m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 0);
-                    }
-                }
-                if(id.compare("XYTheta")==0)
-                    if(nb_args==3)
-                    {
-                        qDebug() << "MVT XYTheta" << args;
-                        m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 1);
-                        m_application->m_data_center->write("XYT_X_consigne", args.at(0).toFloat());
-                        m_application->m_data_center->write("XYT_Y_consigne", args.at(1).toFloat());
-                        m_application->m_data_center->write("XYT_angle_consigne", args.at(2).toFloat());
-                        m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
-                    }
-                if(id.compare("DistAng")==0)
-                {
-                    if(nb_args==2)
-                    {
-                        qDebug() << "MVT XY" << args;
-                        m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 1);
-                        m_application->m_data_center->write("distance_consigne",args.at(0).toFloat());
-                        m_application->m_data_center->write("angle_consigne", args.at(1).toFloat());
-                        m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
-                    }
-                }
-                qDebug() << id;
-                if(id.compare("Rack")==0)
-                {
-                    if(nb_args==1)
-                    {
-                        qDebug() << "Asser Rack" << args;
-                        float consigne=args.at(0).toInt();
-                        int sens_position=0;
-                        if(consigne>=0)
-                            sens_position=5;
+                        int foundSate=findState(table_sequence,strStateName);
+                        if(foundSate<0)
+                        {
+                            msg="Impossible de trouver l'état "+strStateName;
+                            setPlayMessage(t0,"WARNING",msg);
+                        }
                         else
-                            sens_position=15;
-                        float consigne_messagerie=qRound(qAbs(consigne)/10.0);
-                        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
-                        m_application->m_data_center->write("NumeroServoMoteur1", 50);
-                        m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
-                        m_application->m_data_center->write("VitesseServoMoteur1", sens_position);
-                        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+                            nextSate=foundSate;
                     }
                 }
-            }
 
-            while(bResume)
-                QTest::qWait(40);
+                //action sur le bouton de pause
+                while(bResume)
+                    QTest::qWait(40);
 
-            if (bStop)
-            {
-                m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
-                m_application->m_data_center->write("cde_moteur_1", 0);
-                m_application->m_data_center->write("cde_moteur_2", 0);
-                m_application->m_data_center->write("cde_moteur_3", 0);
-                m_application->m_data_center->write("cde_moteur_4", 0);
-                m_application->m_data_center->write("cde_moteur_5", 0);
-                m_application->m_data_center->write("cde_moteur_6", 0);
-                m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
-                m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", 1);
-                m_application->m_data_center->write("PuissanceMotD", 0);
-                m_application->m_data_center->write("PuissanceMotG", 0);
-                m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", 0);
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 1);
-                m_application->m_data_center->write("NumeroServoMoteur1", 50);
-                m_application->m_data_center->write("PositionServoMoteur1", 10);
-                m_application->m_data_center->write("VitesseServoMoteur1", 0);
-                m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 0);
-                //bStop=true;
-                bPlay=false;
-                bResume=false;
-
-                if(table_sequence->rowCount()>0)
-                    for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
-                    {
-                        if(isTransition(table_sequence->item(indexItem,0)->text()))
-                            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::cyan);
-                        else
-                            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
-                    }
-
-                m_ihm.ui.label_showNbSequence->clear();
-
-                qDebug() << "end of sequence";
-                for(int i=0;i<numberOfIndex;i++)
+                //action bouton stop
+                if (bStop)
                 {
+                    //on arrête tous les actionneurs
+                    m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
+                    m_application->m_data_center->write("cde_moteur_1", 0);
+                    m_application->m_data_center->write("cde_moteur_2", 0);
+                    m_application->m_data_center->write("cde_moteur_3", 0);
+                    m_application->m_data_center->write("cde_moteur_4", 0);
+                    m_application->m_data_center->write("cde_moteur_5", 0);
+                    m_application->m_data_center->write("cde_moteur_6", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 1);
+                    m_application->m_data_center->write("PowerSwitch_xt1", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt2", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt3", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt4", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt5", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt6", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt7", 0);
+                    m_application->m_data_center->write("PowerSwitch_xt8", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
+                    m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", 1);
+                    m_application->m_data_center->write("PuissanceMotD", 0);
+                    m_application->m_data_center->write("PuissanceMotG", 0);
+                    m_application->m_data_center->write("COMMANDE_MVT_MANUEL_TxSync", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 1);
+                    m_application->m_data_center->write("NumeroServoMoteur1", 50);
+                    m_application->m_data_center->write("PositionServoMoteur1", 10);
+                    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 0);
+
+                    //on stoppe le déroulement
+                    bPlay=false;
+                    bResume=false;
+                    nextSate=-1;
+
+                    //mise en forme de l'ihm
+                    formatSequence(table_sequence);
+                    m_ihm.ui.label_showNbSequence->clear();
+
+                    //on réactive les autres stratégies
+                    for(int i=0;i<numberOfIndex;i++)
                         m_ihm.ui.tW_TabSequences->widget(i)->setEnabled(true);
+
+                    //on met les boutons dans un état cohérent
+                    update_sequenceButtons();
+
+                    //on sort de la boucle de déroulement
+                    break;
+                } //fin action bouton stop
+
+                if(nextSate>=0)
+                {
+                    indexItem=nextSate;
+                    msg="Saut vers l'état "+getSateName(table_sequence,indexItem)+"\n";
+                    setPlayMessage(t0,"TRANSITION",msg);
+                    nextSate=-1;
                 }
-
-                update_sequenceButtons();
-                return;
-            }
-
+                else
+                    indexItem++;
+            } //fin déroulement de la séquence
+        } //fin de la répétition de déroulement de la séquence
+        else
+        {
+            msg="La Stratégie ne contient aucune action ou transition!";
+            setPlayMessage(t0,"WARNING",msg);
         }
+
+        //on remet en forme l'ihm à la fin de la séquence
+        formatSequence(table_sequence);
     }
 
-    if(table_sequence->rowCount()>0)
-        for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
-            table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
-    }
+    msg="FIN STRATEGIE "+m_ihm.ui.strategyName->text();
+    setPlayMessage(t0,"INFO",msg);
 
+    //on remet en forme l'ihm à la fin de la séquence
     m_ihm.ui.label_showNbSequence->clear();
 
-    qDebug() << "end of sequence";
+    //on réactive les autres stratégies
     for(int i=0;i<numberOfIndex;i++)
-    {
-            m_ihm.ui.tW_TabSequences->widget(i)->setEnabled(true);
-    }
+        m_ihm.ui.tW_TabSequences->widget(i)->setEnabled(true);
 
+    //on stoppe la sequence
     bStop=true;
     bPlay=false;
     bResume=false;
@@ -992,10 +1083,11 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
     m_application->m_data_center->write("VitesseServoMoteur1", 0);
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 0);
 
+    //on met les boutons dans un état cohérent
     update_sequenceButtons();
 
+    //on sélectionne la première ligne
     table_sequence->selectRow(qMin(idxMax+1,table_sequence->rowCount()-1));
-
 }
 
 
@@ -2360,4 +2452,99 @@ bool CActuatorSequencer::isTransition(QString sType)
     return (!((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
            (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) ));
 
+}
+
+void CActuatorSequencer::formatSequence(QTableWidget* table_sequence)
+{
+    if(table_sequence->rowCount()>0)
+        for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+        {
+            if(isTransition(table_sequence->item(indexItem,0)->text()))
+                table_sequence->item(indexItem,0)->setBackgroundColor(Qt::cyan);
+            else
+                table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
+        }
+}
+
+int CActuatorSequencer::findState(QTableWidget* table_sequence, QString stateName)
+{
+    int index=-1;
+    bool prevWasCondition=false;
+    if(!stateName.isEmpty())
+    {
+        if(table_sequence->rowCount()>0)
+        {
+            for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+            {
+                QString strType=getType(table_sequence,indexItem);
+                QString strName=getSateName(table_sequence,indexItem);
+                if(isTransition(strType))
+                    prevWasCondition=true;
+                else
+                {
+                    if(stateName.compare(strName)==0)
+                    {
+                        if(prevWasCondition)
+                        {
+                            index=indexItem;
+                            break;
+                        }
+                    }
+                    prevWasCondition=false;
+                }
+            }
+        }
+    }
+    return index;
+}
+QString CActuatorSequencer::getType(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,0)->text();}
+QString CActuatorSequencer::getId(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,1)->text();}
+QString CActuatorSequencer::getValue(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,2)->text();}
+QString CActuatorSequencer::getSateName(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,3)->text();}
+QString CActuatorSequencer::getComments(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,4)->text();}
+void CActuatorSequencer::fillRow(QTableWidget* table_sequence, int idx,QTableWidgetItem * type,QTableWidgetItem * id,QTableWidgetItem * value,QTableWidgetItem * state,QTableWidgetItem * comments)
+{
+    table_sequence->setItem(idx, 0, type);
+    table_sequence->setItem(idx, 1, id);
+    table_sequence->setItem(idx, 2, value);
+    table_sequence->setItem(idx, 3, state);
+    table_sequence->setItem(idx, 4, comments);
+}
+
+void CActuatorSequencer::setPlayMessage(int t0,QString type, QString msg)
+{
+    float fTime;
+    QTime chrono;
+    QString sTime;
+    QString fullMsg;
+    fTime=(float)((chrono.msecsSinceStartOfDay()-t0)/1000.);
+    sTime.setNum(fTime,'f',3);
+
+    if(type=="INFO")
+    {
+        m_ihm.ui.txtPlayInfo->setTextColor(Qt::blue);
+        fullMsg="\n"+sTime+"\tINFO:\t\t"+msg+"\n";
+        m_ihm.ui.txtPlayInfo->append(fullMsg);
+    }
+
+    if(type=="WARNING")
+    {
+        m_ihm.ui.txtPlayInfo->setTextColor(Qt::darkYellow);
+        fullMsg="\n"+sTime+"\tWARNING:\t"+msg+"\n";
+        m_ihm.ui.txtPlayInfo->append(fullMsg);
+    }
+
+    if(type=="TRANSITION")
+    {
+        m_ihm.ui.txtPlayInfo->setTextColor(Qt::darkGreen);
+        fullMsg=sTime+"\tTRANSITION:\t"+msg+"\n";
+        m_ihm.ui.txtPlayInfo->append(fullMsg);
+    }
+
+    if(type=="ACTION")
+    {
+        m_ihm.ui.txtPlayInfo->setTextColor(Qt::black);
+        fullMsg=sTime+"\tACTION:\t\t"+msg;
+        m_ihm.ui.txtPlayInfo->append(fullMsg);
+    }
 }
