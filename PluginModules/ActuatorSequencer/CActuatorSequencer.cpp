@@ -661,11 +661,12 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
      * DEBUT DU DEROULEMENT DE LA STRATEGIE
      *------------------------------------------------------------*/
     //donc on déroule autant de fois que nbSequence la stratégie
+
     QTime chrono;
-    int t0=chrono.msecsSinceStartOfDay();
-    qDebug()<<t0;
+    chrono.start();
     QString msg="DEBUT STRATEGIE "+m_ihm.ui.strategyName->text();
-    setPlayMessage(t0,"INFO",msg);
+    setPlayMessage(chrono.elapsed(),"INFO",msg);
+
     for(int i=0;i<nbSequence;i++)
     {
         //le bouton stop a été actionné on sort de la boucle
@@ -694,7 +695,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             if(nbSequence>1)
             {
                 msg="REPETITION STRATEGIE n°"+showNubSequence;
-                setPlayMessage(t0,"INFO",msg);
+                setPlayMessage(chrono.elapsed(),"INFO",msg);
             }
 
             //on déroule la séquence
@@ -719,7 +720,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write("VitesseServoMoteur1", 0);
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
                     msg="SERVO SD20 "+id+" à la position "+value;
-                    setPlayMessage(t0,"ACTION",msg);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("AX-Position")==0) //SERVO AX position
@@ -733,7 +734,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
                     QTest::qWait(100); //Pour eviter la non prise en compte I2C
                     msg="SERVO AX "+id+" à la position "+value;
-                    setPlayMessage(t0,"ACTION",msg);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("AX-Speed")==0) //SERVO AX vitesse
@@ -747,7 +748,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", false);
                     QTest::qWait(100); //Pour eviter la non prise en compte I2C
                     msg="SERVO AX "+id+" vitesse à la valeur "+value;
-                    setPlayMessage(t0,"ACTION",msg);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("Motor")==0) //MOTEUR
@@ -759,7 +760,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write(str_name, value);
                     m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 0);
                     msg="MOTEUR "+id+" à la valeur "+value;
-                    setPlayMessage(t0,"ACTION",msg);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("Power")==0) //POWERSWITCH
@@ -774,7 +775,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write(str_name, bvalue);
                     m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
                     msg="POWERSWITCH "+id+" à "+ (bvalue?"ON":"OFF");
-                    setPlayMessage(t0,"ACTION",msg);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("Wait")==0) //TEMPO
@@ -782,7 +783,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     value=table_sequence->item(indexItem,2)->text();
                     //qDebug() << "Wait during" << value << "ms";
                     msg="Attente de "+value+" ms";
-                    setPlayMessage(t0,"TRANSITION",msg);
+                    setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                     QTest::qWait(value.toInt()); //no waiting if invalid cast
                 }
 
@@ -802,7 +803,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     {
                         bConv=false;
                         msg="Attente de convergence asservissement OU "+value+" ms";
-                        setPlayMessage(t0,"TRANSITION",msg);
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
                         {
                             QTest::qWait(40);
@@ -816,12 +817,15 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     {
                         bConv=false;
                         msg="Attente de convergence rack OU "+value+" ms";
-                        setPlayMessage(t0,"TRANSITION",msg);
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
                         {
                             QTest::qWait(40);
                             if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
+                            {
+                                //qDebug() << m_application->m_data_center->read("rack_convergence").toBool() << "Timeout "<<timeOut/40<<" => "<<cmptTe;
                                 bConv=true;
+                            }
                             cmptTe++;
                         }
                     }
@@ -843,7 +847,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     {
                         bReachCondition=false;
                         msg="Attente de "+id+" > "+value;
-                        setPlayMessage(t0,"TRANSITION",msg);
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
                         {
                             QTest::qWait(40);
@@ -857,7 +861,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     {
                         bReachCondition=false;
                         msg="Attente de "+id+" = "+value;
-                        setPlayMessage(t0,"TRANSITION",msg);
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
                         {
                             QTest::qWait(40);
@@ -871,7 +875,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     {
                         bReachCondition=false;
                         msg="Attente de "+id+" < "+value;
-                        setPlayMessage(t0,"TRANSITION",msg);
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
                         {
                             QTest::qWait(40);
@@ -894,7 +898,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                         if(nb_args==2)
                         {
                             msg="Commande (X,Y) = ("+value+")";
-                            setPlayMessage(t0,"ACTION",msg);
+                            setPlayMessage(chrono.elapsed(),"ACTION",msg);
                             m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 1);
                             m_application->m_data_center->write("X_consigne", args.at(0).toFloat());
                             m_application->m_data_center->write("Y_consigne", args.at(1).toFloat());
@@ -905,7 +909,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                         if(nb_args==3)
                         {
                             msg="Commande (X,Y,TETA) = ("+value+")";
-                            setPlayMessage(t0,"ACTION",msg);
+                            setPlayMessage(chrono.elapsed(),"ACTION",msg);
                             m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 1);
                             m_application->m_data_center->write("XYT_X_consigne", args.at(0).toFloat());
                             m_application->m_data_center->write("XYT_Y_consigne", args.at(1).toFloat());
@@ -917,7 +921,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                         if(nb_args==2)
                         {
                             msg="Commande (Distance,Angle) = ("+value+")";
-                            setPlayMessage(t0,"ACTION",msg);
+                            setPlayMessage(chrono.elapsed(),"ACTION",msg);
                             m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 1);
                             m_application->m_data_center->write("distance_consigne",args.at(0).toFloat());
                             m_application->m_data_center->write("angle_consigne", args.at(1).toFloat());
@@ -936,7 +940,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                                 sens_position=15;
                             float consigne_messagerie=qRound(qAbs(consigne)/10.0);
                             msg="Commande rack à la valeur "+value;
-                            setPlayMessage(t0,"ACTION",msg);
+                            setPlayMessage(chrono.elapsed(),"ACTION",msg);
                             m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
                             m_application->m_data_center->write("NumeroServoMoteur1", 50);
                             m_application->m_data_center->write("PositionServoMoteur1", consigne_messagerie);
@@ -956,7 +960,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                         if(foundSate<0)
                         {
                             msg="Impossible de trouver l'état "+strStateName;
-                            setPlayMessage(t0,"WARNING",msg);
+                            setPlayMessage(chrono.elapsed(),"WARNING",msg);
                         }
                         else
                             nextSate=foundSate;
@@ -1023,7 +1027,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 {
                     indexItem=nextSate;
                     msg="Saut vers l'état "+getSateName(table_sequence,indexItem)+"\n";
-                    setPlayMessage(t0,"TRANSITION",msg);
+                    setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                     nextSate=-1;
                 }
                 else
@@ -1033,7 +1037,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
         else
         {
             msg="La Stratégie ne contient aucune action ou transition!";
-            setPlayMessage(t0,"WARNING",msg);
+            setPlayMessage(chrono.elapsed(),"WARNING",msg);
         }
 
         //on remet en forme l'ihm à la fin de la séquence
@@ -1041,7 +1045,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
     }
 
     msg="FIN STRATEGIE "+m_ihm.ui.strategyName->text();
-    setPlayMessage(t0,"INFO",msg);
+    setPlayMessage(chrono.elapsed(),"INFO",msg);
 
     //on remet en forme l'ihm à la fin de la séquence
     m_ihm.ui.label_showNbSequence->clear();
@@ -2511,13 +2515,12 @@ void CActuatorSequencer::fillRow(QTableWidget* table_sequence, int idx,QTableWid
     table_sequence->setItem(idx, 4, comments);
 }
 
-void CActuatorSequencer::setPlayMessage(int t0,QString type, QString msg)
+void CActuatorSequencer::setPlayMessage(int elapsed,QString type, QString msg)
 {
     float fTime;
-    QTime chrono;
     QString sTime;
     QString fullMsg;
-    fTime=(float)((chrono.msecsSinceStartOfDay()-t0)/1000.);
+    fTime=(float)(elapsed/1000.);
     sTime.setNum(fTime,'f',3);
 
     if(type=="INFO")

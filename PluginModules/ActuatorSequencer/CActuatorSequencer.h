@@ -107,7 +107,7 @@ private:
     QString getSateName(QTableWidget *table_sequence, int idx);
     QString getComments(QTableWidget *table_sequence, int idx);
     void fillRow(QTableWidget *table_sequence, int idx, QTableWidgetItem *type, QTableWidgetItem *id, QTableWidgetItem *value, QTableWidgetItem *state, QTableWidgetItem *comments);
-    void setPlayMessage(int t0, QString type, QString msg);
+    void setPlayMessage(int elapsed, QString type, QString msg);
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);
