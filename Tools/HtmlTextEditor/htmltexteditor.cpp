@@ -60,6 +60,7 @@
 #endif
 
 #include "htmltexteditor.h"
+#include "textedit.h"
 
 const QString rsrcPath = ":/images";
 
@@ -78,7 +79,7 @@ HtmlTextEditor::HtmlTextEditor(QWidget *parent)
         helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
     }
 
-    textEdit = new QTextEdit(this);
+    textEdit = new TextEdit(this);
     connect(textEdit, SIGNAL(currentCharFormatChanged(QTextCharFormat)),
             this, SLOT(currentCharFormatChanged(QTextCharFormat)));
     connect(textEdit, SIGNAL(cursorPositionChanged()),

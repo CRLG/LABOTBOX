@@ -37,6 +37,7 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QPointer>
+#include <QMimeData>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -46,6 +47,7 @@ class QTextEdit;
 class QTextCharFormat;
 class QMenu;
 class QPrinter;
+class TextEdit;
 QT_END_NAMESPACE
 
 class HtmlTextEditor : public QMainWindow
@@ -118,7 +120,7 @@ private:
 
     QToolBar *tb;
     QString fileName;
-    QTextEdit *textEdit;
+    TextEdit *textEdit;
 };
 
 #endif // _HTML_TEXTEDIT_H
