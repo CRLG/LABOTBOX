@@ -84,24 +84,10 @@ void CActuatorSequencer::init(CApplication *application)
   defaultPath=val.toString();
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
-  QTableWidget * newSequence= new QTableWidget;
-  newSequence->setColumnCount(5);
-  QStringList QS_Labels;
-  QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
-  newSequence->setHorizontalHeaderLabels(QS_Labels);
-  listSequence.append(newSequence);
-  QHBoxLayout * hLayout=new QHBoxLayout;
-  hLayout->addWidget(newSequence);
-  m_ihm.ui.tW_TabSequences->currentWidget()->setLayout(hLayout);
-
-  QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-  QCheckBox *newCheck=new QCheckBox();
-  listChoice.append(newCheck);
-  connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
-  tabBar->setTabButton(0, QTabBar::LeftSide, newCheck);
-
-  m_ihm.ui.tW_TabSequences->setTabText(0,m_ihm.ui.strategyName->text());
-  //connect(newSequence, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(Slo)t);
+  QTableWidget * newSequence= new QTableWidget();
+  QWidget * newTab=m_ihm.ui.tW_TabSequences->currentWidget();
+  QString strName=m_ihm.ui.strategyName->text();
+  creatTabSequence(newTab,newSequence,strName,true);
 
   connect(m_ihm.ui.tW_TabSequences,SIGNAL(tabCloseRequested(int)),this,SLOT(Slot_Remove_Sequence(int)));
 
@@ -591,11 +577,7 @@ void CActuatorSequencer::addSequenceItem(void)
         }
 
         currentSequence->insertRow(indexAdd);
-        currentSequence->setItem(indexAdd, 0, newItem_type);
-        currentSequence->setItem(indexAdd, 1, newItem_id);
-        currentSequence->setItem(indexAdd, 2, newItem_value);
-        currentSequence->setItem(indexAdd, 3, newItem_state);
-        currentSequence->setItem(indexAdd, 4, newItem_comments);
+        fillRow(currentSequence,indexAdd,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,false);
         currentSequence->selectRow(indexAdd);
     }
 }
@@ -704,7 +686,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
             //for (indexItem=idxMin;indexItem<idxMax+1;indexItem++)
             {
                 //récupération de type de ligne (actionneur, transition, événement,...)
-                sActuator=table_sequence->item(indexItem,0)->text();
+                sActuator=getTypeText(table_sequence,indexItem);
 
                 //on met en rouge que la ligne actuellement jouée (ne seront visibles dans les faits que les transitions)
                 formatSequence(table_sequence);
@@ -712,8 +694,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("SD20")==0) //SERVO SD20
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
                     m_application->m_data_center->write("NumeroServoMoteur1", id);
                     m_application->m_data_center->write("PositionServoMoteur1", value);
@@ -725,8 +707,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("AX-Position")==0) //SERVO AX position
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
                     m_application->m_data_center->write("num_servo_ax", id);
                     m_application->m_data_center->write("commande_ax", cSERVO_AX_POSITION);
@@ -739,8 +721,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("AX-Speed")==0) //SERVO AX vitesse
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
                     m_application->m_data_center->write("num_servo_ax", id);
                     m_application->m_data_center->write("commande_ax", cSERVO_AX_VITESSE);
@@ -753,8 +735,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("Motor")==0) //MOTEUR
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     QString str_name=QString("cde_moteur_%1").arg(id);
                     m_application->m_data_center->write("ELECTROBOT_CDE_MOTEURS_TxSync", 1);
                     m_application->m_data_center->write(str_name, value);
@@ -765,8 +747,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("Power")==0) //POWERSWITCH
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     QString str_name=QString("PowerSwitch_xt%1").arg(id);
                     bool bvalue=false;
                     if(value.compare("1")==0)
@@ -780,7 +762,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("Wait")==0) //TEMPO
                 {
-                    value=table_sequence->item(indexItem,2)->text();
+                    value=getValueText(table_sequence,indexItem);
                     //qDebug() << "Wait during" << value << "ms";
                     msg="Attente de "+value+" ms";
                     setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
@@ -792,8 +774,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     //flag de convergence
                     bool bConv=false;
 
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
 
                     //init du timeout et du compteur associe
                     short cmptTe=0;
@@ -836,8 +818,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     //flag d'evenement
                     bool bReachCondition=false;
 
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
 
     //                //init du timeout et du compteur associe
     //                short cmptTe=0;
@@ -888,8 +870,8 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
                 if(sActuator.compare("Asser")==0) //ASSERVISSEMENT
                 {
-                    id=table_sequence->item(indexItem,1)->text();
-                    value=table_sequence->item(indexItem,2)->text();
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
                     QStringList args=value.split(",",QString::SkipEmptyParts);
                     int nb_args=args.count();
                     //"XY","DistAng","Rack"
@@ -953,7 +935,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 //Si la transition contient un nom d'état on y va
                 if(isTransition(sActuator))
                 {
-                    QString strStateName=getSateName(table_sequence,indexItem);
+                    QString strStateName=getSateNameText(table_sequence,indexItem);
                     if(!strStateName.isEmpty())
                     {
                         int foundSate=findState(table_sequence,strStateName);
@@ -1026,7 +1008,7 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                 if(nextSate>=0)
                 {
                     indexItem=nextSate;
-                    msg="Saut vers l'état "+getSateName(table_sequence,indexItem)+"\n";
+                    msg="Saut vers l'état "+getSateNameText(table_sequence,indexItem)+"\n";
                     setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                     nextSate=-1;
                 }
@@ -1151,34 +1133,16 @@ void CActuatorSequencer::Slot_Generate_XML(QString strPath)
     for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
     {
         QDomElement ligneNode = doc.createElement("ligne");
-        ligneNode.setAttribute("type",table_sequence->item(indexItem,0)->text());
-        ligneNode.setAttribute("id",table_sequence->item(indexItem,1)->text());
-        ligneNode.setAttribute("value",table_sequence->item(indexItem,2)->text());
-        ligneNode.setAttribute("state",table_sequence->item(indexItem,3)->text());
-        ligneNode.setAttribute("comments",table_sequence->item(indexItem,4)->text());
+        ligneNode.setAttribute("type",getTypeText(table_sequence,indexItem));
+        ligneNode.setAttribute("id",getIdText(table_sequence,indexItem));
+        ligneNode.setAttribute("value",getValueText(table_sequence,indexItem));
+        ligneNode.setAttribute("state",getSateNameText(table_sequence,indexItem));
+        ligneNode.setAttribute("comments",getCommentsText(table_sequence,indexItem));
+        QString strSym="false";
+        if(getSymChecked(table_sequence,indexItem))
+            strSym="true";
+        ligneNode.setAttribute("symetrie",strSym);
         strategieNode.appendChild(ligneNode);
-
-        /*QString sActuator=table_sequence->item(indexItem,0)->text();
-        QString sId=table_sequence->item(indexItem,1)->text();
-        QString sValue=table_sequence->item(indexItem,2)->text();
-        QString sState=table_sequence->item(indexItem,3)->text();
-        QString sComments=table_sequence->item(indexItem,4)->text();
-        QString sConverted;
-
-        if(sActuator.compare("SD20")==0)
-        {
-            sConverted=sConverted+"//"+sComments+ "\n";
-            sConverted=sConverted+QString("sd20.setPos(%1,%2);\n\n").arg(sId).arg(sValue);
-            qDebug() << sConverted;
-        }
-        if(sActuator.compare("AX-Position")==0)
-        {
-            sConverted=sConverted+"//"+sComments+ "\n";
-            sConverted=sConverted+QString("ax.setPos(%1,%2);\n\n").arg(sId).arg(sValue);
-            qDebug() << sConverted;
-        }*/
-
-
     }
 
 
@@ -1272,6 +1236,11 @@ void CActuatorSequencer::Slot_Load()
                             QTableWidgetItem *newItem_value = new QTableWidgetItem(e.attribute("value","1000"));
                             QTableWidgetItem *newItem_state = new QTableWidgetItem(e.attribute("state",""));
                             QTableWidgetItem *newItem_comments = new QTableWidgetItem(e.attribute("comments",""));
+                            QString strSym = e.attribute("symetrie","false");
+                            bool bSym=false;
+                            if(strSym=="true")
+                                    bSym=true;
+
 
                             if(isTransition(e.attribute("type","Wait")))
                             {
@@ -1283,11 +1252,7 @@ void CActuatorSequencer::Slot_Load()
                             }
 
                             table_sequence->insertRow(indexItem);
-                            table_sequence->setItem(indexItem, 0, newItem_type);
-                            table_sequence->setItem(indexItem, 1, newItem_id);
-                            table_sequence->setItem(indexItem, 2, newItem_value);
-                            table_sequence->setItem(indexItem, 3, newItem_state);
-                            table_sequence->setItem(indexItem, 4, newItem_comments);
+                            fillRow(table_sequence,indexItem,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,bSym);
                             //qDebug() << "insert" << e.attribute("type","Wait") << "at row number" << indexItem;
                             indexItem++;
                         }
@@ -1490,33 +1455,17 @@ void CActuatorSequencer::Slot_Stop_only_asser()
 }
 
 QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
-{
-    int prevIndex=0;
-    prevIndex=m_ihm.ui.tW_TabSequences->currentIndex();
-    QTableWidget * prev_table_sequence=listSequence.at(prevIndex);
+{ 
+    QTableWidget * last_table_sequence=listSequence.last();
+    int lastIndex=listSequence.count()-1;
 
-
-    QTableWidget * newSequence= new QTableWidget;
-    newSequence->setColumnCount(5);
-    QStringList QS_Labels;
-    QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
-    newSequence->setHorizontalHeaderLabels(QS_Labels);
-    listSequence.append(newSequence);
-    QHBoxLayout * hLayout=new QHBoxLayout;
-    hLayout->addWidget(newSequence);
+    QTableWidget * newSequence = new QTableWidget();
     QWidget * newTab=new QWidget();
     QString tabLabel=QString("Sequence%1").arg(listSequence.count());
-    m_ihm.ui.tW_TabSequences->addTab(newTab,tabLabel);
-    newTab->setLayout(hLayout);
+    creatTabSequence(newTab,newSequence,tabLabel,false);
 
-    QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-    QCheckBox *newCheck=new QCheckBox();
-    listChoice.append(newCheck);
-    connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
-    tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, newCheck);
-
-    if(prev_table_sequence->rowCount()<=0)
-        this->Slot_Remove_Sequence(prevIndex);
+    if(last_table_sequence->rowCount()<=0)
+        this->Slot_Remove_Sequence(lastIndex);
 
     m_ihm.ui.tW_TabSequences->setCurrentWidget(newTab);
 
@@ -1530,33 +1479,33 @@ void CActuatorSequencer::Slot_Delete()
 
 void CActuatorSequencer::Slot_Clone()
 {
-    int prevIndex=0;
-    prevIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    int index2Clone=0;
+    index2Clone=m_ihm.ui.tW_TabSequences->currentIndex();
     QString strName=m_ihm.ui.strategyName->text();
-    QTableWidget * prev_table_sequence=listSequence.at(prevIndex);
+    QTableWidget * sequence2Clone=listSequence.at(index2Clone);
 
-    if(prev_table_sequence->rowCount()>0)//on ne clone que les sequences non vides
+    if(sequence2Clone->rowCount()>0)//on ne clone que les sequences non vides
     {
-        //creation sequence vide
-        QTableWidget * newSequence= new QTableWidget;
-        newSequence->setColumnCount(5);
-        QStringList QS_Labels;
-        QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments";
-        newSequence->setHorizontalHeaderLabels(QS_Labels);
+        QTableWidget * last_table_sequence=listSequence.last();
+        int lastIndex=listSequence.count()-1;
 
-        //on l'ajoute à la liste des séquences
-        listSequence.append(newSequence);
+        //creation sequence vide
+        QTableWidget * newSequence= new QTableWidget();
+        QWidget * newTab=new QWidget();
+        QString tabLabel=strName+"_cloned";
+        creatTabSequence(newTab,newSequence,tabLabel,false);
 
         //on remplit la sequence
-        for(int i=0;i<prev_table_sequence->rowCount();i++)
+        for(int i=0;i<sequence2Clone->rowCount();i++)
         {
-            QTableWidgetItem *newItem_type = new QTableWidgetItem(prev_table_sequence->item(i,0)->text());
-            QTableWidgetItem *newItem_id = new QTableWidgetItem(prev_table_sequence->item(i,1)->text());
-            QTableWidgetItem *newItem_value = new QTableWidgetItem(prev_table_sequence->item(i,2)->text());
-            QTableWidgetItem *newItem_state = new QTableWidgetItem(prev_table_sequence->item(i,3)->text());
-            QTableWidgetItem *newItem_comments = new QTableWidgetItem(prev_table_sequence->item(i,4)->text());
+            QTableWidgetItem *newItem_type = new QTableWidgetItem(getTypeText(sequence2Clone,i));
+            QTableWidgetItem *newItem_id = new QTableWidgetItem(getIdText(sequence2Clone,i));
+            QTableWidgetItem *newItem_value = new QTableWidgetItem(getValueText(sequence2Clone,i));
+            QTableWidgetItem *newItem_state = new QTableWidgetItem(getSateNameText(sequence2Clone,i));
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(getCommentsText(sequence2Clone,i));
+            bool bSym=getSymChecked(sequence2Clone,i);
 
-            if(isTransition(prev_table_sequence->item(i,0)->text()))
+            if(isTransition(getTypeText(sequence2Clone,i)))
             {
                 newItem_type->setBackgroundColor(Qt::cyan);
                 newItem_id->setBackgroundColor(Qt::cyan);
@@ -1566,27 +1515,11 @@ void CActuatorSequencer::Slot_Clone()
             }
 
             newSequence->insertRow(i);
-            newSequence->setItem(i, 0, newItem_type);
-            newSequence->setItem(i, 1, newItem_id);
-            newSequence->setItem(i, 2, newItem_value);
-            newSequence->setItem(i, 3, newItem_state);
-            newSequence->setItem(i, 4, newItem_comments);
+            fillRow(newSequence,i,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,bSym);
         }
 
-
-        QHBoxLayout * hLayout=new QHBoxLayout;
-        hLayout->addWidget(newSequence);
-        QWidget * newTab=new QWidget();
-
-        QString tabLabel=strName+"_cloned";
-        m_ihm.ui.tW_TabSequences->addTab(newTab,tabLabel);
-        newTab->setLayout(hLayout);
-
-        QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
-        QCheckBox *newCheck=new QCheckBox();
-        listChoice.append(newCheck);
-        connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
-        tabBar->setTabButton(prevIndex+1, QTabBar::LeftSide, newCheck);
+        if(last_table_sequence->rowCount()<=0)
+            this->Slot_Remove_Sequence(lastIndex);
 
         m_ihm.ui.tW_TabSequences->setCurrentWidget(newTab);
     }
@@ -1672,20 +1605,27 @@ void CActuatorSequencer::Slot_up()
         {
             int colCount=currentSequence->columnCount();
 
+            qDebug() << colCount;
+
             int row_target=row_selected-1; //up the list, dow the index ;-)
 
             QList<QTableWidgetItem*> rowItems,rowItems1;
+
             for (int col = 0; col < colCount; ++col)
             {
                 rowItems << currentSequence->takeItem(row_selected, col);
                 rowItems1 << currentSequence->takeItem(row_target, col);
             }
+            bool bSymSelected=getSymChecked(currentSequence,row_selected);
+            bool bSymTarget=getSymChecked(currentSequence,row_target);
 
             for (int cola = 0; cola < colCount; ++cola)
             {
                 currentSequence->setItem(row_target, cola, rowItems.at(cola));
                 currentSequence->setItem(row_selected, cola, rowItems1.at(cola));
             }
+            setSymChecked(currentSequence,row_target,bSymSelected);
+            setSymChecked(currentSequence,row_selected,bSymTarget);
 
             currentSequence->setCurrentCell(row_target,0);
 
@@ -1710,17 +1650,22 @@ void CActuatorSequencer::Slot_down()
             int row_target=row_selected+1; //down the list, up the index ;-)
 
             QList<QTableWidgetItem*> rowItems,rowItems1;
+
             for (int col = 0; col < colCount; ++col)
             {
                 rowItems << currentSequence->takeItem(row_selected, col);
                 rowItems1 << currentSequence->takeItem(row_target, col);
             }
+            bool bSymSelected=getSymChecked(currentSequence,row_selected);
+            bool bSymTarget=getSymChecked(currentSequence,row_target);
 
             for (int cola = 0; cola < colCount; ++cola)
             {
                 currentSequence->setItem(row_target, cola, rowItems.at(cola));
                 currentSequence->setItem(row_selected, cola, rowItems1.at(cola));
             }
+            setSymChecked(currentSequence,row_target,bSymSelected);
+            setSymChecked(currentSequence,row_selected,bSymTarget);
 
             currentSequence->setCurrentCell(row_target,0);
 
@@ -1867,12 +1812,12 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
     for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
     {
-
-        QString sActuator=table_sequence->item(indexItem,0)->text();
-        QString sId=table_sequence->item(indexItem,1)->text();
-        QString sValue=table_sequence->item(indexItem,2)->text();
-        QString sState=table_sequence->item(indexItem,3)->text();
-        QString sComments=table_sequence->item(indexItem,4)->text();
+        QString sActuator=getTypeText(table_sequence,indexItem);
+        QString sId=getIdText(table_sequence,indexItem);
+        QString sValue=getValueText(table_sequence,indexItem);
+        QString sState=getSateNameText(table_sequence,indexItem);
+        QString sComments=getCommentsText(table_sequence,indexItem);
+        bool isSym=getSymChecked(table_sequence,indexItem);
         QString sConverted;
         bool isState=false;
         bool isTransition=false;
@@ -1884,10 +1829,10 @@ void CActuatorSequencer::Slot_Generate_CPP()
         bool foundedState=false;
         for(int i=indexItem+1;i<table_sequence->rowCount();i++)
         {
-            QString sType=table_sequence->item(i,0)->text();
+            QString sType=getTypeText(table_sequence,i);
             if(!foundedState)
             {
-                QString strNameState=table_sequence->item(i,3)->text();
+                QString strNameState=getSateNameText(table_sequence,i);
                 if((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
                        (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) )
                 {
@@ -1947,12 +1892,24 @@ void CActuatorSequencer::Slot_Generate_CPP()
             isState=true;
             QStringList args=sValue.split(",",QString::SkipEmptyParts);
             int nb_args=args.count();
-            if((sId.compare("XY")==0)&&(nb_args>=2))
-                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
-            if((sId.compare("XYTheta")==0)&&(nb_args>=3))
-                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
-            if((sId.compare("DistAng")==0)&&(nb_args>=2))
-                sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            if(isSym)
+            {
+                if((sId.compare("XY")==0)&&(nb_args>=2))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+                if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle_sym(%1,%2);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            }
+            else
+            {
+                if((sId.compare("XY")==0)&&(nb_args>=2))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+                if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            }
             if(sId.compare("Rack")==0)
                 sConverted=sConverted+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
         }
@@ -2169,16 +2126,16 @@ void CActuatorSequencer::Slot_editFreeItem()
     {
         QTableWidgetItem* item_selected=list_item_selected.first();
         int row_selected=item_selected->row();
-        type=currentSequence->item(row_selected,0)->text();
+        type=getTypeText(currentSequence,row_selected);
         if((pB_Edit==m_ihm.ui.pB_Edit_Free_Action)&&(type.contains("FreeAction")))
         {
             m_ihm.ui.freeAction->clear();
-            m_ihm.ui.freeAction->setText(currentSequence->item(row_selected,2)->text());
+            m_ihm.ui.freeAction->setText(getValueText(currentSequence,row_selected));
         }
         if((pB_Edit==m_ihm.ui.pB_Edit_Free_Transition)&&(type.contains("FreeEvent")))
         {
             m_ihm.ui.freeTransition->clear();
-            m_ihm.ui.freeTransition->setText(currentSequence->item(row_selected,2)->text());
+            m_ihm.ui.freeTransition->setText(getValueText(currentSequence,row_selected));
         }
     }
 }
@@ -2195,7 +2152,7 @@ void CActuatorSequencer::Slot_loadFreeItem()
     {
         QTableWidgetItem* item_selected=list_item_selected.first();
         int row_selected=item_selected->row();
-        type=currentSequence->item(row_selected,0)->text();
+        type=getTypeText(currentSequence,row_selected);
         if((pB_Load_Free==m_ihm.ui.pB_Load_Free_Action)&&(type.contains("FreeAction")))
         {
             QTableWidgetItem* item_selected=currentSequence->item(row_selected,2);
@@ -2314,13 +2271,14 @@ void CActuatorSequencer::Slot_combineStrategies(void)
         //Tout ou partie de la première stratégie
         for(int i=0;i<indexAdd;i++)
         {
-            QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
-            QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
-            QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
-            QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
-            QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
+            QTableWidgetItem *newItem_type = new QTableWidgetItem(getTypeText(firstStrategy,i));
+            QTableWidgetItem *newItem_id = new QTableWidgetItem(getIdText(firstStrategy,i));
+            QTableWidgetItem *newItem_value = new QTableWidgetItem(getValueText(firstStrategy,i));
+            QTableWidgetItem *newItem_state = new QTableWidgetItem(getSateNameText(firstStrategy,i));
+            QTableWidgetItem *newItem_comments = new QTableWidgetItem(getCommentsText(firstStrategy,i));
+            bool bSym=getSymChecked(firstStrategy,i);
 
-            if(isTransition(firstStrategy->item(i,0)->text()))
+            if(isTransition(getTypeText(firstStrategy,i)))
             {
                 newItem_type->setBackgroundColor(Qt::cyan);
                 newItem_id->setBackgroundColor(Qt::cyan);
@@ -2330,12 +2288,7 @@ void CActuatorSequencer::Slot_combineStrategies(void)
             }
 
             newStrategy->insertRow(row);
-            newStrategy->setItem(row, 0, newItem_type);
-            newStrategy->setItem(row, 1, newItem_id);
-            newStrategy->setItem(row, 2, newItem_value);
-            newStrategy->setItem(row, 3, newItem_state);
-            newStrategy->setItem(row, 4, newItem_comments);
-
+            fillRow(newStrategy,row,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,bSym);
             row++;
         }
 
@@ -2346,13 +2299,14 @@ void CActuatorSequencer::Slot_combineStrategies(void)
             //on remplit la sequence
             for(int i=0;i<otherStrategy->rowCount();i++)
             {
-                QTableWidgetItem *newItem_type = new QTableWidgetItem(otherStrategy->item(i,0)->text());
-                QTableWidgetItem *newItem_id = new QTableWidgetItem(otherStrategy->item(i,1)->text());
-                QTableWidgetItem *newItem_value = new QTableWidgetItem(otherStrategy->item(i,2)->text());
-                QTableWidgetItem *newItem_state = new QTableWidgetItem(otherStrategy->item(i,3)->text());
-                QTableWidgetItem *newItem_comments = new QTableWidgetItem(otherStrategy->item(i,4)->text());
+                QTableWidgetItem *newItem_type = new QTableWidgetItem(getTypeText(otherStrategy,i));
+                QTableWidgetItem *newItem_id = new QTableWidgetItem(getIdText(otherStrategy,i));
+                QTableWidgetItem *newItem_value = new QTableWidgetItem(getValueText(otherStrategy,i));
+                QTableWidgetItem *newItem_state = new QTableWidgetItem(getSateNameText(otherStrategy,i));
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(getCommentsText(otherStrategy,i));
+                bool bSym=getSymChecked(otherStrategy,i);
 
-                if(isTransition(otherStrategy->item(i,0)->text()))
+                if(isTransition(getTypeText(otherStrategy,i)))
                 {
                     newItem_type->setBackgroundColor(Qt::cyan);
                     newItem_id->setBackgroundColor(Qt::cyan);
@@ -2362,12 +2316,7 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 }
 
                 newStrategy->insertRow(row);
-                newStrategy->setItem(row, 0, newItem_type);
-                newStrategy->setItem(row, 1, newItem_id);
-                newStrategy->setItem(row, 2, newItem_value);
-                newStrategy->setItem(row, 3, newItem_state);
-                newStrategy->setItem(row, 4, newItem_comments);
-
+                fillRow(newStrategy,row,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,bSym);
                 row++;
             }
         }
@@ -2377,13 +2326,14 @@ void CActuatorSequencer::Slot_combineStrategies(void)
         {
             for(int i=indexAdd;i<firstStrategy->rowCount();i++)
             {
-                QTableWidgetItem *newItem_type = new QTableWidgetItem(firstStrategy->item(i,0)->text());
-                QTableWidgetItem *newItem_id = new QTableWidgetItem(firstStrategy->item(i,1)->text());
-                QTableWidgetItem *newItem_value = new QTableWidgetItem(firstStrategy->item(i,2)->text());
-                QTableWidgetItem *newItem_state = new QTableWidgetItem(firstStrategy->item(i,3)->text());
-                QTableWidgetItem *newItem_comments = new QTableWidgetItem(firstStrategy->item(i,4)->text());
+                QTableWidgetItem *newItem_type = new QTableWidgetItem(getTypeText(firstStrategy,i));
+                QTableWidgetItem *newItem_id = new QTableWidgetItem(getIdText(firstStrategy,i));
+                QTableWidgetItem *newItem_value = new QTableWidgetItem(getValueText(firstStrategy,i));
+                QTableWidgetItem *newItem_state = new QTableWidgetItem(getSateNameText(firstStrategy,i));
+                QTableWidgetItem *newItem_comments = new QTableWidgetItem(getCommentsText(firstStrategy,i));
+                bool bSym=getSymChecked(firstStrategy,i);
 
-                if(isTransition(firstStrategy->item(i,0)->text()))
+                if(isTransition(getTypeText(firstStrategy,i)))
                 {
                     newItem_type->setBackgroundColor(Qt::cyan);
                     newItem_id->setBackgroundColor(Qt::cyan);
@@ -2393,12 +2343,7 @@ void CActuatorSequencer::Slot_combineStrategies(void)
                 }
 
                 newStrategy->insertRow(row);
-                newStrategy->setItem(row, 0, newItem_type);
-                newStrategy->setItem(row, 1, newItem_id);
-                newStrategy->setItem(row, 2, newItem_value);
-                newStrategy->setItem(row, 3, newItem_state);
-                newStrategy->setItem(row, 4, newItem_comments);
-
+                fillRow(newStrategy,row,newItem_type,newItem_id,newItem_value,newItem_state,newItem_comments,bSym);
                 row++;
             }
         }
@@ -2463,7 +2408,7 @@ void CActuatorSequencer::formatSequence(QTableWidget* table_sequence)
     if(table_sequence->rowCount()>0)
         for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
         {
-            if(isTransition(table_sequence->item(indexItem,0)->text()))
+            if(isTransition(getTypeText(table_sequence,indexItem)))
                 table_sequence->item(indexItem,0)->setBackgroundColor(Qt::cyan);
             else
                 table_sequence->item(indexItem,0)->setBackgroundColor(Qt::white);
@@ -2480,8 +2425,8 @@ int CActuatorSequencer::findState(QTableWidget* table_sequence, QString stateNam
         {
             for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
             {
-                QString strType=getType(table_sequence,indexItem);
-                QString strName=getSateName(table_sequence,indexItem);
+                QString strType=getTypeText(table_sequence,indexItem);
+                QString strName=getSateNameText(table_sequence,indexItem);
                 if(isTransition(strType))
                     prevWasCondition=true;
                 else
@@ -2501,18 +2446,23 @@ int CActuatorSequencer::findState(QTableWidget* table_sequence, QString stateNam
     }
     return index;
 }
-QString CActuatorSequencer::getType(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,0)->text();}
-QString CActuatorSequencer::getId(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,1)->text();}
-QString CActuatorSequencer::getValue(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,2)->text();}
-QString CActuatorSequencer::getSateName(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,3)->text();}
-QString CActuatorSequencer::getComments(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,4)->text();}
-void CActuatorSequencer::fillRow(QTableWidget* table_sequence, int idx,QTableWidgetItem * type,QTableWidgetItem * id,QTableWidgetItem * value,QTableWidgetItem * state,QTableWidgetItem * comments)
+QString CActuatorSequencer::getTypeText(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,0)->text();}
+QString CActuatorSequencer::getIdText(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,1)->text();}
+QString CActuatorSequencer::getValueText(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,2)->text();}
+QString CActuatorSequencer::getSateNameText(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,3)->text();}
+QString CActuatorSequencer::getCommentsText(QTableWidget* table_sequence, int idx) {return table_sequence->item(idx,4)->text();}
+
+void CActuatorSequencer::fillRow(QTableWidget* table_sequence, int idx,QTableWidgetItem * type,QTableWidgetItem * id,QTableWidgetItem * value,QTableWidgetItem * state,QTableWidgetItem * comments,bool symetrie)
 {
     table_sequence->setItem(idx, 0, type);
     table_sequence->setItem(idx, 1, id);
     table_sequence->setItem(idx, 2, value);
     table_sequence->setItem(idx, 3, state);
     table_sequence->setItem(idx, 4, comments);
+    QCheckBox * newWidget= new QCheckBox();
+    if(symetrie)
+        newWidget->setCheckState(Qt::Checked);
+    table_sequence->setCellWidget(idx,5,newWidget);
 }
 
 void CActuatorSequencer::setPlayMessage(int elapsed,QString type, QString msg)
@@ -2550,4 +2500,43 @@ void CActuatorSequencer::setPlayMessage(int elapsed,QString type, QString msg)
         fullMsg=sTime+"\tACTION:\t\t"+msg;
         m_ihm.ui.txtPlayInfo->append(fullMsg);
     }
+}
+
+void CActuatorSequencer::creatTabSequence(QWidget * newTab, QTableWidget * newSequence, QString strName, bool isFirstSequence)
+{
+    int targetIndex=m_ihm.ui.tW_TabSequences->count();
+    if(isFirstSequence)
+        targetIndex=0;
+    newSequence->setColumnCount(6);
+    QStringList QS_Labels;
+    QS_Labels << "Type" << "Id" << "Value" << "Etape" << "Comments"<<"Symetrie";
+    newSequence->setHorizontalHeaderLabels(QS_Labels);
+    listSequence.append(newSequence);
+    QHBoxLayout * hLayout=new QHBoxLayout;
+    hLayout->addWidget(newSequence);
+    if(isFirstSequence)
+        m_ihm.ui.tW_TabSequences->setTabText(0,strName);
+    else
+        m_ihm.ui.tW_TabSequences->addTab(newTab,strName);
+    newTab->setLayout(hLayout);
+
+    QTabBar *tabBar = m_ihm.ui.tW_TabSequences->tabBar();
+    QCheckBox *newCheck=new QCheckBox();
+    listChoice.append(newCheck);
+    connect(newCheck,SIGNAL(stateChanged(int)),this,SLOT(Slot_chooseStrategy(int)));
+    tabBar->setTabButton(targetIndex, QTabBar::LeftSide, newCheck);
+}
+
+bool CActuatorSequencer::getSymChecked(QTableWidget * sequence,int row)
+{
+    QCheckBox * widget=qobject_cast<QCheckBox *>(sequence->cellWidget(row,5));
+    return widget->isChecked();
+}
+bool CActuatorSequencer::setSymChecked(QTableWidget * sequence,int row, bool state)
+{
+    QCheckBox * widget=qobject_cast<QCheckBox *>(sequence->cellWidget(row,5));
+    if(state)
+        widget->setCheckState(Qt::Checked);
+    else
+        widget->setCheckState(Qt::Unchecked);
 }
