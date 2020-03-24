@@ -1809,6 +1809,7 @@ void CActuatorSequencer::Slot_Generate_CPP()
     int numState=0;
     bool isInTransition=false;
     int numTransition=0;
+    QList<int> transitionsList;
 
     for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
     {
@@ -1819,12 +1820,24 @@ void CActuatorSequencer::Slot_Generate_CPP()
         QString sComments=getCommentsText(table_sequence,indexItem);
         bool isSym=getSymChecked(table_sequence,indexItem);
         QString sConverted;
-        bool isState=false;
-        bool isTransition=false;
+        bool bState=false;
+        bool bTransition=false;
+
+        //est-ce une transition ou un etat
+        bTransition=isTransition(sActuator);
+        bState=!bTransition;
+        
+        //pour récupérer des infos de la ligne juste après et gérer les transitions multiples
+        QString sNextActuator="";
+        if((indexItem+1)<table_sequence->rowCount())
+            sNextActuator=getTypeText(table_sequence,indexItem+1);
+        
         //numéro de l'état suivant
         QString strNumNextState;
         QString strNextSate;
-        //recherche du prochain état si on est dans une transition
+
+        //recherche du prochain état si on est dans une transition afin d'en récupérer le nom
+        //si le nom est vide il sera automatiquement nommé
         QString strFoundState;
         bool foundedState=false;
         for(int i=indexItem+1;i<table_sequence->rowCount();i++)
@@ -1833,8 +1846,7 @@ void CActuatorSequencer::Slot_Generate_CPP()
             if(!foundedState)
             {
                 QString strNameState=getSateNameText(table_sequence,i);
-                if((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
-                       (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) )
+                if(!isTransition(sType))
                 {
                     strFoundState=strNameState;
                     foundedState=true;
@@ -1848,125 +1860,103 @@ void CActuatorSequencer::Slot_Generate_CPP()
         }
         else
             strNextSate=strFoundState;
+
+        //On parcoure la dernière ligne de la séquence, le prochain état est la FIN DE MISSION
         if(indexItem==(table_sequence->rowCount())-1)
             strNextSate="FIN_MISSION";
+        if(bTransition&&(!sState.isEmpty()))
+            strNextSate=sState;
 
-
-        if(sActuator.compare("SD20")==0)
+        QString strConsigne;
+        QStringList args;
+        QString strSym;
+        int nb_args=0;
+        QString strFreeAction;
+        //Génération de la ligne de code en fonction du type
+        switch(getType(sActuator))
         {
-            isState=true;
-            sConverted=sConverted+QString("Application.m_servos_sd20.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
-        }
+            case SD20:
+                sConverted=sConverted+QString("Application.m_servos_sd20.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+                break;
 
-        if(sActuator.compare("AX-Position")==0)
-        {
-            isState=true;
-            sConverted=sConverted+QString("Application.m_servos_ax.setPosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
-        }
+            case AX_POSITION:
+                sConverted=sConverted+QString("Application.m_servos_ax.setPosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+                break;
 
-        if(sActuator.compare("AX-Speed")==0)
-        {
-            isState=true;
-            sConverted=sConverted+QString("Application.m_servos_ax.setSpeed(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
-        }
+            case AX_SPEED:
+                sConverted=sConverted+QString("Application.m_servos_ax.setSpeed(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+                break;
 
-        if(sActuator.compare("Motor")==0)
-        {
-            isState=true;
-            sConverted=sConverted+QString("Application.m_moteurs.CommandeVitesse(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
-        }
+            case MOTOR:
+                sConverted=sConverted+QString("Application.m_moteurs.CommandeVitesse(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
+                break;
 
-        if(sActuator.compare("Power")==0)
-        {
-            isState=true;
-            QString strConsigne;
-            if(sValue.compare("1")==0)
-                strConsigne="true";
-            else
-                strConsigne="false";
-            sConverted=sConverted+QString("Application.m_power_electrobot.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
-        }
+            case POWER:
+                strConsigne = (sValue.compare("1")==0) ? "true" : "false";
+                sConverted=sConverted+QString("Application.m_power_electrobot.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
+                break;
 
-        if(sActuator.compare("Asser")==0)
-        {
-            isState=true;
-            QStringList args=sValue.split(",",QString::SkipEmptyParts);
-            int nb_args=args.count();
-            if(isSym)
-            {
+            case ASSER:
+                args=sValue.split(",",QString::SkipEmptyParts);
+                nb_args=args.count();
+                strSym= isSym ? "_sym" : "";
                 if((sId.compare("XY")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY%1(%2,%3);/*%4*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(sComments);
                 if((sId.compare("XYTheta")==0)&&(nb_args>=3))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA%1(%2,%3,%4);/*%5*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
                 if((sId.compare("DistAng")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle_sym(%1,%2);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
-            }
-            else
-            {
-                if((sId.compare("XY")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
-                if((sId.compare("XYTheta")==0)&&(nb_args>=3))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
-                if((sId.compare("DistAng")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
-            }
-            if(sId.compare("Rack")==0)
-                sConverted=sConverted+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
-        }
+                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle%1(%2,%3);/*%4*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                if(sId.compare("Rack")==0)
+                    sConverted=sConverted+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
+                break;
 
-        if(sActuator.compare("Wait")==0)
-        {
-            isTransition=true;
-            sConverted=sConverted+QString("gotoStateAfter(%1,%2);").arg(strNextSate).arg(sValue);
-        }
+            case WAIT:
+                sConverted=sConverted+QString("gotoStateAfter(%1,%2);").arg(strNextSate).arg(sValue);
+                break;
 
-        if(sActuator.compare("Event")==0)
-        {
-            isTransition=true;
-            if(sId.compare("convAsserv")==0)
-                sConverted=sConverted+QString("gotoStateIfConvergence(%1,%2);").arg(strNextSate).arg(sValue);
-            if(sId.compare("convRack")==0)
-                sConverted=sConverted+QString("gotoStateIfConvergenceRack(%1,%2);").arg(strNextSate).arg(sValue);
-        }
+            case EVENT:
+                if(sId.compare("convAsserv")==0)
+                    sConverted=sConverted+QString("gotoStateIfConvergence(%1,%2);").arg(strNextSate).arg(sValue);
+                if(sId.compare("convRack")==0)
+                    sConverted=sConverted+QString("gotoStateIfConvergenceRack(%1,%2);").arg(strNextSate).arg(sValue);
+                break;
 
-        if(sActuator.contains("Sensor"))
-        {
-            isTransition=true;
-            if(sActuator.compare("Sensor_sup")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2>%3));").arg(strNextSate).arg(sId).arg(sValue);
-            if(sActuator.compare("Sensor_egal")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2==%3));").arg(strNextSate).arg(sId).arg(sValue);
-            if(sActuator.compare("Sensor_inf")==0)
-                sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2<%3));").arg(strNextSate).arg(sId).arg(sValue);
-        }
-        if(sActuator.contains("FreeEvent"))
-        {
-            isTransition=true;
-            sConverted=sConverted+QString("gotoStateIfTrue(%1,%2);").arg(strNextSate).arg(sValue);
-        }
-        if(sActuator.contains("FreeAction"))
-        {
-            isState=true;
-            QString strFreeAction=sValue.replace("\n",N3T);
-            sConverted=sConverted+N3T+QString("%1\n").arg(strFreeAction);
+            case SENSOR:
+                if(sActuator.compare("Sensor_sup")==0)
+                    sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2>%3));").arg(strNextSate).arg(sId).arg(sValue);
+                if(sActuator.compare("Sensor_egal")==0)
+                    sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2==%3));").arg(strNextSate).arg(sId).arg(sValue);
+                if(sActuator.compare("Sensor_inf")==0)
+                    sConverted=sConverted+QString("gotoStateIfTrue(%1,(%2<%3));").arg(strNextSate).arg(sId).arg(sValue);
+                break;
+
+            case FREE_EVENT:
+                sConverted=sConverted+QString("gotoStateIfTrue(%1,%2);").arg(strNextSate).arg(sValue);
+                break;
+            case FREE_ACTION:
+                strFreeAction=sValue.replace("\n",N3T);
+                sConverted=sConverted+N3T+QString("%1\n").arg(strFreeAction);
+            break;
+            default: break;
         }
 
         //Ajout de la l'action ou la transition
-        if(isState) //ça fait partie d'un état
+        QString strNumState;
+        QString strThisState;
+        /*-----------------------------------------
+        |   TRAITEMENT DES ETATS
+        -------------------------------------------*/
+        if(bState) //ça fait partie d'un état
         {
-            if(isInState) //il est initialisé, on ajoute l'action
-                champStrategie=champStrategie+N3T+sConverted;
-            else //sinon on initialise et on ajoute l'action
+            if(!isInState) //on initialise et on ajoute l'action
             {
                 //numéro de l'état qu'on incrémente quoiqu'il arrive
                 numState++;
 
-                //on récupère le nom de l'état s'il existe
-                QString strThisState;
+                //on récupère le nom de l'état s'il existe, sinon nommage automatique
                 QString strThisEnum;
                 if(sState.isEmpty())
                 {
-                    QString strNumState;
                     strNumState.setNum(numState);
                     QString strUnamedState=UnamedState.arg(strNumState);
                     strThisState=strUnamedState;
@@ -1986,8 +1976,11 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 //est-ce qu'il y avait une transition auparavant
                 if(isInTransition) //oui on la ferme avant de passer à l'action suivante
                 {
+                    //TODO:
+
                     champStrategie=champStrategie+closePreviousState;
                     isInTransition=false;
+                    transitionsList.clear();
                 }
 
                 //ajout de l'action
@@ -1995,13 +1988,17 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
                 isInState=true;
             }
-        }
-        if(isTransition)
-        {
-            if(isInTransition) //elle est initialisée, on ajoute la transtition
-                //TODO:champStrategie=champStrategie+"&&"+sConverted;
+            else //l'état est déjà initialisé, on ajoute l'action
                 champStrategie=champStrategie+N3T+sConverted;
-            else //sinon on initialise et on ajoute la transition
+        }
+
+        /*-----------------------------------------
+        |   TRAITEMENT DES TRANSITIONS
+        -------------------------------------------*/
+        if(bTransition)
+        {
+            transitionsList << getType(sActuator);
+            if(!isInTransition) //On initialise et on ajoute la transition
             {
                 numTransition++;
 
@@ -2009,11 +2006,10 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 {
                     //numéro de l'état
                     numState++;
-                    QString strNumState;
                     strNumState.setNum(numState);
 
                     //on complète l'enum des états
-                    QString strThisState=stateEnumFormat.arg(strNumState);
+                    strThisState=stateEnumFormat.arg(strNumState);
                     strEnumStates.append(strThisState);
 
                     //ajout de l'action
@@ -2034,20 +2030,38 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
                 isInTransition=true;
             }
+            else //la transition est initialisée, on l'ajoute
+            {
+                //TODO:champStrategie=champStrategie+"&&"+sConverted;
+
+                //Vérifier si il y a uniquement 2 transitions et si cela se termine par un wait
+                //qDebug() <<transitionsList.count()<<!isTransition(sNextActuator)<<transitionsList.at(1)<<transitionsList.at(0);
+                if((transitionsList.count()==2)&&(!isTransition(sNextActuator))&&(transitionsList.at(1)==WAIT)&&(transitionsList.at(0)==SENSOR))
+                {
+                    int iInsert=champStrategie.lastIndexOf(");");
+                    QString strInsert=","+sValue;
+                    champStrategie.insert(iInsert,strInsert);
+                }
+                else
+                    champStrategie=champStrategie+N3T+sConverted;
+            }
         }
     }
+
+    //Finalisation du dernier état
     if(isInState)
     {
         champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState;
         isInState=false;
     }
-    if(isInTransition) //on termine avec une transition, ajout d'un état vide
+
+    //Si on termine avec une transition, ajout d'un état vide
+    if(isInTransition)
     {
         //on ferme l'action précédente avant l'état vide
         champStrategie=champStrategie+closePreviousState;
         isInTransition=false;
     }
-
 
     //assemblage du cpp
     strWholeFile_cpp= strComments + strInclude + strConstructor + strGetName + strState2Name.arg(strEnumStates)+strStep.arg(champStrategie);
@@ -2539,4 +2553,42 @@ bool CActuatorSequencer::setSymChecked(QTableWidget * sequence,int row, bool sta
         widget->setCheckState(Qt::Checked);
     else
         widget->setCheckState(Qt::Unchecked);
+}
+int CActuatorSequencer::getType(QString sActuator)
+{
+    int iType=-1;
+    if(sActuator.compare("SD20")==0)
+        iType=SD20;
+
+    if(sActuator.compare("AX-Position")==0)
+        iType=AX_POSITION;
+
+    if(sActuator.compare("AX-Speed")==0)
+        iType=AX_SPEED;
+
+    if(sActuator.compare("Motor")==0)
+        iType=MOTOR;
+
+    if(sActuator.compare("Power")==0)
+        iType=POWER;
+
+    if(sActuator.compare("Asser")==0)
+        iType=ASSER;
+
+    if(sActuator.compare("Wait")==0)
+        iType=WAIT;
+
+    if(sActuator.compare("Event")==0)
+        iType=EVENT;
+
+    if(sActuator.contains("Sensor"))
+        iType=SENSOR;
+
+    if(sActuator.contains("FreeEvent"))
+        iType=FREE_EVENT;
+
+    if(sActuator.contains("FreeAction"))
+        iType=FREE_ACTION;
+
+    return iType;
 }

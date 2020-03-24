@@ -25,6 +25,21 @@ cDEPLACEMENT,
 cCONVERGE
 }tConvergenceRack;
 
+// Types connus dans le SEQUENCEUR
+typedef enum {
+    SD20 = 0,
+    AX_POSITION,
+    AX_SPEED,
+    MOTOR,
+    POWER,
+    ASSER,
+    WAIT,
+    EVENT,
+    SENSOR,
+    FREE_EVENT,
+    FREE_ACTION
+}tType;
+
 
  class Cihm_ActuatorSequencer : public QMainWindow
 {
@@ -111,6 +126,7 @@ private:
     void creatTabSequence(QWidget * newTab, QTableWidget * newSequence, QString strName, bool isFirstSequence);
     bool getSymChecked(QTableWidget *sequence, int row);
     bool setSymChecked(QTableWidget *sequence, int row, bool state);
+    int getType(QString sActuator);
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);
