@@ -125,7 +125,7 @@ private:
     void setPlayMessage(int elapsed, QString type, QString msg);
     void creatTabSequence(QWidget * newTab, QTableWidget * newSequence, QString strName, bool isFirstSequence);
     bool getSymChecked(QTableWidget *sequence, int row);
-    bool setSymChecked(QTableWidget *sequence, int row, bool state);
+    void setSymChecked(QTableWidget *sequence, int row, bool state);
     int getType(QString sActuator);
 private slots :
     void updateTooltip();

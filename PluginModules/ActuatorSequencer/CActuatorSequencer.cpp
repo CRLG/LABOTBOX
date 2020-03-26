@@ -682,15 +682,77 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
 
             //on déroule la séquence
             indexItem=idxMin;
+
+            //pour différencier les actions et les transitions
+            bool isTransitionType=false;
+            bool isMutliplesTransitions=false;
+            bool goToNextValidStep=false;
+            int idxTransition=0;
+            QString strIdxTransitions;
+            int cptTransition=0;
+            QList<int> timeoutList;
+            QList<int> nextStateList;
+            QString strStateName;
+
             while(indexItem<idxMax+1)
             //for (indexItem=idxMin;indexItem<idxMax+1;indexItem++)
             {
                 //récupération de type de ligne (actionneur, transition, événement,...)
                 sActuator=getTypeText(table_sequence,indexItem);
 
+                //est-ce une transition?
+                isTransitionType=isTransition(sActuator);
+                if(!isTransitionType)
+                    goToNextValidStep=false;
+
                 //on met en rouge que la ligne actuellement jouée (ne seront visibles dans les faits que les transitions)
                 formatSequence(table_sequence);
                 table_sequence->item(indexItem,0)->setBackgroundColor(Qt::red);
+
+                //pour récupérer des infos de la ligne juste après et gérer les transitions multiples
+                QString sNextActuator="";
+                if((indexItem+1)<table_sequence->rowCount())
+                    sNextActuator=getTypeText(table_sequence,indexItem+1);
+
+                if(isTransitionType&&(isTransition(sNextActuator)))
+                {
+                    if(!isMutliplesTransitions)
+                    {
+                        idxTransition=0;
+                        cptTransition=0;
+                        timeoutList.clear();
+                        nextStateList.clear();
+                        isMutliplesTransitions=true;
+                        //qDebug() << "lancement du multitransition";
+                    }
+                }
+
+
+                if(isMutliplesTransitions)
+                    strIdxTransitions.setNum(idxTransition);
+
+                //Si la transition contient un nom d'état on y va
+                if((isTransition(sActuator))&&(!goToNextValidStep))
+                {
+                    if(isMutliplesTransitions && (nextStateList.count()>idxTransition))
+                        nextSate=nextStateList.at(idxTransition);
+                    else
+                    {
+                        strStateName=getSateNameText(table_sequence,indexItem);
+                        if(!strStateName.isEmpty())
+                        {
+                            int foundSate=findState(table_sequence,strStateName);
+                            if(foundSate<0)
+                            {
+                                msg="Impossible de trouver l'état "+strStateName;
+                                setPlayMessage(chrono.elapsed(),"WARNING",msg);
+                            }
+                            else
+                                nextSate=foundSate;
+                        }
+                    }
+                }
+                //qDebug() << "prochain état" << nextSate;
 
                 if(sActuator.compare("SD20")==0) //SERVO SD20
                 {
@@ -760,114 +822,6 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
-                if(sActuator.compare("Wait")==0) //TEMPO
-                {
-                    value=getValueText(table_sequence,indexItem);
-                    //qDebug() << "Wait during" << value << "ms";
-                    msg="Attente de "+value+" ms";
-                    setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                    QTest::qWait(value.toInt()); //no waiting if invalid cast
-                }
-
-                if(sActuator.compare("Event")==0) //EVENEMENT
-                {
-                    //flag de convergence
-                    bool bConv=false;
-
-                    id=getIdText(table_sequence,indexItem);
-                    value=getValueText(table_sequence,indexItem);
-
-                    //init du timeout et du compteur associe
-                    short cmptTe=0;
-                    int timeOut=value.toInt();
-
-                    if(id.compare("convAsserv")==0) // événement de convergence d'asservissement
-                    {
-                        bConv=false;
-                        msg="Attente de convergence asservissement OU "+value+" ms";
-                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                        while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
-                        {
-                            QTest::qWait(40);
-                            if((m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)&& (cmptTe>10))
-                                bConv=true;
-                            cmptTe++;
-                        }
-                    }
-
-                    if(id.compare("convRack")==0) // événement de convergence de l'asenceur
-                    {
-                        bConv=false;
-                        msg="Attente de convergence rack OU "+value+" ms";
-                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                        while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
-                        {
-                            QTest::qWait(40);
-                            if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
-                            {
-                                //qDebug() << m_application->m_data_center->read("rack_convergence").toBool() << "Timeout "<<timeOut/40<<" => "<<cmptTe;
-                                bConv=true;
-                            }
-                            cmptTe++;
-                        }
-                    }
-                }
-
-                if(sActuator.contains("Sensor")) //CAPTEUR
-                {
-                    //flag d'evenement
-                    bool bReachCondition=false;
-
-                    id=getIdText(table_sequence,indexItem);
-                    value=getValueText(table_sequence,indexItem);
-
-    //                //init du timeout et du compteur associe
-    //                short cmptTe=0;
-    //                int timeOut=value.toInt();
-
-                    if(sActuator.compare("Sensor_sup")==0)
-                    {
-                        bReachCondition=false;
-                        msg="Attente de "+id+" > "+value;
-                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                        {
-                            QTest::qWait(40);
-                            if(m_application->m_data_center->read(id).toFloat()> value.toFloat()) //&& (cmptTe>10))
-                                bReachCondition=true;
-                            //cmptTe++;
-                        }
-                    }
-
-                    if(sActuator.compare("Sensor_egal")==0)
-                    {
-                        bReachCondition=false;
-                        msg="Attente de "+id+" = "+value;
-                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                        {
-                            QTest::qWait(40);
-                            if(m_application->m_data_center->read(id).toFloat()== value.toFloat()) //&& (cmptTe>10))
-                                bReachCondition=true;
-                            //cmptTe++;
-                        }
-                    }
-
-                    if(sActuator.compare("Sensor_inf")==0)
-                    {
-                        bReachCondition=false;
-                        msg="Attente de "+id+" < "+value;
-                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                        while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
-                        {
-                            QTest::qWait(40);
-                            if(m_application->m_data_center->read(id).toFloat()< value.toFloat()) //&& (cmptTe>10))
-                                bReachCondition=true;
-                            //cmptTe++;
-                        }
-                    }
-                }
-
                 if(sActuator.compare("Asser")==0) //ASSERVISSEMENT
                 {
                     id=getIdText(table_sequence,indexItem);
@@ -932,24 +886,215 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     }
                 }
 
-                //Si la transition contient un nom d'état on y va
-                if(isTransition(sActuator))
+                if(sActuator.compare("Wait")==0) //TEMPO
                 {
-                    QString strStateName=getSateNameText(table_sequence,indexItem);
-                    if(!strStateName.isEmpty())
+                    value=getValueText(table_sequence,indexItem);
+                    if(isMutliplesTransitions)
                     {
-                        int foundSate=findState(table_sequence,strStateName);
-                        if(foundSate<0)
+                        if(timeoutList.count()<(idxTransition+1))
                         {
-                            msg="Impossible de trouver l'état "+strStateName;
-                            setPlayMessage(chrono.elapsed(),"WARNING",msg);
+                            timeoutList << value.toInt();
+                            nextStateList << nextSate;
+                            msg="Multiples transitions (priorité "+strIdxTransitions+"): attente de "+value+" ms";
+                            //qDebug() << msg;
+                            setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
                         }
-                        else
-                            nextSate=foundSate;
+                    }
+                    else
+                    {
+                        if(!goToNextValidStep)
+                        {
+                            msg="Attente de "+value+" ms";
+                            setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                            QTest::qWait(value.toInt()); //no waiting if invalid cast
+                        }
                     }
                 }
 
-                //action sur le bouton de pause
+                if(sActuator.compare("Event")==0) //EVENEMENT
+                {
+                    //flag de convergence
+                    bool bConv=false;
+
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
+
+                    if(isMutliplesTransitions)
+                    {
+                        if(timeoutList.count()<(idxTransition+1))
+                        {
+                            timeoutList << value.toInt();
+                            nextStateList << nextSate;
+                            msg="Multiples transitions (priorité "+strIdxTransitions+"): attente de convergence asservissement OU "+value+" ms";
+                            //qDebug() << msg;
+                            setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                        }
+                        if(id.compare("convAsserv")==0) // événement de convergence d'asservissement
+                        {
+                            if(m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)
+                            {
+                                isMutliplesTransitions=false;
+                                goToNextValidStep=true;
+                            }
+                        }
+                        if(id.compare("convRack")==0) // événement de convergence de l'asenceur
+                        {
+                            if(m_application->m_data_center->read("rack_convergence").toBool())
+                            {
+                                isMutliplesTransitions=false;
+                                goToNextValidStep=true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(!goToNextValidStep)
+                        {
+                            //init du timeout et du compteur associe
+                            short cmptTe=0;
+                            int timeOut=value.toInt();
+
+                            if(id.compare("convAsserv")==0) // événement de convergence d'asservissement
+                            {
+                                bConv=false;
+                                msg="Attente de convergence asservissement OU "+value+" ms";
+                                setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                                while(!bConv && !bResume && !bStop && (cmptTe<(timeOut/40)))
+                                {
+                                    QTest::qWait(40);
+                                    if((m_application->m_data_center->read("Convergence").toInt()==cCONVERGENCE_OK)&& (cmptTe>10))
+                                        bConv=true;
+                                    cmptTe++;
+                                }
+                            }
+
+                            if(id.compare("convRack")==0) // événement de convergence de l'asenceur
+                            {
+                                bConv=false;
+                                msg="Attente de convergence rack OU "+value+" ms";
+                                setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                                while((!bConv && !bResume && !bStop) && (cmptTe<(timeOut/40)))
+                                {
+                                    QTest::qWait(40);
+                                    if((m_application->m_data_center->read("rack_convergence").toBool()) && (cmptTe>10))
+                                    {
+                                        //qDebug() << m_application->m_data_center->read("rack_convergence").toBool() << "Timeout "<<timeOut/40<<" => "<<cmptTe;
+                                        bConv=true;
+                                    }
+                                    cmptTe++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(sActuator.contains("Sensor")) //CAPTEUR
+                {
+                    //flag d'evenement
+                    bool bReachCondition=false;
+
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
+
+    //                //init du timeout et du compteur associe
+    //                short cmptTe=0;
+    //                int timeOut=value.toInt();
+                    if(isMutliplesTransitions)
+                    {
+                        if(timeoutList.count()<(idxTransition+1))
+                        {
+                            timeoutList << 3600000;
+                            nextStateList << nextSate;
+                            if(sActuator.compare("Sensor_sup")==0)
+                                msg="Multiples transitions (priorité "+strIdxTransitions+"): attente de "+id+" > "+value;
+                            if(sActuator.compare("Sensor_egal")==0)
+                                msg="Multiples transitions (priorité "+strIdxTransitions+"): attente de "+id+" = "+value;
+                            if(sActuator.compare("Sensor_inf")==0)
+                                msg="Multiples transitions (priorité "+strIdxTransitions+"): attente de "+id+" < "+value;
+                            //qDebug() << msg;
+                            setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                        }
+
+                        if(sActuator.compare("Sensor_sup")==0)
+                        {
+                            if(m_application->m_data_center->read(id).toFloat()> value.toFloat())
+                            {
+                                isMutliplesTransitions=false;
+                                goToNextValidStep=true;
+                            }
+
+                        }
+
+                        if(sActuator.compare("Sensor_egal")==0)
+                        {
+                             if(m_application->m_data_center->read(id).toFloat()== value.toFloat())
+                             {
+                                 isMutliplesTransitions=false;
+                                 goToNextValidStep=true;
+                             }
+
+                        }
+
+                        if(sActuator.compare("Sensor_inf")==0)
+                        {
+                             if(m_application->m_data_center->read(id).toFloat()< value.toFloat())
+                             {
+                                 isMutliplesTransitions=false;
+                                 goToNextValidStep=true;
+                             }
+
+                        }
+                    }
+                    else
+                    {
+                        if(!goToNextValidStep)
+                        {
+                            if(sActuator.compare("Sensor_sup")==0)
+                            {
+                                bReachCondition=false;
+                                msg="Attente de "+id+" > "+value;
+                                setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                                {
+                                    QTest::qWait(40);
+                                    if(m_application->m_data_center->read(id).toFloat()> value.toFloat()) //&& (cmptTe>10))
+                                        bReachCondition=true;
+                                    //cmptTe++;
+                                }
+                            }
+
+                            if(sActuator.compare("Sensor_egal")==0)
+                            {
+                                bReachCondition=false;
+                                msg="Attente de "+id+" = "+value;
+                                setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                                {
+                                    QTest::qWait(40);
+                                    if(m_application->m_data_center->read(id).toFloat()== value.toFloat()) //&& (cmptTe>10))
+                                        bReachCondition=true;
+                                    //cmptTe++;
+                                }
+                            }
+
+                            if(sActuator.compare("Sensor_inf")==0)
+                            {
+                                bReachCondition=false;
+                                msg="Attente de "+id+" < "+value;
+                                setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                                while(!bReachCondition && !bResume && !bStop)// && (cmptTe<(timeOut/40)))
+                                {
+                                    QTest::qWait(40);
+                                    if(m_application->m_data_center->read(id).toFloat()< value.toFloat()) //&& (cmptTe>10))
+                                        bReachCondition=true;
+                                    //cmptTe++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                 //action sur le bouton de pause
                 while(bResume)
                     QTest::qWait(40);
 
@@ -1005,15 +1150,51 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     break;
                 } //fin action bouton stop
 
-                if(nextSate>=0)
+                //Compteur pour multiples transitions
+                if(isMutliplesTransitions)
                 {
-                    indexItem=nextSate;
-                    msg="Saut vers l'état "+getSateNameText(table_sequence,indexItem)+"\n";
-                    setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
-                    nextSate=-1;
+                    QTest::qWait(40);
+                    cptTransition++;
+                    int timeoutTransition=cptTransition*40;
+                    for(int i=0;i<timeoutList.count();i++)
+                    {
+                        if(timeoutList.at(i)<timeoutTransition)
+                        {
+                            isMutliplesTransitions=false;
+                            goToNextValidStep=true;
+                            nextSate=nextStateList.at(i);
+                            //qDebug() << "timeout sur la transition " << i+1 << " go to " << nextSate;
+                        }
+                    }
+                }
+
+                if(isMutliplesTransitions)
+                {
+                    if(isTransition(sNextActuator))
+                    {
+                        idxTransition++;
+                        indexItem++;
+                    }
+                    else
+                    {
+                        indexItem=indexItem-idxTransition;
+                        idxTransition=0;
+                    }
+                    //qDebug()<<"Prochaine transition n°" << idxTransition <<" ligne "<< indexItem;
                 }
                 else
-                    indexItem++;
+                {
+                    if(nextSate>=0)
+                    {
+                        indexItem=nextSate;
+                        msg="Saut vers l'état "+getSateNameText(table_sequence,indexItem)+"\n";
+                        //qDebug() << msg;
+                        setPlayMessage(chrono.elapsed(),"TRANSITION",msg);
+                        nextSate=-1;
+                    }
+                    else
+                        indexItem++;
+                }
             } //fin déroulement de la séquence
         } //fin de la répétition de déroulement de la séquence
         else
@@ -1869,7 +2050,6 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
         QString strConsigne;
         QStringList args;
-        QString strSym;
         int nb_args=0;
         QString strFreeAction;
         //Génération de la ligne de code en fonction du type
@@ -1899,13 +2079,24 @@ void CActuatorSequencer::Slot_Generate_CPP()
             case ASSER:
                 args=sValue.split(",",QString::SkipEmptyParts);
                 nb_args=args.count();
-                strSym= isSym ? "_sym" : "";
-                if((sId.compare("XY")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY%1(%2,%3);/*%4*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(sComments);
-                if((sId.compare("XYTheta")==0)&&(nb_args>=3))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA%1(%2,%3,%4);/*%5*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
-                if((sId.compare("DistAng")==0)&&(nb_args>=2))
-                    sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle%1(%2,%3);/*%4*/").arg(strSym).arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                if(isSym)
+                {
+                    if((sId.compare("XY")==0)&&(nb_args>=2))
+                        sConverted=sConverted+QString("outputs()->CommandeMouvementXY_sym(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                    if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                        sConverted=sConverted+QString("outputs()->CommandeMouvementXY_TETA_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+                    if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                        sConverted=sConverted+QString("outputs()->CommandeMouvementDistanceAngle_sym(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                }
+                else
+                {
+                    if((sId.compare("XY")==0)&&(nb_args>=2))
+                        sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                    if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                        sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
+                    if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                        sConverted=sConverted+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                }
                 if(sId.compare("Rack")==0)
                     sConverted=sConverted+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
                 break;
@@ -2546,7 +2737,7 @@ bool CActuatorSequencer::getSymChecked(QTableWidget * sequence,int row)
     QCheckBox * widget=qobject_cast<QCheckBox *>(sequence->cellWidget(row,5));
     return widget->isChecked();
 }
-bool CActuatorSequencer::setSymChecked(QTableWidget * sequence,int row, bool state)
+void CActuatorSequencer::setSymChecked(QTableWidget * sequence,int row, bool state)
 {
     QCheckBox * widget=qobject_cast<QCheckBox *>(sequence->cellWidget(row,5));
     if(state)
