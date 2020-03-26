@@ -37,7 +37,8 @@ typedef enum {
     EVENT,
     SENSOR,
     FREE_EVENT,
-    FREE_ACTION
+    FREE_ACTION,
+    NODE
 }tType;
 
 
@@ -127,6 +128,8 @@ private:
     bool getSymChecked(QTableWidget *sequence, int row);
     void setSymChecked(QTableWidget *sequence, int row, bool state);
     int getType(QString sActuator);
+    QList<int> findTransitionsIn(QTableWidget *table_sequence, QString StateName);
+    QList<int> findTransitionsOut(QTableWidget *table_sequence, QString StateName);
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);

@@ -105,6 +105,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Add_Asser,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Event,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Sensor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  connect(m_ihm.ui.pB_Add_Node,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Add_Free_Action,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
   connect(m_ihm.ui.pB_Edit_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeItem()));
@@ -418,6 +419,7 @@ void CActuatorSequencer::addSequenceItem(void)
     QString id="0";
     QString value="0";
     QString comments;
+    QString name="";
 
     bool bFormat=false;
 
@@ -546,13 +548,37 @@ void CActuatorSequencer::addSequenceItem(void)
             value=FreeText;
         }
     }
+    else if(pB_Add==m_ihm.ui.pB_Add_Node)
+    {
+        QString NodeText=m_ihm.ui.nodeName->text();
+        QString autoName="NODE_%1";
+        int autoIndex=0;
+        bool isNamed=false;
+        if(!NodeText.isEmpty())
+        {
+            name=NodeText;
+            if(findState(currentSequence,name)<0)
+                isNamed=true;
+        }
+        while(!isNamed)
+        {
+            name=autoName.arg(autoIndex);
+            if(findState(currentSequence,name)<0)
+                isNamed=true;
+            autoIndex++;
+        }
+
+        type="Node";
+        id="0";
+        value="";
+    }
 
     if(type!="NA")
     {
         QTableWidgetItem *newItem_type = new QTableWidgetItem(type);
         QTableWidgetItem *newItem_id = new QTableWidgetItem(id);
         QTableWidgetItem *newItem_value = new QTableWidgetItem(value);
-        QTableWidgetItem *newItem_state = new QTableWidgetItem("");
+        QTableWidgetItem *newItem_state = new QTableWidgetItem(name);
         QTableWidgetItem *newItem_comments = new QTableWidgetItem(comments);
 
         if(bFormat)
@@ -884,6 +910,12 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                             m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
                         }
                     }
+                }
+
+                if(sActuator.compare("Node")==0)
+                {
+                    msg="ACTION VIDE "+getSateNameText(table_sequence,indexItem)+" : on ne fait rien!";
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
                 if(sActuator.compare("Wait")==0) //TEMPO
@@ -1330,7 +1362,7 @@ void CActuatorSequencer::Slot_Generate_XML(QString strPath)
     if(!strPath.isEmpty())
     {
         QFile fichier(strPath);
-        if(fichier.open(QIODevice::ReadWrite | QIODevice::Text))
+        if(fichier.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
         {
             QTextStream stream(&fichier);
             QString contenuXML=doc.toString();
@@ -1896,7 +1928,7 @@ void CActuatorSequencer::Slot_Generate_CPP()
     QString stateFormat=N1T+"// ___________________________"+
             N1T+"case %1 :"+
             N2T+"if (onEntry()) {";
-    QString closePreviousState=N2T+"if (onExit()) { }"+
+    QString closePreviousState=N2T+"if (onExit()) { %1 }"+
             N2T+"break;";
 
     //Nom de la strategie
@@ -1991,6 +2023,9 @@ void CActuatorSequencer::Slot_Generate_CPP()
     bool isInTransition=false;
     int numTransition=0;
     QList<int> transitionsList;
+    QString warningOnExit="";
+    bool isNode=false;
+    QString oldState="";
 
     for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
     {
@@ -2128,6 +2163,12 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 strFreeAction=sValue.replace("\n",N3T);
                 sConverted=sConverted+N3T+QString("%1\n").arg(strFreeAction);
             break;
+
+            case NODE:
+                isNode=true;
+                sConverted=sConverted+QString("/*Ne rien mettre ici (cf doc Modélia)*/");
+            break;
+
             default: break;
         }
 
@@ -2165,17 +2206,31 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 strEnumStates.append(strThisEnum);
 
                 //est-ce qu'il y avait une transition auparavant
+                QList<int> previousTransitions=findTransitionsIn(table_sequence,strThisState);
                 if(isInTransition) //oui on la ferme avant de passer à l'action suivante
                 {
-                    //TODO:
-
-                    champStrategie=champStrategie+closePreviousState;
+                    if(isNode && previousTransitions.count()<=1)
+                        warningOnExit=" /*Un seul lien vers un noeud: Ne rien mettre ici  (cf doc Modélia)*/ ";
+                    champStrategie=champStrategie+closePreviousState.arg(warningOnExit);
+                    warningOnExit="";
                     isInTransition=false;
                     transitionsList.clear();
                 }
 
+                //Si c'est un noeud on modifie les actions de Sortie
+                if(isNode)
+                {
+                    if(isNode && previousTransitions.count()<=1)
+                        warningOnExit=" /* Mettre ici le code du onExit de létat "+oldState+" car un seul lien avant le noeud (cf doc Modélia)*/ ";
+                    else
+                        warningOnExit=" /*Ne rien mettre ici  (cf doc Modélia)*/ ";
+                    isNode=false;
+                }
+                previousTransitions.clear();
                 //ajout de l'action
                 champStrategie=champStrategie+stateFormat.arg(strThisState)+N3T+sConverted;
+
+                oldState=strThisState;
 
                 isInState=true;
             }
@@ -2242,7 +2297,8 @@ void CActuatorSequencer::Slot_Generate_CPP()
     //Finalisation du dernier état
     if(isInState)
     {
-        champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState;
+        champStrategie=champStrategie+N2T+"}\n"+N3T+"gotoStateAfter(FIN_MISSION, 4000);"+closePreviousState.arg(warningOnExit);
+        warningOnExit="";
         isInState=false;
     }
 
@@ -2250,7 +2306,8 @@ void CActuatorSequencer::Slot_Generate_CPP()
     if(isInTransition)
     {
         //on ferme l'action précédente avant l'état vide
-        champStrategie=champStrategie+closePreviousState;
+        champStrategie=champStrategie+closePreviousState.arg(warningOnExit);
+        warningOnExit="";
         isInTransition=false;
     }
 
@@ -2604,7 +2661,7 @@ void CActuatorSequencer::Slot_moveStrategy(void)
 bool CActuatorSequencer::isTransition(QString sType)
 {
     return (!((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
-           (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction")) ));
+           (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction"))||(sType.compare("Node")==0) ));
 
 }
 
@@ -2781,5 +2838,46 @@ int CActuatorSequencer::getType(QString sActuator)
     if(sActuator.contains("FreeAction"))
         iType=FREE_ACTION;
 
+    if(sActuator.contains("Node"))
+        iType=NODE;
+
     return iType;
+}
+
+QList<int> CActuatorSequencer::findTransitionsIn(QTableWidget* table_sequence, QString StateName)
+{
+    QList<int> transitionsList;
+    if(!StateName.isEmpty())
+    {
+        if(table_sequence->rowCount()>0)
+        {
+            for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+            {
+                QString strType=getTypeText(table_sequence,indexItem);
+                QString strName=getSateNameText(table_sequence,indexItem);
+                if(isTransition(strType) && strName==StateName)
+                    transitionsList << indexItem;
+            }
+        }
+    }
+    return transitionsList;
+}
+
+QList<int> CActuatorSequencer::findTransitionsOut(QTableWidget* table_sequence, QString StateName)
+{
+    QList<int> transitionsList;
+    if(!StateName.isEmpty())
+    {
+        if(table_sequence->rowCount()>0)
+        {
+            for (int indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+            {
+                QString strType=getTypeText(table_sequence,indexItem);
+                QString strName=getSateNameText(table_sequence,indexItem);
+                if(isTransition(strType) && strName==StateName)
+                    transitionsList << indexItem;
+            }
+        }
+    }
+    return transitionsList;
 }

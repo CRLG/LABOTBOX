@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1213</width>
-    <height>702</height>
+    <height>725</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,17 +61,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="0" column="1" colspan="2">
          <widget class="QComboBox" name="cB_SD20">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>120</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <widget class="QLabel" name="label_2">
           <property name="minimumSize">
            <size>
@@ -90,7 +90,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
+        <item row="0" column="4">
          <widget class="QSpinBox" name="sB_SD20">
           <property name="minimumSize">
            <size>
@@ -115,10 +115,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="7" colspan="3">
+        <item row="0" column="6" colspan="2">
          <widget class="QLineEdit" name="tip_SD20"/>
         </item>
-        <item row="0" column="11">
+        <item row="0" column="9">
          <widget class="QPushButton" name="pB_Play_SD20">
           <property name="minimumSize">
            <size>
@@ -135,7 +135,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="13">
+        <item row="0" column="11">
          <widget class="QPushButton" name="pB_Add_SD20">
           <property name="minimumSize">
            <size>
@@ -159,17 +159,17 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="1" column="1" colspan="2">
          <widget class="QComboBox" name="cB_AX">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>120</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="3">
          <widget class="QLabel" name="label_3">
           <property name="minimumSize">
            <size>
@@ -188,7 +188,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="3">
+        <item row="1" column="4">
          <widget class="QSpinBox" name="sB_AX">
           <property name="minimumSize">
            <size>
@@ -207,7 +207,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="4">
+        <item row="1" column="5">
          <widget class="QComboBox" name="cB_AX_type_cde">
           <property name="minimumSize">
            <size>
@@ -217,16 +217,16 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>90</width>
+            <width>16777215</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="1" column="7" colspan="3">
+        <item row="1" column="6" colspan="2">
          <widget class="QLineEdit" name="tip_AX"/>
         </item>
-        <item row="1" column="11">
+        <item row="1" column="9">
          <widget class="QPushButton" name="pB_Play_AX">
           <property name="minimumSize">
            <size>
@@ -243,7 +243,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="13">
+        <item row="1" column="11">
          <widget class="QPushButton" name="pB_Add_AX">
           <property name="minimumSize">
            <size>
@@ -267,17 +267,17 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="2" column="1" colspan="2">
          <widget class="QComboBox" name="cB_Motor">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>120</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
+        <item row="2" column="3">
          <widget class="QLabel" name="label_5">
           <property name="minimumSize">
            <size>
@@ -296,7 +296,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
+        <item row="2" column="4">
          <widget class="QSpinBox" name="sB_Motor">
           <property name="minimumSize">
            <size>
@@ -321,10 +321,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="7" colspan="3">
+        <item row="2" column="6" colspan="2">
          <widget class="QLineEdit" name="tip_Motor"/>
         </item>
-        <item row="2" column="11">
+        <item row="2" column="9">
          <widget class="QPushButton" name="pB_Play_Motor">
           <property name="minimumSize">
            <size>
@@ -341,7 +341,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="12">
+        <item row="2" column="10">
          <widget class="QPushButton" name="pB_Stop_Motor">
           <property name="minimumSize">
            <size>
@@ -358,7 +358,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="13">
+        <item row="2" column="11">
          <widget class="QPushButton" name="pB_Add_Motor">
           <property name="minimumSize">
            <size>
@@ -382,24 +382,24 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="3" column="1" colspan="2">
          <widget class="QComboBox" name="cB_Power">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>120</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
+        <item row="3" column="3">
          <widget class="QLabel" name="label_19">
           <property name="text">
            <string>value</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="3">
+        <item row="3" column="4">
          <widget class="QSpinBox" name="sB_Power">
           <property name="minimumSize">
            <size>
@@ -424,10 +424,10 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="7" colspan="3">
+        <item row="3" column="6" colspan="2">
          <widget class="QLineEdit" name="tip_Power"/>
         </item>
-        <item row="3" column="11">
+        <item row="3" column="9">
          <widget class="QPushButton" name="pB_Play_Power">
           <property name="minimumSize">
            <size>
@@ -444,7 +444,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="12">
+        <item row="3" column="10">
          <widget class="QPushButton" name="pB_Stop_Power">
           <property name="minimumSize">
            <size>
@@ -461,7 +461,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="13">
+        <item row="3" column="11">
          <widget class="QPushButton" name="pB_Add_Power">
           <property name="minimumSize">
            <size>
@@ -485,17 +485,17 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="4" column="1" colspan="2">
          <widget class="QComboBox" name="cB_Asser">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>120</width>
             <height>22</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="4" column="3">
          <widget class="QLabel" name="label_asserValue_1">
           <property name="minimumSize">
            <size>
@@ -514,7 +514,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="3">
+        <item row="4" column="4">
          <widget class="QSpinBox" name="lE_Asser_1">
           <property name="minimumSize">
            <size>
@@ -536,17 +536,10 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="6" rowspan="3">
-         <widget class="Line" name="line_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="7" colspan="3">
+        <item row="4" column="6" colspan="2">
          <widget class="QLineEdit" name="tip_Asser"/>
         </item>
-        <item row="4" column="11">
+        <item row="4" column="9">
          <widget class="QPushButton" name="pB_Play_Asser">
           <property name="minimumSize">
            <size>
@@ -563,7 +556,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="12">
+        <item row="4" column="10">
          <widget class="QPushButton" name="pB_Stop_Asser">
           <property name="minimumSize">
            <size>
@@ -580,7 +573,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="13">
+        <item row="4" column="11">
          <widget class="QPushButton" name="pB_Add_Asser">
           <property name="minimumSize">
            <size>
@@ -597,7 +590,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="5" column="3">
          <widget class="QLabel" name="label_asserValue_2">
           <property name="minimumSize">
            <size>
@@ -616,7 +609,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="3">
+        <item row="5" column="4">
          <widget class="QSpinBox" name="lE_Asser_2">
           <property name="minimumSize">
            <size>
@@ -638,24 +631,24 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="4">
+        <item row="5" column="5">
          <widget class="QPushButton" name="pB_get_XYTeta">
           <property name="text">
            <string>getData</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="7">
+        <item row="5" column="6">
          <widget class="QLineEdit" name="tool_rad">
           <property name="minimumSize">
            <size>
-            <width>60</width>
+            <width>75</width>
             <height>22</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>60</width>
+            <width>75</width>
             <height>22</height>
            </size>
           </property>
@@ -664,14 +657,14 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="8">
+        <item row="5" column="7">
          <widget class="QLabel" name="label_10">
           <property name="text">
            <string>rad &lt;=&gt;</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="10">
+        <item row="5" column="8">
          <widget class="QLineEdit" name="tool_deg">
           <property name="minimumSize">
            <size>
@@ -690,14 +683,20 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="11">
+        <item row="5" column="9" colspan="2">
          <widget class="QLabel" name="label_11">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>deg</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="6" column="3">
          <widget class="QLabel" name="label_asserValue_3">
           <property name="minimumSize">
            <size>
@@ -716,7 +715,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="3">
+        <item row="6" column="4">
          <widget class="QDoubleSpinBox" name="lE_Asser_3">
           <property name="minimumSize">
            <size>
@@ -738,14 +737,26 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0" colspan="14">
+        <item row="7" column="0" colspan="12">
          <widget class="Line" name="line_5">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>4</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>4</height>
+           </size>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="8" column="7">
+        <item row="8" column="6" colspan="2">
          <widget class="QLabel" name="label_8">
           <property name="maximumSize">
            <size>
@@ -756,9 +767,12 @@
           <property name="text">
            <string>Wait</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
          </widget>
         </item>
-        <item row="8" column="9" colspan="2">
+        <item row="8" column="8">
          <widget class="QSpinBox" name="sB_Wait">
           <property name="minimumSize">
            <size>
@@ -780,8 +794,14 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="11">
+        <item row="8" column="9" colspan="2">
          <widget class="QLabel" name="label_7">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -793,7 +813,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="13">
+        <item row="8" column="11">
          <widget class="QPushButton" name="pB_Add_Wait">
           <property name="minimumSize">
            <size>
@@ -816,14 +836,14 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="3">
+        <item row="9" column="4">
          <widget class="QLabel" name="label_12">
           <property name="text">
            <string>Event</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="4" colspan="2">
+        <item row="9" column="5">
          <widget class="QComboBox" name="cB_Events">
           <property name="minimumSize">
            <size>
@@ -839,14 +859,17 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="7">
+        <item row="9" column="6" colspan="2">
          <widget class="QLabel" name="label_13">
           <property name="text">
            <string>Time Out</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
          </widget>
         </item>
-        <item row="9" column="9" colspan="2">
+        <item row="9" column="8">
          <widget class="QSpinBox" name="sB_TimeOut">
           <property name="minimumSize">
            <size>
@@ -871,14 +894,20 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="11">
+        <item row="9" column="9" colspan="2">
          <widget class="QLabel" name="label_14">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>ms</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="13">
+        <item row="9" column="11">
          <widget class="QPushButton" name="pB_Add_Event">
           <property name="minimumSize">
            <size>
@@ -895,24 +924,24 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
+        <item row="10" column="4">
          <widget class="QLabel" name="label_17">
           <property name="text">
            <string>Sensor</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="1" colspan="3">
+        <item row="10" column="5" colspan="3">
          <widget class="QComboBox" name="cB_Sensors">
           <property name="minimumSize">
            <size>
-            <width>210</width>
+            <width>250</width>
             <height>22</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>210</width>
+            <width>16777215</width>
             <height>22</height>
            </size>
           </property>
@@ -921,8 +950,14 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="4">
+        <item row="10" column="8">
          <widget class="QComboBox" name="cB_Conditions">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>22</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>75</width>
@@ -931,7 +966,7 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="5">
+        <item row="10" column="9" colspan="2">
          <widget class="QDoubleSpinBox" name="sB_Sensor">
           <property name="minimumSize">
            <size>
@@ -956,55 +991,7 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="7">
-         <widget class="QLabel" name="label_16">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Time Out</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="9" colspan="2">
-         <widget class="QSpinBox" name="sB_TimeOut_2">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>75</width>
-            <height>22</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>75</width>
-            <height>22</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>40</number>
-          </property>
-          <property name="maximum">
-           <number>10000</number>
-          </property>
-          <property name="value">
-           <number>1000</number>
-          </property>
-         </widget>
-        </item>
         <item row="10" column="11">
-         <widget class="QLabel" name="label_15">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>ms</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="13">
          <widget class="QPushButton" name="pB_Add_Sensor">
           <property name="minimumSize">
            <size>
@@ -1021,12 +1008,57 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="0" rowspan="2">
-         <widget class="QLabel" name="label_20">
+        <item row="11" column="4">
+         <widget class="QLabel" name="label_15">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>20</height>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Noeud</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="5" colspan="3">
+         <widget class="QLineEdit" name="nodeName"/>
+        </item>
+        <item row="11" column="11">
+         <widget class="QPushButton" name="pB_Add_Node">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/plus.png</normaloff>:/icons/plus.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0" rowspan="3" colspan="2">
+         <widget class="QLabel" name="label_20">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>84</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>84</height>
            </size>
           </property>
           <property name="text">
@@ -1034,17 +1066,23 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="1" rowspan="3" colspan="12">
+        <item row="12" column="2" rowspan="3" colspan="9">
          <widget class="QTextEdit" name="freeTransition">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>84</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>90</height>
+            <height>84</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="11" column="13">
+        <item row="12" column="11">
          <widget class="QPushButton" name="pB_Add_Free_Transition">
           <property name="minimumSize">
            <size>
@@ -1061,7 +1099,7 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="13">
+        <item row="13" column="11">
          <widget class="QPushButton" name="pB_Edit_Free_Transition">
           <property name="minimumSize">
            <size>
@@ -1078,7 +1116,7 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="13">
+        <item row="14" column="11">
          <widget class="QPushButton" name="pB_Load_Free_Transition">
           <property name="minimumSize">
            <size>
@@ -1095,12 +1133,18 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="0">
+        <item row="15" column="0" rowspan="3" colspan="2">
          <widget class="QLabel" name="label_21">
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>20</height>
+            <height>84</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>90</height>
            </size>
           </property>
           <property name="text">
@@ -1108,10 +1152,23 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="1" rowspan="3" colspan="12">
-         <widget class="QTextEdit" name="freeAction"/>
+        <item row="15" column="2" rowspan="3" colspan="9">
+         <widget class="QTextEdit" name="freeAction">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>84</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>84</height>
+           </size>
+          </property>
+         </widget>
         </item>
-        <item row="14" column="13">
+        <item row="15" column="11">
          <widget class="QPushButton" name="pB_Add_Free_Action">
           <property name="minimumSize">
            <size>
@@ -1128,7 +1185,7 @@
           </property>
          </widget>
         </item>
-        <item row="15" column="13">
+        <item row="16" column="11">
          <widget class="QPushButton" name="pB_Edit_Free_Action">
           <property name="minimumSize">
            <size>
@@ -1145,7 +1202,7 @@
           </property>
          </widget>
         </item>
-        <item row="16" column="13">
+        <item row="17" column="11">
          <widget class="QPushButton" name="pB_Load_Free_Action">
           <property name="minimumSize">
            <size>
@@ -1162,14 +1219,26 @@
           </property>
          </widget>
         </item>
-        <item row="17" column="0" colspan="14">
+        <item row="18" column="0" colspan="12">
          <widget class="Line" name="line_3">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>4</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>4</height>
+           </size>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="18" column="11">
+        <item row="19" column="9">
          <widget class="QPushButton" name="pB_Remove">
           <property name="minimumSize">
            <size>
@@ -1186,7 +1255,7 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="12">
+        <item row="19" column="10">
          <widget class="QPushButton" name="pB_Down">
           <property name="minimumSize">
            <size>
@@ -1203,7 +1272,7 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="13">
+        <item row="19" column="11">
          <widget class="QPushButton" name="pB_Up">
           <property name="minimumSize">
            <size>
@@ -1219,6 +1288,19 @@
             <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
           </property>
          </widget>
+        </item>
+        <item row="20" column="0" colspan="12">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>858</width>
+            <height>2</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
