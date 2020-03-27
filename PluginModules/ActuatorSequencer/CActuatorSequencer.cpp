@@ -89,10 +89,11 @@ void CActuatorSequencer::init(CApplication *application)
   QString strName=m_ihm.ui.strategyName->text();
   creatTabSequence(newTab,newSequence,strName,true);
 
+  //nettoyage des séquences quand on ferme l'application
   connect(m_ihm.ui.tW_TabSequences,SIGNAL(tabCloseRequested(int)),this,SLOT(Slot_Remove_Sequence(int)));
 
+  //remplissage des combobox (utilisation du data.ini si cela est possible)
   updateComboBox();
-  updateTooltip();
 
   connect(m_ihm.ui.strategyName, SIGNAL(textEdited(QString)), this, SLOT(Slot_setStrategyName_tab(QString)));
   connect(m_ihm.ui.tW_TabSequences, SIGNAL(currentChanged(int)), this, SLOT(Slot_setStrategyName_text(int)));
@@ -146,6 +147,12 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.cB_Motor,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_SD20,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Asser,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_Power,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  m_ihm.ui.cB_AX->setCurrentIndex(0);
+  m_ihm.ui.cB_Motor->setCurrentIndex(0);
+  m_ihm.ui.cB_SD20->setCurrentIndex(0);
+  m_ihm.ui.cB_Asser->setCurrentIndex(0);
+  m_ihm.ui.cB_Asser->setCurrentIndex(0);
 
   connect(m_ihm.ui.tool_deg,SIGNAL(returnPressed()),this,SLOT(Slot_convert_to_rad()));
   connect(m_ihm.ui.tool_rad,SIGNAL(returnPressed()),this,SLOT(Slot_convert_to_deg()));
@@ -285,127 +292,130 @@ void CActuatorSequencer::updateTooltip(void)
  // Gestion des alias sur les noms et remplissage des combobox
     QString str_name;
     QString str_tooltip;
-    int i;
-//Motor
-    i=m_ihm.ui.cB_Motor->currentIndex()+1;
-    str_name=QString("cde_moteur_%1").arg(i);
-    str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
-    if (str_tooltip != "")
+    int i=0;
+
+    QObject * wdgt=sender();
+
+    //Motor
+    if(m_ihm.ui.cB_Motor==wdgt)
     {
+        i=m_ihm.ui.cB_Motor->currentIndex()+1;
+        str_name=QString("cde_moteur_%1").arg(i);
+        str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
         m_ihm.ui.tip_Motor->setText(str_tooltip);
         m_ihm.ui.tip_Motor->setCursorPosition(0);
     }
 
     //PowerSwitch
-    i=m_ihm.ui.cB_Power->currentIndex()+1;
-         str_name=QString("PowerSwitch_xt%1").arg(i);
-         str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
-         if (str_tooltip != "")
-         {
-             m_ihm.ui.tip_Power->setText(str_tooltip);
-             m_ihm.ui.tip_Power->setCursorPosition(0);
-         }
-
- //SD20
- i=m_ihm.ui.cB_SD20->currentIndex()+13;
-     str_name=QString("cde_servo_%1").arg(i);
-     str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
-     if (str_tooltip != "")
-     {
-         m_ihm.ui.tip_SD20->setText(str_tooltip);
-         m_ihm.ui.tip_SD20->setCursorPosition(0);
-     }
-
- //AX
- i=m_ihm.ui.cB_AX->currentIndex();
-     str_name=QString("cde_ax_%1").arg(i);
-     str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
-     if (str_tooltip != "")
-     {
-         m_ihm.ui.tip_AX->setText(str_tooltip);
-         m_ihm.ui.tip_AX->setCursorPosition(0);
-     }
-
-    //Asser
-    QString currentAsser=m_ihm.ui.cB_Asser->currentText();
-
-
-    //ERASE OLD ASSER
-        m_ihm.ui.label_asserValue_1->setText("Not Used");
-        m_ihm.ui.label_asserValue_2->setText("Not Used");
-        m_ihm.ui.label_asserValue_3->setText("Not Used");
-        m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_2->setValue(0);
-        m_ihm.ui.lE_Asser_3->setValue(0.0);
-        m_ihm.ui.lE_Asser_1->setEnabled(false);
-        m_ihm.ui.lE_Asser_2->setEnabled(false);
-        m_ihm.ui.lE_Asser_3->setEnabled(false);
-
-
-    //"XY","DistAng","Rack"
-    if(currentAsser=="XY")
+    if(m_ihm.ui.cB_Power==wdgt)
     {
-        //qDebug() << "asser text is" << currentAsser;
-        m_ihm.ui.label_asserValue_1->setText("X");
-        m_ihm.ui.label_asserValue_2->setText("Y");
-        m_ihm.ui.label_asserValue_3->setText("Not Used");
-        m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_1->setMaximum(300);
-        m_ihm.ui.lE_Asser_1->setMinimum(-300);
-        m_ihm.ui.lE_Asser_2->setValue(0);
-        m_ihm.ui.lE_Asser_3->setValue(0.0);
-        m_ihm.ui.lE_Asser_1->setEnabled(true);
-        m_ihm.ui.lE_Asser_2->setEnabled(true);
-        m_ihm.ui.lE_Asser_3->setEnabled(false);
-    }
-    if(currentAsser=="XYTheta")
-    {
-        //qDebug() << "asser text is" << currentAsser;
-        m_ihm.ui.label_asserValue_1->setText("X");
-        m_ihm.ui.label_asserValue_2->setText("Y");
-        m_ihm.ui.label_asserValue_3->setText("Theta");
-        m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_1->setMaximum(300);
-        m_ihm.ui.lE_Asser_1->setMinimum(-300);
-        m_ihm.ui.lE_Asser_2->setValue(0);
-        m_ihm.ui.lE_Asser_3->setValue(0.0);
-        m_ihm.ui.lE_Asser_1->setEnabled(true);
-        m_ihm.ui.lE_Asser_2->setEnabled(true);
-        m_ihm.ui.lE_Asser_3->setEnabled(true);
-    }
-    if(currentAsser=="DistAng")
-    {
-         //qDebug() << "asser text is" << currentAsser;
-        m_ihm.ui.label_asserValue_1->setText("Distance");
-        m_ihm.ui.label_asserValue_2->setText("Not Used");
-        m_ihm.ui.label_asserValue_3->setText("Angle");
-        m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_1->setMaximum(300);
-        m_ihm.ui.lE_Asser_1->setMinimum(-300);
-        m_ihm.ui.lE_Asser_2->setValue(0);
-        m_ihm.ui.lE_Asser_3->setValue(0.0);
-        m_ihm.ui.lE_Asser_1->setEnabled(true);
-        m_ihm.ui.lE_Asser_2->setEnabled(false);
-        m_ihm.ui.lE_Asser_3->setEnabled(true);
-    }
-    if(currentAsser=="Rack")
-    {
-         //qDebug() << "asser text is" << currentAsser;
-        m_ihm.ui.label_asserValue_1->setText("Position");
-        m_ihm.ui.label_asserValue_2->setText("Not Used");
-        m_ihm.ui.label_asserValue_3->setText("Not Used");
-        m_ihm.ui.lE_Asser_1->setValue(0);
-        m_ihm.ui.lE_Asser_1->setMaximum(1500);
-        m_ihm.ui.lE_Asser_1->setMinimum(-1500);
-        m_ihm.ui.lE_Asser_2->setValue(0);
-        m_ihm.ui.lE_Asser_3->setValue(0.0);
-        m_ihm.ui.lE_Asser_1->setEnabled(true);
-        m_ihm.ui.lE_Asser_2->setEnabled(false);
-        m_ihm.ui.lE_Asser_3->setEnabled(false);
+        i=m_ihm.ui.cB_Power->currentIndex()+1;
+        str_name=QString("PowerSwitch_xt%1").arg(i);
+        str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
+        m_ihm.ui.tip_Power->setText(str_tooltip);
+        m_ihm.ui.tip_Power->setCursorPosition(0);
     }
 
-//m_ihm.ui.centralwidget->repaint();
+     //SD20
+    if(m_ihm.ui.cB_SD20==wdgt)
+    {
+        i=m_ihm.ui.cB_SD20->currentIndex()+13;
+        str_name=QString("cde_servo_%1").arg(i);
+        str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
+        m_ihm.ui.tip_SD20->setText(str_tooltip);
+        m_ihm.ui.tip_SD20->setCursorPosition(0);
+    }
 
+     //AX
+    if(m_ihm.ui.cB_AX==wdgt)
+    {
+        i=m_ihm.ui.cB_AX->currentIndex();
+        str_name=QString("cde_ax_%1").arg(i);
+        str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
+        m_ihm.ui.tip_AX->setText(str_tooltip);
+        m_ihm.ui.tip_AX->setCursorPosition(0);
+    }
+
+    if(m_ihm.ui.cB_Asser==wdgt)
+    {
+        //Asser
+        QString currentAsser=m_ihm.ui.cB_Asser->currentText();
+
+
+        //ERASE OLD ASSER
+            m_ihm.ui.label_asserValue_1->setText("Not Used");
+            m_ihm.ui.label_asserValue_2->setText("Not Used");
+            m_ihm.ui.label_asserValue_3->setText("Not Used");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(false);
+            m_ihm.ui.lE_Asser_2->setEnabled(false);
+            m_ihm.ui.lE_Asser_3->setEnabled(false);
+
+
+        //"XY","DistAng","Rack"
+        if(currentAsser=="XY")
+        {
+            //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("X");
+            m_ihm.ui.label_asserValue_2->setText("Y");
+            m_ihm.ui.label_asserValue_3->setText("Not Used");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_1->setMaximum(300);
+            m_ihm.ui.lE_Asser_1->setMinimum(-300);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(true);
+            m_ihm.ui.lE_Asser_2->setEnabled(true);
+            m_ihm.ui.lE_Asser_3->setEnabled(false);
+        }
+        if(currentAsser=="XYTheta")
+        {
+            //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("X");
+            m_ihm.ui.label_asserValue_2->setText("Y");
+            m_ihm.ui.label_asserValue_3->setText("Theta");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_1->setMaximum(300);
+            m_ihm.ui.lE_Asser_1->setMinimum(-300);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(true);
+            m_ihm.ui.lE_Asser_2->setEnabled(true);
+            m_ihm.ui.lE_Asser_3->setEnabled(true);
+        }
+        if(currentAsser=="DistAng")
+        {
+             //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("Distance");
+            m_ihm.ui.label_asserValue_2->setText("Not Used");
+            m_ihm.ui.label_asserValue_3->setText("Angle");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_1->setMaximum(300);
+            m_ihm.ui.lE_Asser_1->setMinimum(-300);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(true);
+            m_ihm.ui.lE_Asser_2->setEnabled(false);
+            m_ihm.ui.lE_Asser_3->setEnabled(true);
+        }
+        if(currentAsser=="Rack")
+        {
+             //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("Position");
+            m_ihm.ui.label_asserValue_2->setText("Not Used");
+            m_ihm.ui.label_asserValue_3->setText("Not Used");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_1->setMaximum(1500);
+            m_ihm.ui.lE_Asser_1->setMinimum(-1500);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(true);
+            m_ihm.ui.lE_Asser_2->setEnabled(false);
+            m_ihm.ui.lE_Asser_3->setEnabled(false);
+        }
+    }
 }
 
 void CActuatorSequencer::addSequenceItem(void)
