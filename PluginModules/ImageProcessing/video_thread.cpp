@@ -26,49 +26,132 @@ void VideoWorker::activeDebug(bool on_off)
 
 // ======================================================
 // ======================================================
-void VideoWorker::init(int video_id, QString parameter_file)
+bool VideoWorker::init(int video_id, QString parameter_file)
 {
+    bool isInit=false;
+
+    calibrationFixParameters="%YAML:1.0 \n\
+            --- \n\
+            calibration_time: \"ven. 28 sept. 2018 16:51:07 CEST\"\n\
+            image_width: 640\n\
+            image_height: 480\n\
+            aspectRatio: 1.\n\
+            flags: 2\n\
+            camera_matrix: !!opencv-matrix\n\
+               rows: 3\n\
+               cols: 3\n\
+               dt: d\n\
+               data: [  745.    , 0.    , 311.,\n\
+                        0.      ,745.   , 250.,\n\
+                        0.      , 0.    , 1. ]\n\
+            distortion_coefficients: !!opencv-matrix\n\
+               rows: 1\n\
+               cols: 5\n\
+               dt: d\n\
+               data: [ -0.3, 5.7,-0.02,0.05,-0.3]\n\
+            avg_reprojection_error: 0.8";
+
     //m_video_name = video_name;
     m_video_id=video_id;
+
     //ouverture de la vidéo
     capture= new cv::VideoCapture(m_video_id);
     if(!(capture->isOpened()))
         capture= new cv::VideoCapture(-1);
 
     if(capture->isOpened())
-     {     
-        qDebug()<<"La caméra est opérationnelle.";
-        //infos de debug
-        qDebug() << endl <<"camera choisie :\t\t" << video_id;
-        int FourCC=capture->get(CV_CAP_PROP_FOURCC);
-        qDebug("FOURCC code:\t\t%c%c%c%c", FourCC, FourCC>>8, FourCC>>16, FourCC>>24);
-        qDebug() << "A convertir de BGR à RGB :\t" << ((capture->get(CV_CAP_PROP_CONVERT_RGB)==1) ? "OUI":"NON");
-        qDebug() << "Mettre la hauteur à 480 :\t" << ((capture->set(CV_CAP_PROP_FRAME_HEIGHT,480)==1) ? "REUSSI" : "ERREUR");
-        qDebug() << "Mettre la longueur à 640 :\t" << ((capture->set(CV_CAP_PROP_FRAME_WIDTH,640)==1) ? "REUSSI" : "ERREUR");
-        //qDebug() << "Mettre l'exposition à 50 :\t" << ((capture->set( CV_CAP_PROP_EXPOSURE, 50)) ? "REUSSI" : "ERREUR") << endl;
-
-        emit setCamState(1);
-
-         //calibration de la caméra
-         qDebug() << "Fichier de calibration choisi:"<<parameter_file;
-         //cv::FileStorage fs(parameter_file.toStdString(),cv::FileStorage::READ);
-         cv::FileStorage fs("cam_parameters_pc.txt", cv::FileStorage::READ);
-         if(fs.isOpened())
-         {
-             fs["camera_matrix"] >> camMatrix;
-             fs["distortion_coefficients"] >> distCoeffs;
-             bCalibrated=true;
-             qDebug() << "Camera calibrée";
-         }
-         else
-             bCalibrated=false;
-         markerLength=7;
-     }
-     else
     {
-        emit setCamState(0);
-        qDebug() << endl << "Caméra inopérante :-(" << endl;
+        int FourCC=capture->get(CV_CAP_PROP_FOURCC);
+        int hasToBeConvertedRGB=capture->get(CV_CAP_PROP_CONVERT_RGB);
+        int setHeight=capture->set(CV_CAP_PROP_FRAME_HEIGHT,480);
+        int setWidth=capture->set(CV_CAP_PROP_FRAME_WIDTH,640);
+
+        if(m_dbg_active)
+        {
+            unsigned char m_1_CC = FourCC;
+            unsigned char m_2_CC = FourCC>>8;
+            unsigned char m_3_CC = FourCC>>16;
+            unsigned char m_4_CC = FourCC>>24;
+            qDebug() << "[CImageProcessing] La caméra est opérationnelle.";
+            qDebug() << "[CImageProcessing] Id de la camera choisie : " << video_id;
+            qDebug() << "[CImageProcessing] Code FOURCC de l'image acquise:\t\t" << m_1_CC << m_2_CC << m_3_CC << m_4_CC;
+            qDebug() << "[CImageProcessing] Image a convertir de BGR à RGB avant traitement:" << ((hasToBeConvertedRGB==1)? "OUI":"NON");
+            qDebug() << "[CImageProcessing] Réglage de la hauteur de l'image à 480:\t" << ((setHeight==1) ? "REUSSI" : "ERREUR");
+            qDebug() << "[CImageProcessing] Réglage de la longueur de l'image à 640 :\t" << ((setWidth==1) ? "REUSSI" : "ERREUR");
+            //qDebug() << "[CImageProcessing] Mettre l'exposition à 50 :\t" << ((capture->set( CV_CAP_PROP_EXPOSURE, 50)) ? "REUSSI" : "ERREUR") << endl;
+        }
+
+        //calibration de la caméra
+        QDir directory;
+        QString path=directory.currentPath()+"/Config/"+parameter_file;
+        std::string contents = "";
+
+        //lecture du fichier de calibration
+        QFile f(path);
+        if(!f.open(QFile::ReadOnly))
+        {
+            if(m_dbg_active)
+            {
+                qDebug() << "[CImageProcessing] Ouverture impossible du fichier de calibration " << path;
+                qDebug() << "[CImageProcessing] Données de calibration par défaut, le traitement peut être dégradé voire dysfonctionnel!";
+            }
+            contents=calibrationFixParameters;
+        }
+        else
+        {
+            contents = f.readAll().toStdString();
+            f.close();
+        }
+
+        //Réglage de la caméra avec les données de calibration
+        cv::FileStorage fSettings(contents, cv::FileStorage::READ|cv::FileStorage::MEMORY);
+        if (!fSettings.isOpened())
+        {
+            fSettings.release();
+            bCalibrated=false;
+            if(m_dbg_active)
+                qDebug() << "[CImageProcessing] Enregistrement impossible des données du fichier de calibration " << path;
+        }
+        else
+        {
+            fSettings["camera_matrix"] >> camMatrix;
+            fSettings["distortion_coefficients"] >> distCoeffs;
+            fSettings.release();
+            bCalibrated=true;
+            if(m_dbg_active)
+                qDebug() << "[CImageProcessing] Camera calibrée";
+        }
+
+        //init de la taille des marqueurs AruCo
+        markerLength=7;
+
+        //on ne peut pas travailler avec une caméra non calibrée
+        if(bCalibrated)
+        {
+            isInit=true;
+            camState=true;
+            emit camStateChanged(1);
+        }
+        else
+        {
+            capture->release();
+            isInit=false;
+            camState=false;
+            emit camStateChanged(0);
+            if(m_dbg_active)
+                qDebug() << "[CImageProcessing] Caméra inopérante :-(";
+        }
     }
+    else
+    {
+        isInit=false;
+        camState=false;
+        emit camStateChanged(0);
+        if(m_dbg_active)
+            qDebug() << "[CImageProcessing] Caméra inopérante :-(";
+    }
+
+    return isInit;
 }
 
 VideoWorker::~VideoWorker()
@@ -76,8 +159,14 @@ VideoWorker::~VideoWorker()
     //on ferme la camera
     if(capture->isOpened())
     {
+        emit camStateChanged(0);
         capture->release();
     }
+}
+
+bool VideoWorker::getCamState()
+{
+    return camState;
 }
 
 // _________________________________________________________________
@@ -262,7 +351,7 @@ void VideoWorker::_video_process_dummy(tVideoInput parameter)
 {
     QString str;
     tVideoResult result;
-    qDebug() << str.sprintf("Thread start on %s / with   %f   %f   %f", m_video_name.toStdString().c_str(), parameter.data1, parameter.data2, parameter.data3);;
+    //qDebug() << str.sprintf("Thread start on %s / with   %f   %f   %f", m_video_name.toStdString().c_str(), parameter.data1, parameter.data2, parameter.data3);;
     int i=0;
     const int total_count = 5;
     while(i++<total_count)
@@ -272,9 +361,9 @@ void VideoWorker::_video_process_dummy(tVideoInput parameter)
         result.robot1_angle += parameter.data3 + 0.1 ;
                 QImage img( 320, 240, QImage::Format_RGB888);
         emit resultReady(result,img);
-        if (m_dbg_active) {
+        /*if (m_dbg_active) {
             qDebug() << "Thread is still running" << ((float)i/total_count)*100. << "%";
-        }
+        }*/
     }
 }
 
@@ -296,8 +385,8 @@ void VideoWorker::_video_confirm_parameters(cv::Mat frameSample)
     //recuperation des hauteurs et largeur de l'image
     iH = frameSample.rows;
     iL = frameSample.cols;
-    qDebug() << "Récupération des paramètres Vidéos";
-    qDebug() << "Résolution " << iH << "x" << iL;
+    //qDebug() << "Récupération des paramètres Vidéos";
+    //qDebug() << "Résolution " << iH << "x" << iL;
     parameterConfirmed=true;
 }
 

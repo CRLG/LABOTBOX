@@ -50,10 +50,13 @@ class VideoWorker : public QObject
     Q_OBJECT
 public :
     VideoWorker();
-    void init(int video_id, QString parameter_file);
+    bool init(int video_id, QString parameter_file);
     ~VideoWorker();
+    bool getCamState(void);
 
 private :
+    bool camState;
+
     QString m_video_name;
     int m_video_id;
     bool m_stop_work_request;
@@ -72,6 +75,8 @@ private :
     bool parameterConfirmed;
     bool recordInitialized;
 
+    std::string calibrationFixParameters;
+
 
 
 public slots:
@@ -83,7 +88,7 @@ signals:
     void resultReady(tVideoResult result,QImage imgConst);
     void workStarted();
     void workFinished();
-    void setCamState(int state);
+    void camStateChanged(int state);
 
 private:
     void _video_process_algo1(tVideoInput parameter);

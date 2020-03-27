@@ -77,7 +77,7 @@ void CImageProcessing::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
   //parametres intrinseques de la camera
-  val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant(0));
+  val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant("cam_parameters.txt"));
   m_camera_parameters=val.toString();
   //en cas de balise la camera démarre toute seule
   val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
@@ -158,10 +158,6 @@ void CImageProcessing::refresh_camera_list()
 
     if(m_ihm.ui.video_devices_list->count()>0)
         m_ihm.ui.video_devices_list->setCurrentRow(0);
-
-    // insert a dummy camera (for test)
-    //m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy1");
-    //m_ihm.ui.video_devices_list->insertItem(i++, "/dev/video_dummy2");
 }
 
 // ______________________________________________________________________________
@@ -171,17 +167,25 @@ void CImageProcessing::video_worker_init(int video_source_id)
     qRegisterMetaType<tVideoResult>();
 
     m_video_worker = new VideoWorker;
-    connect(m_video_worker, SIGNAL(setCamState(int)),this, SLOT(getCamState(int)));
-    m_video_worker->init(video_source_id,m_camera_parameters);
-    m_video_worker->moveToThread(&m_video_worker_thread);
-    connect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
-    connect(&m_video_worker_thread, &QThread::finished, this, &CImageProcessing::videoThreadStopped);
-    connect(this, SIGNAL(operate(tVideoInput)), m_video_worker, SLOT(doWork(tVideoInput)));
-    connect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
-    connect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
-    connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
+    connect(m_video_worker, SIGNAL(camStateChanged(int)),this, SLOT(getCamState(int)));
+    if(m_video_worker->init(video_source_id,m_camera_parameters))
+    {
+        m_video_worker->moveToThread(&m_video_worker_thread);
+        connect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
+        connect(&m_video_worker_thread, &QThread::finished, this, &CImageProcessing::videoThreadStopped);
+        connect(this, SIGNAL(operate(tVideoInput)), m_video_worker, SLOT(doWork(tVideoInput)));
+        connect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
+        connect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
+        connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
 
-    m_video_worker_thread.start();
+        m_video_worker_thread.start();
+    }
+    else
+    {
+        disconnect(m_video_worker, SIGNAL(camStateChanged(int)),this, SLOT(getCamState(int)));
+        delete m_video_worker;
+        m_video_worker = NULL;
+    }
 }
 
 // ======================================================================
@@ -189,9 +193,6 @@ void CImageProcessing::video_worker_init(int video_source_id)
 // ======================================================================
 void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
 {
-    /*qDebug() << "Video result available:";
-    qDebug() << "   result1:" << result.result1;
-    qDebug() << "   result2:" << result.result2;*/
     //on prend les dimensions de l'image
     int w = imgConst.width();
     int h = imgConst.height();
@@ -262,54 +263,53 @@ void CImageProcessing::videoWorkStarted()
 {
     m_ihm.ui.work_status->setValue(1);
     m_ihm.ui.start_work->setEnabled(false);
+    m_ihm.ui.kill_thread->setEnabled(false);
     m_ihm.ui.list_algo->setEnabled(false);
     m_ihm.ui.stop_work->setEnabled(true);
-
-    qDebug() << "Video work is started";
+    //qDebug() << "[CImageProcessing] Le traitement Video est lancé.";
 }
 
 void CImageProcessing::videoWorkFinished()
 {
     m_ihm.ui.work_status->setValue(0);
     m_ihm.ui.start_work->setEnabled(true);
+    m_ihm.ui.kill_thread->setEnabled(true);
     m_ihm.ui.list_algo->setEnabled(true);
     m_ihm.ui.stop_work->setEnabled(false);
-
-    qDebug() << "Video work is finished";
+    //qDebug() << "[CImageProcessing] Le traitement Vidéo est arreté.";
 }
 
 
 void CImageProcessing::videoThreadStopped()
 {
     m_ihm.ui.work_status->setValue(0);
-    qDebug() << "Thread is stopped";
+    m_ihm.ui.kill_thread->setEnabled(true);
+    //qDebug() << "[CImageProcessing] Le Thread Vidéo est arrêté.";
 }
 
 // ======================================================================
 void CImageProcessing::initVideoThread()
 {
     if (m_video_worker == NULL) {
-        // récupère le nom du port vidéo sélectionné
-        /*QList<QListWidgetItem*> list_items = m_ihm.ui.video_devices_list->selectedItems();
-        QString video_source_name = "";
-        if (list_items.count() != 0) {
-            video_source_name = list_items.at(0)->text();
-        }*/
+        // récupère l'identifiant du port vidéo sélectionné
         int video_source_id=0;
         if(m_ihm.ui.video_devices_list->count()>0)
         {
             video_source_id=m_ihm.ui.video_devices_list->currentRow();
-
-            qDebug() << "Video device:("<<m_ihm.ui.video_devices_list->currentItem()->text()<<","<<video_source_id<<")";
+            //qDebug() << "[CImageProcessing] Vidéo sélectionnée (nom,identifiant)=("<<m_ihm.ui.video_devices_list->currentItem()->text()<<","<<video_source_id<<")";
         }
         else
-            qDebug() << "No video device chosen: try with the first one if any";
+        {
+            //qDebug() << "[CImageProcessing] Aucun périphérique vidéo choisi: on essaye le premier disponible s'il existe";
+        }
 
-
+        //initialisation du thread vidéo
         video_worker_init(video_source_id);
     }
 
-    if (m_video_worker != NULL) {
+    //Thread Vidéo initialisé, on peut lancer le traitement
+    if (m_video_worker != NULL)
+    {
         bool state = true;
         m_ihm.ui.kill_thread->setEnabled(state);
         m_ihm.ui.start_work->setEnabled(state);
@@ -322,13 +322,12 @@ void CImageProcessing::killVideoThread()
 {
     if (m_video_worker == NULL) return;
 
-    qDebug() << "CImageProcessing::killVideoThread Disconnect all";
     disconnect(&m_video_worker_thread, &QThread::finished, m_video_worker, &QObject::deleteLater);
     disconnect(this, SIGNAL(operate(tVideoInput)), m_video_worker, SLOT(doWork(tVideoInput)));
-    disconnect(m_video_worker, SIGNAL(resultReady(tVideoResult)), this, SLOT(videoHandleResults(tVideoResult)));
+    disconnect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
     disconnect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
     disconnect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
-    disconnect(m_video_worker, SIGNAL(setCamState(int)),this, SLOT(getCamState(int)));
+    disconnect(m_video_worker, SIGNAL(camStateChanged(int)),this, SLOT(getCamState(int)));
 
     m_video_worker_thread.quit();
     m_video_worker_thread.wait();
@@ -338,6 +337,7 @@ void CImageProcessing::killVideoThread()
     m_application->m_data_center->write("VideoActive", 0);
 
     bool state = false;
+    m_ihm.ui.cam_status->setValue(0);
     m_ihm.ui.kill_thread->setEnabled(state);
     m_ihm.ui.start_work->setEnabled(state);
     m_ihm.ui.stop_work->setEnabled(state);
@@ -371,7 +371,7 @@ void CImageProcessing::startVideoWork(void)
 
 void CImageProcessing::stopVideoWork()
 {
-    qDebug() << "UI Stop work";
+    //qDebug() << "[CImageProcessing] Arrêt du traitement vidéo via l'IHM.";
     if (m_video_worker) m_video_worker->stopWork();
 }
 
@@ -383,6 +383,7 @@ void CImageProcessing::activeDebug(bool on_off)
 void CImageProcessing::getCamState(int state)
 {
     //initialise l'état caméra
+    m_ihm.ui.cam_status->setValue(state);
     m_application->m_data_center->write("VideoActive",  state);
 }
 
@@ -402,6 +403,4 @@ void CImageProcessing::TpsMatch_changed(QVariant val)
     }
      if(TpsMatch>DUREE_MATCH)
          stopVideoWork();
-
-
 }
