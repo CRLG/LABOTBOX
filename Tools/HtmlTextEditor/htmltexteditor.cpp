@@ -76,7 +76,6 @@ HtmlTextEditor::HtmlTextEditor(QWidget *parent)
         QMenu *helpMenu = new QMenu(tr("Help"), this);
         menuBar()->addMenu(helpMenu);
         helpMenu->addAction(tr("About"), this, SLOT(about()));
-        helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
     }
 
     textEdit = new TextEdit(this);
@@ -535,12 +534,21 @@ void HtmlTextEditor::filePrintPdf()
 //! [0]
     QString fileName = QFileDialog::getSaveFileName(this, "Export PDF",
                                                     QString(), "*.pdf");
-    if (!fileName.isEmpty()) {
-        if (QFileInfo(fileName).suffix().isEmpty())
-            fileName.append(".pdf");
+    saveToPdf(fileName);
+//! [0]
+#endif
+}
+
+void HtmlTextEditor::saveToPdf(QString pathfilename)
+{
+#ifndef QT_NO_PRINTER
+//! [0]
+    if (!pathfilename.isEmpty()) {
+        if (QFileInfo(pathfilename).suffix().isEmpty())
+            pathfilename.append(".pdf");
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(fileName);
+        printer.setOutputFileName(pathfilename);
         textEdit->document()->print(&printer);
     }
 //! [0]
@@ -549,22 +557,37 @@ void HtmlTextEditor::filePrintPdf()
 
 void HtmlTextEditor::textBold()
 {
+    textBold(actionTextBold->isChecked());
+}
+
+void HtmlTextEditor::textBold(bool bold)
+{
     QTextCharFormat fmt;
-    fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
+    fmt.setFontWeight(bold ? QFont::Bold : QFont::Normal);
     mergeFormatOnWordOrSelection(fmt);
 }
 
 void HtmlTextEditor::textUnderline()
 {
+    textUnderline(actionTextUnderline->isChecked());
+}
+
+void HtmlTextEditor::textUnderline(bool underline)
+{
     QTextCharFormat fmt;
-    fmt.setFontUnderline(actionTextUnderline->isChecked());
+    fmt.setFontUnderline(underline);
     mergeFormatOnWordOrSelection(fmt);
 }
 
 void HtmlTextEditor::textItalic()
 {
+    textItalic(actionTextItalic->isChecked());
+}
+
+void HtmlTextEditor::textItalic(bool italic)
+{
     QTextCharFormat fmt;
-    fmt.setFontItalic(actionTextItalic->isChecked());
+    fmt.setFontItalic(italic);
     mergeFormatOnWordOrSelection(fmt);
 }
 
@@ -577,8 +600,12 @@ void HtmlTextEditor::textFamily(const QString &f)
 
 void HtmlTextEditor::textSize(const QString &p)
 {
-    qreal pointSize = p.toFloat();
-    if (p.toFloat() > 0) {
+    textSize(p.toFloat());
+}
+
+void HtmlTextEditor::textSize(qreal pointSize)
+{
+    if (pointSize > 0) {
         QTextCharFormat fmt;
         fmt.setFontPointSize(pointSize);
         mergeFormatOnWordOrSelection(fmt);
@@ -587,39 +614,45 @@ void HtmlTextEditor::textSize(const QString &p)
 
 void HtmlTextEditor::textStyle(int styleIndex)
 {
+    QTextListFormat::Style style;
+
+    switch (styleIndex) {
+    case 1:
+        style = QTextListFormat::ListDisc;
+        break;
+    case 2:
+        style = QTextListFormat::ListCircle;
+        break;
+    case 3:
+        style = QTextListFormat::ListSquare;
+        break;
+    case 4:
+        style = QTextListFormat::ListDecimal;
+        break;
+    case 5:
+        style = QTextListFormat::ListLowerAlpha;
+        break;
+    case 6:
+        style = QTextListFormat::ListUpperAlpha;
+        break;
+    case 7:
+        style = QTextListFormat::ListLowerRoman;
+        break;
+    case 8:
+        style = QTextListFormat::ListUpperRoman;
+        break;
+    default:
+        style = QTextListFormat::ListStyleUndefined;
+        break;
+    }
+    textStyle(style);
+}
+
+void HtmlTextEditor::textStyle(QTextListFormat::Style style)
+{
     QTextCursor cursor = textEdit->textCursor();
 
-    if (styleIndex != 0) {
-        QTextListFormat::Style style = QTextListFormat::ListDisc;
-
-        switch (styleIndex) {
-            default:
-            case 1:
-                style = QTextListFormat::ListDisc;
-                break;
-            case 2:
-                style = QTextListFormat::ListCircle;
-                break;
-            case 3:
-                style = QTextListFormat::ListSquare;
-                break;
-            case 4:
-                style = QTextListFormat::ListDecimal;
-                break;
-            case 5:
-                style = QTextListFormat::ListLowerAlpha;
-                break;
-            case 6:
-                style = QTextListFormat::ListUpperAlpha;
-                break;
-            case 7:
-                style = QTextListFormat::ListLowerRoman;
-                break;
-            case 8:
-                style = QTextListFormat::ListUpperRoman;
-                break;
-        }
-
+    if (style != QTextListFormat::ListStyleUndefined) {
         cursor.beginEditBlock();
 
         QTextBlockFormat blockFmt = cursor.blockFormat();
@@ -642,8 +675,9 @@ void HtmlTextEditor::textStyle(int styleIndex)
     } else {
         // ####
         QTextBlockFormat bfmt;
-        bfmt.setObjectIndex(-1);
+        bfmt.setObjectIndex(0);
         cursor.mergeBlockFormat(bfmt);
+        textEdit->setTextCursor(cursor);
     }
 }
 
@@ -652,6 +686,11 @@ void HtmlTextEditor::textColor()
     QColor col = QColorDialog::getColor(textEdit->textColor(), this);
     if (!col.isValid())
         return;
+    textColor(col);
+}
+
+void HtmlTextEditor::textColor(QColor col)
+{
     QTextCharFormat fmt;
     fmt.setForeground(col);
     mergeFormatOnWordOrSelection(fmt);
@@ -668,6 +707,13 @@ void HtmlTextEditor::textAlign(QAction *a)
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
     else if (a == actionAlignJustify)
         textEdit->setAlignment(Qt::AlignJustify);
+}
+
+void HtmlTextEditor::textAlign(Qt::Alignment align)
+{
+    if (align & Qt::AlignLeft)  align |= Qt::AlignAbsolute;
+    if (align & Qt::AlignRight) align |= Qt::AlignAbsolute;
+    textEdit->setAlignment(align);
 }
 
 void HtmlTextEditor::currentCharFormatChanged(const QTextCharFormat &format)
@@ -691,9 +737,7 @@ void HtmlTextEditor::clipboardDataChanged()
 
 void HtmlTextEditor::about()
 {
-    QMessageBox::about(this, tr("About"), tr("This example demonstrates Qt's "
-        "rich text editing facilities in action, providing an example "
-        "document for you to experiment with."));
+    QMessageBox::about(this, tr("About"), tr("Rich text editor."));
 }
 
 void HtmlTextEditor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
@@ -733,3 +777,22 @@ void HtmlTextEditor::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
+void HtmlTextEditor::setReadOnly(bool read_only)
+{
+    textEdit->setReadOnly(read_only);
+    comboSize->setEnabled(!read_only);
+    comboFont->setEnabled(!read_only);
+    comboStyle->setEnabled(!read_only);
+    actionAlignCenter->setEnabled(!read_only);
+    actionAlignJustify->setEnabled(!read_only);
+    actionAlignLeft->setEnabled(!read_only);
+    actionAlignRight->setEnabled(!read_only);
+    actionCut->setEnabled(!read_only);
+    actionRedo->setEnabled(!read_only);
+    actionUndo->setEnabled(!read_only);
+    actionPaste->setEnabled(!read_only);
+    actionTextBold->setEnabled(!read_only);
+    actionTextColor->setEnabled(!read_only);
+    actionTextItalic->setEnabled(!read_only);
+    actionTextUnderline->setEnabled(!read_only);
+}

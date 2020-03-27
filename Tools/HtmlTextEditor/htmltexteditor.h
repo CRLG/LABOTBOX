@@ -38,6 +38,7 @@
 #include <QMap>
 #include <QPointer>
 #include <QMimeData>
+#include <QTextList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -57,6 +58,8 @@ class HtmlTextEditor : public QMainWindow
 public:
     HtmlTextEditor(QWidget *parent = 0);
 
+    void setReadOnly(bool read_only);
+
 protected:
     virtual void closeEvent(QCloseEvent *e) Q_DECL_OVERRIDE;
 
@@ -68,7 +71,7 @@ private:
     bool maybeSave();
     void setCurrentFileName(const QString &fileName);
 
-private slots:
+protected slots:
     void fileNew();
     void fileOpen();
     bool fileSave();
@@ -76,15 +79,23 @@ private slots:
     void filePrint();
     void filePrintPreview();
     void filePrintPdf();
+    void saveToPdf(QString pathfilename);
 
     void textBold();
+    void textBold(bool bold);
     void textUnderline();
+    void textUnderline(bool underline);
     void textItalic();
+    void textItalic(bool italic);
     void textFamily(const QString &f);
     void textSize(const QString &p);
+    void textSize(qreal pointSize);
     void textStyle(int styleIndex);
+    void textStyle(QTextListFormat::Style style);
     void textColor();
+    void textColor(QColor col);
     void textAlign(QAction *a);
+    void textAlign(Qt::Alignment align);
 
     void currentCharFormatChanged(const QTextCharFormat &format);
     void cursorPositionChanged();
@@ -99,6 +110,7 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
+protected:
     QAction *actionSave;
     QAction *actionTextBold;
     QAction *actionTextUnderline;
@@ -114,12 +126,15 @@ private:
     QAction *actionCopy;
     QAction *actionPaste;
 
+private:
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
 
     QToolBar *tb;
     QString fileName;
+
+protected :
     TextEdit *textEdit;
 };
 
