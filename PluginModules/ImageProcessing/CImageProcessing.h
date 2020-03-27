@@ -87,7 +87,7 @@ public slots:
      void initVideoThread();
      void killVideoThread();
 
-     void activeDebug(bool on_off);
+     void activeDebug(int state);
      void TpsMatch_changed(QVariant val);
 
 signals:

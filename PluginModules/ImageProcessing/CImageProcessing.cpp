@@ -26,13 +26,14 @@ CImageProcessing::CImageProcessing(const char *plugin_name)
 {
     refresh_camera_list();
 
+    m_ihm.ui.active_debug->setChecked(false);
+
     connect(m_ihm.ui.start_work, SIGNAL(released()), this, SLOT(startVideoWork()));
     connect(m_ihm.ui.stop_work, SIGNAL(released()), this, SLOT(stopVideoWork()));
     connect(m_ihm.ui.init_thread, SIGNAL(released()), this, SLOT(initVideoThread()));
     connect(m_ihm.ui.kill_thread, SIGNAL(released()), this, SLOT(killVideoThread()));
-    connect(m_ihm.ui.active_debug, SIGNAL(toggled(bool)), this, SLOT(activeDebug(bool)));
+    connect(m_ihm.ui.active_debug, SIGNAL(stateChanged(int)), this, SLOT(activeDebug(int)));
 
-    m_ihm.ui.active_debug->setChecked(true);
 }
 
 
@@ -167,6 +168,7 @@ void CImageProcessing::video_worker_init(int video_source_id)
     qRegisterMetaType<tVideoResult>();
 
     m_video_worker = new VideoWorker;
+    m_video_worker->activeDebug(m_ihm.ui.active_debug->isChecked());
     connect(m_video_worker, SIGNAL(camStateChanged(int)),this, SLOT(getCamState(int)));
     if(m_video_worker->init(video_source_id,m_camera_parameters))
     {
@@ -375,8 +377,9 @@ void CImageProcessing::stopVideoWork()
     if (m_video_worker) m_video_worker->stopWork();
 }
 
-void CImageProcessing::activeDebug(bool on_off)
+void CImageProcessing::activeDebug(int state)
 {
+    bool on_off=(state==Qt::Checked?true:false);
     if (m_video_worker) m_video_worker->activeDebug(on_off);
 }
 

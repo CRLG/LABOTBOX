@@ -6,12 +6,12 @@
 // ======================================================
 // ======================================================
 VideoWorker::VideoWorker()
-    : m_dbg_active(true)
 {
     iH=0;
     iL=0;
     parameterConfirmed=false;
     recordInitialized=false;
+    m_dbg_active=false;
 }
 
 void VideoWorker::stopWork()
