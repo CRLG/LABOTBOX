@@ -83,6 +83,7 @@ void CImageProcessing::init(CApplication *application)
   //en cas de balise la camera démarre toute seule
   val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
   m_auto_on=val.toBool();
+  m_ihm.ui.chck_asBeacon->setChecked(m_auto_on);
 
   m_application->m_data_center->write("TempsMatch", -1);
 
@@ -129,6 +130,7 @@ void CImageProcessing::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   //mémorise les paramètres de la caméra
+  m_auto_on=m_ihm.ui.chck_asBeacon->isChecked();
   m_application->m_eeprom->write(getName(), "auto_on", QVariant(m_auto_on));
 
 }
@@ -205,31 +207,36 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     switch(m_ihm.ui.tabWidget->currentIndex())
     {
     case 1:
-        //le zoom est adapté on laisse l'image à sa dimension
-        if((zoom==0 && ((h==240)||(w==320)))||(zoom==1 && ((h==480)||(w==640)))||(zoom==2 && ((h==768)||(w==1024))))
+        if(m_ihm.ui.active_debug->isChecked())
         {
-            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
-        }
-        else if(zoom==0 && ((h!=240)||(w!=320)))
-        {
-            //zoom QVGA
-            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(320,240,Qt::KeepAspectRatio));
-        }
-        else if(zoom==1 && ((h!=480)||(w!=640)))
-        {
-            //zoom VGA
-            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(640,480,Qt::KeepAspectRatio));
-        }
-        else if(zoom==2 && ((h!=768)||(w!=1024)))
-        {
-            //zoom XGA
-            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(1024,768,Qt::KeepAspectRatio));
+            //le zoom est adapté on laisse l'image à sa dimension
+            if((zoom==0 && ((h==240)||(w==320)))||(zoom==1 && ((h==480)||(w==640)))||(zoom==2 && ((h==768)||(w==1024))))
+            {
+                m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
+            }
+            else if(zoom==0 && ((h!=240)||(w!=320)))
+            {
+                //zoom QVGA
+                m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(320,240,Qt::KeepAspectRatio));
+            }
+            else if(zoom==1 && ((h!=480)||(w!=640)))
+            {
+                //zoom VGA
+                m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(640,480,Qt::KeepAspectRatio));
+            }
+            else if(zoom==2 && ((h!=768)||(w!=1024)))
+            {
+                //zoom XGA
+                m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst).scaled(1024,768,Qt::KeepAspectRatio));
+            }
+            else
+            {
+                //dans tous les cas on affiche la vidéo
+                m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
+            }
         }
         else
-        {
-            //dans tous les cas on affiche la vidéo
-            m_ihm.ui.containerVideo->setPixmap(QPixmap::fromImage(imgConst));
-        }
+            m_ihm.ui.containerVideo->setPixmap(QPixmap(":/icons/cancel.png"));
         break;
     case 2:
         m_ihm.ui.rob1_dist->setValue(result.robot1_dist);
