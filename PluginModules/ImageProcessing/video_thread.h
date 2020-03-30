@@ -13,32 +13,41 @@
 
 typedef enum {
     VIDEO_PROCESS_BALISE_MAT = 0,
-    VIDEO_PROCESS_RECO_ARUCO,
-    VIDEO_PROCESS_RECO_COULEURS,
-    VIDEO_PROCESS_DUMMY
+    VIDEO_PROCESS_NORD_SUD,
+    VIDEO_PROCESS_SEQUENCE_COULEUR
 }tVideoProcessAlgoType;
 
 typedef struct
 {
     tVideoProcessAlgoType video_process_algo;
-    float data1;
-    float data2;
-    float data3;
+    float value[20];
     bool record;
-
 }tVideoInput;
 
 typedef struct
 {
-    double robot1_dist;
-    float robot1_angle;
-    double robot2_dist;
-    float robot2_angle;
-    double robot3_dist;
-    float robot3_angle;
     std::vector <int>markers_detected;
     int m_fps;
+    float value[20];
 }tVideoResult;
+
+typedef enum {
+    IDX_ROBOT1_DIST=0,
+    IDX_ROBOT1_ANGLE,
+    IDX_ROBOT2_DIST,
+    IDX_ROBOT2_ANGLE,
+    IDX_ROBOT3_DIST,
+    IDX_ROBOT3_ANGLE,
+    IDX_NORD,
+    IDX_SUD,
+    IDX_X_FENETRE,
+    IDX_Y_FENETRE,
+    IDX_LARGEUR_FENETRE,
+    IDX_HAUTEUR_FENETRE,
+    IDX_S_RED,
+    IDX_V_RED,
+    IDX_ECART_RED
+} tIdxResult;
 
 Q_DECLARE_METATYPE(tVideoInput)
 Q_DECLARE_METATYPE(tVideoResult)
@@ -70,14 +79,12 @@ private :
     cv::Mat distCoeffs;
     bool bCalibrated;
     float markerLength;
-    int iH;
-    int iL;
+    int m_iH;
+    int m_iL;
     bool parameterConfirmed;
     bool recordInitialized;
 
     std::string calibrationFixParameters;
-
-
 
 public slots:
     void doWork(tVideoInput parameter);
@@ -91,12 +98,16 @@ signals:
     void camStateChanged(int state);
 
 private:
-    void _video_process_algo1(tVideoInput parameter);
-    void _video_process_dummy(tVideoInput parameter);
+    void _video_process_Balise(tVideoInput parameter);
+    void _video_process_NordSud(tVideoInput parameter);
+    void _video_process_ColorSequence(tVideoInput parameter);
     void _video_record(cv::Mat frametoRecord);
     void _video_confirm_parameters(cv::Mat frameSample);
 
     QString getVideoLogFilename();
+    void _seuillageImage(cv::Mat *frameHSV, cv::Mat *frameGray, int Couleur, int Saturation, int Purete, int EcartCouleur);
+    cv::Point _isColor(cv::Mat *frameGray, int ROIx, int ROIy, int ROIh, int ROIl, int seuil);
+    void _init_tResult(tVideoResult *parameter);
 };
 
 #endif // VIDEO_THREAD_H
