@@ -286,6 +286,35 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
     m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
 
+    int iG=Qt::green;
+    int iR=Qt::red;
+    switch((int)result.value[IDX_SEQUENCE])
+    {
+        case SEQUENCE_UNKNOWN:
+            showResultGobelets(0,0,0,0,0);
+            break;
+        case SEQUENCE_GRGGR:
+            showResultGobelets(iG,iR,iG,iG,iR);
+            break;
+        case SEQUENCE_GRRGR:
+            showResultGobelets(iG,iR,iR,iG,iR);
+            break;
+        case SEQUENCE_GGRGR:
+            showResultGobelets(iG,iG,iR,iG,iR);
+            break;
+        case SEQUENCE_GRGRR:
+            showResultGobelets(iG,iR,iG,iR,iR);
+            break;
+        case SEQUENCE_GGGRR:
+            showResultGobelets(iG,iG,iG,iR,iR);
+            break;
+        case SEQUENCE_GGRRR:
+            showResultGobelets(iG,iG,iR,iR,iR);
+            break;
+        default:
+            showResultGobelets(0,0,0,0,0);
+            break;
+    }
 
     m_ihm.ui.fps->setValue(result.m_fps);
 
@@ -511,5 +540,96 @@ void CImageProcessing::setCalibration()
     m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
     m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
     m_video_worker->m_internal_param[IDX_PARAM_CALIB_TYPE]=m_ihm.ui.cB_typeCalibration->currentIndex();
+}
+
+void CImageProcessing::showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5)
+{
+    int iG=Qt::green;
+    int iR=Qt::red;
+    switch(gob1)
+    {
+     case 0:
+        m_ihm.ui.qLed_gob_01->setValue(false);
+        break;
+    case Qt::green:
+        m_ihm.ui.qLed_gob_01->setOnColor(QLed::ledColor::Green);
+        m_ihm.ui.qLed_gob_01->setValue(true);
+        break;
+    case Qt::red:
+        m_ihm.ui.qLed_gob_01->setOnColor(QLed::ledColor::Red);
+        m_ihm.ui.qLed_gob_01->setValue(true);
+        break;
+    default:
+        m_ihm.ui.qLed_gob_01->setValue(false);
+        break;
+    }
+    switch(gob2)
+    {
+     case 0:
+        m_ihm.ui.qLed_gob_02->setValue(false);
+        break;
+    case Qt::green:
+        m_ihm.ui.qLed_gob_02->setOnColor(QLed::ledColor::Green);
+        m_ihm.ui.qLed_gob_02->setValue(true);
+        break;
+    case Qt::red:
+        m_ihm.ui.qLed_gob_02->setOnColor(QLed::ledColor::Red);
+        m_ihm.ui.qLed_gob_02->setValue(true);
+        break;
+    default:
+        m_ihm.ui.qLed_gob_02->setValue(false);
+        break;
+    }
+    switch(gob3)
+    {
+     case 0:
+        m_ihm.ui.qLed_gob_03->setValue(false);
+        break;
+    case Qt::green:
+        m_ihm.ui.qLed_gob_03->setOnColor(QLed::ledColor::Green);
+        m_ihm.ui.qLed_gob_03->setValue(true);
+        break;
+    case Qt::red:
+        m_ihm.ui.qLed_gob_03->setOnColor(QLed::ledColor::Red);
+        m_ihm.ui.qLed_gob_03->setValue(true);
+        break;
+    default:
+        m_ihm.ui.qLed_gob_03->setValue(false);
+        break;
+    }
+    switch(gob4)
+    {
+     case 0:
+        m_ihm.ui.qLed_gob_04->setValue(false);
+        break;
+    case Qt::green:
+        m_ihm.ui.qLed_gob_04->setOnColor(QLed::ledColor::Green);
+        m_ihm.ui.qLed_gob_04->setValue(true);
+        break;
+    case Qt::red:
+        m_ihm.ui.qLed_gob_04->setOnColor(QLed::ledColor::Red);
+        m_ihm.ui.qLed_gob_04->setValue(true);
+        break;
+    default:
+        m_ihm.ui.qLed_gob_04->setValue(false);
+        break;
+    }
+    switch(gob5)
+    {
+     case 0:
+        m_ihm.ui.qLed_gob_05->setValue(false);
+        break;
+    case Qt::green:
+        m_ihm.ui.qLed_gob_05->setOnColor(QLed::ledColor::Green);
+        m_ihm.ui.qLed_gob_05->setValue(true);
+        break;
+    case Qt::red:
+        m_ihm.ui.qLed_gob_05->setOnColor(QLed::ledColor::Red);
+        m_ihm.ui.qLed_gob_05->setValue(true);
+        break;
+    default:
+        m_ihm.ui.qLed_gob_05->setValue(false);
+        break;
+    }
 }
 

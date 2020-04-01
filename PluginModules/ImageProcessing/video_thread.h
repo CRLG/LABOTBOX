@@ -18,6 +18,16 @@ typedef enum {
     VIDEO_PROCESS_CALIBRATION
 }tVideoProcessAlgoType;
 
+typedef enum {
+    SEQUENCE_UNKNOWN=0,
+    SEQUENCE_GRGGR,
+    SEQUENCE_GRRGR,
+    SEQUENCE_GGRGR,
+    SEQUENCE_GRGRR,
+    SEQUENCE_GGGRR,
+    SEQUENCE_GGRRR
+}tVideoSequence;
+
 typedef struct
 {
     tVideoProcessAlgoType video_process_algo;
@@ -43,6 +53,10 @@ typedef enum {
     IDX_PARAM_PIXEL_MIN,
     IDX_PARAM_PIXEL_MAX,
     IDX_PARAM_CALIB_TYPE,
+    IDX_PARAM_X_FENETRE,
+    IDX_PARAM_Y_FENETRE,
+    IDX_PARAM_LARGEUR_FENETRE,
+    IDX_PARAM_HAUTEUR_FENETRE //14 sur 20
 } tIdxParam;
 
 typedef enum {
@@ -54,13 +68,7 @@ typedef enum {
     IDX_ROBOT3_ANGLE,
     IDX_NORD,
     IDX_SUD,
-    IDX_X_FENETRE,
-    IDX_Y_FENETRE,
-    IDX_LARGEUR_FENETRE,
-    IDX_HAUTEUR_FENETRE,
-    IDX_S_RED,
-    IDX_V_RED,
-    IDX_ECART_RED
+    IDX_SEQUENCE //9 sur 20
 } tIdxResult;
 
 Q_DECLARE_METATYPE(tVideoInput)

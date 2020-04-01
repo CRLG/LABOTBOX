@@ -506,6 +506,9 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
     //récupération de l'image
     bool captureOK=capture->retrieve(m_frame,0);
 
+    //par défaut : aucune séquence
+    result.value[IDX_SEQUENCE]=SEQUENCE_UNKNOWN;
+
     //l'image a-t-elle bien été récupérée
     if (captureOK)
     {
@@ -687,6 +690,19 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
             }
 
             //qDebug() << str_combinaison <<"\n";
+
+            if(str_combinaison=="GRGGR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GRGGR;
+            if(str_combinaison=="GRRGR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GRRGR;
+            if(str_combinaison=="GGRGR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GGRGR;
+            if(str_combinaison=="GRGRR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GRGRR;
+            if(str_combinaison=="GGGRR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GGGRR;
+            if(str_combinaison=="GGRRR")
+                result.value[IDX_SEQUENCE]=SEQUENCE_GGRRR;
         }
 
         int fps=1000/(t.elapsed());
