@@ -90,11 +90,19 @@ void CImageProcessing::init(CApplication *application)
   /*
   VIDEO_PROCESS_BALISE_MAT = 0,
   VIDEO_PROCESS_NORD_SUD,
-  VIDEO_PROCESS_SEQUENCE_COULEUR*/
+  VIDEO_PROCESS_SEQUENCE_COULEUR
+    VIDEO_PROCESS_CALIBRATION*/
   QStringList str_list_algo;
-  str_list_algo << "MAT BALISE" << "RECO NORD SUD" << "SEQUENCE COULEURS";
+  str_list_algo << "MAT BALISE" << "RECO NORD SUD" << "SEQUENCE COULEURS" <<"CALIBRATION";
   m_ihm.ui.list_algo->clear();
   m_ihm.ui.list_algo->addItems(str_list_algo);
+
+  QStringList str_list_calib;
+  str_list_calib << "COULEURS" << "CHARUCO";
+  m_ihm.ui.cB_typeCalibration->clear();
+  m_ihm.ui.cB_typeCalibration->addItems(str_list_calib);
+
+  connect(m_ihm.ui.pB_SetCalibration,SIGNAL(clicked(bool)),this,SLOT(setCalibration()));
 
   // Crée les variables dans le data manager
   // 3 jeux de données (X, Y, Teta) par robot
@@ -189,12 +197,13 @@ void CImageProcessing::video_worker_init(int video_source_id)
         connect(this, SIGNAL(operate(tVideoInput)), m_video_worker, SLOT(doWork(tVideoInput)));
         connect(m_video_worker, SIGNAL(resultReady(tVideoResult,QImage)), this, SLOT(videoHandleResults(tVideoResult,QImage)));
         connect(m_video_worker, SIGNAL(workStarted()), this, SLOT(videoWorkStarted()));
-        connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished()));
-
+        connect(m_video_worker, SIGNAL(workFinished()), this, SLOT(videoWorkFinished())); 
+        m_ihm.ui.tabCalibration->setEnabled(true);
         m_video_worker_thread.start();
     }
     else
     {
+        m_ihm.ui.tabCalibration->setEnabled(false);
         disconnect(m_video_worker, SIGNAL(camStateChanged(int)),this, SLOT(getCamState(int)));
         delete m_video_worker;
         m_video_worker = NULL;
@@ -247,6 +256,25 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_ihm.ui.containerVideo->setPixmap(QPixmap(":/icons/cancel.png"));
     }
 
+    if(m_ihm.ui.tabWidget->currentIndex()==3)
+    {
+        if(m_ihm.ui.active_debug->isChecked())
+        {
+            //le zoom est adapté on laisse l'image à sa dimension
+            if((h==240)&&(w==320))
+            {
+                m_ihm.ui.containerVideoCalibration->setPixmap(QPixmap::fromImage(imgConst));
+            }
+            else
+            {
+                //zoom QVGA
+                m_ihm.ui.containerVideoCalibration->setPixmap(QPixmap::fromImage(imgConst).scaled(320,240,Qt::KeepAspectRatio));
+            }
+        }
+        else
+            m_ihm.ui.containerVideo->setPixmap(QPixmap(":/icons/cancel.png"));
+    }
+
     m_ihm.ui.rob1_dist->setValue(result.value[IDX_ROBOT1_DIST]);
     m_ihm.ui.rob1_angle->setValue(result.value[IDX_ROBOT1_ANGLE]);
     m_ihm.ui.rob2_dist->setValue(result.value[IDX_ROBOT2_DIST]);
@@ -255,6 +283,8 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.rob3_angle->setValue(result.value[IDX_ROBOT3_ANGLE]);
     m_ihm.ui.qLed_Nord->setValue(((result.value[IDX_NORD]==1.)?true:false));
     m_ihm.ui.qLed_Sud->setValue(((result.value[IDX_SUD]==1.)?true:false));
+    m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
+    m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
 
 
     m_ihm.ui.fps->setValue(result.m_fps);
@@ -304,6 +334,7 @@ void CImageProcessing::videoWorkStarted()
     m_ihm.ui.kill_thread->setEnabled(false);
     m_ihm.ui.list_algo->setEnabled(false);
     m_ihm.ui.stop_work->setEnabled(true);
+    m_ihm.ui.tabCalibration->setEnabled(true);
     //qDebug() << "[CImageProcessing] Le traitement Video est lancé.";
 }
 
@@ -314,6 +345,7 @@ void CImageProcessing::videoWorkFinished()
     m_ihm.ui.kill_thread->setEnabled(true);
     m_ihm.ui.list_algo->setEnabled(true);
     m_ihm.ui.stop_work->setEnabled(false);
+    m_ihm.ui.tabCalibration->setEnabled(false);
     //qDebug() << "[CImageProcessing] Le traitement Vidéo est arreté.";
 }
 
@@ -390,9 +422,16 @@ void CImageProcessing::startVideoWork(bool b_record)
     tVideoInput param;
     param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
 
-    param.value[0] = m_ihm.ui.in_data1->value();
-    param.value[1] = m_ihm.ui.in_data2->value();
-    param.value[2] = m_ihm.ui.in_data3->value();
+    param.value[IDX_PARAM_01] = m_ihm.ui.in_data1->value();
+    param.value[IDX_PARAM_02] = m_ihm.ui.in_data2->value();
+    param.value[IDX_PARAM_03] = m_ihm.ui.in_data3->value();
+    param.value[IDX_PARAM_ECART_VERT]=m_ihm.ui.ecartVert->value();
+    param.value[IDX_PARAM_PURETE_VERT]=m_ihm.ui.pureteVert->value();
+    param.value[IDX_PARAM_ECART_ROUGE]=m_ihm.ui.ecartVert->value();
+    param.value[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
+    param.value[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
+    param.value[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
+
     param.record=b_record;
     emit operate(param);
 }
@@ -401,10 +440,23 @@ void CImageProcessing::startVideoWork(void)
 {
     tVideoInput param;
     param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
-    param.value[0] = m_ihm.ui.in_data1->value();
-    param.value[1] = m_ihm.ui.in_data2->value();
-    param.value[2] = m_ihm.ui.in_data3->value();
+    param.value[IDX_PARAM_01] = m_ihm.ui.in_data1->value();
+    param.value[IDX_PARAM_02] = m_ihm.ui.in_data2->value();
+    param.value[IDX_PARAM_03] = m_ihm.ui.in_data3->value();
+    param.value[IDX_PARAM_ECART_VERT]=m_ihm.ui.ecartVert->value();
+    param.value[IDX_PARAM_PURETE_VERT]=m_ihm.ui.pureteVert->value();
+    param.value[IDX_PARAM_ECART_ROUGE]=m_ihm.ui.ecartVert->value();
+    param.value[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
+    param.value[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
+    param.value[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
     param.record=false;
+
+    if(m_ihm.ui.list_algo->currentIndex()==VIDEO_PROCESS_CALIBRATION)
+    {
+        m_ihm.ui.active_debug->setChecked(true);
+        setCalibration();
+    }
+
     emit operate(param);
 }
 
@@ -444,3 +496,20 @@ void CImageProcessing::TpsMatch_changed(QVariant val)
      if(TpsMatch>DUREE_MATCH)
          stopVideoWork();
 }
+
+void CImageProcessing::setCalibration()
+{
+    if (m_video_worker == NULL) return;
+
+    m_video_worker->m_internal_param[IDX_PARAM_01] = m_ihm.ui.in_data1->value();
+    m_video_worker->m_internal_param[IDX_PARAM_02] = m_ihm.ui.in_data2->value();
+    m_video_worker->m_internal_param[IDX_PARAM_03] = m_ihm.ui.in_data3->value();
+    m_video_worker->m_internal_param[IDX_PARAM_ECART_VERT]=m_ihm.ui.ecartVert->value();
+    m_video_worker->m_internal_param[IDX_PARAM_PURETE_VERT]=m_ihm.ui.pureteVert->value();
+    m_video_worker->m_internal_param[IDX_PARAM_ECART_ROUGE]=m_ihm.ui.ecartVert->value();
+    m_video_worker->m_internal_param[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
+    m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
+    m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
+    m_video_worker->m_internal_param[IDX_PARAM_CALIB_TYPE]=m_ihm.ui.cB_typeCalibration->currentIndex();
+}
+

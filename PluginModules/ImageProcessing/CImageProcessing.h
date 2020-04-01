@@ -65,15 +65,13 @@ private:
     QString m_camera_parameters;
     bool b_robStarted;
     bool m_auto_on;
-
     void refresh_camera_list();
-
+    tVideoInput getCalibrationValues();
 private slots :
     void onRightClicGUI(QPoint pos);
-
-     void video_worker_init(int video_source_id);
-     void getCamState(int state);
-
+    void video_worker_init(int video_source_id);
+    void getCamState(int state);
+    void setCalibration();
 public slots:
      void videoHandleResults(tVideoResult result,QImage imgConst);
      void videoThreadStopped();

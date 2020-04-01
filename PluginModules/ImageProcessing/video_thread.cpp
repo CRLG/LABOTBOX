@@ -12,6 +12,8 @@ VideoWorker::VideoWorker()
     parameterConfirmed=false;
     recordInitialized=false;
     m_dbg_active=false;
+    for(int i=0;i<20;i++)
+        m_internal_param[i]=0;
 }
 
 void VideoWorker::stopWork()
@@ -189,6 +191,10 @@ void VideoWorker::doWork(tVideoInput parameter) {
 
             case VIDEO_PROCESS_NORD_SUD :
                 _video_process_NordSud(parameter);
+            break;
+
+            case VIDEO_PROCESS_CALIBRATION :
+                _video_process_Calibration(parameter);
             break;
 
             default :
@@ -402,12 +408,6 @@ void VideoWorker::_video_process_NordSud(tVideoInput parameter)
                     else
                         result.value[IDX_SUD]=0.0;
 
-                    /*result.value[IDX_ROBOT1_DIST] = tvecs[i][0];
-                    result.value[IDX_ROBOT2_DIST] = tvecs[i][1];
-                    result.value[IDX_ROBOT3_DIST] = tvecs[i][2];
-                    result.value[IDX_ROBOT1_ANGLE] = rvecs[i][0];
-                    result.value[IDX_ROBOT2_ANGLE] = rvecs[i][1];
-                    result.value[IDX_ROBOT3_ANGLE] = rvecs[i][2];*/
                     /*result.markers_detected = markerIds;*/
                 }
             }
@@ -479,24 +479,26 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
     180° : cyan ;
     240° : bleu ;
     300° : magenta;
+    ATTENTION ramené de 0 à 180 dans opencv
 
     Saturation ou "S":
     La saturation est l'« intensité » de la couleur :
     elle varie entre 0 et 100 % ;
     elle est parfois appelée « pureté » ;
     plus la saturation d'une couleur est faible, plus l'image sera « grisée » et plus elle apparaîtra fade
+    ATTENTION codé sur un octet dans opencv (0/255)
 
     Valeur ou "V"
     La valeur est la « brillance » de la couleur :
     elle varie entre 0 et 100 %
     plus la valeur d'une couleur est faible, plus la couleur est sombre. Une valeur de 0 correspond au noir.
+    ATTENTION codé sur un octet dans opencv (0/255)
     */
 
     tVideoResult result;
     _init_tResult(&result);
     QTime t;
-      t.start();
-
+    t.start();
 
     //capture d'une image du flux video
     capture->grab();
@@ -508,11 +510,19 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
     if (captureOK)
     {
         //images temporaires pour le traitement video
-        cv::Mat frameColor;
-        cv::Mat frameHSV;
-        cv::Mat frameBlur;
-        cv::Mat frameGray;
-        cv::Mat frameSobel;
+        cv::Mat inputImage;
+        cv::Mat3b frameHSV;
+        cv::Mat3b inputRGB;
+        cv::Mat3b maskedRGB;
+        cv::Mat3b maskedRed;
+        cv::Mat3b maskedGreen;
+        cv::Mat1b maskRGB;
+        cv::Mat1b maskRed;
+        cv::Mat1b maskRed_1;
+        cv::Mat1b maskRed_2;
+        cv::Mat1b maskGreen;
+        cv::Mat3b frameBlur;
+        cv::Mat3b frameAffichage;
 
         //dans le cas ou la configuration de la caméra aurait mal fonctionné
         if(!parameterConfirmed)
@@ -524,75 +534,160 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
         if(parameter.record)
             _video_record(m_frame);//on enregistre le flux video
 
-        //analyse de l'image
-        cv::Mat inputImage=m_frameCloned.clone();
+        //clone de l'image acquise de l'image
+        inputImage=m_frameCloned.clone();
 
-        //OpenCV travaille en BGR, on convertit donc en RGB
-        cv::cvtColor(inputImage, frameColor, CV_BGR2RGB);
-        //on clone l'image couleur pour les différents traitement couleur
-        frameBlur=frameColor.clone();
+        //conversion en RGB pour l'affichage
+        cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
 
-        //conversion en N&B pour les traitements binaires de l'image
-        cv::cvtColor(inputImage,frameGray,CV_BGR2GRAY);
-        //on clone l'image N&B pour les différents traitement N&B
-        frameSobel=frameGray.clone();
+        //init des images filtrées
+        maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+        maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+        maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
 
-        //floutage de l'image couleur pour enlever les parasites
-        cv::GaussianBlur(frameColor,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
+        //floutage de l'image couleur pour enlever les pixels parasites
+        cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
 
         //Conversion de l'image floutée dans l'espace colorimetrique HSV
-        cv::cvtColor(frameBlur,frameHSV,CV_RGB2HSV);
-
-        //Recherche de la séquence de couleur
-        cv::Mat frameGrey_red=frameGray.clone();
-        cv::Mat frameGrey_green=frameGray.clone();
-        cv::Mat frameHSV_red=frameHSV.clone();
-        cv::Mat frameHSV_green=frameHSV.clone();
-
-        //Nombre de pixels minimum à détecter
-        int nb_pixels_minimum=50;
+        cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
 
         //pour stocker les résultats
-        cv::Point centre_couleur(0,0);
-        QList< QPair<QString,int> > combinaison;
+        QList<int> combinaison_color;
+        QList<int> combinaison_x;
+        QList<int> combinaison_width;
 
         //MAJ du zonage
         //TODO récupérer des paramètres
-        int x_traitement=0;
+        /*int x_traitement=0;
         int y_traitement=0;
         int H_traitement=m_iH;
-        int L_traitement=m_iL;
+        int L_traitement=m_iL;*/
 
-        int iPureteRed=0;
-        int iEcartPureteRed=0;
-        int iTeinteRed=0;
-        int iPureteGreen=0;
-        int iEcartPureteGreen=0;
-        int iTeinteGreen=120;
+        //Nombre de pixels minimum à détecter
+        int nb_pixels_minimum=1000;
+        int nb_pixels_maximum=50000;
+        int iPureteRed=parameter.value[IDX_PARAM_PURETE_ROUGE];
+        int iEcartTeinteRed=parameter.value[IDX_PARAM_ECART_ROUGE];
+        int iPureteGreen=parameter.value[IDX_PARAM_PURETE_VERT];
+        int iEcartTeinteGreen=parameter.value[IDX_PARAM_ECART_VERT];
 
-        //rouge
-        //S_min=255*S_purete_detection/100;
-        //H_median=30;
-        _seuillageImage(&frameHSV_red,&frameGrey_red,Qt::red,255,(int)(iPureteRed/2.55),iEcartPureteRed);
-        centre_couleur=_isColor(&frameGrey_red,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
-        if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+        cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
+        cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
+        cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
+
+        minHSV = cv::Scalar(0, 255-iPureteRed, 50);
+        maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
+        minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
+        maxHSV = cv::Scalar(180, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
+        maskRed=maskRed_1|maskRed_2;
+        cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
+
+        maskRGB = maskGreen | maskRed;
+        cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
+
+        //séquence qui contiendra les contours des éléments verts trouvés
+        std::vector < std::vector<cv::Point> > contoursGreen;
+        cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+        for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
         {
-           QPair<QString,int> O("O",centre_couleur.x);
-           combinaison.append(O);
-           cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,128,255), -1, 8, 0 );
+            std::vector<cv::Point> approx;
+            cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
+            double aire_detectee = cv::contourArea(approx);
+            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+            {
+                //Rectangle circonscrit de la forme détectée
+                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+                //barycentre du rectangle
+                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+                combinaison_x << centre_x;
+                combinaison_color << Qt::green;
+                combinaison_width << RectCirconscrit.width;
+                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+
+                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+            }
         }
 
-        //vert
-        //H_median=120;
-        _seuillageImage(&frameHSV_green,&frameGrey_green,Qt::green,255,(int)(iPureteGreen/2.55),iEcartPureteGreen);
-        centre_couleur=_isColor(&frameGrey_green,x_traitement,y_traitement,H_traitement,L_traitement,nb_pixels_minimum);
-        if((centre_couleur.x!=0)&&(centre_couleur.y!=0))
+        //séquence qui contiendra les contours des éléments verts trouvés
+        std::vector < std::vector<cv::Point> > contoursRed;
+        cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+        for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
         {
-           QPair<QString,int> V("V",centre_couleur.x);
-           combinaison.append(V);
-           cv::circle( frameColor, centre_couleur, 20, CV_RGB(0,255,0), -1, 8, 0 );
+            std::vector<cv::Point> approx;
+            cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
+            double aire_detectee = cv::contourArea(approx);
+            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+            {
+                //Rectangle circonscrit de la forme détectée
+                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+                //barycentre du rectangle
+                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+                combinaison_x << centre_x;
+                combinaison_color << Qt::red;
+                combinaison_width << RectCirconscrit.width;
+                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+
+                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+            }
         }
 
+
+        //on analyse les résultats
+        if(!combinaison_x.isEmpty())
+        {
+            //on réordonne selon les x croissants
+            for(int i=combinaison_x.count()-1;i>0;i--)
+                for(int j=0;j<i;j++)
+                {
+                    if(combinaison_x[j+1] < combinaison_x[j])
+                    {
+                        combinaison_x.swap(j+1,j);
+                        combinaison_color.swap(j+1,j);
+                        combinaison_width.swap(j+1,j);
+                    }
+                }
+
+            /*for(int i=0;i<combinaison_x.count();i++)
+                qDebug() << (combinaison_color[i]==Qt::green?"VERT ":"ROUGE ") << combinaison_width[i];
+            qDebug() << "\n\n";*/
+
+            //coupe 2020 : cf règlement page 11
+            //CAS N°1:
+            //côté BLEU: GRGGR   côté JAUNE: GRRGR
+            //CAS N°2:
+            //côté BLEU: GGRGR   côté JAUNE: GRGRR
+            //CAS N°3:
+            //côté BLEU: GGGRR   côté JAUNE: GGRRR
+
+            //largeur de tous les gobelets détectés
+            int largeur_totale=0;
+            for(int i=0;i<combinaison_width.count();i++)
+                largeur_totale=largeur_totale+combinaison_width[i];
+            //largeur moyenne d'un gobelet
+            int largeur_gobelet = largeur_totale/5;
+            QString str_combinaison;
+            for(int i=0;i<combinaison_width.count();i++)
+            {
+                float nb_gobelet_estim = combinaison_width[i] / largeur_gobelet;
+                if(nb_gobelet_estim < 1.4)
+                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"G":"R");
+                else if((nb_gobelet_estim > 1.6)&&(nb_gobelet_estim < 2.4))
+                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GG":"RR");
+                else
+                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GGG":"RRR");
+            }
+
+            //qDebug() << str_combinaison <<"\n";
+        }
 
         int fps=1000/(t.elapsed());
         result.m_fps=fps;
@@ -607,24 +702,19 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
             //recuperation des donnees de la frame
             //et referencement dans l'image Qt
             //ATTENTION: pas de copie des donnees -> garbage collector
-            //conversion de l'image en RGB
-            cv::Mat frame_converted;
-            frame_converted=m_frame.clone();
-            cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
 
             //affichage overlay
             char str[200];
             sprintf(str,"%d fps",fps);
-            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
+            cv::putText(maskedRGB, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
 
-            const uchar *qImageBuffer = (const uchar*)frame_converted.data;
-            //const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
-            //cv::imwrite("tata.jpg",frame);
+            const uchar *qImageBuffer = (const uchar*)inputRGB.data;
             QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
+            //const uchar *qImageBuffer = (const uchar*)frameGrey_green.data;
+            //QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_Grayscale8);
 
             //copie complete de l'image pour eviter une desallocation sauvage de la frame
             imgConst=img.copy(QRect(0,0,m_iL,m_iH));
-             frame_converted.release();
         }
 
         emit resultReady(result,imgConst);
@@ -635,16 +725,200 @@ void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
        //opencv ne profite pas du garbage collector de Qt
         m_frame.release();
         m_frameCloned.release();
-        frameGrey_red.release();
-        frameGrey_green.release();
-        frameHSV_red.release();
-        frameHSV_green.release();
-        frameColor.release();
+        inputImage.release();
+        inputRGB.release();
         frameBlur.release();
-        frameGray.release();
-        frameSobel.release();
         frameHSV.release();
+        maskedRGB.release();
+        maskedRed.release();
+        maskedGreen.release();
+        maskRGB.release();
+        maskRed.release();
+        maskRed_1.release();
+        maskRed_2.release();
+        maskGreen.release();
+        frameAffichage.release();
+    }
+    else
+    {
+        //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+    }
+}
 
+void VideoWorker::_video_process_Calibration(tVideoInput parameter)
+{
+    tVideoResult result;
+    _init_tResult(&result);
+    QTime t;
+    t.start();
+
+    //capture d'une image du flux video
+    capture->grab();
+
+    //récupération de l'image
+    bool captureOK=capture->retrieve(m_frame,0);
+
+    //l'image a-t-elle bien été récupérée
+    if (captureOK)
+    {
+        //images temporaires pour le traitement video
+        cv::Mat inputImage;
+        cv::Mat3b frameHSV;
+        cv::Mat3b inputRGB;
+        cv::Mat3b maskedRGB;
+        cv::Mat3b maskedRed;
+        cv::Mat3b maskedGreen;
+        cv::Mat1b maskRGB;
+        cv::Mat1b maskRed;
+        cv::Mat1b maskRed_1;
+        cv::Mat1b maskRed_2;
+        cv::Mat1b maskGreen;
+        cv::Mat3b frameBlur;
+        cv::Mat3b frameAffichage;
+
+        //dans le cas ou la configuration de la caméra aurait mal fonctionné
+        if(!parameterConfirmed)
+            _video_confirm_parameters(m_frame);
+
+        //clone de l'image pour la persistence des données
+        m_frameCloned=m_frame.clone();
+
+        if(parameter.record)
+            _video_record(m_frame);//on enregistre le flux video
+
+        //clone de l'image acquise de l'image
+        inputImage=m_frameCloned.clone();
+
+        //conversion en RGB pour l'affichage
+        cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
+
+        //init des images filtrées
+        maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+        maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+        maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+
+        //floutage de l'image couleur pour enlever les pixels parasites
+        cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
+
+        //Conversion de l'image floutée dans l'espace colorimetrique HSV
+        cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
+
+        //Nombre de pixels minimum à détecter
+        int nb_pixels_minimum=m_internal_param[IDX_PARAM_PIXEL_MIN];
+        int nb_pixels_maximum=m_internal_param[IDX_PARAM_PIXEL_MAX];
+        int iPureteRed=m_internal_param[IDX_PARAM_PURETE_ROUGE];
+        int iEcartTeinteRed=m_internal_param[IDX_PARAM_ECART_ROUGE];
+        int iPureteGreen=m_internal_param[IDX_PARAM_PURETE_VERT];
+        int iEcartTeinteGreen=m_internal_param[IDX_PARAM_ECART_VERT];
+
+        cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
+        cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
+        cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
+
+        minHSV = cv::Scalar(0, 255-iPureteRed, 50);
+        maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
+        minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
+        maxHSV = cv::Scalar(180, 255, 255);
+        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
+        maskRed=maskRed_1|maskRed_2;
+        cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
+
+        maskRGB = maskGreen | maskRed;
+        cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
+
+        //séquence qui contiendra les contours des éléments verts trouvés
+        std::vector < std::vector<cv::Point> > contoursGreen;
+        cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+        for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
+        {
+            std::vector<cv::Point> approx;
+            cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
+            double aire_detectee = cv::contourArea(approx);
+            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+            {
+                //Rectangle circonscrit de la forme détectée
+                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+                cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+
+                //barycentre du rectangle
+                //float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+            }
+        }
+
+        //séquence qui contiendra les contours des éléments verts trouvés
+        std::vector < std::vector<cv::Point> > contoursRed;
+        cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+        for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
+        {
+            std::vector<cv::Point> approx;
+            cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
+            double aire_detectee = cv::contourArea(approx);
+            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+            {
+                //Rectangle circonscrit de la forme détectée
+                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+                cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+
+                //barycentre du rectangle
+                //float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+            }
+        }
+
+        int fps=1000/(t.elapsed());
+        result.m_fps=fps;
+
+        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
+
+        //on affiche l'image traitée
+        if (m_dbg_active)
+        {
+            //recuperation des donnees de la frame
+            //et referencement dans l'image Qt
+            //ATTENTION: pas de copie des donnees -> garbage collector
+
+            //affichage overlay
+            char str[200];
+            sprintf(str,"%d fps",fps);
+            cv::putText(maskedRGB, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
+
+            const uchar *qImageBuffer = (const uchar*)maskedRGB.data;
+            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
+
+            //copie complete de l'image pour eviter une desallocation sauvage de la frame
+            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
+        }
+
+        emit resultReady(result,imgConst);
+
+        //QThread::msleep(5);
+        inputImage.release();
+
+       //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+        inputImage.release();
+        inputRGB.release();
+        frameBlur.release();
+        frameHSV.release();
+        maskedRGB.release();
+        maskedRed.release();
+        maskedGreen.release();
+        maskRGB.release();
+        maskRed.release();
+        maskRed_1.release();
+        maskRed_2.release();
+        maskGreen.release();
+        frameAffichage.release();
     }
     else
     {
@@ -698,108 +972,8 @@ QString VideoWorker::getVideoLogFilename()
     return pathfilename;
 }
 
-void VideoWorker::_seuillageImage(cv::Mat* frameHSV, cv::Mat* frameGray,
-                             int Couleur, int Saturation,int Purete, int EcartCouleur)
-{
-    int iH = frameHSV->rows;
-    int iL = frameHSV->cols;
-    int x, y;
-
-    //Quelle couleur?
-    int angleCouleur=0;
-    switch(Couleur){
-        case Qt::red : angleCouleur=0;break;
-        case Qt::yellow : angleCouleur=60;break;
-        case Qt::green : angleCouleur=120;break;
-        case Qt::cyan : angleCouleur=180;break;
-        case Qt::blue : angleCouleur=240;break;
-        case Qt::magenta : angleCouleur=300;break;
-    default : angleCouleur=0;break;
-    }
-
-    //On considere un ecart potentiel par rapport a la couleur souhaitee
-    int angleCouleurMin,angleCouleurMax;
-    int angleCouleurMin_temp=(angleCouleur-(EcartCouleur/2))/2;
-    if (angleCouleurMin_temp<0) angleCouleurMin=360+angleCouleurMin_temp;
-    else angleCouleurMin=angleCouleurMin_temp;
-    angleCouleurMax=(angleCouleur+(EcartCouleur/2))/2;
-
-    //seuillage de l'image en extrayant les couleurs des items de l'image HSV
-    //si supérieur à la purete, inferieur à l'angle max et superieur a l'angle min alors le pixel nous interesse
-    //methode alternative: determiner un histogramme caracteristique de l'element et l'extraire de l'image
-    for (y = 0; y < iH; y++) {
-        for (x = 0; x < iL; x++) {
-            uchar angleCouleur_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3];
-            uchar Purete_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3+1];
-            uchar Saturation_pixel=((uchar*)(frameHSV->data + frameHSV->step*y))[x*3+2]; //pour le seuillage noir et blanc si on veut
-
-            if(Couleur==Qt::black)
-            {
-                //detection couleur quelconque
-                if (Saturation_pixel<Saturation)
-                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
-                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
-            }
-            else if(angleCouleurMin_temp<0)
-            {
-                //detection a la limite du modulo 2pi (pour le rouge par exemple)
-                if (((angleCouleurMin < angleCouleur_pixel)
-                        || (angleCouleur_pixel < angleCouleurMax))
-                        && (Purete_pixel > Purete))
-                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
-                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
-            }
-            else
-            {
-                //detection couleur quelconque
-                if ((angleCouleurMin < angleCouleur_pixel)
-                        && (angleCouleur_pixel < angleCouleurMax)
-                        && (Purete_pixel > Purete))
-                    ((uchar*)(frameGray->data + frameGray->step*y))[x] = 255;
-                else ((uchar*)(frameGray->data + frameGray->step*y))[x] = 0;
-            }
-        }
-    }
-}
-
-cv::Point VideoWorker::_isColor(cv::Mat* frameGray,int ROIx, int ROIy, int ROIh, int ROIl,int seuil)
-{
-    cv::Point centre_couleur;
-    centre_couleur.x=0;
-    centre_couleur.y=0;
-    int detect=0;
-    for (int Y = ROIy; Y < ROIy+ROIh; Y++) {
-        for (int X = ROIx; X < ROIx+ROIl; X++) {
-
-            if(((uchar*)(frameGray->data + frameGray->step*Y))[X] == 255)
-            {
-                centre_couleur.x=centre_couleur.x+X;
-                centre_couleur.y=centre_couleur.y+Y;
-                detect++;
-            }
-        }
-    }
-
-    if(detect>seuil){
-        centre_couleur.x=centre_couleur.x/detect;
-        centre_couleur.y=centre_couleur.y/detect;
-    }
-    else{
-        centre_couleur.x=0;
-        centre_couleur.y=0;
-    }
-
-    return (centre_couleur);
-}
-
 void VideoWorker::_init_tResult(tVideoResult * parameter)
 {
-    /*parameter->robot1_dist=0.;
-    parameter->robot1_angle=0.;
-    parameter->robot2_dist=0.;
-    parameter->robot2_angle=0.;
-    parameter->robot3_dist=0.;
-    parameter->robot3_angle=0.;*/
     parameter->m_fps=0;
     for(int i=0;i<20;i++)
         parameter->value[i]=0.;

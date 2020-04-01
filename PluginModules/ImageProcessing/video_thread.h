@@ -14,7 +14,8 @@
 typedef enum {
     VIDEO_PROCESS_BALISE_MAT = 0,
     VIDEO_PROCESS_NORD_SUD,
-    VIDEO_PROCESS_SEQUENCE_COULEUR
+    VIDEO_PROCESS_SEQUENCE_COULEUR,
+    VIDEO_PROCESS_CALIBRATION
 }tVideoProcessAlgoType;
 
 typedef struct
@@ -30,6 +31,19 @@ typedef struct
     int m_fps;
     float value[20];
 }tVideoResult;
+
+typedef enum {
+    IDX_PARAM_01=0,
+    IDX_PARAM_02,
+    IDX_PARAM_03,
+    IDX_PARAM_PURETE_VERT,
+    IDX_PARAM_ECART_VERT,
+    IDX_PARAM_PURETE_ROUGE,
+    IDX_PARAM_ECART_ROUGE,
+    IDX_PARAM_PIXEL_MIN,
+    IDX_PARAM_PIXEL_MAX,
+    IDX_PARAM_CALIB_TYPE,
+} tIdxParam;
 
 typedef enum {
     IDX_ROBOT1_DIST=0,
@@ -62,6 +76,7 @@ public :
     bool init(int video_id, QString parameter_file);
     ~VideoWorker();
     bool getCamState(void);
+    float m_internal_param[20];
 
 private :
     bool camState;
@@ -101,12 +116,11 @@ private:
     void _video_process_Balise(tVideoInput parameter);
     void _video_process_NordSud(tVideoInput parameter);
     void _video_process_ColorSequence(tVideoInput parameter);
+    void _video_process_Calibration(tVideoInput parameter);
     void _video_record(cv::Mat frametoRecord);
     void _video_confirm_parameters(cv::Mat frameSample);
 
     QString getVideoLogFilename();
-    void _seuillageImage(cv::Mat *frameHSV, cv::Mat *frameGray, int Couleur, int Saturation, int Purete, int EcartCouleur);
-    cv::Point _isColor(cv::Mat *frameGray, int ROIx, int ROIy, int ROIh, int ROIl, int seuil);
     void _init_tResult(tVideoResult *parameter);
 };
 
