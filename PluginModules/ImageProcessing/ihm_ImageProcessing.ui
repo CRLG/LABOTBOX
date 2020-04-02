@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>693</width>
+      <width>692</width>
       <height>743</height>
      </rect>
     </property>
@@ -1230,23 +1230,29 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="7" column="6" colspan="4">
-       <widget class="QComboBox" name="cB_typeCalibration">
+       <widget class="QPushButton" name="pB_SetCalibration">
         <property name="minimumSize">
          <size>
           <width>200</width>
-          <height>25</height>
+          <height>50</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>200</width>
-          <height>25</height>
+          <height>50</height>
          </size>
+        </property>
+        <property name="text">
+         <string>Set Calibration</string>
         </property>
        </widget>
       </item>
       <item row="8" column="0" colspan="2">
        <widget class="QPushButton" name="pB_getCharuco">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -1264,8 +1270,11 @@ is neceassary)</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="3" colspan="3">
+      <item row="8" column="3" colspan="2">
        <widget class="QPushButton" name="pB_setCharuco">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -1284,21 +1293,9 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="8" column="6" colspan="4">
-       <widget class="QPushButton" name="pB_SetCalibration">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>50</height>
-         </size>
-        </property>
+       <widget class="QCheckBox" name="cB_typeCalibration">
         <property name="text">
-         <string>Set Calibration</string>
+         <string>Enable charuco calibration</string>
         </property>
        </widget>
       </item>

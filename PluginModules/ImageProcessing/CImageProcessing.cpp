@@ -97,11 +97,9 @@ void CImageProcessing::init(CApplication *application)
   m_ihm.ui.list_algo->clear();
   m_ihm.ui.list_algo->addItems(str_list_algo);
 
-  QStringList str_list_calib;
-  str_list_calib << "COULEURS" << "CHARUCO";
-  m_ihm.ui.cB_typeCalibration->clear();
-  m_ihm.ui.cB_typeCalibration->addItems(str_list_calib);
-
+    connect(m_ihm.ui.pB_setCharuco,SIGNAL(clicked(bool)),this,SLOT(setCharucoCalibration()));
+    connect(m_ihm.ui.pB_getCharuco,SIGNAL(clicked(bool)),this,SLOT(getCharucoCalibration()));
+    connect(m_ihm.ui.cB_typeCalibration,SIGNAL(stateChanged(int)),this,SLOT(enableCharucoCalibration(int)));
   connect(m_ihm.ui.pB_SetCalibration,SIGNAL(clicked(bool)),this,SLOT(setCalibration()));
 
   // Crée les variables dans le data manager
@@ -442,6 +440,8 @@ void CImageProcessing::killVideoThread()
     m_ihm.ui.stop_work->setEnabled(state);
     m_ihm.ui.list_algo->setEnabled(state);
     m_ihm.ui.active_debug->setEnabled(state);
+    m_ihm.ui.cB_typeCalibration->setEnabled(true);
+    m_ihm.ui.pB_getCharuco->setEnabled(false);
 }
 
 
@@ -539,13 +539,10 @@ void CImageProcessing::setCalibration()
     m_video_worker->m_internal_param[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
     m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
     m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
-    m_video_worker->m_internal_param[IDX_PARAM_CALIB_TYPE]=m_ihm.ui.cB_typeCalibration->currentIndex();
 }
 
 void CImageProcessing::showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5)
 {
-    int iG=Qt::green;
-    int iR=Qt::red;
     switch(gob1)
     {
      case 0:
@@ -633,3 +630,28 @@ void CImageProcessing::showResultGobelets(int gob1, int gob2, int gob3, int gob4
     }
 }
 
+void CImageProcessing::getCharucoCalibration()
+{
+    if (m_video_worker == NULL) return;
+
+    m_video_worker->m_internal_param[IDX_PARAM_GET_CHARUCO_FRAME] = 1.;
+    m_ihm.ui.pB_setCharuco->setEnabled(true);
+}
+
+void CImageProcessing::setCharucoCalibration()
+{
+    m_video_worker->m_internal_param[IDX_PARAM_SET_CHARUCO_FRAME] = 1.;
+    m_ihm.ui.pB_setCharuco->setEnabled(false);
+    m_ihm.ui.pB_getCharuco->setEnabled(false);
+}
+
+void CImageProcessing::enableCharucoCalibration(int state)
+{
+    if((state==Qt::Checked)&&(m_ihm.ui.cB_typeCalibration->isEnabled()))
+    {
+        m_ihm.ui.cB_typeCalibration->setEnabled(false);
+        //m_ihm.ui.cB_typeCalibration->setChecked(false);
+        m_ihm.ui.pB_getCharuco->setEnabled(true);
+        m_video_worker->m_internal_param[IDX_PARAM_CALIB_TYPE]=1.;
+    }
+}

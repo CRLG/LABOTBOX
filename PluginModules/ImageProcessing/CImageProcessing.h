@@ -73,6 +73,9 @@ private slots :
     void video_worker_init(int video_source_id);
     void getCamState(int state);
     void setCalibration();
+    void getCharucoCalibration();
+    void setCharucoCalibration();
+    void enableCharucoCalibration(int state);
 public slots:
      void videoHandleResults(tVideoResult result,QImage imgConst);
      void videoThreadStopped();

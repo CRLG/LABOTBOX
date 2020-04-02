@@ -10,6 +10,36 @@
 #include "opencv2/opencv.hpp"
 #include <opencv2/highgui.hpp>
 #include <opencv2/aruco.hpp>
+#include <opencv2/aruco/charuco.hpp>
+
+typedef struct{
+    float _a; //Fix aspect ratio (fx/fy) to this value
+    int _w; //Number of squares in X direction
+    int _h; //Number of squares in Y direction
+    float _sl; //Square side length (in meters)
+    float _ml; //Marker side length (in meters)
+    int _d;  //dictionary of tags
+                /*DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,
+                DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7,
+                DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,
+                DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL=16*/
+    bool _zt; //Assume zero tangential distortion
+    bool _pc; //Fix the principal point at the center
+    bool _rs; //Apply refind strategy
+}tCharucoParam;
+
+typedef struct{
+    int calibrationFlags;
+    float aspectRatio;
+    std::vector< std::vector< std::vector< cv::Point2f > > > allCorners;
+    std::vector< std::vector< int > > allIds;
+    std::vector< cv::Mat > allImgs;
+    cv::Size imgSize;
+    cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
+    cv::Ptr<cv::aruco::Dictionary> dictionary;
+    cv::Ptr<cv::aruco::CharucoBoard> charucoboard;
+    cv::Ptr<cv::aruco::Board> board;
+}tCharucoProcessing;
 
 typedef enum {
     VIDEO_PROCESS_BALISE_MAT = 0,
@@ -56,7 +86,9 @@ typedef enum {
     IDX_PARAM_X_FENETRE,
     IDX_PARAM_Y_FENETRE,
     IDX_PARAM_LARGEUR_FENETRE,
-    IDX_PARAM_HAUTEUR_FENETRE //14 sur 20
+    IDX_PARAM_HAUTEUR_FENETRE,
+    IDX_PARAM_GET_CHARUCO_FRAME,
+    IDX_PARAM_SET_CHARUCO_FRAME //16 sur 20
 } tIdxParam;
 
 typedef enum {
@@ -68,7 +100,8 @@ typedef enum {
     IDX_ROBOT3_ANGLE,
     IDX_NORD,
     IDX_SUD,
-    IDX_SEQUENCE //9 sur 20
+    IDX_SEQUENCE,
+    IDX_CHARUCO_IS_SET//9 sur 20
 } tIdxResult;
 
 Q_DECLARE_METATYPE(tVideoInput)
@@ -106,8 +139,16 @@ private :
     int m_iL;
     bool parameterConfirmed;
     bool recordInitialized;
+    QString m_path_parameter_file;
 
     std::string calibrationFixParameters;
+
+    //pour calibration Charuco
+    bool m_charucoInit;
+    bool m_charucoFinish;
+    bool m_charucoIsSet;
+    tCharucoParam m_charucoCalibParam;
+    tCharucoProcessing m_charucoProcessing;
 
 public slots:
     void doWork(tVideoInput parameter);
@@ -130,6 +171,10 @@ private:
 
     QString getVideoLogFilename();
     void _init_tResult(tVideoResult *parameter);
+    cv::Mat3b _charucoProcessing(cv::Mat3b inputFrame);
+    void _charucoFinish();
+    void _charucoInit();
+    bool _saveCameraParams(cv::Size imageSize, float aspectRatio, int flags, const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs, double totalAvgErr);
 };
 
 #endif // VIDEO_THREAD_H

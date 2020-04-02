@@ -12,8 +12,28 @@ VideoWorker::VideoWorker()
     parameterConfirmed=false;
     recordInitialized=false;
     m_dbg_active=false;
+    m_charucoFinish=false;
+    m_charucoInit=false;
+    m_charucoIsSet=false;
     for(int i=0;i<20;i++)
         m_internal_param[i]=0;
+
+    /*charuco_calibration common parameters for CRLG (the charuco chess board is with the source files
+     *  -a=1 --ci=1 -d=10 -h=4 -ml=0.0022 -sc=true -sl=0.0045 -w=6
+     */
+    m_charucoCalibParam._a=1.0; //Fix aspect ratio (fx/fy) to this value
+    m_charucoCalibParam._w=6; //Number of squares in X direction
+    m_charucoCalibParam._h=4; //Number of squares in Y direction
+    m_charucoCalibParam._sl=0.0045; //Square side length (in meters)
+    m_charucoCalibParam._ml=0.0022; //Marker side length (in meters)
+    m_charucoCalibParam._d=10;  //dictionary of tags
+                /*DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,
+                DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7,
+                DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,
+                DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL=16*/
+    m_charucoCalibParam._zt=false; //Assume zero tangential distortion
+    m_charucoCalibParam._pc=false; //Fix the principal point at the center
+    m_charucoCalibParam._rs=false; //Apply refind strategy
 }
 
 void VideoWorker::stopWork()
@@ -86,6 +106,7 @@ bool VideoWorker::init(int video_id, QString parameter_file)
         //calibration de la caméra
         QDir directory;
         QString path=directory.currentPath()+"/Config/"+parameter_file;
+        m_path_parameter_file=path;
         std::string contents = "";
 
         //lecture du fichier de calibration
@@ -793,100 +814,118 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
         cv::Mat1b maskGreen;
         cv::Mat3b frameBlur;
         cv::Mat3b frameAffichage;
+        cv::Mat3b charucoFrame;
 
         //dans le cas ou la configuration de la caméra aurait mal fonctionné
         if(!parameterConfirmed)
             _video_confirm_parameters(m_frame);
 
-        //clone de l'image pour la persistence des données
-        m_frameCloned=m_frame.clone();
+        if(m_charucoIsSet)
+            result.value[IDX_CHARUCO_IS_SET]=1.;
+        else
+            result.value[IDX_CHARUCO_IS_SET]=0.;
 
-        if(parameter.record)
-            _video_record(m_frame);//on enregistre le flux video
-
-        //clone de l'image acquise de l'image
-        inputImage=m_frameCloned.clone();
-
-        //conversion en RGB pour l'affichage
-        cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
-
-        //init des images filtrées
-        maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-        maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-        maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-
-        //floutage de l'image couleur pour enlever les pixels parasites
-        cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
-
-        //Conversion de l'image floutée dans l'espace colorimetrique HSV
-        cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
-
-        //Nombre de pixels minimum à détecter
-        int nb_pixels_minimum=m_internal_param[IDX_PARAM_PIXEL_MIN];
-        int nb_pixels_maximum=m_internal_param[IDX_PARAM_PIXEL_MAX];
-        int iPureteRed=m_internal_param[IDX_PARAM_PURETE_ROUGE];
-        int iEcartTeinteRed=m_internal_param[IDX_PARAM_ECART_ROUGE];
-        int iPureteGreen=m_internal_param[IDX_PARAM_PURETE_VERT];
-        int iEcartTeinteGreen=m_internal_param[IDX_PARAM_ECART_VERT];
-
-        cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
-        cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
-        cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
-
-        minHSV = cv::Scalar(0, 255-iPureteRed, 50);
-        maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
-        minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
-        maxHSV = cv::Scalar(180, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
-        maskRed=maskRed_1|maskRed_2;
-        cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
-
-        maskRGB = maskGreen | maskRed;
-        cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
-
-        //séquence qui contiendra les contours des éléments verts trouvés
-        std::vector < std::vector<cv::Point> > contoursGreen;
-        cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
-
-        for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
+        if((m_internal_param[IDX_PARAM_CALIB_TYPE]==1.)&&!m_charucoIsSet)
         {
-            std::vector<cv::Point> approx;
-            cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
-            double aire_detectee = cv::contourArea(approx);
-            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+            m_charucoFinish=(m_internal_param[IDX_PARAM_SET_CHARUCO_FRAME]==1.);
+            if(!m_charucoInit)
             {
-                //Rectangle circonscrit de la forme détectée
-                cv::Rect RectCirconscrit=cv::boundingRect( approx );
-                cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
-
-                //barycentre du rectangle
-                //float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
-                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
-                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+                _charucoInit();
+                m_charucoInit=true;
+            }
+            if(m_charucoInit)
+            {
+                charucoFrame=m_frame.clone();
+                maskedRGB=_charucoProcessing(charucoFrame);
+            }
+            if(m_charucoFinish && m_charucoInit)
+            {
+                _charucoFinish();
+                m_charucoIsSet=true;
             }
         }
-
-        //séquence qui contiendra les contours des éléments verts trouvés
-        std::vector < std::vector<cv::Point> > contoursRed;
-        cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
-
-        for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
+        else
         {
-            std::vector<cv::Point> approx;
-            cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
-            double aire_detectee = cv::contourArea(approx);
-            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
-            {
-                //Rectangle circonscrit de la forme détectée
-                cv::Rect RectCirconscrit=cv::boundingRect( approx );
-                cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+            //clone de l'image pour la persistence des données
+            m_frameCloned=m_frame.clone();
 
-                //barycentre du rectangle
-                //float centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
-                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
-                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+            if(parameter.record)
+                _video_record(m_frame);//on enregistre le flux video
+
+            //clone de l'image acquise de l'image
+            inputImage=m_frameCloned.clone();
+
+            //conversion en RGB pour l'affichage
+            cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
+
+            //init des images filtrées
+            maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+            maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+            maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+
+            //floutage de l'image couleur pour enlever les pixels parasites
+            cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
+
+            //Conversion de l'image floutée dans l'espace colorimetrique HSV
+            cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
+
+            //Nombre de pixels minimum à détecter
+            int nb_pixels_minimum=m_internal_param[IDX_PARAM_PIXEL_MIN];
+            int nb_pixels_maximum=m_internal_param[IDX_PARAM_PIXEL_MAX];
+            int iPureteRed=m_internal_param[IDX_PARAM_PURETE_ROUGE];
+            int iEcartTeinteRed=m_internal_param[IDX_PARAM_ECART_ROUGE];
+            int iPureteGreen=m_internal_param[IDX_PARAM_PURETE_VERT];
+            int iEcartTeinteGreen=m_internal_param[IDX_PARAM_ECART_VERT];
+
+            cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
+            cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
+            cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
+            cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
+
+            minHSV = cv::Scalar(0, 255-iPureteRed, 50);
+            maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
+            cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
+            minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
+            maxHSV = cv::Scalar(180, 255, 255);
+            cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
+            maskRed=maskRed_1|maskRed_2;
+            cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
+
+            maskRGB = maskGreen | maskRed;
+            cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
+
+            //séquence qui contiendra les contours des éléments verts trouvés
+            std::vector < std::vector<cv::Point> > contoursGreen;
+            cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+            for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
+            {
+                std::vector<cv::Point> approx;
+                cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
+                double aire_detectee = cv::contourArea(approx);
+                if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+                {
+                    //Rectangle circonscrit de la forme détectée
+                    cv::Rect RectCirconscrit=cv::boundingRect( approx );
+                    cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+                }
+            }
+
+            //séquence qui contiendra les contours des éléments verts trouvés
+            std::vector < std::vector<cv::Point> > contoursRed;
+            cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+            for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
+            {
+                std::vector<cv::Point> approx;
+                cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
+                double aire_detectee = cv::contourArea(approx);
+                if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+                {
+                    //Rectangle circonscrit de la forme détectée
+                    cv::Rect RectCirconscrit=cv::boundingRect( approx );
+                    cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+                }
             }
         }
 
@@ -894,7 +933,6 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
         result.m_fps=fps;
 
         QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
-
         //on affiche l'image traitée
         if (m_dbg_active)
         {
@@ -915,9 +953,6 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
         }
 
         emit resultReady(result,imgConst);
-
-        //QThread::msleep(5);
-        inputImage.release();
 
        //opencv ne profite pas du garbage collector de Qt
         m_frame.release();
@@ -993,4 +1028,199 @@ void VideoWorker::_init_tResult(tVideoResult * parameter)
     parameter->m_fps=0;
     for(int i=0;i<20;i++)
         parameter->value[i]=0.;
+}
+
+void VideoWorker::_charucoInit(void)
+{
+    //nettoyage des std::vector
+    m_charucoProcessing.allCorners.clear();
+    m_charucoProcessing.allIds.clear();
+    m_charucoProcessing.allImgs.clear();
+
+    //bitfield de la calibration charuco
+    m_charucoProcessing.calibrationFlags = 0;
+    m_charucoProcessing.aspectRatio = 1;
+    if(m_charucoCalibParam._a>0.) {
+        m_charucoProcessing.calibrationFlags |= cv::CALIB_FIX_ASPECT_RATIO;
+        m_charucoProcessing.aspectRatio = m_charucoCalibParam._a;
+    }
+    if(m_charucoCalibParam._zt) m_charucoProcessing.calibrationFlags |= cv::CALIB_ZERO_TANGENT_DIST;
+    if(m_charucoCalibParam._pc) m_charucoProcessing.calibrationFlags |= cv::CALIB_FIX_PRINCIPAL_POINT;
+
+    //Initialisation des paramètres de détection
+    m_charucoProcessing.detectorParams = cv::aruco::DetectorParameters::create();
+    //Initialisation du dictionnaire utilisé
+    m_charucoProcessing.dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(m_charucoCalibParam._d));
+
+    //Création de l'échiquier charuco
+    m_charucoProcessing.charucoboard = cv::aruco::CharucoBoard::create(m_charucoCalibParam._w, m_charucoCalibParam._h,
+                                                                       m_charucoCalibParam._sl, m_charucoCalibParam._ml,
+                                                                       m_charucoProcessing.dictionary);
+    m_charucoProcessing.board = m_charucoProcessing.charucoboard.staticCast<cv::aruco::Board>();
+}
+
+cv::Mat3b VideoWorker::_charucoProcessing(cv::Mat3b inputFrame)
+{
+    cv::Mat3b imageCopy;
+    bool refindStrategy =m_charucoCalibParam._rs;
+
+    std::vector< int > ids;
+    std::vector< std::vector< cv::Point2f > > corners, rejected;
+
+    //détection des marqueurs aruco
+    cv::aruco::detectMarkers(inputFrame, m_charucoProcessing.dictionary, corners, ids, m_charucoProcessing.detectorParams, rejected);
+
+    //seconde passe (si activée) pour retrouver plus de marqueurs
+    if(refindStrategy) cv::aruco::refineDetectedMarkers(inputFrame, m_charucoProcessing.board, corners, ids, rejected);
+
+    //inerpolation des coins de l'échiquier charuco
+    cv::Mat currentCharucoCorners, currentCharucoIds;
+    if(ids.size()>0)
+        cv::aruco::interpolateCornersCharuco(corners, ids, inputFrame, m_charucoProcessing.charucoboard, currentCharucoCorners,currentCharucoIds);
+
+    //on affiche les marqueurs
+    inputFrame.copyTo(imageCopy);
+    if(ids.size()>0)
+        cv::aruco::drawDetectedMarkers(imageCopy, corners);
+
+    //si on bien trouvé les coins de l'échiquier on les affiche
+    if(currentCharucoCorners.total()>0)
+        cv::aruco::drawDetectedCornersCharuco(imageCopy, currentCharucoCorners, currentCharucoIds);
+
+    //on affiche un rond vert pour indiquer que l'image est correcte pour la calibration
+    cv::circle( imageCopy, cv::Point(10, 20), 20, CV_RGB(0,255,0), -1, 8, 0 );
+
+
+    //si on veut enregistrer l'image
+    if((m_internal_param[IDX_PARAM_GET_CHARUCO_FRAME]==1) && ids.size() > 0)
+    {
+        m_charucoProcessing.allCorners.push_back(corners);
+        m_charucoProcessing.allIds.push_back(ids);
+        m_charucoProcessing.allImgs.push_back(inputFrame);
+        m_charucoProcessing.imgSize = inputFrame.size();
+        m_internal_param[IDX_PARAM_GET_CHARUCO_FRAME]=0;
+    }
+
+    return imageCopy;
+}
+
+void VideoWorker::_charucoFinish(void)
+{
+    //Vérification qu'on a assez de marqueurs pour cobstruire le fichier de calibration
+    if(m_charucoProcessing.allIds.size() < 1)
+    {
+        qDebug() << "[CImageProcessing] Pas assez de marqueurs aruco trouvés pour construire le fichier de calibration";
+        return;
+    }
+
+    cv::Mat cameraMatrix, distCoeffs;
+    std::vector< cv::Mat > rvecs, tvecs;
+
+    if(m_charucoProcessing.calibrationFlags & cv::CALIB_FIX_ASPECT_RATIO) {
+        cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
+        cameraMatrix.at< double >(0, 0) = m_charucoProcessing.aspectRatio;
+    }
+
+    // prepare data for calibration
+    std::vector< std::vector< cv::Point2f > > allCornersConcatenated;
+    std::vector< int > allIdsConcatenated;
+    std::vector< int > markerCounterPerFrame;
+    markerCounterPerFrame.reserve(m_charucoProcessing.allCorners.size());
+    for(unsigned int i = 0; i < m_charucoProcessing.allCorners.size(); i++)
+    {
+        markerCounterPerFrame.push_back((int)m_charucoProcessing.allCorners[i].size());
+        for(unsigned int j = 0; j < m_charucoProcessing.allCorners[i].size(); j++)
+        {
+            allCornersConcatenated.push_back(m_charucoProcessing.allCorners[i][j]);
+            allIdsConcatenated.push_back(m_charucoProcessing.allIds[i][j]);
+        }
+    }
+
+    // calibrate camera using aruco markers
+    double arucoRepErr;
+    arucoRepErr = cv::aruco::calibrateCameraAruco(allCornersConcatenated, allIdsConcatenated,
+                                              markerCounterPerFrame, m_charucoProcessing.board, m_charucoProcessing.imgSize, cameraMatrix,
+                                              distCoeffs, cv::noArray(), cv::noArray(), m_charucoProcessing.calibrationFlags);
+
+    // prepare data for charuco calibration
+    int nFrames = (int)m_charucoProcessing.allCorners.size();
+    std::vector< cv::Mat > allCharucoCorners;
+    std::vector< cv::Mat > allCharucoIds;
+    std::vector< cv::Mat > filteredImages;
+    allCharucoCorners.reserve(nFrames);
+    allCharucoIds.reserve(nFrames);
+
+    for(int i = 0; i < nFrames; i++) {
+        // interpolate using camera parameters
+        cv::Mat currentCharucoCorners, currentCharucoIds;
+        cv::aruco::interpolateCornersCharuco(m_charucoProcessing.allCorners[i], m_charucoProcessing.allIds[i], m_charucoProcessing.allImgs[i], m_charucoProcessing.charucoboard,
+                                         currentCharucoCorners, currentCharucoIds, cameraMatrix,
+                                         distCoeffs);
+
+        allCharucoCorners.push_back(currentCharucoCorners);
+        allCharucoIds.push_back(currentCharucoIds);
+        filteredImages.push_back(m_charucoProcessing.allImgs[i]);
+    }
+
+    if(allCharucoCorners.size() < 4)
+    {
+        qDebug() << "[CImageProcessing] Pas assez de coins d'échiquier trouvés pour construire le fichier de calibration";
+        //return 0;
+    }
+
+    // calibrate camera using charuco
+    double repError;
+    repError =
+        cv::aruco::calibrateCameraCharuco(allCharucoCorners, allCharucoIds, m_charucoProcessing.charucoboard, m_charucoProcessing.imgSize,
+                                      cameraMatrix, distCoeffs, rvecs, tvecs, m_charucoProcessing.calibrationFlags);
+
+    //enregistrement du fichier de calibration
+    bool saveOk =  _saveCameraParams(m_charucoProcessing.imgSize, m_charucoProcessing.aspectRatio, m_charucoProcessing.calibrationFlags,
+                                    cameraMatrix, distCoeffs, repError);
+    if(!saveOk)
+        qDebug() << "[CImageProcessing] Impossible de sauvegarder le fichier de calibration";
+
+    qDebug() << "[CImageProcessing] Valeur de retour calibration Charuco: " << repError;
+    qDebug() << "[CImageProcessing] Valeur de retour calibration aruco: " << arucoRepErr;
+}
+
+bool VideoWorker::_saveCameraParams(cv::Size imageSize, float aspectRatio, int flags,
+                                           const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs, double totalAvgErr)
+{
+    QString outputFile = m_path_parameter_file;
+    cv::FileStorage fs(outputFile.toStdString(), cv::FileStorage::WRITE);
+    if(!fs.isOpened())
+        return false;
+
+    time_t tt;
+    time(&tt);
+    struct tm *t2 = localtime(&tt);
+    char buf[1024];
+    strftime(buf, sizeof(buf) - 1, "%c", t2);
+
+    fs << "calibration_time" << buf;
+
+    fs << "image_width" << imageSize.width;
+    fs << "image_height" << imageSize.height;
+
+    if(flags & cv::CALIB_FIX_ASPECT_RATIO) fs << "aspectRatio" << aspectRatio;
+
+    if(flags != 0) {
+        sprintf(buf, "flags: %s%s%s%s",
+                flags & cv::CALIB_USE_INTRINSIC_GUESS ? "+use_intrinsic_guess" : "",
+                flags & cv::CALIB_FIX_ASPECT_RATIO ? "+fix_aspectRatio" : "",
+                flags & cv::CALIB_FIX_PRINCIPAL_POINT ? "+fix_principal_point" : "",
+                flags & cv::CALIB_ZERO_TANGENT_DIST ? "+zero_tangent_dist" : "");
+    }
+
+    fs << "flags" << flags;
+
+    fs << "camera_matrix" << cameraMatrix;
+    fs << "distortion_coefficients" << distCoeffs;
+
+    fs << "avg_reprojection_error" << totalAvgErr;
+
+    qDebug() << "[CImageProcessing] Fichier de calibration sauvegardé dans " << outputFile;
+
+    return true;
 }
