@@ -65,6 +65,7 @@ private:
     QString m_camera_parameters;
     bool b_robStarted;
     bool m_auto_on;
+    bool m_record;
     void refresh_camera_list();
     tVideoInput getCalibrationValues();
     void showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5);
@@ -76,14 +77,14 @@ private slots :
     void getCharucoCalibration();
     void setCharucoCalibration();
     void enableCharucoCalibration(int state);
+    void setRecord(int state);
 public slots:
      void videoHandleResults(tVideoResult result,QImage imgConst);
      void videoThreadStopped();
      void videoWorkStarted();
      void videoWorkFinished();
 
-     void startVideoWork(bool b_record);
-     void startVideoWork(void); //avec enregistrement automatique
+     void startVideoWork(void);
      void stopVideoWork();
 
      void initVideoThread();

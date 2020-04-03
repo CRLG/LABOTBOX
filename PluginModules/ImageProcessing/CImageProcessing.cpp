@@ -77,6 +77,10 @@ void CImageProcessing::init(CApplication *application)
   // Restore la couleur de fond
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
+  //enregistrement de la vidéo
+  val = m_application->m_eeprom->read(getName(), "record", QVariant(false));
+  m_record=val.toBool();
+  m_ihm.ui.cB_record->setChecked(m_record);
   //parametres intrinseques de la camera
   val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant("cam_parameters.txt"));
   m_camera_parameters=val.toString();
@@ -100,7 +104,8 @@ void CImageProcessing::init(CApplication *application)
     connect(m_ihm.ui.pB_setCharuco,SIGNAL(clicked(bool)),this,SLOT(setCharucoCalibration()));
     connect(m_ihm.ui.pB_getCharuco,SIGNAL(clicked(bool)),this,SLOT(getCharucoCalibration()));
     connect(m_ihm.ui.cB_typeCalibration,SIGNAL(stateChanged(int)),this,SLOT(enableCharucoCalibration(int)));
-  connect(m_ihm.ui.pB_SetCalibration,SIGNAL(clicked(bool)),this,SLOT(setCalibration()));
+    connect(m_ihm.ui.pB_SetCalibration,SIGNAL(clicked(bool)),this,SLOT(setCalibration()));
+    connect(m_ihm.ui.cB_record,SIGNAL(stateChanged(int)),this,SLOT(setRecord(int)));
 
   // Crée les variables dans le data manager
   // 3 jeux de données (X, Y, Teta) par robot
@@ -126,7 +131,7 @@ void CImageProcessing::init(CApplication *application)
     if(m_auto_on)
     {
         initVideoThread();
-        startVideoWork(false);
+        startVideoWork();
     }
 
 }
@@ -147,6 +152,7 @@ void CImageProcessing::close(void)
   //mémorise les paramètres de la caméra
   m_auto_on=m_ihm.ui.chck_asBeacon->isChecked();
   m_application->m_eeprom->write(getName(), "auto_on", QVariant(m_auto_on));
+  m_application->m_eeprom->write(getName(), "record", QVariant(m_record));
 
 }
 
@@ -412,6 +418,7 @@ void CImageProcessing::initVideoThread()
         m_ihm.ui.start_work->setEnabled(state);
         m_ihm.ui.list_algo->setEnabled(state);
         m_ihm.ui.active_debug->setEnabled(true);
+        m_ihm.ui.cB_record->setEnabled(true);
     }
 }
 
@@ -440,29 +447,9 @@ void CImageProcessing::killVideoThread()
     m_ihm.ui.stop_work->setEnabled(state);
     m_ihm.ui.list_algo->setEnabled(state);
     m_ihm.ui.active_debug->setEnabled(state);
+    m_ihm.ui.cB_record->setEnabled(state);
     m_ihm.ui.cB_typeCalibration->setEnabled(true);
     m_ihm.ui.pB_getCharuco->setEnabled(false);
-}
-
-
-
-void CImageProcessing::startVideoWork(bool b_record)
-{
-    tVideoInput param;
-    param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
-
-    param.value[IDX_PARAM_01] = m_ihm.ui.in_data1->value();
-    param.value[IDX_PARAM_02] = m_ihm.ui.in_data2->value();
-    param.value[IDX_PARAM_03] = m_ihm.ui.in_data3->value();
-    param.value[IDX_PARAM_ECART_VERT]=m_ihm.ui.ecartVert->value();
-    param.value[IDX_PARAM_PURETE_VERT]=m_ihm.ui.pureteVert->value();
-    param.value[IDX_PARAM_ECART_ROUGE]=m_ihm.ui.ecartVert->value();
-    param.value[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
-    param.value[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
-    param.value[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
-
-    param.record=b_record;
-    emit operate(param);
 }
 
 void CImageProcessing::startVideoWork(void)
@@ -478,7 +465,7 @@ void CImageProcessing::startVideoWork(void)
     param.value[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
     param.value[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
     param.value[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
-    param.record=false;
+    param.record=m_record;
 
     if(m_ihm.ui.list_algo->currentIndex()==VIDEO_PROCESS_CALIBRATION)
     {
@@ -518,7 +505,7 @@ void CImageProcessing::TpsMatch_changed(QVariant val)
         if(b_robStarted==false)
         {
             stopVideoWork();
-            startVideoWork(true);
+            startVideoWork();
             b_robStarted=true;
         }
     }
@@ -654,4 +641,12 @@ void CImageProcessing::enableCharucoCalibration(int state)
         m_ihm.ui.pB_getCharuco->setEnabled(true);
         m_video_worker->m_internal_param[IDX_PARAM_CALIB_TYPE]=1.;
     }
+}
+
+void CImageProcessing::setRecord(int state)
+{
+    if(state==Qt::Checked)
+        m_record=true;
+    else
+        m_record=false;
 }

@@ -185,6 +185,9 @@ VideoWorker::~VideoWorker()
         emit camStateChanged(0);
         capture->release();
     }
+
+    if(record->isOpened())
+        record->release();
 }
 
 bool VideoWorker::getCamState()
@@ -248,6 +251,9 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
     //l'image a-t-elle bien été récupérée
     if (captureOK)
     {
+        cv::Mat frame_converted;
+        cv::Mat3b frame_record;
+
         //dans le cas ou la configuration de la caméra aurait mal fonctionné
         if(!parameterConfirmed)
             _video_confirm_parameters(m_frame);
@@ -319,7 +325,6 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             //et referencement dans l'image Qt
             //ATTENTION: pas de copie des donnees -> garbage collector
             //conversion de l'image en RGB
-            cv::Mat frame_converted;
             frame_converted=m_frame.clone();
             cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
 
@@ -335,7 +340,18 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
 
             //copie complete de l'image pour eviter une desallocation sauvage de la frame
             imgConst=img.copy(QRect(0,0,m_iL,m_iH));
-             frame_converted.release();
+
+        }
+
+        if(parameter.record)
+        {
+            if (m_dbg_active)
+            {
+                cv::cvtColor(frame_converted,frame_record, CV_RGB2BGR);
+                _video_record(frame_record);//on enregistre le flux video
+            }
+            else
+                _video_record(m_frame);
         }
 
         emit resultReady(result,imgConst);
@@ -346,6 +362,8 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
        //opencv ne profite pas du garbage collector de Qt
         m_frame.release();
         m_frameCloned.release();
+        frame_converted.release();
+        frame_record.release();
     }
     else
     {
@@ -988,6 +1006,16 @@ void VideoWorker::_video_record(cv::Mat frametoRecord)
 
         //création de l'objet OpenCV qui enregistre des frame
         record= new cv::VideoWriter(pathfilename.toStdString(),CV_FOURCC('X','V','I','D'),15,cv::Size(m_iL,m_iH),true);
+
+        if(record->isOpened())
+        {
+            if(m_dbg_active)
+                qDebug() << "[CImageProcessing] Enregistrement dans " << pathfilename;
+            recordInitialized=true;
+        }
+        else
+            if(m_dbg_active)
+                qDebug() << "[CImageProcessing] Enregistrement impossible dans" << pathfilename;
     }
     record->write(frametoRecord);//on enregistre le flux video
 }

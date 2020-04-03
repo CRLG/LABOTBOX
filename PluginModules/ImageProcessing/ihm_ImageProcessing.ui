@@ -215,6 +215,16 @@ is neceassary)</string>
         </property>
        </widget>
       </item>
+      <item row="6" column="3">
+       <widget class="QCheckBox" name="cB_record">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>record</string>
+        </property>
+       </widget>
+      </item>
       <item row="7" column="0" colspan="4">
        <widget class="Line" name="line">
         <property name="orientation">
