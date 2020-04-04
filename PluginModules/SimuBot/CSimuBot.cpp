@@ -239,10 +239,10 @@ void CSimuBot::init(CApplication *application)
 
 
     //pour changer de mode visu ou placement
-    //TODO: profiter de l'interface de simubot pour profiter d'un vrai simulateur
-    QSlider *horizontalSlider_toggle_simu=m_ihm.findChild<QSlider*>("horizontalSlider_toggle_simu");
-    modeVisu=horizontalSlider_toggle_simu->value();
-    connect(horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
+    val=m_application->m_eeprom->read(getName(),"mode_visu",QVariant(0));
+    m_ihm.ui.horizontalSlider_toggle_simu->setValue(val.toInt());
+    modeVisu=m_ihm.ui.horizontalSlider_toggle_simu->value();
+    connect(m_ihm.ui.horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
 
     //on initialise et ajoute le robot au terrain
     //TODO: prendre un fichier de config pour l'emplacement et l'angle de départ pour le robot
@@ -275,7 +275,8 @@ void CSimuBot::init(CApplication *application)
     m_ihm.simuView->resize(326, 236);
     m_ihm.simuView->setScene(terrain);
     connect(m_ihm.ui.verticalSlider_zoom_scene,SIGNAL(valueChanged(int)),this,SLOT(zoom(int)));
-    //m_ihm.simuView->scale(2.0,2.0);
+    val = m_application->m_eeprom->read(getName(), "zoom", QVariant(1));
+    m_ihm.ui.verticalSlider_zoom_scene->setValue(val.toInt());
 
     //pour le mode visu on se connecte aux changements du datamanager
     connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(coordChanged(CData*)));
@@ -363,6 +364,8 @@ void CSimuBot::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
+  m_application->m_eeprom->write(getName(), "mode_visu", QVariant((unsigned int)m_ihm.ui.horizontalSlider_toggle_simu->value()));
+  m_application->m_eeprom->write(getName(), "zoom", QVariant((unsigned int)m_ihm.ui.verticalSlider_zoom_scene->value()));
 }
 
 // _____________________________________________________________________
