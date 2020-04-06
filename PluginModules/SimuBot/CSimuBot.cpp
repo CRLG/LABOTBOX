@@ -239,10 +239,9 @@ void CSimuBot::init(CApplication *application)
 
 
     //pour changer de mode visu ou placement
+    connect(m_ihm.ui.horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
     val=m_application->m_eeprom->read(getName(),"mode_visu",QVariant(0));
     m_ihm.ui.horizontalSlider_toggle_simu->setValue(val.toInt());
-    modeVisu=m_ihm.ui.horizontalSlider_toggle_simu->value();
-    connect(m_ihm.ui.horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
 
     //on initialise et ajoute le robot au terrain
     //TODO: prendre un fichier de config pour l'emplacement et l'angle de départ pour le robot
