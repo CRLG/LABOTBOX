@@ -25,6 +25,18 @@ enum SIMUBOT{
     SIMU
 };
 
+enum EQUIPE{
+    EQUIPE1=0,
+    EQUIPE2
+};
+
+enum SECTEURS{
+    AVG=0,
+    AVD,
+    ARG,
+    ARD
+};
+
  class Cihm_SimuBot : public QMainWindow
 {
     Q_OBJECT
@@ -76,6 +88,7 @@ private slots :
         void nextStepOther();
         void enableMoveOther(int state);
         void syncMove(bool activated);
+        void enableTwoBots(int state);
 private:
     Cihm_SimuBot m_ihm;
 
@@ -83,6 +96,7 @@ private:
     GraphicElement *GrosBot;
     GraphicElement *OldGrosBot;
     QGraphicsLineItem *liaison_GrosBot;
+    GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
     float deltaAngle;
@@ -92,11 +106,16 @@ private:
     //bool isRelativToBot;
     bool setAndGetInRad;
 
-    void initEquipe(Coord equipe, Coord equipe_adverse);
+    void initEquipe(int equipe);
 
-    Coord equipe1;
-    Coord equipe2;
+    Coord equipe1_bot1;
+    Coord equipe2_bot1;
+    Coord equipe1_bot2;
+    Coord equipe2_bot2;
     Coord equipeOther;
+    bool twoBotsEnabled;
+    float iniTetaAsserv_bot1[2];
+    float iniTetaAsserv_bot2[2];
 
     //pour la stratégie du robot adverse
     int currentIndex;
@@ -106,10 +125,14 @@ private:
     bool isStarted_old;
 
 
-    void addLineOther(double x, double y, double teta, int row);
+    void addStepOther(double x, double y, double teta, int row);
+    QPolygonF getForm(QStringList strL_Form);
+    void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
+    void displayCoord2(qreal value_x,qreal value_y);
+    void displayAngle2(qreal value_theta);
     void setSequence();
 public slots:
     void viewChanged(QList<QRectF> regions);

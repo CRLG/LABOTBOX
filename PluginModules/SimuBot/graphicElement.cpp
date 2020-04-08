@@ -161,7 +161,7 @@ void GraphicElement::wheelEvent(QGraphicsSceneWheelEvent * event){
  */
 qreal GraphicElement::getTheta(void){
     if(isRelativToBot)
-        angle=TwoPi*(((360-rotation())-angle_offset)+angle_asserv_init)/360;
+        angle=TwoPi*((360-rotation())-(angle_offset - angle_asserv_init))/360;
     else
         angle=TwoPi*(360-rotation())/360;
     return normalizeAngleRad(angle);
@@ -174,7 +174,7 @@ qreal GraphicElement::getTheta(void){
 qreal GraphicElement::getX(void){
     if(isRelativToBot)
         //x_reel=sensOrtho*((x()-x_offset)*cos(TwoPi*angle_offset/360))+(((-y())-y_offset)*sin(TwoPi*angle_offset/360));
-        x_reel=((x()-x_offset)*cos(TwoPi*(angle_offset+angle_asserv_init)/360))+(((-y())-y_offset)*sin(TwoPi*(angle_offset+angle_asserv_init)/360));
+        x_reel=((x()-x_offset)*cos(TwoPi*(angle_offset-angle_asserv_init)/360))+(((-y())-y_offset)*sin(TwoPi*(angle_offset-angle_asserv_init)/360));
     else
         x_reel=x();
     return x_reel;
@@ -194,7 +194,7 @@ qreal GraphicElement::getX_terrain(void){
  */
 qreal GraphicElement::getY(void){
     if (isRelativToBot)
-        y_reel=-((x()-x_offset)*sin(TwoPi*(angle_offset+angle_asserv_init)/360))+(((-y())-y_offset)*cos(TwoPi*(angle_offset+angle_asserv_init)/360));
+        y_reel=-((x()-x_offset)*sin(TwoPi*(angle_offset-angle_asserv_init)/360))+(((-y())-y_offset)*cos(TwoPi*(angle_offset-angle_asserv_init)/360));
     else
         y_reel=-y();
     return y_reel;
@@ -298,8 +298,8 @@ void GraphicElement::display_XY(qreal x_reel_new, qreal y_reel_new)
     //qDebug() << "consigne:" << x_target <<","<<y_target;
     //qDebug() << "angle" << angle_offset;
     if(isRelativToBot){
-        x_view=x_target*cos(-TwoPi*(angle_offset+angle_asserv_init)/360)+y_target*sin(-TwoPi*(angle_offset+angle_asserv_init)/360)+x_offset;
-        y_view=x_target*sin(-TwoPi*(angle_offset+angle_asserv_init)/360)-y_target*cos(-TwoPi*(angle_offset+angle_asserv_init)/360)-y_offset;
+        x_view=x_target*cos(-TwoPi*(angle_offset-angle_asserv_init)/360)+y_target*sin(-TwoPi*(angle_offset-angle_asserv_init)/360)+x_offset;
+        y_view=x_target*sin(-TwoPi*(angle_offset-angle_asserv_init)/360)-y_target*cos(-TwoPi*(angle_offset-angle_asserv_init)/360)-y_offset;
     }
     else{
         x_view=x_target;
@@ -313,7 +313,7 @@ void GraphicElement::display_XY(qreal x_reel_new, qreal y_reel_new)
 void GraphicElement::display_theta(qreal theta_reel_new)
 {
     if(isRelativToBot)
-        this->setRotation(-(180*(theta_reel_new)/Pi)-angle_offset+angle_asserv_init);
+        this->setRotation(-(180*(theta_reel_new)/Pi)-(angle_offset-angle_asserv_init));
     else
         this->setRotation(-(180*(theta_reel_new)/Pi));
 }

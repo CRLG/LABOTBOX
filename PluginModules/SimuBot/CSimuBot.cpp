@@ -84,7 +84,6 @@ void CSimuBot::init(CApplication *application)
     QVariant val;
     val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
     m_ihm.setGeometry(val.toRect());
-
     // Restore le fait que la fenêtre est visible ou non
     val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
     if (val.toBool()) { m_ihm.show(); }
@@ -96,57 +95,60 @@ void CSimuBot::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
     setBackgroundColor(val.value<QColor>());
 
-    //récupération des contours du robot dans le fichier d'eeprom, un point est décrit par une chaine de caractères
+    //récupération des contours de GrosBot dans le fichier d'eeprom
+    //un point est décrit par une chaine de caractères
     //formatée comme suit "(doublexdouble)", un contour existe par défaut
     val=m_application->m_eeprom->read(getName(),"polygon",QStringList());
     QStringList listePointsPolygon=val.toStringList();
-    QPolygonF polygonIni;
-    if(listePointsPolygon.isEmpty()){
-      polygonIni << QPointF(10,-15) << QPointF(-10,-15)<< QPointF(-15,-10)<< QPointF(-15,10) << QPointF(-10,15);
-      polygonIni << QPointF(10,15) << QPointF(15,10) << QPointF(15,-10) << QPointF(10,-15);
-    }
-    else{
-      QString unStringPoint, temp, xString, yString;
-      QStringList ListXY;
-      double xFromString, yFromString;
-      for(int ind=0;ind<listePointsPolygon.size();ind++)
-      {
-          unStringPoint=listePointsPolygon.at(ind);
-          //qDebug() << unStringPoint;
-          ListXY=unStringPoint.split('x');
-          if (ListXY.size()>=2){
-              temp=ListXY.at(0);
-              xString=temp.remove(QChar('('), Qt::CaseInsensitive);
-              xFromString=xString.toDouble();
-              temp=ListXY.at(1);
-              yString=temp.remove(QChar(')'), Qt::CaseInsensitive);
-              yFromString=(-1.0)*yString.toDouble();
-              polygonIni << QPointF(xFromString,yFromString);
-          }
-       }
-    }
+    QPolygonF GrosBotForme=getForm(listePointsPolygon);
 
-    //récupération des positions d'init
-    /*float X_init_1=24;
-    float Y_init_1=101;
-    float Theta_init_1=0;
-    float X_init_2=265;
-    float Y_init_2=101;
-    float Theta_init_2=180;*/
-    val = m_application->m_eeprom->read(getName(), "X_init_1", QVariant(5.0));
+    //récupération des contours de MiniBot dans le fichier d'eeprom
+    val=m_application->m_eeprom->read(getName(),"polygon2",QStringList());
+    listePointsPolygon.clear();
+    listePointsPolygon=val.toStringList();
+    QPolygonF MiniBotForme=getForm(listePointsPolygon);
+
+    //récupération des positions d'init de GrosBot
+    val = m_application->m_eeprom->read(getName(), "X_init_1_bot1", QVariant(18.0));
     float X_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Y_init_1", QVariant(123.0));
+    val = m_application->m_eeprom->read(getName(), "Y_init_1_bot1", QVariant(123.0));
     float Y_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Theta_init_1", QVariant(0.0));
+    val = m_application->m_eeprom->read(getName(), "Theta_init_1_bot1", QVariant(0.0));
     float Theta_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "X_init_2", QVariant(265.0));
+    val = m_application->m_eeprom->read(getName(), "X_init_2_bot1", QVariant(282.0));
     float X_init_2=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Y_init_2", QVariant(101.0));
+    val = m_application->m_eeprom->read(getName(), "Y_init_2_bot1", QVariant(123.0));
     float Y_init_2=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Theta_init_2", QVariant(180.0));
+    val = m_application->m_eeprom->read(getName(), "Theta_init_2_bot1", QVariant(3.14));
     float Theta_init_2=val.toFloat();
-    equipe1.init(X_init_1,Y_init_1,Theta_init_1,true);
-    equipe2.init(X_init_2,Y_init_2,Theta_init_2,false);
+    equipe1_bot1.init(X_init_1,Y_init_1,Theta_init_1,true);
+    equipe2_bot1.init(X_init_2,Y_init_2,Theta_init_2,false);
+
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_1_bot1", QVariant(0.0));
+    iniTetaAsserv_bot1[EQUIPE1]=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_2_bot1", QVariant(0.0));
+    iniTetaAsserv_bot1[EQUIPE2]=val.toFloat();
+
+    //récupération des positions d'init de GrosBot
+    val = m_application->m_eeprom->read(getName(), "X_init_1_bot2", QVariant(18.0));
+    X_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Y_init_1_bot2", QVariant(104.0));
+    Y_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_init_1_bot2", QVariant(-1.57));
+    Theta_init_1=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "X_init_2_bot2", QVariant(282.0));
+    X_init_2=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Y_init_2_bot2", QVariant(104.0));
+    Y_init_2=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_init_2_bot2", QVariant(1.57));
+    Theta_init_2=val.toFloat();
+    equipe1_bot2.init(X_init_1,Y_init_1,Theta_init_1,true);
+    equipe2_bot2.init(X_init_2,Y_init_2,Theta_init_2,false);
+
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_1_bot2", QVariant(-1.57));
+    iniTetaAsserv_bot2[EQUIPE1]=val.toFloat();
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_2_bot2", QVariant(1.57));
+    iniTetaAsserv_bot2[EQUIPE2]=val.toFloat();
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
@@ -156,53 +158,15 @@ void CSimuBot::init(CApplication *application)
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
-/*    QGraphicsEllipseItem *modules[14];
-    modules[0]=new QGraphicsEllipseItem(QRectF(115-3,-200,6,6));
-    modules[0]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
-    modules[1]=new QGraphicsEllipseItem(QRectF(185-3,-200,6,6));
-    modules[1]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
-    modules[2]=new QGraphicsEllipseItem(QRectF(20-3,-140,6,6));
-    modules[2]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
-    modules[3]=new QGraphicsEllipseItem(QRectF(100-3,-140,6,6));
-    modules[4]=new QGraphicsEllipseItem(QRectF(200-3,-140,6,6));
-    modules[5]=new QGraphicsEllipseItem(QRectF(280-3,-140,6,6));
-    modules[5]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
-    modules[6]=new QGraphicsEllipseItem(QRectF(50-3,-90,6,6));
-    modules[7]=new QGraphicsEllipseItem(QRectF(250-3,-90,6,6));
-    modules[8]=new QGraphicsEllipseItem(QRectF(0,-65,6,6));
-    modules[8]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
-    modules[9]=new QGraphicsEllipseItem(QRectF(300-6,-65,6,6));
-    modules[9]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
-    modules[10]=new QGraphicsEllipseItem(QRectF(90-3,-60,6,6));
-    modules[11]=new QGraphicsEllipseItem(QRectF(210-3,-60,6,6));
-    modules[12]=new QGraphicsEllipseItem(QRectF(80-3,-15,6,6));
-    modules[12]->setBrush(QBrush(QColor(0, 0,255, 255))); //blue
-    modules[13]=new QGraphicsEllipseItem(QRectF(220-3,-15,6,6));
-    modules[13]->setBrush(QBrush(QColor(255, 255,0, 255))); //yellow
-    for(int ind=0;ind<14;ind++){
-        //modules[ind]->setBrush(QBrush(QColor(255, 0,0, 255)));
-        terrain->addItem(modules[ind]);
-    }*/
-    /*QGraphicsEllipseItem *gobelet[3];
-    gobelet[0]=new QGraphicsEllipseItem(QRectF(150-4.75,165-202-4.75,9.5,9.5));
-    gobelet[1]=new QGraphicsEllipseItem(QRectF(25-4.75,175-202-4.75,9.5,9.5));
-    gobelet[2]=new QGraphicsEllipseItem(QRectF(91-4.75,80-202-4.75,9.5,9.5));
-
-    for(int ind1=0;ind1<3;ind1++){
-        gobelet[ind1]->setBrush(QBrush(QColor(255, 255,255, 255)));
-        terrain->addItem(gobelet[ind1]);
-    }*/
-
-
     //ajout du robot
-    GrosBot=new GraphicElement(polygonIni,255,255,255);
+    GrosBot=new GraphicElement(GrosBotForme,255,255,255);
     GrosBot->setBrush(QBrush(QColor(255, 255,255, 255)));
 
     //ajout du point de référence du robot
-    QPolygonF ref_GrosBotForme;
-    ref_GrosBotForme << QPointF(5,-7) << QPointF(-5,-7)<< QPointF(-7,-5)<< QPointF(-7,5) << QPointF(-5,7);
-    ref_GrosBotForme << QPointF(5,7) << QPointF(7,5) << QPointF(7,-5) << QPointF(5,-7);
-    OldGrosBot= new GraphicElement(ref_GrosBotForme,255,255,255);
+    QPolygonF OldGrosBotForme;
+    OldGrosBotForme << QPointF(5,-7) << QPointF(-5,-7)<< QPointF(-7,-5)<< QPointF(-7,5) << QPointF(-5,7);
+    OldGrosBotForme << QPointF(5,7) << QPointF(7,5) << QPointF(7,-5) << QPointF(5,-7);
+    OldGrosBot= new GraphicElement(OldGrosBotForme,255,255,255);
     OldGrosBot->setFlag(QGraphicsItem::ItemIsMovable, false);
     OldGrosBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
     OldGrosBot->setBrush(QBrush(QColor(255,255,255, 100)));
@@ -212,13 +176,19 @@ void CSimuBot::init(CApplication *application)
     liaison_GrosBot= new QGraphicsLineItem(liaison_Line);
 	
 	//ajout d'un robot adverse
-    QPolygonF ref_BotForme;
-    ref_BotForme << QPointF(9,-15) << QPointF(-9,-15)<< QPointF(-15,-9)<< QPointF(-15,9) << QPointF(-9,15);
-    ref_BotForme << QPointF(9,15) << QPointF(15,9) << QPointF(15,-9) << QPointF(9,-15);
-    OtherBot= new GraphicElement(ref_BotForme,255,255,255);
+    QPolygonF OtherBotForme;
+    OtherBotForme << QPointF(9,-15) << QPointF(-9,-15)<< QPointF(-15,-9)<< QPointF(-15,9) << QPointF(-9,15);
+    OtherBotForme << QPointF(9,15) << QPointF(15,9) << QPointF(15,-9) << QPointF(9,-15);
+    OtherBot= new GraphicElement(OtherBotForme,255,255,255);
     OtherBot->setFlag(QGraphicsItem::ItemIsMovable, true);
     OtherBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
     OtherBot->setBrush(QBrush(QColor(255,0,0, 100)));
+
+    //ajout d'un MiniBot
+    MiniBot= new GraphicElement(MiniBotForme,255,255,255);
+    MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
+    MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    MiniBot->setBrush(QBrush(QColor(255,255,255, 255)));
 
     //on place le robot et on crée le mécanisme d'init
     QPushButton *pushButton_init=m_ihm.findChild<QPushButton*>("pushButton_init");
@@ -233,10 +203,12 @@ void CSimuBot::init(CApplication *application)
     connect(m_ihm.ui.lineEdit_y,SIGNAL(editingFinished()),this,SLOT(returnCapture_XY()));
     connect(m_ihm.ui.lineEdit_theta,SIGNAL(editingFinished()),this,SLOT(returnCapture_Theta()));
     connect(m_ihm.ui.dial_rotation_bot,SIGNAL(sliderReleased()),this,SLOT(slot_dial_turned()));
-    //connect(m_ihm.ui.dial_rotation_bot,SIGNAL(),this,SLOT(slot_dial_turned()));
+
+    //demande de déplacement du robot
     connect(this, SIGNAL(displayCoord(qreal,qreal)), GrosBot,SLOT(display_XY(qreal,qreal)));
     connect(this,SIGNAL(displayAngle(qreal)),GrosBot,SLOT(display_theta(qreal)));
-
+    connect(this, SIGNAL(displayCoord2(qreal,qreal)), MiniBot,SLOT(display_XY(qreal,qreal)));
+    connect(this,SIGNAL(displayAngle2(qreal)),MiniBot,SLOT(display_theta(qreal)));
 
     //pour changer de mode visu ou placement
     connect(m_ihm.ui.horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
@@ -255,14 +227,7 @@ void CSimuBot::init(CApplication *application)
     terrain->addItem(GrosBot);
     terrain->addItem(liaison_GrosBot);
 	terrain->addItem(OtherBot);
-
-    //TODO: ajouter nouveaux element comme un MiniBot, un adversaire avec un trajet aléatoire,...
-    //ajout des éléments de jeu
-//    QList<QGraphicsEllipseItem*> listSpots;
-//    listSpots << &QGraphicsEllipseItem(QRect(100, 100 , 6, 6));
-//    //QGraphicsEllipseItem * =new QGraphicsRectItem(QRect(0, -202 , 302, 202));
-//    terrain->addItem((listSpots.at(0)));
-
+    terrain->addItem(MiniBot);
 
     //Mise en place du terrain
     m_ihm.simuView=m_ihm.findChild<QGraphicsView*>("simuGraphicsView");
@@ -277,32 +242,26 @@ void CSimuBot::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "zoom", QVariant(1));
     m_ihm.ui.verticalSlider_zoom_scene->setValue(val.toInt());
 
-    //pour le mode visu on se connecte aux changements du datamanager
-    connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(coordChanged(CData*)));
-
     //changement de repère suivant le choix de coordonnées relatives au terrain ou au robot
-    // Restore le fait que la fenêtre est visible ou non
     val = m_application->m_eeprom->read(getName(), "isRelativToBot", QVariant(true));
-    QRadioButton *radioButton_robot_relative=m_ihm.findChild<QRadioButton*>("radioButton_robot_relative");
-    QRadioButton *radioButton_terrain_relative=m_ihm.findChild<QRadioButton*>("radioButton_terrain_relative");
-    if (val.toBool()) {radioButton_robot_relative->setChecked(true); }
-    else              {radioButton_terrain_relative->setChecked(true); }
+    if (val.toBool()) {m_ihm.ui.radioButton_robot_relative->setChecked(true); }
+    else              {m_ihm.ui.radioButton_terrain_relative->setChecked(true); }
 
     GrosBot->isRelativToBot=val.toBool();
     OldGrosBot->isRelativToBot=val.toBool();
     OtherBot->isRelativToBot=val.toBool();
+    OtherBot->isRelativToBot=val.toBool();
 
-    //affichage et saisi en radian ou en degré
-    //setAndGetInRad
+    //affichage et saisie en radian ou en degré
     val = m_application->m_eeprom->read(getName(), "anglesEnRadian", QVariant(true));
-    QRadioButton *radioButton_radian=m_ihm.findChild<QRadioButton*>("radioButton_radian");
-    QRadioButton *radioButton_degre=m_ihm.findChild<QRadioButton*>("radioButton_degre");
-    if (val.toBool()) {radioButton_radian->setChecked(true); setAndGetInRad=true; }
-    else              {radioButton_degre->setChecked(true); setAndGetInRad=false; }
-
+    if (val.toBool()) {m_ihm.ui.radioButton_radian->setChecked(true); setAndGetInRad=true; }
+    else              {m_ihm.ui.radioButton_degre->setChecked(true); setAndGetInRad=false; }
 
     //pour calculer une trajectoire d'evitement
     connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
+
+    //pour le mode visu on se connecte aux changements du datamanager
+    connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(coordChanged(CData*)));
 
     // Positions x, y, teta du robot physique
     m_application->m_data_center->write("x_pos", 0);
@@ -311,6 +270,12 @@ void CSimuBot::init(CApplication *application)
     connect(m_application->m_data_center->getData("x_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
     connect(m_application->m_data_center->getData("y_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
     connect(m_application->m_data_center->getData("teta_pos"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+    m_application->m_data_center->write("x_pos2", 0);
+    m_application->m_data_center->write("y_pos2", 0);
+    m_application->m_data_center->write("teta_pos2", 0);
+    connect(m_application->m_data_center->getData("x_pos2"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+    connect(m_application->m_data_center->getData("y_pos2"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
+    connect(m_application->m_data_center->getData("teta_pos2"), SIGNAL(valueChanged(QVariant)), this, SLOT(real_robot_position_changed()));
 
 
     //init de ces variables dans le data manager
@@ -325,8 +290,10 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Bot.x", 0);
     m_application->m_data_center->write("Simubot.Bot.y", 0);
     m_application->m_data_center->write("Simubot.Bot.teta", 0);
-    //pour la simu
-    cadenceur=new QTimer();
+
+    //pour le mode simu (fonctionnement avec Simulia)
+    cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
+    //connections pour éditer/gérer le déplacement autonome du 2ème robot
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
     connect(m_ihm.ui.pB_playOther,SIGNAL(clicked(bool)),this,SLOT(playOther()));
     connect(m_ihm.ui.pB_stopOther,SIGNAL(clicked(bool)),this,SLOT(stopOther()));
@@ -336,20 +303,25 @@ void CSimuBot::init(CApplication *application)
     QStringList QS_Labels;
     QS_Labels << "x" << "y" << "teta";
     m_ihm.ui.tableWidget->setHorizontalHeaderLabels(QS_Labels);
-    addLineOther(0,-50,0,0);
-    addLineOther(200,-50,0,1);
-    addLineOther(200,70,0,2);
-    addLineOther(0,70,0,3);
-    addLineOther(0,0,0,4);
+    addStepOther(0,-50,0,0);
+    addStepOther(200,-50,0,1);
+    addStepOther(200,70,0,2);
+    addStepOther(0,70,0,3);
+    addStepOther(0,0,0,4);
     isStarted=false;
     isStarted_old=false;
 
+    MiniBot->setVisible(false);
+    twoBotsEnabled=false;
+    m_ihm.ui.groupBox_MiniBot->setEnabled(false);
+    connect(m_ihm.ui.ckhB_2Bot,SIGNAL(stateChanged(int)),this,SLOT(enableTwoBots(int)));
+    val = m_application->m_eeprom->read(getName(), "use_2_bots", QVariant(false));
+    m_ihm.ui.ckhB_2Bot->setChecked(val.toBool());
 
     //positionnement par défaut
-    initEquipe(equipe1, equipe2);
+    initEquipe(EQUIPE1);
     initView();
 }
-
 
 // _____________________________________________________________________
 /*!
@@ -365,6 +337,7 @@ void CSimuBot::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "mode_visu", QVariant((unsigned int)m_ihm.ui.horizontalSlider_toggle_simu->value()));
   m_application->m_eeprom->write(getName(), "zoom", QVariant((unsigned int)m_ihm.ui.verticalSlider_zoom_scene->value()));
+  m_application->m_eeprom->write(getName(), "use_2_bots", QVariant((bool)m_ihm.ui.ckhB_2Bot->isChecked()));
 }
 
 // _____________________________________________________________________
@@ -384,8 +357,6 @@ void CSimuBot::onRightClicGUI(QPoint pos)
 /*!
  * \brief CSimuBot::viewChanged on met à jour l'IHM quand la scene graphique a été modifiée
  * \param regions
- *
- * TODO: relier à un simulateur de robot pour donner les interactions avec l'environnement
  */
 void CSimuBot::viewChanged(QList<QRectF> regions)
 {
@@ -505,21 +476,26 @@ void CSimuBot::initView(void){
         GrosBot->isRelativToBot=true;
         OldGrosBot->isRelativToBot=true;
         OtherBot->isRelativToBot=true;
+        MiniBot->isRelativToBot=true;
     }
     else{
         GrosBot->isRelativToBot=false;
         OldGrosBot->isRelativToBot=false;
         OtherBot->isRelativToBot=false;
+        MiniBot->isRelativToBot=false;
     }
 
-    if(m_ihm.ui.radioButton_radian->isChecked())
-        setAndGetInRad=true;
-    else
-        setAndGetInRad=false;
+    setAndGetInRad=m_ihm.ui.radioButton_radian->isChecked();
 
+    //coord init GrosBot
     qreal x_init=m_ihm.ui.lineEdit_X_init->value();
     qreal y_init=m_ihm.ui.lineEdit_Y_init->value();
     qreal theta_init=m_ihm.ui.lineEdit_Theta_init->value();
+
+    //coord init MiniBot
+    qreal x_init_2=m_ihm.ui.lineEdit_X_init_2->value();
+    qreal y_init_2=m_ihm.ui.lineEdit_Y_init_2->value();
+    qreal theta_init_2=m_ihm.ui.lineEdit_Theta_init_2->value();
 
     if (setAndGetInRad)
     {
@@ -527,9 +503,12 @@ void CSimuBot::initView(void){
                                m_ihm.ui.sB_Y_init_asserv->value(),
                                180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
         OtherBot->setAsservInit(0,0,0);
+        MiniBot->setAsservInit(0,0,180*(m_ihm.ui.sB_Theta_init_asserv_2->value())/Pi);
+        //MiniBot->setAsservInit(0,0,0);
         GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
         OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
         OtherBot->raz(equipeOther.x,equipeOther.y,normalizeAngleDeg(180*equipeOther.teta/Pi));
+        MiniBot->raz(x_init_2,y_init_2,normalizeAngleDeg(180*theta_init_2/Pi));
     }
     else
     {
@@ -537,9 +516,11 @@ void CSimuBot::initView(void){
                                m_ihm.ui.sB_Y_init_asserv->value(),
                                m_ihm.ui.sB_Theta_init_asserv->value());
         OtherBot->setAsservInit(0,0,0);
+        MiniBot->setAsservInit(0,0,m_ihm.ui.sB_Theta_init_asserv_2->value());
         GrosBot->raz(x_init,y_init,theta_init);
         OldGrosBot->raz(x_init,y_init,theta_init);
         OtherBot->raz(equipeOther.x,equipeOther.y,equipeOther.teta);
+        MiniBot->raz(x_init_2,y_init_2,theta_init_2);
     }
 
     qreal x_reel_init=GrosBot->getX();
@@ -558,29 +539,72 @@ void CSimuBot::initView(void){
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 }
 
-void CSimuBot::initEquipe(Coord equipe, Coord equipe_adverse)
+void CSimuBot::initEquipe(int equipe)
 {
-    m_ihm.ui.lineEdit_X_init->setValue(equipe.x);
-    m_ihm.ui.lineEdit_Y_init->setValue(equipe.y);
-    m_ihm.ui.lineEdit_Theta_init->setValue(equipe.teta);
+    Coord cGrosBot;
+    Coord cMiniBot;
 
-    //sauvegarde des coordonnées d'init du robot adverse
-    equipeOther.x=equipe_adverse.x;
-    equipeOther.y=equipe_adverse.y;
-    equipeOther.teta=equipe_adverse.teta;
+    if(equipe==EQUIPE1)
+    {
+        cGrosBot.x=equipe1_bot1.x;
+        cGrosBot.y=equipe1_bot1.y;
+        cGrosBot.teta=equipe1_bot1.teta;
+        cGrosBot.ortho=equipe1_bot1.ortho;
+
+        cMiniBot.x=equipe1_bot2.x;
+        cMiniBot.y=equipe1_bot2.y;
+        cMiniBot.teta=equipe1_bot2.teta;
+        cMiniBot.ortho=equipe1_bot2.ortho;
+
+        equipeOther.x=equipe2_bot1.x;
+        equipeOther.y=equipe2_bot1.y;
+        equipeOther.teta=equipe2_bot1.teta;
+        equipeOther.ortho=equipe2_bot1.ortho;
+    }
+    else
+    {
+        cGrosBot.x=equipe2_bot1.x;
+        cGrosBot.y=equipe2_bot1.y;
+        cGrosBot.teta=equipe2_bot1.teta;
+        cGrosBot.ortho=equipe2_bot1.ortho;
+
+        cMiniBot.x=equipe2_bot2.x;
+        cMiniBot.y=equipe2_bot2.y;
+        cMiniBot.teta=equipe2_bot2.teta;
+        cMiniBot.ortho=equipe2_bot2.ortho;
+
+        equipeOther.x=equipe1_bot1.x;
+        equipeOther.y=equipe1_bot1.y;
+        equipeOther.teta=equipe1_bot1.teta;
+        equipeOther.ortho=equipe1_bot1.ortho;
+    }
+
+    m_ihm.ui.lineEdit_X_init->setValue(cGrosBot.x);
+    m_ihm.ui.lineEdit_Y_init->setValue(cGrosBot.y);
+    m_ihm.ui.lineEdit_Theta_init->setValue(cGrosBot.teta);
+
+    m_ihm.ui.sB_Theta_init_asserv->setValue(iniTetaAsserv_bot1[equipe]);
+
+    m_ihm.ui.lineEdit_X_init_2->setValue(cMiniBot.x);
+    m_ihm.ui.lineEdit_Y_init_2->setValue(cMiniBot.y);
+    m_ihm.ui.lineEdit_Theta_init_2->setValue(cMiniBot.teta);
+
+    m_ihm.ui.sB_Theta_init_asserv_2->setValue(iniTetaAsserv_bot2[equipe]);
 
     //sens trigo appliqué au robot placé à gauche sur l'image repère orthogonal
-    if(equipe.ortho)
+    if(cGrosBot.ortho)
     {
         GrosBot->sensOrtho=1;
         OldGrosBot->sensOrtho=1;
-        OtherBot->sensOrtho=1;
+        OtherBot->sensOrtho=-1;
+        MiniBot->sensOrtho=1;
     }
     else
     {
         GrosBot->sensOrtho=-1;
         OldGrosBot->sensOrtho=-1;
-        OtherBot->sensOrtho=-1;
+        OtherBot->sensOrtho=1;
+        MiniBot->sensOrtho=-1;
     }
 }
 
@@ -596,12 +620,12 @@ void CSimuBot::changeEquipe(void)
 
     if(name_radio_button.compare("radioButton_couleur_1")==0) //bleu
     {
-        initEquipe(equipe1,equipe2);
+        initEquipe(EQUIPE1);
         //qDebug() << "bleu";
     }
     else if(name_radio_button.compare("radioButton_couleur_2")==0) //jaune
     {
-        initEquipe(equipe2,equipe1);
+        initEquipe(EQUIPE2);
         //qDebug() << "jaune";
     }
     initView();
@@ -696,6 +720,35 @@ void CSimuBot::coordChanged(CData *data)
     }
 }
 
+// _____________________________________________________________________
+/*!
+ * \brief CSimuBot::real_robot_position_changed slot appelé quand l'une des coordonnées du robot issues du datamanager change
+ *
+ * # COMPORTEMENT
+ *  Permet au mode VISU et SIMU de faire évoluer le robot dans le simulateur selon les vrais évolutions des coordonnées
+ */
+void CSimuBot::real_robot_position_changed()
+{
+    //Si on est en mode VISU
+    if ((modeVisu==SIMUBOT::VISU) || (modeVisu==SIMUBOT::SIMU))
+    {
+        //on récupère les nouvelles coordonnées du robot
+        float pos_x = m_application->m_data_center->getData("x_pos")->read().toFloat();
+        float pos_y = m_application->m_data_center->getData("y_pos")->read().toFloat();
+        float teta_pos = m_application->m_data_center->getData("teta_pos")->read().toFloat();
+        //on récupère les nouvelles coordonnées du deuxième robot
+        float pos_x2 = m_application->m_data_center->getData("x_pos2")->read().toFloat();
+        float pos_y2 = m_application->m_data_center->getData("y_pos2")->read().toFloat();
+        float teta_pos2 = m_application->m_data_center->getData("teta_pos2")->read().toFloat();
+
+        //mise à jour des coordonnées dans simubot
+        emit displayCoord(pos_x, pos_y);
+        emit displayAngle(teta_pos);
+        //mise à jour des coordonnées dans simubot
+        emit displayCoord2(pos_x2, pos_y2);
+        emit displayAngle2(teta_pos2);
+    }
+}
 
 /*!
  * \brief CSimuBot::zoom pour zoomer ou dezoomer l'affichage du terrain
@@ -838,28 +891,7 @@ void CSimuBot::slot_getPath(void)
 }
 
 
-// _____________________________________________________________________
-/*!
- * \brief CSimuBot::real_robot_position_changed slot appelé quand l'une des coordonnées du robot issues du datamanager change
- *
- * # COMPORTEMENT
- *  Permet au mode VISU et SIMU de faire évoluer le robot dans le simulateur selon les vrais évolutions des coordonnées
- */
-void CSimuBot::real_robot_position_changed()
-{
-    //Si on est en mode VISU
-    if ((modeVisu==SIMUBOT::VISU) || (modeVisu==SIMUBOT::SIMU))
-    {
-        //on récupère les nouvelles coordonnées du robot
-        float pos_x = m_application->m_data_center->getData("x_pos")->read().toFloat();
-        float pos_y = m_application->m_data_center->getData("y_pos")->read().toFloat();
-        float teta_pos = m_application->m_data_center->getData("teta_pos")->read().toFloat();
 
-        //mise à jour des coordonnées dans simubot
-        emit displayCoord(pos_x, pos_y);
-        emit displayAngle(teta_pos);
-    }
-}
 
 void CSimuBot::catchDoubleClick()
 {
@@ -880,94 +912,71 @@ void CSimuBot::estimate_Environment_Interactions()
 {
     //estimation de l'environnement US
     //récupération des différentes coordonnées (graphique et réelles) de l'adversaire
-    qreal x_other_graphic=OtherBot->getX_terrain();
-    qreal y_other_graphic=OtherBot->getY_terrain();
+    Coord cOtherBot(OtherBot->getX_terrain(),OtherBot->getY_terrain(),OtherBot->getTheta(),(OtherBot->sensOrtho>0));
 
-    //récupération des différentes coordonnées (graphique et réelles) de notre robot
+    //récupération des différentes coordonnées (graphique et réelles) de notre premier robot
+    Coord cGrosBot(GrosBot->getX_terrain(),GrosBot->getY_terrain(),GrosBot->getTheta(),(GrosBot->sensOrtho>0));
     qreal x_bot_graphic=GrosBot->getX_terrain();
-    qreal y_bot_graphic=GrosBot->getY_terrain();
     qreal theta_bot=GrosBot->getTheta();
 
-    //on calcule la distance entre l'ancienne et la nouvelle position
-    float distanceAdversaire = sqrt(pow((x_other_graphic-x_bot_graphic),2)+pow((y_other_graphic-y_bot_graphic),2));
-    float angleAdversaire=0.0;
+    //récupération des différentes coordonnées (graphique et réelles) de notre premier robot
+    Coord cMiniBot(MiniBot->getX_terrain(),MiniBot->getY_terrain(),MiniBot->getTheta(),(MiniBot->sensOrtho>0));
 
-    //on calcule l'angle entre les 2 robots
-    if (x_other_graphic==x_bot_graphic)
+    //détection GrosBot
+    //de l'adversaire
+    float capteurs1[4];
+    getUSDistance(cGrosBot,cOtherBot,capteurs1);
+    //de minibot
+    float capteurs2[4];
+    if(twoBotsEnabled)
+        getUSDistance(cGrosBot,cMiniBot,capteurs2);
+    else
     {
-        if (y_other_graphic>y_bot_graphic)
-            angleAdversaire=Pi/2;
-        else if (y_other_graphic==y_bot_graphic)
-            angleAdversaire=0;
-        else if (y_other_graphic<y_bot_graphic)
-            angleAdversaire=-Pi/2;
+        for(int i=0;i<4;i++)
+            capteurs2[i]=99;
     }
-    else if (x_other_graphic>x_bot_graphic)
+    //synthèse
+    float capteurs3[4];
+    for(int i=0;i<4;i++)
     {
-        angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic));
-    }
-    else if (x_other_graphic<x_bot_graphic)
-    {
-        if (y_other_graphic>y_bot_graphic)
-            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))+Pi;
-        else if (y_other_graphic==y_bot_graphic)
-            angleAdversaire=Pi;
-        else if (y_other_graphic<y_bot_graphic)
-            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))-Pi;
+        if(capteurs1[i]<=capteurs2[i])
+            capteurs3[i]=capteurs1[i];
+        else
+            capteurs3[i]=capteurs2[i];
     }
 
-    double arad=angleAdversaire-theta_bot; //angle en radian
-    if(GrosBot->sensOrtho<0)
-        arad=arad+Pi;
-    double adeg= arad*180/Pi; //angle en degré
-    //modulo 360
-    while (adeg < 0)
-        adeg += 360;
-    while (adeg > 360)
-        adeg -= 360;
-    /*
-    //Affichage des nouvelles valeurs position, angle du robot
-    qDebug() << "coord graphique: G(" <<x_prim_graphic <<","<<y_prim_graphic<<")\tAd("<<x_graphic<<","<<y_graphic<<")";
-    qDebug() << "coord réelles: G(" <<x_prim_view <<","<<y_prim_view<<")\tAd("<<x_view<<","<<y_view<<")";
-    qDebug() << "distance : " << distanceAdversaire;
-    qDebug() << "angle : " << adeg;
-    */
-    distanceAdversaire=distanceAdversaire-15.0; //prise en compte du diamètre moyen du robot adverse
-    double US_AVG=99;
-    double US_AVD=99;
-    double US_ARG=99;
-    double US_ARD=99;
-    //qDebug() << distanceAdversaire << "," << adeg;
-    if(distanceAdversaire<=120)
+    m_application->m_data_center->write("Simubot.Telemetres.AVG", capteurs3[AVG]);
+    m_application->m_data_center->write("Simubot.Telemetres.AVD", capteurs3[AVD]);
+    m_application->m_data_center->write("Simubot.Telemetres.ARG", capteurs3[ARG]);
+    m_application->m_data_center->write("Simubot.Telemetres.ARD", capteurs3[ARD]);
+
+    //détection MiniBot
+    //de l'adversaire
+    getUSDistance(cMiniBot,cOtherBot,capteurs1);
+    //de grosbot
+    getUSDistance(cMiniBot,cGrosBot,capteurs2);
+    //synthèse
+    for(int i=0;i<4;i++)
     {
-        if(((adeg>=0)&&(adeg<45))||((adeg>340)&&(adeg<=360))) //robot adverse devant à gauche
-        {
-            US_AVG=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)-16),2));
-        }
-        if(((adeg>315)&&(adeg<=360))||((adeg>=0)&&(adeg<20))) //robot adverse devant à droite
-        {
-            US_AVD=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)+16),2));
-        }
-        if((adeg>135)&&(adeg<=200)) //robot adverse arrière à gauche
-        {
-            US_ARG=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)-16),2));
-        }
-        if((adeg>=160)&&(adeg<225)) //robot adverse arrière à droite
-        {
-            US_ARD=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)+16),2));
-        }
+        if(capteurs1[i]<=capteurs2[i])
+            capteurs3[i]=capteurs1[i];
+        else
+            capteurs3[i]=capteurs2[i];
     }
 
-    m_application->m_data_center->write("Simubot.Telemetres.AVG", US_AVG);
-    m_application->m_data_center->write("Simubot.Telemetres.AVD", US_AVD);
-    m_application->m_data_center->write("Simubot.Telemetres.ARG", US_ARG);
-    m_application->m_data_center->write("Simubot.Telemetres.ARD", US_ARD);
+    m_application->m_data_center->write("Simubot.Telemetres.AVG2", capteurs3[AVG]);
+    m_application->m_data_center->write("Simubot.Telemetres.AVD2", capteurs3[AVD]);
+    m_application->m_data_center->write("Simubot.Telemetres.ARG2", capteurs3[ARG]);
+    m_application->m_data_center->write("Simubot.Telemetres.ARD2", capteurs3[ARD]);
 
-    /*
-    qDebug() << "AVG "<<US_AVG<<" - AVD "<<US_AVD;
-    qDebug() << "ARG "<<US_ARG<<" - ARD "<<US_ARD;
+    /*if((capteurs3[AVG]<30)||(capteurs3[ARG]<30)||(capteurs3[AVD]<30)||(capteurs3[ARD]<30))
+    {
+    qDebug() << "AVG "<<capteurs3[AVG] <<" (" << capteurs1[AVG] << capteurs2[AVG] <<") - AVD "<<capteurs3[AVD]<<" (" << capteurs1[AVD] << capteurs2[AVD] <<")";
+    qDebug() << "ARG "<<capteurs3[ARG] <<" (" << capteurs1[ARG] << capteurs2[ARG] <<") - ARD "<<capteurs3[ARD]<<" (" << capteurs1[ARD] << capteurs2[ARD] <<")";
     qDebug() << "------------------------------------------------------";
-    */
+    }*/
+
+
 
 
     //estimation de blocage sur le terrain
@@ -1106,7 +1115,7 @@ void CSimuBot::nextStepOther()
         OtherBot->moveAtSpeed();
 }
 
-void CSimuBot::addLineOther(double x, double y, double teta, int row)
+void CSimuBot::addStepOther(double x, double y, double teta, int row)
 {
     QTableWidgetItem * qTbW_x=new QTableWidgetItem();
     QTableWidgetItem * qTbW_y=new QTableWidgetItem();
@@ -1155,3 +1164,134 @@ void CSimuBot::syncMove(bool activated)
     }
 }
 
+QPolygonF CSimuBot::getForm(QStringList strL_Form)
+{
+    QPolygonF BotForme;
+    if(strL_Form.isEmpty()){
+      BotForme << QPointF(10,-15) << QPointF(-10,-15)<< QPointF(-15,-10)<< QPointF(-15,10) << QPointF(-10,15);
+      BotForme << QPointF(10,15) << QPointF(15,10) << QPointF(15,-10) << QPointF(10,-15);
+    }
+    else
+    {
+      QString unStringPoint, temp, xString, yString;
+      QStringList ListXY;
+      double xFromString, yFromString;
+      for(int ind=0;ind<strL_Form.size();ind++)
+      {
+          unStringPoint=strL_Form.at(ind);
+          //qDebug() << unStringPoint;
+          ListXY=unStringPoint.split('x');
+          if (ListXY.size()>=2){
+              temp=ListXY.at(0);
+              xString=temp.remove(QChar('('), Qt::CaseInsensitive);
+              xFromString=xString.toDouble();
+              temp=ListXY.at(1);
+              yString=temp.remove(QChar(')'), Qt::CaseInsensitive);
+              yFromString=(-1.0)*yString.toDouble();
+              BotForme << QPointF(xFromString,yFromString);
+          }
+       }
+    }
+
+    return BotForme;
+}
+
+void CSimuBot::enableTwoBots(int state)
+{
+    if(state==Qt::Checked)
+    {
+        MiniBot->setVisible(true);
+        twoBotsEnabled=true;
+        m_ihm.ui.groupBox_MiniBot->setEnabled(true);
+    }
+    else
+    {
+        MiniBot->setVisible(false);
+        twoBotsEnabled=false;
+        m_ihm.ui.groupBox_MiniBot->setEnabled(false);
+    }
+}
+
+void CSimuBot::getUSDistance(Coord bot, Coord obstacle, float capteurs[])
+{
+    //estimation de l'environnement US
+    //récupération des différentes coordonnées (graphique et réelles) de l'adversaire
+    float x_other_graphic=obstacle.x;
+    float y_other_graphic=obstacle.y;
+
+    //récupération des différentes coordonnées (graphique et réelles) de notre robot
+    float x_bot_graphic=bot.x;
+    float y_bot_graphic=bot.y;
+    float theta_bot=bot.teta;
+    bool sensOrtho_bot=bot.ortho;
+
+    //on calcule la distance entre l'ancienne et la nouvelle position
+    float distanceAdversaire = sqrt(pow((x_other_graphic-x_bot_graphic),2)+pow((y_other_graphic-y_bot_graphic),2));
+    float angleAdversaire=0.0;
+
+    //on calcule l'angle entre les 2 robots
+    if (x_other_graphic==x_bot_graphic)
+    {
+        if (y_other_graphic>y_bot_graphic)
+            angleAdversaire=Pi/2;
+        else if (y_other_graphic==y_bot_graphic)
+            angleAdversaire=0;
+        else if (y_other_graphic<y_bot_graphic)
+            angleAdversaire=-Pi/2;
+    }
+    else if (x_other_graphic>x_bot_graphic)
+    {
+        angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic));
+    }
+    else if (x_other_graphic<x_bot_graphic)
+    {
+        if (y_other_graphic>y_bot_graphic)
+            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))+Pi;
+        else if (y_other_graphic==y_bot_graphic)
+            angleAdversaire=Pi;
+        else if (y_other_graphic<y_bot_graphic)
+            angleAdversaire=atan((y_other_graphic-y_bot_graphic)/(x_other_graphic-x_bot_graphic))-Pi;
+    }
+
+    double arad=angleAdversaire-theta_bot; //angle en radian
+    if(!sensOrtho_bot)
+        arad=arad+Pi;
+    double adeg= arad*180/Pi; //angle en degré
+    //modulo 360
+    while (adeg < 0)
+        adeg += 360;
+    while (adeg > 360)
+        adeg -= 360;
+    /*
+    //Affichage des nouvelles valeurs position, angle du robot
+    qDebug() << "coord graphique: G(" <<x_prim_graphic <<","<<y_prim_graphic<<")\tAd("<<x_graphic<<","<<y_graphic<<")";
+    qDebug() << "coord réelles: G(" <<x_prim_view <<","<<y_prim_view<<")\tAd("<<x_view<<","<<y_view<<")";
+    qDebug() << "distance : " << distanceAdversaire;
+    qDebug() << "angle : " << adeg;
+    */
+    distanceAdversaire=distanceAdversaire-15.0; //prise en compte du diamètre moyen du robot adverse
+    capteurs[AVG]=99;
+    capteurs[AVD]=99;
+    capteurs[ARG]=99;
+    capteurs[ARD]=99;
+    //qDebug() << distanceAdversaire << "," << adeg;
+    if(distanceAdversaire<=120)
+    {
+        if(((adeg>=0)&&(adeg<45))||((adeg>340)&&(adeg<=360))) //robot adverse devant à gauche
+        {
+            capteurs[AVG]=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)-16),2));
+        }
+        if(((adeg>315)&&(adeg<=360))||((adeg>=0)&&(adeg<20))) //robot adverse devant à droite
+        {
+            capteurs[AVD]=sqrt(pow((distanceAdversaire*cos(arad)-12),2)+pow((distanceAdversaire*sin(arad)+16),2));
+        }
+        if((adeg>135)&&(adeg<=200)) //robot adverse arrière à gauche
+        {
+            capteurs[ARG]=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)-16),2));
+        }
+        if((adeg>=160)&&(adeg<225)) //robot adverse arrière à droite
+        {
+            capteurs[ARD]=sqrt(pow((distanceAdversaire*cos(arad)+12),2)+pow((distanceAdversaire*sin(arad)+16),2));
+        }
+    }
+}
