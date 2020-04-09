@@ -9,6 +9,7 @@
 
 #include "CPluginModule.h"
 #include "ui_ihm_Simulia.h"
+#include "CExternalControlerClient.h"
 
 #include <QTimer>
 //#include "ia.h"
@@ -60,7 +61,8 @@ public:
 private:
     Cihm_Simulia m_ihm;
     void simu_task_sequencer();
-
+    CExternalControlerClient m_external_controler_client_robot2;
+    QTimer m_timer_external_robot2;
 private slots :
     void onRightClicGUI(QPoint pos);
 
@@ -85,6 +87,9 @@ private slots :
     void on_select_strategie_match(int val);
 
     void updatePositionFromSimubot();
+
+    void on_active_external_robot2(bool state);
+    void on_timeout_external_robot2();
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_

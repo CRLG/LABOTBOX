@@ -177,6 +177,10 @@ void CSimulia::init(CApplication *application)
   connect(m_application->m_data_center->getData("PosY_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
   connect(m_application->m_data_center->getData("PosTeta_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
 
+  // Robot n°2 externe
+  connect(m_ihm.ui.active_external_robot2, SIGNAL(clicked(bool)), this, SLOT(on_active_external_robot2(bool)));
+  connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
+
   m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
 }
@@ -491,4 +495,52 @@ void CSimulia::on_select_strategie_match(int val)
     Application.m_modelia.setStrategie(val);
 }
 
+// =======================================================
+//              GESTION DU ROBOT N°2 EXTERNE
+// =======================================================
+void CSimulia::on_active_external_robot2(bool state)
+{
+    if (state) {
+          QString host_external_robot2;
+          int port_external_robot2;
+          host_external_robot2 = m_application->m_eeprom->read(getName(), "host_external_robot2", QVariant("127.0.0.1")).toString();
+          port_external_robot2 = m_application->m_eeprom->read(getName(), "port_external_robot2", QVariant(1234)).toInt();
+          bool connected = m_external_controler_client_robot2.open((char*)host_external_robot2.toStdString().c_str(), port_external_robot2);
+          if (connected) {
+              m_timer_external_robot2.start(100);
+              m_application->m_print_view->print_info(this, QString("Connecte au robot 2 externe %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
+          }
+          else {
+              m_application->m_print_view->print_error(this, QString("Impossible de se connecter au client %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
+              m_ihm.ui.active_external_robot2->setChecked(false);
+          }
+    }
+    else {
+        m_timer_external_robot2.stop();
+    }
+}
+// ___________________________________________________
+// Lecture des données du robot n°2 sur une instance externe de Simulia
+void CSimulia::on_timeout_external_robot2()
+{
+    int error_code;
+    QVariant val;
+    // Lecture des données de la simu externe du robot n°2
+    val = m_external_controler_client_robot2.readData("Simubot.Bot.x", &error_code);
+    if (error_code == 0) m_application->m_data_center->write("x_pos2", val);
+
+    val = m_external_controler_client_robot2.readData("Simubot.Bot.y", &error_code);
+    if (error_code == 0) m_application->m_data_center->write("y_pos2", val);
+
+    val = m_external_controler_client_robot2.readData("Simubot.Bot.teta", &error_code);
+    if (error_code == 0) m_application->m_data_center->write("teta_pos2", val);
+
+    // Envoie des données vers la simu du robot n°2
+    m_external_controler_client_robot2.writeData("Capteurs.Tirette", m_application->m_data_center->getData("Capteurs.Tirette")->read());
+    m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARD", m_application->m_data_center->getData("Simubot.Telemetres.ARD2")->read());
+    m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARG", m_application->m_data_center->getData("Simubot.Telemetres.ARG2")->read());
+    m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVD", m_application->m_data_center->getData("Simubot.Telemetres.AVD2")->read());
+    m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVG", m_application->m_data_center->getData("Simubot.Telemetres.AVG2")->read());
+
+}
 
