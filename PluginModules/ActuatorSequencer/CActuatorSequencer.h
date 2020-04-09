@@ -122,7 +122,7 @@ private:
     QString getValueText(QTableWidget *table_sequence, int idx);
     QString getSateNameText(QTableWidget *table_sequence, int idx);
     QString getCommentsText(QTableWidget *table_sequence, int idx);
-    void fillRow(QTableWidget *table_sequence, int idx, QTableWidgetItem *type, QTableWidgetItem *id, QTableWidgetItem *value, QTableWidgetItem *state, QTableWidgetItem *comments, bool symetrie);
+    void fillRow(QTableWidget *table_sequence, int idx, QTableWidgetItem *type, QTableWidgetItem *id, QTableWidgetItem *value, QTableWidgetItem *state, QTableWidgetItem *comments, bool symetrie, bool prototype);
     void setPlayMessage(int elapsed, QString type, QString msg);
     void creatTabSequence(QWidget * newTab, QTableWidget * newSequence, QString strName, bool isFirstSequence);
     bool getSymChecked(QTableWidget *sequence, int row);
@@ -130,6 +130,8 @@ private:
     int getType(QString sActuator);
     QList<int> findTransitionsIn(QTableWidget *table_sequence, QString StateName);
     QList<int> findTransitionsOut(QTableWidget *table_sequence, QString StateName);
+    bool getProtoChecked(QTableWidget *sequence, int row);
+    void setProtoChecked(QTableWidget *sequence, int row, bool state);
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);
