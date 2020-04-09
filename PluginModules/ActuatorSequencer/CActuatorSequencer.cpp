@@ -242,8 +242,8 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
  m_ihm.ui.cB_Asser->addItem("XY",QVariant(0));
   m_ihm.ui.cB_Asser->addItem("XYTheta",QVariant(1));
  m_ihm.ui.cB_Asser->addItem("DistAng",QVariant(2));
- //m_ihm.ui.cB_Asser->addItem("Distance",QVariant(3));
- //m_ihm.ui.cB_Asser->addItem("Angle",QVariant(4));
+ m_ihm.ui.cB_Asser->addItem("Init_asser",QVariant(3));
+ m_ihm.ui.cB_Asser->addItem("Init_rack",QVariant(4));
  m_ihm.ui.cB_Asser->addItem("Rack",QVariant(5));
  m_ihm.ui.label_asserValue_1->setText("X");
  m_ihm.ui.label_asserValue_2->setText("Y");
@@ -399,6 +399,37 @@ void CActuatorSequencer::updateTooltip(void)
             m_ihm.ui.lE_Asser_1->setEnabled(true);
             m_ihm.ui.lE_Asser_2->setEnabled(false);
             m_ihm.ui.lE_Asser_3->setEnabled(true);
+        }
+        if(currentAsser=="Init_asser")
+        {
+             //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("Position");
+            m_ihm.ui.label_asserValue_2->setText("Not Used");
+            m_ihm.ui.label_asserValue_3->setText("Not Used");
+            m_ihm.ui.label_asserValue_1->setText("X");
+            m_ihm.ui.label_asserValue_2->setText("Y");
+            m_ihm.ui.label_asserValue_3->setText("Theta");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_1->setMaximum(300);
+            m_ihm.ui.lE_Asser_1->setMinimum(-300);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0.0);
+            m_ihm.ui.lE_Asser_1->setEnabled(true);
+            m_ihm.ui.lE_Asser_2->setEnabled(true);
+            m_ihm.ui.lE_Asser_3->setEnabled(true);
+        }
+        if(currentAsser=="Init_rack")
+        {
+             //qDebug() << "asser text is" << currentAsser;
+            m_ihm.ui.label_asserValue_1->setText("Not Used");
+            m_ihm.ui.label_asserValue_2->setText("Not Used");
+            m_ihm.ui.label_asserValue_3->setText("Not Used");
+            m_ihm.ui.lE_Asser_1->setValue(0);
+            m_ihm.ui.lE_Asser_2->setValue(0);
+            m_ihm.ui.lE_Asser_3->setValue(0);
+            m_ihm.ui.lE_Asser_1->setEnabled(false);
+            m_ihm.ui.lE_Asser_2->setEnabled(false);
+            m_ihm.ui.lE_Asser_3->setEnabled(false);
         }
         if(currentAsser=="Rack")
         {
@@ -899,6 +930,27 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                             m_application->m_data_center->write("angle_consigne", args.at(1).toFloat());
                             m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
                         }
+                    }
+                    if(id.compare("Init_Asser")==0)
+                        if(nb_args==3)
+                        {
+                            msg="Commande init(X,Y,TETA) = ("+value+")";
+                            setPlayMessage(chrono.elapsed(),"ACTION",msg);
+                            m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", 1);
+                            m_application->m_data_center->write("reinit_x_pos",args.at(0).toFloat());
+                            m_application->m_data_center->write("reinit_y_pos", args.at(1).toFloat());
+                            m_application->m_data_center->write("reinit_teta_pos", args.at(2).toFloat());
+                            m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", 0);
+                        }
+                    if(id.compare("Init_rack")==0)
+                    {
+                        msg="Commande init Rack";
+                        setPlayMessage(chrono.elapsed(),"ACTION",msg);
+                        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 1);
+                        m_application->m_data_center->write("NumeroServoMoteur1", 52);
+                        m_application->m_data_center->write("PositionServoMoteur1", 1);
+                        m_application->m_data_center->write("VitesseServoMoteur1", 0);
+                        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 0);
                     }
                     if(id.compare("Rack")==0)
                     {
@@ -1649,6 +1701,25 @@ void CActuatorSequencer::Slot_Play_only_asser()
             m_application->m_data_center->write("angle_consigne", float_values.at(1));
             m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
         }
+    if(id=="Init_Asser")
+        if(nb_args==3)
+        {
+            qDebug() << "Init X Y TETA" << float_values;
+            m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", 1);
+            m_application->m_data_center->write("reinit_x_pos",float_values.at(0));
+            m_application->m_data_center->write("reinit_y_pos", float_values.at(1));
+            m_application->m_data_center->write("reinit_teta_pos", float_values.at(2));
+            m_application->m_data_center->write("COMMANDE_REINIT_XY_TETA_TxSync", 0);
+        }
+    if(id=="Init_rack")
+    {
+        qDebug() << "INIT RACK" << float_values;
+        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 1);
+        m_application->m_data_center->write("NumeroServoMoteur1", 52);
+        m_application->m_data_center->write("PositionServoMoteur1", 1);
+        m_application->m_data_center->write("VitesseServoMoteur1", 0);
+        m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", 0);
+    }
 
     if(id=="Rack")
         if(nb_args==1)
@@ -2151,6 +2222,8 @@ void CActuatorSequencer::Slot_Generate_CPP()
                         sConverted=sConverted+(isProto?strProto:"")+QString("outputs()->CommandeMouvementXY_TETA_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
                     if((sId.compare("DistAng")==0)&&(nb_args>=2))
                         sConverted=sConverted+(isProto?strProto:"")+QString("outputs()->CommandeMouvementDistanceAngle_sym(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                    if((sId.compare("Init_asser")==0)&&(nb_args>=3))
+                        sConverted=sConverted+(isProto?strProto:"")+QString("outputs()->setPosition_XYTeta_sym(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
                 }
                 else
                 {
@@ -2160,7 +2233,11 @@ void CActuatorSequencer::Slot_Generate_CPP()
                         sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_asservissement.CommandeMouvementXY_TETA(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
                     if((sId.compare("DistAng")==0)&&(nb_args>=2))
                         sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_asservissement.CommandeMouvementDistanceAngle(%1,%2);/*%3*/").arg(args.at(0)).arg(args.at(1)).arg(sComments);
+                    if((sId.compare("Init_asser")==0)&&(nb_args>=3))
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_asservissement.setPosition_XYTeta(%1,%2,%3);/*%4*/").arg(args.at(0)).arg(args.at(1)).arg(args.at(2)).arg(sComments);
                 }
+                if(sId.compare("Init_rack")==0)
+                    sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_asservissement_chariot.Recal_Chariot();/*%1*/").arg(sComments);
                 if(sId.compare("Rack")==0)
                     sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_asservissement_chariot.setConsigne(%1);/*%2*/").arg(sValue).arg(sComments);
                 break;
