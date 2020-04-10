@@ -18,6 +18,7 @@
 #include <QtMath>
 #include <QTimer>
 #include "CData.h"
+#include "CExternalControlerClient.h"
 
 enum SIMUBOT{
     TEST=0,
@@ -89,6 +90,8 @@ private slots :
         void enableMoveOther(int state);
         void syncMove(bool activated);
         void enableTwoBots(int state);
+        void on_active_external_robot2(bool state);
+        void on_timeout_external_robot2();
 private:
     Cihm_SimuBot m_ihm;
 
@@ -124,6 +127,9 @@ private:
     bool isStarted;
     bool isStarted_old;
 
+    //pour l'intégration de la stratégie du 2eme robot
+    CExternalControlerClient m_external_controler_client_robot2;
+    QTimer m_timer_external_robot2;
 
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);

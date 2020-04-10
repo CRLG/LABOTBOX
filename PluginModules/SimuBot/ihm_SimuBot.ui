@@ -1293,154 +1293,109 @@
        <attribute name="title">
         <string>Simu</string>
        </attribute>
-       <widget class="QTableWidget" name="tableWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>140</y>
-          <width>351</width>
-          <height>261</height>
-         </rect>
-        </property>
-        <property name="rowCount">
-         <number>10</number>
-        </property>
-        <property name="columnCount">
-         <number>3</number>
-        </property>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <column/>
-        <column/>
-        <column/>
-       </widget>
-       <widget class="QCheckBox" name="chkBox_enableOther">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>191</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Utilisation robot adverse</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="chkBox_enableMoveOther">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>191</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Déplacement auto</string>
-        </property>
-       </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_speed">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>230</x>
-          <y>70</y>
-          <width>111</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="value">
-         <double>40.000000000000000</double>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_22">
-        <property name="geometry">
-         <rect>
-          <x>230</x>
-          <y>10</y>
-          <width>67</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Vitesse</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pB_playOther">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>100</y>
-          <width>89</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Play</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pB_resumeOther">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>100</y>
-          <width>89</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Resume</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pB_stopOther">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>100</y>
-          <width>89</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Stop</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="chkBox_syncMeanBot">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>70</y>
-          <width>201</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Synchro avec Tirette</string>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="chkBox_enableOther">
+          <property name="text">
+           <string>Utilisation robot adverse</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCheckBox" name="active_external_robot2">
+          <property name="text">
+           <string>Robot 2 externe</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QCheckBox" name="chkBox_enableMoveOther">
+          <property name="text">
+           <string>Déplacement auto</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_22">
+          <property name="text">
+           <string>Vitesse</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="chkBox_syncMeanBot">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Synchro avec Tirette</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_speed">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="value">
+           <double>40.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="pB_playOther">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="pB_resumeOther">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Resume</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QPushButton" name="pB_stopOther">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Stop</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="3">
+         <widget class="QTableWidget" name="tableWidget">
+          <property name="rowCount">
+           <number>10</number>
+          </property>
+          <property name="columnCount">
+           <number>3</number>
+          </property>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <column/>
+          <column/>
+          <column/>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
