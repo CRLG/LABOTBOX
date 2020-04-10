@@ -4,6 +4,7 @@
  */
 #include <QDebug>
 #include "CSimulia.h"
+#include "CSimuBot.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
@@ -254,6 +255,9 @@ void CSimulia::on_pb_init_all()
     // Remet la tirette en position
     m_application->m_data_center->write("Capteurs.Tirette", false);
     m_ihm.ui.Tirette->setChecked(false);
+
+    //Synchronise Simubot avec l'init
+    m_application->m_SimuBot->initView();
 
     m_timer.start();
 }
