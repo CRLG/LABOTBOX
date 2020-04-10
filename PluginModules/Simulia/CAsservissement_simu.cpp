@@ -52,6 +52,22 @@ void CAsservissementSimule::init(CApplication *application)
 void CAsservissementSimule::Init(void)
 {
     CAsservissementBase::Init();
+
+    // re-initialisation des paramètres de l'asservissement pour la simu
+    cde_max = 100;				// %	Commande maximum normalisée pour saturer la régulation
+    cde_min = -100 ;			// %	Commande minimum normalisée pour saturer la régulation
+    kp_distance =  1.6;//1.7;		// 		Gain proportionnel pour la régulation en distance
+    ki_distance =  2.5;//3.0;		// 		Gain intégral pour la régulation en distance
+    kp_angle =  35;			// 		Gain proportionnel pour la régulation en angle
+    ki_angle =  5;			// 		Gain intégral pour la régulation en angle
+    k_angle = 0.5;				//		Coeff de filtrage pour le terme dérivé
+    seuil_conv_distance =  1;	// cm	Erreur en dessous de laquelle on considère que le robot est en position sur la distance
+    seuil_conv_angle =  0.02;	// rad	Erreur en dessous de laquelle on considère que le robot est en position sur l'angle
+    compteur_max = 3;			// 		Nombre de coups d'horloge (N*te) avant de confirmer que le robot est en position
+
+    // Initialisation des zones mortes
+    zone_morte_D = 0;
+    zone_morte_G = 0;
 }
 
 // ************************************************************************************
