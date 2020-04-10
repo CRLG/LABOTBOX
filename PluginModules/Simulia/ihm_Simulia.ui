@@ -587,7 +587,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_detectionObstacles">
      <attribute name="title">
@@ -803,27 +803,6 @@
       </property>
       <property name="value">
        <double>100.000000000000000</double>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="tab">
-     <attribute name="title">
-      <string>Robot n°2</string>
-     </attribute>
-     <widget class="QCheckBox" name="active_external_robot2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>181</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Les coordonnées du robot n°2 proviennent d'une application externe</string>
-      </property>
-      <property name="text">
-       <string>Coordonnées externes</string>
       </property>
      </widget>
     </widget>
