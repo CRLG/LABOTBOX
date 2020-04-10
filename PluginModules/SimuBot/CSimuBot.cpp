@@ -290,6 +290,10 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Bot.x", 0);
     m_application->m_data_center->write("Simubot.Bot.y", 0);
     m_application->m_data_center->write("Simubot.Bot.teta", 0);
+    m_application->m_data_center->write("Simubot.Telemetres.AVG2", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.AVD2", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.ARG2", 99);
+    m_application->m_data_center->write("Simubot.Telemetres.ARD2", 99);
 
     //pour le mode simu (fonctionnement avec Simulia)
     cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
