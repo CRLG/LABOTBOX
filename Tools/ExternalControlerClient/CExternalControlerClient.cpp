@@ -8,6 +8,9 @@
 CExternalControlerClient::CExternalControlerClient(QObject *parent)
     : QObject(parent)
 {
+    // ré-émet les signaux de la socket
+    connect(&m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+    connect(&m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 }
 
 CExternalControlerClient::~CExternalControlerClient()
@@ -47,6 +50,18 @@ bool CExternalControlerClient::open(char *hostname, int port)
         qDebug() << m_socket.readAll();
     }
     return true;
+}
+
+// ______________________________________________________
+bool CExternalControlerClient::isConnected()
+{
+    return m_socket.isOpen();
+}
+
+// ______________________________________________________
+void CExternalControlerClient::close()
+{
+    return m_socket.close();
 }
 
 // ______________________________________________________

@@ -41,6 +41,8 @@ public:
     QVariant readData(QString dataname, int *error_code = Q_NULLPTR);
     void writeData(QString dataname, QVariant val, int *error_code = Q_NULLPTR);
     void createData(QString dataname, QVariant val, int *error_code = Q_NULLPTR);
+    bool isConnected();
+    void close();
 
 private :
     QTcpSocket  m_socket;
@@ -51,6 +53,9 @@ private :
 
 public slots:
     void onReadyRead();
+signals :
+    void connected();
+    void disconnected();
 };
 
 #endif // _EXTERNALCONTROLERCLIENT_H_

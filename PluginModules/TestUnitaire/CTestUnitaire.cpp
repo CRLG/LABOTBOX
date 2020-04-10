@@ -128,6 +128,9 @@ void CTestUnitaire::init(CApplication *application)
  connect(m_application->m_RS232_robot, SIGNAL(disconnected()), this, SLOT(disconnected_rs232()));
 
  connect(m_application->m_MessagerieBot, SIGNAL(connected(bool)), this, SLOT(connected_to_robot(bool)));
+
+ connect(&m_external_client, SIGNAL(connected()), this, SLOT(connected_to_external()));
+ connect(&m_external_client, SIGNAL(disconnected()), this, SLOT(disconnected_to_external()));
 }
 
 
@@ -182,6 +185,9 @@ void CTestUnitaire::cb_Bouton(void)
  QByteArray data(buf, 11000);
  m_application->m_RS232_robot->write(data);
 
+
+ if (m_external_client.isConnected())   m_external_client.close();
+ else                                   m_external_client.open("127.0.0.1", 1236);
 }
 
 
@@ -230,3 +236,13 @@ void CTestUnitaire::connected_to_robot(bool state)
  else       m_application->m_print_view->print_info(this, "Robot disconnected");
 }
 
+
+
+void CTestUnitaire::connected_to_external()
+{
+    qDebug() << "Connected to External Client";
+}
+void CTestUnitaire::disconnected_to_external()
+{
+    qDebug() << "Disconnected to External Client";
+}

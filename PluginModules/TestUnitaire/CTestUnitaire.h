@@ -10,6 +10,7 @@
 #include "CPluginModule.h"
 #include "ui_ihm_TestUnitaire.h"
 #include "QProtectedQueue.h"
+#include "CExternalControlerClient.h"
 
  class Cihm_TestUnitaire : public QMainWindow
 {
@@ -57,6 +58,7 @@ private slots :
 
 private:
     Cihm_TestUnitaire m_ihm;
+    CExternalControlerClient m_external_client;
 
 public slots :
     void cb_Bouton(void);
@@ -67,6 +69,9 @@ public slots :
     void disconnected_rs232(void);
 
     void connected_to_robot(bool state);
+
+    void connected_to_external();
+    void disconnected_to_external();
 
 };
 
