@@ -460,6 +460,9 @@
         </item>
         <item row="1" column="0" colspan="2">
          <widget class="QGroupBox" name="groupBox_coord_relative">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -501,7 +504,7 @@
            <item>
             <widget class="QRadioButton" name="radioButton_terrain_relative">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="maximumSize">
               <size>
@@ -1303,6 +1306,9 @@
         </item>
         <item row="0" column="2">
          <widget class="QCheckBox" name="active_external_robot2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Robot 2 externe</string>
           </property>

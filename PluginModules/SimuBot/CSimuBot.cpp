@@ -709,17 +709,44 @@ void CSimuBot::changeMode(int iMode)
     case SIMUBOT::TEST:
         GrosBot->setFlag(QGraphicsItem::ItemIsMovable, true);
         GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        GrosBot->setBrush(QBrush(QColor(255, 255,255, 255)));
         OldGrosBot->show();
         liaison_GrosBot->show();
         m_ihm.ui.lineEdit_x->setEnabled(true);
         m_ihm.ui.lineEdit_y->setEnabled(true);
         m_ihm.ui.lineEdit_theta->setEnabled(true);
         m_ihm.ui.checkBox_setSequence->setEnabled(true);
+
+        m_ihm.ui.active_external_robot2->setEnabled(false);
+        m_ihm.ui.active_external_robot2->setChecked(false);
         break;
-    case SIMUBOT::VISU: //pour l'instant même IHM pour VISU et SIMU
-    case SIMUBOT::SIMU:
+    case SIMUBOT::VISU:
+        m_ihm.ui.active_external_robot2->setEnabled(false);
+        m_ihm.ui.active_external_robot2->setChecked(false);
+
         GrosBot->setFlag(QGraphicsItem::ItemIsMovable, false);
         GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        GrosBot->setBrush(QBrush(QColor(153, 51,255, 255)));
+        OldGrosBot->hide();
+        liaison_GrosBot->hide();
+        m_ihm.ui.lcdNumber_distance->display(0);
+        m_ihm.ui.lcdNumber_angle->display(0);
+
+        m_ihm.ui.lineEdit_x->clear();
+        m_ihm.ui.lineEdit_y->clear();
+        m_ihm.ui.lineEdit_theta->clear();
+        m_ihm.ui.lineEdit_x->setEnabled(false);
+        m_ihm.ui.lineEdit_y->setEnabled(false);
+        m_ihm.ui.lineEdit_theta->setEnabled(false);
+        m_ihm.ui.checkBox_setSequence->setChecked(false);
+        m_ihm.ui.checkBox_setSequence->setEnabled(false);
+        break;
+    case SIMUBOT::SIMU:
+        if(m_ihm.ui.ckhB_2Bot->isChecked())
+            m_ihm.ui.active_external_robot2->setEnabled(true);
+        GrosBot->setFlag(QGraphicsItem::ItemIsMovable, false);
+        GrosBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        GrosBot->setBrush(QBrush(QColor(153, 51,255, 255)));
         OldGrosBot->hide();
         liaison_GrosBot->hide();
         m_ihm.ui.lcdNumber_distance->display(0);
@@ -1246,12 +1273,16 @@ void CSimuBot::enableTwoBots(int state)
         MiniBot->setVisible(true);
         twoBotsEnabled=true;
         m_ihm.ui.groupBox_MiniBot->setEnabled(true);
+        if(modeVisu==SIMU)
+            m_ihm.ui.active_external_robot2->setEnabled(true);
     }
     else
     {
         MiniBot->setVisible(false);
         twoBotsEnabled=false;
         m_ihm.ui.groupBox_MiniBot->setEnabled(false);
+        m_ihm.ui.active_external_robot2->setEnabled(false);
+        m_ihm.ui.active_external_robot2->setChecked(false);
     }
 }
 
@@ -1354,6 +1385,8 @@ void CSimuBot::on_active_external_robot2(bool state)
               m_timer_external_robot2.start(100);
               m_application->m_print_view->print_info(this, QString("Connecte au robot 2 externe %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
               MiniBot->setFlag(QGraphicsItem::ItemIsMovable, false);
+              MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
+              MiniBot->setBrush(QBrush(QColor(153, 51,255, 255)));
           }
           else {
               m_application->m_print_view->print_error(this, QString("Impossible de se connecter au client %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
@@ -1363,6 +1396,8 @@ void CSimuBot::on_active_external_robot2(bool state)
     else {
         m_timer_external_robot2.stop();
         MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
+        MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        MiniBot->setBrush(QBrush(QColor(255, 255,255, 255)));
     }
 }
 // ___________________________________________________
