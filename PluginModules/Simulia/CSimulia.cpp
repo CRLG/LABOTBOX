@@ -171,12 +171,13 @@ void CSimulia::init(CApplication *application)
 
   connect(m_ihm.ui.Tirette, SIGNAL(clicked(bool)), m_application->m_data_center->getData("Capteurs.Tirette", true), SLOT(write(bool)));
 
-  connect(m_application->m_data_center->getData("Simubot.blocage.gauche", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_G(bool)));
-  connect(m_application->m_data_center->getData("Simubot.blocage.droite", true), SIGNAL(valueChanged(bool)), this, SLOT(on_force_blocage_roue_D(bool)));
+  connect(m_application->m_data_center->getData("Simubot.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimuBot()));
 
   connect(m_application->m_data_center->getData("PosX_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
   connect(m_application->m_data_center->getData("PosY_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
   connect(m_application->m_data_center->getData("PosTeta_robot", true), SIGNAL(valueChanged(bool)), this, SLOT(updatePositionFromSimubot()));
+
+  m_step=0;
 
   m_timer.start(10);
   m_ihm.ui.speed_simu->setValue(m_timer.interval());
@@ -253,7 +254,9 @@ void CSimulia::on_pb_init_all()
     m_ihm.ui.Tirette->setChecked(false);
 
     //Synchronise Simubot avec l'init
-    m_application->m_SimuBot->initView();
+    m_application->m_data_center->write("Simubot.Init", true);
+
+    m_step=0;
 
     m_timer.start();
 }
@@ -265,6 +268,7 @@ void CSimulia::on_timeout()
 
 void CSimulia::step_sequencer()
 {
+    int old_step=m_step;
     // Mise en cohérence de l'IHM de simu avec le reste du modèle
     m_ihm.ui.led_isObstacle->setValue(Application.m_modelia.m_inputs_interface.obstacleDetecte); // La LED représente une détection d'obstacle confirmée
     if (m_ihm.ui.OrigineDetectionObstacles->currentIndex() != CDetectionObstaclesSimu::OBSTACLE_FROM_GUI) {
@@ -297,16 +301,16 @@ void CSimulia::step_sequencer()
     m_application->m_data_center->write("DetectionObstacle.inhibe_detection_AV", Application.m_modelia.m_datas_interface.inhibe_detection_AV);
     m_application->m_data_center->write("DetectionObstacle.inhibe_detection_AR", Application.m_modelia.m_datas_interface.inhibe_detection_AR);
 
-    m_application->m_data_center->write("x_pos", Application.m_asservissement.X_robot);
-    m_application->m_data_center->write("y_pos", Application.m_asservissement.Y_robot);
-    m_application->m_data_center->write("teta_pos", Application.m_asservissement.angle_robot);
     m_application->m_data_center->write("convergence_conf", Application.m_asservissement.convergence_conf);
     m_application->m_data_center->write("convergence_rapide", Application.m_asservissement.convergence_rapide);
 
-    // Position du robot dans le repère absolue terrain
-    m_application->m_data_center->write("x_pos_terrain", Application.m_modelia.m_inputs_interface.X_robot_terrain);
-    m_application->m_data_center->write("y_pos_terrain", Application.m_modelia.m_inputs_interface.Y_robot_terrain);
-    m_application->m_data_center->write("teta_pos_terrain", Application.m_modelia.m_inputs_interface.angle_robot_terrain);
+    //pour le moteur physique de SimuBot
+    if(m_step>old_step)
+    {
+        m_application->m_data_center->write("Simulia.vect_G", Application.m_roues.m_vect_deplacement_G);
+        m_application->m_data_center->write("Simulia.vect_D", Application.m_roues.m_vect_deplacement_D);
+        m_application->m_data_center->write("Simulia.step", m_step);
+    }
 
     m_application->m_data_center->write("consigne_vitesse_avance", Application.m_asservissement.consigne_vitesse_avance);
 }
@@ -339,6 +343,7 @@ void CSimulia::simu_task_sequencer()
 
       Application.m_roues.step_model();   // exécute un pas de calcul du simulateur de moteurs
       Application.m_asservissement.CalculsMouvementsRobots();
+      m_step++;
       Application.m_asservissement_chariot.Asser_chariot();
 
       // Execute un pas de calcul du modele
@@ -459,18 +464,6 @@ void CSimulia::on_origine_detect_obstacle_changed()
     Application.m_detection_obstacles.setOrigineDetection(m_ihm.ui.OrigineDetectionObstacles->currentIndex());
 }
 
-
-// ___________________________________________________
-// Gestion des demandes de blocage de roues
-void CSimulia::on_force_blocage_roue_G(bool val)
-{
-    Application.m_roues.forceBlocageRoueG(val);
-}
-void CSimulia::on_force_blocage_roue_D(bool val)
-{
-    Application.m_roues.forceBlocageRoueD(val);
-}
-
 // ___________________________________________________
 // Quand Simubot est en mode "Test", les coordonnées du robot
 //  sur le terrain sont envoyées dans les 3 datas PosX_robot, ...
@@ -483,6 +476,17 @@ void CSimulia::updatePositionFromSimubot()
     Application.m_asservissement.setPosition_XYTeta(x, y, teta);
 }
 
+
+void CSimulia::updateStepFromSimuBot()
+{
+    if(m_application->m_data_center->read("Simubot.step").toInt()>=m_step)
+    {
+        int steps_G = m_application->m_data_center->read("Simubot.codeur_G").toInt();
+        int steps_D = m_application->m_data_center->read("Simubot.codeur_D").toInt();
+        Application.m_roues.addSteps_Codeur_G(steps_G);
+        Application.m_roues.addSteps_Codeur_D(steps_D);
+    }
+}
 
 // ___________________________________________________
 void CSimulia::on_select_couleur_equipe(int val)

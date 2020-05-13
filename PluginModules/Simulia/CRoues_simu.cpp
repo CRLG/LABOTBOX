@@ -3,6 +3,7 @@
 */
 #include "CRoues_simu.h"
 #include "plateformer_robot.h"
+#include "CAsservissement_simu.h"
 #include <QDebug>
 #include "CApplication.h"
 #include "CDataManager.h"
@@ -14,9 +15,7 @@
    \return --
 */
 CRouesSimu::CRouesSimu()
-    :m_application(nullptr),
-      m_force_blocage_roue_G(false),
-      m_force_blocage_roue_D(false)
+    :m_application(nullptr)
 {
     init_model();
 }
@@ -25,17 +24,22 @@ CRouesSimu::CRouesSimu()
 void CRouesSimu::init(CApplication *application)
 {
     m_application = application;
+    m_vect_deplacement_G=0;
+    m_vect_deplacement_D=0;
+    m_registre_Codeur_G=0;
+    m_registre_Codeur_D=0;
 }
 
-
-//___________________________________________________________________________
-void CRouesSimu::forceBlocageRoueG(bool state)
+void CRouesSimu::addSteps_Codeur_G(int nbSteps)
 {
-    m_force_blocage_roue_G = state;
+    m_registre_Codeur_G=m_registre_Codeur_G+nbSteps;
+    m_application->m_data_center->write("CodeurRoueG", m_registre_Codeur_G);
 }
-void CRouesSimu::forceBlocageRoueD(bool state)
+
+void CRouesSimu::addSteps_Codeur_D(int nbSteps)
 {
-    m_force_blocage_roue_D = state;
+    m_registre_Codeur_D=m_registre_Codeur_D+nbSteps;
+    m_application->m_data_center->write("CodeurRoueD", m_registre_Codeur_D);
 }
 
 //___________________________________________________________________________
@@ -47,17 +51,8 @@ void CRouesSimu::forceBlocageRoueD(bool state)
 */
 void CRouesSimu::AdapteCommandeMoteur_G(float vitesse)
 {
-    if (m_force_blocage_roue_G) {
-        m_cde_roue_G = 0.f;
-    }
-    else {
-        m_cde_roue_G = vitesse;
-    }
-    //qDebug() << "Moteur G = " << m_cde_roue_G;
-    rtU.cde_mot_G = m_cde_roue_G;
-    m_application->m_data_center->write("Cde_MotG", m_cde_roue_G);
+    m_cde_roue_G = vitesse;
 }
-
 
 //___________________________________________________________________________
 /*!
@@ -68,15 +63,7 @@ void CRouesSimu::AdapteCommandeMoteur_G(float vitesse)
 */
 void CRouesSimu::AdapteCommandeMoteur_D(float vitesse)
 {
-    if (m_force_blocage_roue_D) {
-        m_cde_roue_D = 0.f;
-    }
-    else {
-        m_cde_roue_D = vitesse;
-    }
-    //qDebug() << "Moteur D = " << m_cde_roue_D;
-    rtU.cde_mot_D = m_cde_roue_D;
-    m_application->m_data_center->write("Cde_MotD", m_cde_roue_D);
+    m_cde_roue_D = vitesse;
 }
 
 
@@ -89,7 +76,7 @@ void CRouesSimu::AdapteCommandeMoteur_D(float vitesse)
 */
 int CRouesSimu::getCodeurG(void)
 {
-    return rtY.RegistrecodeurG;
+    return m_registre_Codeur_G;
 }
 
 
@@ -102,7 +89,7 @@ int CRouesSimu::getCodeurG(void)
 */
 int CRouesSimu::getCodeurD(void)
 {
-    return rtY.RegistrecodeurD;
+    return m_registre_Codeur_D;
 }
 
 
@@ -115,13 +102,14 @@ int CRouesSimu::getCodeurD(void)
 */
 void CRouesSimu::resetCodeurs(void)
 {
-    rtY.RegistrecodeurG = 0;
-    rtY.RegistrecodeurD = 0;
+    m_registre_Codeur_G=0;
+    m_registre_Codeur_D=0;
     memset(&rtDW, 0, sizeof(rtDW)); // RAZ nécessaire aussi des données internes au modèle (sinon, pas de réel RAZ des codeurs et les corrdonnées font un saut à la convergence)
 
-    if (m_application) {
-        m_application->m_data_center->write("CodeurRoueG", rtY.RegistrecodeurG);
-        m_application->m_data_center->write("CodeurRoueD", rtY.RegistrecodeurD);
+    if (m_application)
+    {
+        m_application->m_data_center->write("CodeurRoueG", m_registre_Codeur_G);
+        m_application->m_data_center->write("CodeurRoueD", m_registre_Codeur_D);
     }
 }
 
@@ -159,25 +147,18 @@ void CRouesSimu::step_model()
 
     // IHM -> Entrées modele
     rtU.ubatt = 15; //[V]
-
-    // Mémorise l'ancienne position pour forcer le blocage
-    real_T old_CodeurRoueG = rtY.RegistrecodeurG;
-    real_T old_CodeurRoueD = rtY.RegistrecodeurD;
+    rtU.cde_mot_D = m_cde_roue_D;
+    m_application->m_data_center->write("Cde_MotD", m_cde_roue_D);
+    rtU.cde_mot_G = m_cde_roue_G;
+    m_application->m_data_center->write("Cde_MotG", m_cde_roue_G);
 
     /* Step the model */
     plateformer_robot_step();
 
-    // Gestion du blocage de la roue
-    if (m_force_blocage_roue_G) {
-        rtY.RegistrecodeurG = old_CodeurRoueG;
-    }
-    if (m_force_blocage_roue_D) {
-        rtY.RegistrecodeurD = old_CodeurRoueD;
-    }
-
     /* Get model outputs here */
-    m_application->m_data_center->write("CodeurRoueG", rtY.RegistrecodeurG);
-    m_application->m_data_center->write("CodeurRoueD", rtY.RegistrecodeurD);
+    float K=80;
+    m_vect_deplacement_G=K*m_cde_roue_G;
+    m_vect_deplacement_D=K*m_cde_roue_D;
 
     /* Indicate task complete */
     OverrunFlag = false;

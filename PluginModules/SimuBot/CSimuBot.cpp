@@ -50,6 +50,8 @@ CSimuBot::CSimuBot(const char *plugin_name)
     //init des variables de positionnement relatif du robot
     deltaAngle=0;
     deltaDistance=0;
+
+    m_connected_host=false;
 }
 
 
@@ -101,12 +103,21 @@ void CSimuBot::init(CApplication *application)
     val=m_application->m_eeprom->read(getName(),"polygon",QStringList());
     QStringList listePointsPolygon=val.toStringList();
     QPolygonF GrosBotForme=getForm(listePointsPolygon);
+    QPolygonF GrosBotFormeOrientation;
+    GrosBotFormeOrientation << QPointF(0.0,5.0) << QPointF((4.0+(GrosBotForme.boundingRect().width())/2.0),0.0) << QPointF(0.0,-5.0);
+    QPolygonF GrosBotFormeOriented=GrosBotForme.united(GrosBotFormeOrientation);
 
     //récupération des contours de MiniBot dans le fichier d'eeprom
     val=m_application->m_eeprom->read(getName(),"polygon2",QStringList());
     listePointsPolygon.clear();
     listePointsPolygon=val.toStringList();
     QPolygonF MiniBotForme=getForm(listePointsPolygon);
+    QPolygonF MiniBotFormeOrientation;
+    MiniBotFormeOrientation << QPointF(0.0,5.0) << QPointF((4.0+(MiniBotForme.boundingRect().width())/2.0),0.0) << QPointF(0.0,-5.0);
+    QPolygonF MiniBotFormeOriented=MiniBotForme.united(MiniBotFormeOrientation);
+
+    //Initialisation du moteur physique
+    m_physical_engine.createPhysicalWorld(m_application,GrosBotForme,MiniBotForme);
 
     //récupération des positions d'init de GrosBot
     val = m_application->m_eeprom->read(getName(), "X_init_1_bot1", QVariant(18.0));
@@ -158,8 +169,40 @@ void CSimuBot::init(CApplication *application)
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
+    //ajout des éléments de jeu
+    elementsJeu[0]=setElementJeu(30.0f,160.0f,Qt::red);
+    elementsJeu[1]=setElementJeu(45.0f,149.0f,Qt::green);
+    elementsJeu[2]=setElementJeu(67.0f,190.0f,Qt::red);
+    elementsJeu[3]=setElementJeu(95.0f,160.0f,Qt::green);
+
+    elementsJeu[4]=setElementJeu(30.0f,80.0f,Qt::green);
+    elementsJeu[5]=setElementJeu(45.0f,92.0f,Qt::red);
+    elementsJeu[6]=setElementJeu(110.0f,120.0f,Qt::red);
+    elementsJeu[7]=setElementJeu(127.0f,80.0f,Qt::green);
+
+    elementsJeu[8]=setElementJeu(100.5f,4.5f,Qt::red);
+    elementsJeu[9]=setElementJeu(106.5f,35.0f,Qt::green);
+    elementsJeu[10]=setElementJeu(133.5f,35.0f,Qt::red);
+    elementsJeu[11]=setElementJeu(139.5f,4.5f,Qt::green);
+
+    elementsJeu[12]=setElementJeu(270.0f,160.0f,Qt::green);
+    elementsJeu[13]=setElementJeu(255.0f,149.0f,Qt::red);
+    elementsJeu[14]=setElementJeu(230.0f,190.0f,Qt::green);
+    elementsJeu[15]=setElementJeu(205.0f,160.0f,Qt::red);
+
+    elementsJeu[16]=setElementJeu(270.0f,80.0f,Qt::red);
+    elementsJeu[17]=setElementJeu(255.0f,92.0f,Qt::green);
+    elementsJeu[18]=setElementJeu(190.0f,120.0f,Qt::green);
+    elementsJeu[19]=setElementJeu(173.0f,80.0f,Qt::red);
+
+    elementsJeu[20]=setElementJeu(199.5f,4.5f,Qt::green);
+    elementsJeu[21]=setElementJeu(193.5f,35.0f,Qt::red);
+    elementsJeu[22]=setElementJeu(166.5f,35.0f,Qt::green);
+    elementsJeu[23]=setElementJeu(160.5f,4.5f,Qt::red);
+
+
     //ajout du robot
-    GrosBot=new GraphicElement(GrosBotForme,255,255,255);
+    GrosBot=new GraphicElement(GrosBotFormeOriented,255,255,255);
     GrosBot->setBrush(QBrush(QColor(255, 255,255, 255)));
 
     //ajout du point de référence du robot
@@ -185,7 +228,7 @@ void CSimuBot::init(CApplication *application)
     OtherBot->setBrush(QBrush(QColor(255,0,0, 100)));
 
     //ajout d'un MiniBot
-    MiniBot= new GraphicElement(MiniBotForme,255,255,255);
+    MiniBot= new GraphicElement(MiniBotFormeOriented,255,255,255);
     MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
     MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
     MiniBot->setBrush(QBrush(QColor(255,255,255, 255)));
@@ -260,9 +303,6 @@ void CSimuBot::init(CApplication *application)
     //pour calculer une trajectoire d'evitement
     connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
 
-    //pour le mode visu on se connecte aux changements du datamanager
-    //connect(m_application->m_data_center,SIGNAL(valueChanged(CData*)),this,SLOT(coordChanged(CData*)));
-
     // Positions x, y, teta du robot physique
     m_application->m_data_center->write("x_pos", 0);
     m_application->m_data_center->write("y_pos", 0);
@@ -279,14 +319,14 @@ void CSimuBot::init(CApplication *application)
 
 
     //init de ces variables dans le data manager
-    m_application->m_data_center->write("PosTeta_robot", 0.);
+    /*m_application->m_data_center->write("PosTeta_robot", 0.);
     m_application->m_data_center->write("PosX_robot", 0.);
     m_application->m_data_center->write("PosY_robot", 0.);
     m_application->m_data_center->write("PosTeta_robot2", 0.);
     m_application->m_data_center->write("PosX_robot2", 0.);
     m_application->m_data_center->write("PosY_robot2", 0.);
     m_application->m_data_center->write("Cde_MotG", 0);
-    m_application->m_data_center->write("Cde_MotD", 0);
+    m_application->m_data_center->write("Cde_MotD", 0);*/
     m_application->m_data_center->write("Simubot.Telemetres.AVG", 99);
     m_application->m_data_center->write("Simubot.Telemetres.AVD", 99);
     m_application->m_data_center->write("Simubot.Telemetres.ARG", 99);
@@ -300,6 +340,7 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Telemetres.AVD2", 99);
     m_application->m_data_center->write("Simubot.Telemetres.ARG2", 99);
     m_application->m_data_center->write("Simubot.Telemetres.ARD2", 99);
+    m_application->m_data_center->write("Simubot.Init", true);
 
     //pour le mode simu (fonctionnement avec Simulia)
     cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
@@ -309,6 +350,7 @@ void CSimuBot::init(CApplication *application)
     connect(m_ihm.ui.pB_stopOther,SIGNAL(clicked(bool)),this,SLOT(stopOther()));
     connect(cadenceur, SIGNAL(timeout()), this, SLOT(nextStepOther()));
     connect(m_ihm.ui.chkBox_enableMoveOther, SIGNAL(stateChanged(int)), this, SLOT(enableMoveOther(int)));
+    connect(m_application->m_data_center->getData("Simubot.Init", true), SIGNAL(valueChanged(bool)), this, SLOT(initView()));
     connect(m_application->m_data_center->getData("Capteurs.Tirette", true), SIGNAL(valueChanged(bool)),this , SLOT(syncMove(bool)));
     QStringList QS_Labels;
     QS_Labels << "x" << "y" << "teta";
@@ -331,6 +373,9 @@ void CSimuBot::init(CApplication *application)
     // Robot n°2 externe
       connect(m_ihm.ui.active_external_robot2, SIGNAL(clicked(bool)), this, SLOT(on_active_external_robot2(bool)));
       connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
+
+      //pour le moteur physique
+        connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
 
     //positionnement par défaut
     initEquipe(EQUIPE1);
@@ -427,7 +472,7 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 
     //récupération des coordonnées du 2eme robot
-    qreal x_view2=MiniBot->getX();
+    /*qreal x_view2=MiniBot->getX();
     qreal y_view2=MiniBot->getY();
     qreal theta_view2=MiniBot->getTheta();
     if(twoBotsEnabled && !m_ihm.ui.active_external_robot2->isChecked())
@@ -439,7 +484,7 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
 
         m_application->m_data_center->write("PosX_robot2", x_view2);
         m_application->m_data_center->write("PosY_robot2", y_view2);
-    }
+    }*/
 
     //Si on est en mode TEST, on affiche les valeurs complémentaires vis à vis de l'ancienne position du robot
     //et on met à jour le data manager
@@ -464,9 +509,9 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         //m_ihm.ui.lineEdit_theta->setValue(theta_view);
 
         // Informe le DataCenter de la mise à jour
-        m_application->m_data_center->write("PosX_robot", x_view);
+        /*m_application->m_data_center->write("PosX_robot", x_view);
         m_application->m_data_center->write("PosY_robot", y_view);
-        m_application->m_data_center->write("DirDistance_robot", deltaDistance);
+        m_application->m_data_center->write("DirDistance_robot", deltaDistance);*/
         /*m_application->m_data_center->write("Simubot.Bot.x", GrosBot->getX_terrain());
         m_application->m_data_center->write("Simubot.Bot.y", GrosBot->getY_terrain());
         m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
@@ -500,86 +545,104 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
 }
 
 void CSimuBot::initView(void){
+    bool flag_init=false;
+    flag_init=m_application->m_data_center->read("Simubot.Init").toBool();
 
-    if(m_ihm.ui.radioButton_robot_relative->isChecked()){
-        GrosBot->isRelativToBot=true;
-        OldGrosBot->isRelativToBot=true;
-        OtherBot->isRelativToBot=true;
-        MiniBot->isRelativToBot=true;
-    }
-    else{
-        GrosBot->isRelativToBot=false;
-        OldGrosBot->isRelativToBot=false;
-        OtherBot->isRelativToBot=false;
-        MiniBot->isRelativToBot=false;
-    }
-
-    setAndGetInRad=m_ihm.ui.radioButton_radian->isChecked();
-
-    //coord init GrosBot
-    qreal x_init=m_ihm.ui.lineEdit_X_init->value();
-    qreal y_init=m_ihm.ui.lineEdit_Y_init->value();
-    qreal theta_init=m_ihm.ui.lineEdit_Theta_init->value();
-
-    //coord init MiniBot
-    qreal x_init_2=m_ihm.ui.lineEdit_X_init_2->value();
-    qreal y_init_2=m_ihm.ui.lineEdit_Y_init_2->value();
-    qreal theta_init_2=m_ihm.ui.lineEdit_Theta_init_2->value();
-
-    //Init des positions d'init sur l'affichage terrain et asservissement
-    if (setAndGetInRad)
+    if((modeVisu==SIMUBOT::TEST)||(modeVisu==SIMUBOT::VISU)||(modeVisu==SIMUBOT::SIMU && flag_init))
     {
-        GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
-                               m_ihm.ui.sB_Y_init_asserv->value(),
-                               180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
-        OtherBot->setAsservInit(0,0,0);
-        MiniBot->setAsservInit(0,0,180*(m_ihm.ui.sB_Theta_init_asserv_2->value())/Pi);
-        //MiniBot->setAsservInit(0,0,0);
-        GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
-        OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
-        OtherBot->raz(equipeOther.x,equipeOther.y,normalizeAngleDeg(180*equipeOther.teta/Pi));
-        MiniBot->raz(x_init_2,y_init_2,normalizeAngleDeg(180*theta_init_2/Pi));
-    }
-    else
-    {
-        GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
-                               m_ihm.ui.sB_Y_init_asserv->value(),
-                               m_ihm.ui.sB_Theta_init_asserv->value());
-        OtherBot->setAsservInit(0,0,0);
-        MiniBot->setAsservInit(0,0,m_ihm.ui.sB_Theta_init_asserv_2->value());
-        GrosBot->raz(x_init,y_init,theta_init);
-        OldGrosBot->raz(x_init,y_init,theta_init);
-        OtherBot->raz(equipeOther.x,equipeOther.y,equipeOther.teta);
-        MiniBot->raz(x_init_2,y_init_2,theta_init_2);
-    }
+        m_step=0;
+        m_step2=0;
+        m_application->m_data_center->write("Simubot.step", m_step);
 
-    //init data manager 1er Robot
-    qreal x_reel_init=GrosBot->getX();
-    qreal y_reel_init=GrosBot->getY();
-    qreal theta_reel_init=GrosBot->getTheta();
+        if(m_ihm.ui.radioButton_robot_relative->isChecked()){
+            GrosBot->isRelativToBot=true;
+            OldGrosBot->isRelativToBot=true;
+            OtherBot->isRelativToBot=true;
+            MiniBot->isRelativToBot=true;
+        }
+        else{
+            GrosBot->isRelativToBot=false;
+            OldGrosBot->isRelativToBot=false;
+            OtherBot->isRelativToBot=false;
+            MiniBot->isRelativToBot=false;
+        }
 
-    m_application->m_data_center->write("PosX_robot", x_reel_init);
-    m_application->m_data_center->write("PosY_robot", y_reel_init);
+        setAndGetInRad=m_ihm.ui.radioButton_radian->isChecked();
 
-    if (setAndGetInRad)
-        m_application->m_data_center->write("PosTeta_robot", theta_reel_init);
-    else
-        m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_reel_init/Pi));
+        //coord init GrosBot
+        qreal x_init=m_ihm.ui.lineEdit_X_init->value();
+        qreal y_init=m_ihm.ui.lineEdit_Y_init->value();
+        qreal theta_init=m_ihm.ui.lineEdit_Theta_init->value();
 
-    m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
-    m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
+        //coord init MiniBot
+        qreal x_init_2=m_ihm.ui.lineEdit_X_init_2->value();
+        qreal y_init_2=m_ihm.ui.lineEdit_Y_init_2->value();
+        qreal theta_init_2=m_ihm.ui.lineEdit_Theta_init_2->value();
 
-    //init data manager 2ème Robot
-    qreal x_reel_init2=MiniBot->getX();
-    qreal y_reel_init2=MiniBot->getY();
-    qreal theta_reel_init2=MiniBot->getTheta();
-    m_application->m_data_center->write("PosX_robot2", x_reel_init2);
-    m_application->m_data_center->write("PosY_robot2", y_reel_init2);
+        //Init des positions d'init sur l'affichage terrain et asservissement
+        if (setAndGetInRad)
+        {
+            GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
+                                   m_ihm.ui.sB_Y_init_asserv->value(),
+                                   180*(m_ihm.ui.sB_Theta_init_asserv->value())/Pi);
+            OtherBot->setAsservInit(0,0,0);
+            MiniBot->setAsservInit(0,0,180*(m_ihm.ui.sB_Theta_init_asserv_2->value())/Pi);
+            //MiniBot->setAsservInit(0,0,0);
+            GrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
+            OldGrosBot->raz(x_init,y_init,normalizeAngleDeg(180*theta_init/Pi));
+            OtherBot->raz(equipeOther.x,equipeOther.y,normalizeAngleDeg(180*equipeOther.teta/Pi));
+            MiniBot->raz(x_init_2,y_init_2,normalizeAngleDeg(180*theta_init_2/Pi));
+            m_physical_engine.Init(x_init,y_init,theta_init,x_init_2,y_init_2,theta_init_2,twoBotsEnabled);
+        }
+        else
+        {
+            GrosBot->setAsservInit(m_ihm.ui.sB_X_init_asserv->value(),
+                                   m_ihm.ui.sB_Y_init_asserv->value(),
+                                   m_ihm.ui.sB_Theta_init_asserv->value());
+            OtherBot->setAsservInit(0,0,0);
+            MiniBot->setAsservInit(0,0,m_ihm.ui.sB_Theta_init_asserv_2->value());
+            GrosBot->raz(x_init,y_init,theta_init);
+            OldGrosBot->raz(x_init,y_init,theta_init);
+            OtherBot->raz(equipeOther.x,equipeOther.y,equipeOther.teta);
+            MiniBot->raz(x_init_2,y_init_2,theta_init_2);
+            m_physical_engine.Init(x_init,y_init,Pi*theta_init/180.0f,x_init_2,y_init_2,Pi*theta_init_2/180.0f,twoBotsEnabled);
+        }
 
-    if (setAndGetInRad)
-        m_application->m_data_center->write("PosTeta_robot2", theta_reel_init2);
-    else
-        m_application->m_data_center->write("PosTeta_robot2", normalizeAngleDeg(180*theta_reel_init2/Pi));
+        for(int i=0;i<24;i++)
+        {
+            elementsJeu[i]->setRect(QRect(m_physical_engine.getElement(i).x()-3.6f, -m_physical_engine.getElement(i).y()-3.6f,7.2f,7.2f));
+        }
+
+        //init data manager 1er Robot
+        qreal x_reel_init=GrosBot->getX();
+        qreal y_reel_init=GrosBot->getY();
+        qreal theta_reel_init=GrosBot->getTheta();
+
+        m_application->m_data_center->write("PosX_robot", x_reel_init);
+        m_application->m_data_center->write("PosY_robot", y_reel_init);
+
+        if (setAndGetInRad)
+            m_application->m_data_center->write("PosTeta_robot", theta_reel_init);
+        else
+            m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_reel_init/Pi));
+
+        m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
+        m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
+
+        //init data manager 2ème Robot
+        qreal x_reel_init2=MiniBot->getX();
+        qreal y_reel_init2=MiniBot->getY();
+        qreal theta_reel_init2=MiniBot->getTheta();
+        m_application->m_data_center->write("PosX_robot2", x_reel_init2);
+        m_application->m_data_center->write("PosY_robot2", y_reel_init2);
+
+        if (setAndGetInRad)
+            m_application->m_data_center->write("PosTeta_robot2", theta_reel_init2);
+        else
+            m_application->m_data_center->write("PosTeta_robot2", normalizeAngleDeg(180*theta_reel_init2/Pi));
+
+        m_application->m_data_center->write("Simubot.Init", false);
+}
 }
 
 void CSimuBot::initEquipe(int equipe)
@@ -719,6 +782,9 @@ void CSimuBot::changeMode(int iMode)
 
         m_ihm.ui.active_external_robot2->setEnabled(false);
         m_ihm.ui.active_external_robot2->setChecked(false);
+
+        m_ihm.ui.pushButton_init->setEnabled(true);
+
         break;
     case SIMUBOT::VISU:
         m_ihm.ui.active_external_robot2->setEnabled(false);
@@ -740,6 +806,9 @@ void CSimuBot::changeMode(int iMode)
         m_ihm.ui.lineEdit_theta->setEnabled(false);
         m_ihm.ui.checkBox_setSequence->setChecked(false);
         m_ihm.ui.checkBox_setSequence->setEnabled(false);
+
+        m_ihm.ui.pushButton_init->setEnabled(true);
+
         break;
     case SIMUBOT::SIMU:
         if(m_ihm.ui.ckhB_2Bot->isChecked())
@@ -760,33 +829,12 @@ void CSimuBot::changeMode(int iMode)
         m_ihm.ui.lineEdit_theta->setEnabled(false);
         m_ihm.ui.checkBox_setSequence->setChecked(false);
         m_ihm.ui.checkBox_setSequence->setEnabled(false);
+
+        m_ihm.ui.pushButton_init->setEnabled(false);
+
         break;
     default:
         break;
-    }
-}
-
-/*!
- * \brief CSimuBot::coordChanged appelé à chaque modification du data manager (on extrait les coordonnées robot)
- * \param data
- */
-void CSimuBot::coordChanged(CData *data)
-{
-    // en mode VISU ou SIMU on extrait les coordonnées qui auraient changé
-    if((modeVisu==SIMUBOT::VISU)||(modeVisu==SIMUBOT::SIMU))
-    {
-        QString dataName=data->getName();
-        if(dataName.compare("PosX_robot")==0)
-            GrosBot->display_XY(data->read().toDouble(),5000);
-        if(dataName.compare("PosY_robot")==0)
-            GrosBot->display_XY(5000,data->read().toDouble());
-        if(dataName.compare("PosTeta_robot")==0)
-        {
-            if(setAndGetInRad)
-                GrosBot->display_theta(data->read().toDouble());
-            else
-                GrosBot->display_theta(Pi*normalizeAngleDeg(data->read().toDouble())/180);
-        }
     }
 }
 
@@ -1051,7 +1099,7 @@ void CSimuBot::estimate_Environment_Interactions()
 
     //estimation de blocage sur le terrain
     //l'idée est d'interdire le mouvement d'un côté si un blocage est détecté à gauche ou a droite
-    if(m_ihm.ui.checkBox_enableBlocking->isChecked())
+    /*if(m_ihm.ui.checkBox_enableBlocking->isChecked())
     {
         float cmde_MotG = m_application->m_data_center->getData("Cde_MotG")->read().toFloat();
         float cmde_MotD = m_application->m_data_center->getData("Cde_MotD")->read().toFloat();
@@ -1088,7 +1136,7 @@ void CSimuBot::estimate_Environment_Interactions()
         m_application->m_data_center->write("Simubot.blocage.gauche", blocage_G);
         m_application->m_data_center->write("Simubot.blocage.droite", blocage_D);
 
-    }
+    }*/
 
 }
 
@@ -1274,7 +1322,10 @@ void CSimuBot::enableTwoBots(int state)
         twoBotsEnabled=true;
         m_ihm.ui.groupBox_MiniBot->setEnabled(true);
         if(modeVisu==SIMU)
+        {
             m_ihm.ui.active_external_robot2->setEnabled(true);
+            m_physical_engine.activateBot2(true);
+        }
     }
     else
     {
@@ -1283,6 +1334,7 @@ void CSimuBot::enableTwoBots(int state)
         m_ihm.ui.groupBox_MiniBot->setEnabled(false);
         m_ihm.ui.active_external_robot2->setEnabled(false);
         m_ihm.ui.active_external_robot2->setChecked(false);
+        m_physical_engine.activateBot2(false);
     }
 }
 
@@ -1382,19 +1434,23 @@ void CSimuBot::on_active_external_robot2(bool state)
           port_external_robot2 = m_application->m_eeprom->read(getName(), "port_external_robot2", QVariant(1234)).toInt();
           bool connected = m_external_controler_client_robot2.open((char*)host_external_robot2.toStdString().c_str(), port_external_robot2);
           if (connected) {
-              m_timer_external_robot2.start(100);
+              //m_timer_external_robot2.start(100);
+              m_connected_host=true;
               m_application->m_print_view->print_info(this, QString("Connecte au robot 2 externe %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
               MiniBot->setFlag(QGraphicsItem::ItemIsMovable, false);
               MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
               MiniBot->setBrush(QBrush(QColor(153, 51,255, 255)));
           }
-          else {
+          else
+          {
+              m_connected_host=false;
               m_application->m_print_view->print_error(this, QString("Impossible de se connecter au client %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
               m_ihm.ui.active_external_robot2->setChecked(false);
           }
     }
     else {
-        m_timer_external_robot2.stop();
+        //m_timer_external_robot2.stop();
+        m_connected_host=false;
         MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
         MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
         MiniBot->setBrush(QBrush(QColor(255, 255,255, 255)));
@@ -1406,6 +1462,7 @@ void CSimuBot::on_timeout_external_robot2()
 {
     int error_code;
     QVariant val;
+
     // Lecture des données de la simu externe du robot n°2
     val = m_external_controler_client_robot2.readData("x_pos", &error_code);
     if (error_code == 0) m_application->m_data_center->write("x_pos2", val);
@@ -1418,12 +1475,93 @@ void CSimuBot::on_timeout_external_robot2()
 
     // Envoie des données vers la simu du robot n°2
     m_external_controler_client_robot2.writeData("Capteurs.Tirette", m_application->m_data_center->getData("Capteurs.Tirette")->read());
-    m_external_controler_client_robot2.writeData("PosX_robot", m_application->m_data_center->getData("PosX_robot2")->read());
+    /*m_external_controler_client_robot2.writeData("PosX_robot", m_application->m_data_center->getData("PosX_robot2")->read());
     m_external_controler_client_robot2.writeData("PosY_robot", m_application->m_data_center->getData("PosY_robot2")->read());
-    m_external_controler_client_robot2.writeData("PosTeta_robot", m_application->m_data_center->getData("PosTeta_robot2")->read());
+    m_external_controler_client_robot2.writeData("PosTeta_robot", m_application->m_data_center->getData("PosTeta_robot2")->read());*/
     m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARD", m_application->m_data_center->getData("Simubot.Telemetres.ARD2")->read());
     m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARG", m_application->m_data_center->getData("Simubot.Telemetres.ARG2")->read());
     m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVD", m_application->m_data_center->getData("Simubot.Telemetres.AVD2")->read());
     m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVG", m_application->m_data_center->getData("Simubot.Telemetres.AVG2")->read());
 
+}
+
+QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
+{
+    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(QRect(x,-y,7.2,7.2));
+    if(Color==Qt::green)
+        element->setBrush(QBrush(QColor(0,255,0, 255)));
+    else
+        element->setBrush(QBrush(QColor(255,0,0, 255)));
+    terrain->addItem(element);
+
+    return element;
+}
+
+void CSimuBot::updateStepFromSimulia()
+{
+    int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
+    if((updatedStep>0)&&(updatedStep>m_step))
+    {
+        float vect_G_B1 = m_application->m_data_center->getData("Simulia.vect_G")->read().toFloat();
+        float vect_D_B1 = m_application->m_data_center->getData("Simulia.vect_D")->read().toFloat();
+
+        float vect_G_B2 = 0;
+        float vect_D_B2 = 0;
+        int updatedStep2=0;
+        // Lecture des données de la simu externe du robot n°2 s'il est connecté
+        if(m_connected_host)
+        {
+            int error_code;
+            QVariant val;
+
+            val = m_external_controler_client_robot2.readData("Simulia.step", &error_code);
+            if (error_code == 0) updatedStep2=val.toInt();
+            val = m_external_controler_client_robot2.readData("Simulia.vect_G", &error_code);
+            if (error_code == 0) vect_G_B2=val.toFloat();
+            val = m_external_controler_client_robot2.readData("Simulia.vect_D", &error_code);
+            if (error_code == 0) vect_D_B2=val.toFloat();
+        }
+
+        m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2);
+
+        for(int i=0;i<24;i++)
+        {
+            elementsJeu[i]->setRect(QRect(m_physical_engine.getElement(i).x()-3.6f, -m_physical_engine.getElement(i).y()-3.6f,7.2f,7.2f));
+        }
+
+        //environnement physique mis à jour, on l'affiche dans SimuBot
+        m_application->m_data_center->write("x_pos", m_physical_engine.x_pos);
+        m_application->m_data_center->write("y_pos", m_physical_engine.y_pos);
+        m_application->m_data_center->write("teta_pos", m_physical_engine.teta_pos);
+
+        //environnement physique mis à jour, on l'affiche dans SimuBot
+        m_application->m_data_center->write("x_pos2", m_physical_engine.x_pos_2);
+        m_application->m_data_center->write("y_pos2", m_physical_engine.y_pos_2);
+        m_application->m_data_center->write("teta_pos2", m_physical_engine.teta_pos_2);
+
+        //on écrit les modifs des déplacements codeur
+        m_application->m_data_center->write("Simubot.codeur_G", m_physical_engine.m_deltaRoue_G_bot1);
+        m_application->m_data_center->write("Simubot.codeur_D", m_physical_engine.m_deltaRoue_D_bot1);
+
+        //idem pour la simu externe du robot n°2 s'il est connecté
+        if(m_connected_host)
+        {
+            m_external_controler_client_robot2.writeData("Capteurs.Tirette", m_application->m_data_center->getData("Capteurs.Tirette")->read());
+            m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARD", m_application->m_data_center->getData("Simubot.Telemetres.ARD2")->read());
+            m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARG", m_application->m_data_center->getData("Simubot.Telemetres.ARG2")->read());
+            m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVD", m_application->m_data_center->getData("Simubot.Telemetres.AVD2")->read());
+            m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVG", m_application->m_data_center->getData("Simubot.Telemetres.AVG2")->read());
+            m_external_controler_client_robot2.writeData("Simubot.codeur_G", m_physical_engine.m_deltaRoue_G_bot2);
+            m_external_controler_client_robot2.writeData("Simubot.codeur_D", m_physical_engine.m_deltaRoue_D_bot2);
+
+            //on avertit Simulia des changement de déplacement codeur
+            if(updatedStep2>=m_step2)
+                m_step2=updatedStep;
+            m_external_controler_client_robot2.writeData("Simubot.step", m_step2);
+        }
+
+        //on avertit Simulia des changement de déplacement codeur
+        m_step=updatedStep;
+        m_application->m_data_center->write("Simubot.step", m_step);
+    }
 }

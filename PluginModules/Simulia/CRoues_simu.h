@@ -26,14 +26,17 @@ public :
 
     void init(CApplication *application);
 
-    void forceBlocageRoueG(bool state);
-    void forceBlocageRoueD(bool state);
+    void addSteps_Codeur_G(int nbSteps);
+    void addSteps_Codeur_D(int nbSteps);
+
+    float m_vect_deplacement_G;
+    float m_vect_deplacement_D;
 
 private :
     CApplication *m_application;
 
-    bool m_force_blocage_roue_G;
-    bool m_force_blocage_roue_D;
+    int m_registre_Codeur_G;
+    int m_registre_Codeur_D;
 };
 
 #endif

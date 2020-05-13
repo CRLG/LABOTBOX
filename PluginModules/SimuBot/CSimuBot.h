@@ -19,6 +19,8 @@
 #include <QTimer>
 #include "CData.h"
 #include "CExternalControlerClient.h"
+#include <QGraphicsEllipseItem>
+#include "CPhysicalEngine.h"
 
 enum SIMUBOT{
     TEST=0,
@@ -92,6 +94,7 @@ private slots :
         void enableTwoBots(int state);
         void on_active_external_robot2(bool state);
         void on_timeout_external_robot2();
+        void updateStepFromSimulia();
 private:
     Cihm_SimuBot m_ihm;
 
@@ -102,6 +105,7 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
+    QGraphicsEllipseItem * elementsJeu[24];
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -120,6 +124,9 @@ private:
     float iniTetaAsserv_bot1[2];
     float iniTetaAsserv_bot2[2];
 
+    CPhysicalEngine             m_physical_engine;
+    int m_step;
+
     //pour la stratégie du robot adverse
     int currentIndex;
     int convergenceOther;
@@ -130,10 +137,13 @@ private:
     //pour l'intégration de la stratégie du 2eme robot
     CExternalControlerClient m_external_controler_client_robot2;
     QTimer m_timer_external_robot2;
+    bool m_connected_host;
+    int m_step2;
 
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
+    QGraphicsEllipseItem *setElementJeu(float x, float y, int Color);
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
@@ -147,7 +157,6 @@ public slots:
     void returnCapture_XY();
     void returnCapture_Theta();
     void changeMode(int iMode);
-    void coordChanged(CData* data);
     void zoom(int value);
     void slot_dial_turned(void);
     void slot_getPath();

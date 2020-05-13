@@ -54,6 +54,7 @@ public:
 
 //    IA m_ia;
     QTimer m_timer;
+    int m_step;
 
 private:
     Cihm_Simulia m_ihm;
@@ -76,13 +77,11 @@ private slots :
     void on_origine_detect_obstacle_changed();
     void on_detect_obstacle_gui_changed();
 
-    void on_force_blocage_roue_G(bool val);
-    void on_force_blocage_roue_D(bool val);
-
     void on_select_couleur_equipe(int val);
     void on_select_strategie_match(int val);
 
     void updatePositionFromSimubot();
+    void updateStepFromSimuBot();
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_
