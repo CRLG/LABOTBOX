@@ -67,7 +67,8 @@ LIST_TOOLS+= CustomPlot\
              NetworkServer \
              ExternalControlerClient \
              DataLogger \
-             CsvParser
+             CsvParser \
+		box2d
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
@@ -157,4 +158,6 @@ win32 {
 
 linux {
     LIBS +=`pkg-config opencv --libs`  # Ligne de commande qui renvoie toutes les librairies opencv sous la forme "-lopencv... -lopencv..."
+LIBS += -L"./Tools/box2d"
+LIBS += -lbox2d
 }

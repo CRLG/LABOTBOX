@@ -52,7 +52,8 @@ LIST_TOOLS+= CustomPlot\
              NetworkServer \
              ExternalControlerClient \
              DataLogger \
-             CsvParser
+             CsvParser \
+                box2d
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
@@ -147,3 +148,6 @@ LIBS += -L$$[QT_INSTALL_LIBS]
 # Gestion du joystick
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system
 # __________________________________________________
+
+LIBS += -L"./Tools/box2d"
+LIBS += -lbox2d
