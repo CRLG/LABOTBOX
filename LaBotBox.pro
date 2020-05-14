@@ -57,6 +57,7 @@ LIST_PLUGIN_MODULES+= \
         XbeeNetworkMessenger \ 
         #Balise \ 
         PowerElectrobot \ 
+        #LidarBot \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

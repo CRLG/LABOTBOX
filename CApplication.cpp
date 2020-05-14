@@ -102,6 +102,9 @@
 #ifdef MODULE_Simulia
    #include "CSimulia.h"
 #endif // MODULE_Simulia
+#ifdef MODULE_LidarBot
+   #include "CLidarBot.h"
+#endif // MODULE_LidarBot
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -399,6 +402,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_Simulia);
   m_list_modules.append(m_Simulia);
 #endif // MODULE_Simulia
+
+#ifdef MODULE_LidarBot
+  m_LidarBot     = new CLidarBot("LidarBot");
+  m_list_plugin_modules.append(m_LidarBot);
+  m_list_modules.append(m_LidarBot);
+#endif // MODULE_LidarBot
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
