@@ -117,6 +117,20 @@ for(i, LIST_EXT_CPPROBLIB) {
 }
 
 # __________________________________________________
+# box2d
+INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/box2d/include
+linux {
+    contains(QMAKE_HOST.arch, arm.*):{
+        # Raspberry
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/arm64
+    }else{
+        # x86-64
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/ubuntu_x86_64
+    }
+}
+LIBS += -lbox2d
+
+# __________________________________________________
 # Spécifiquement pour Simulia
 PATH_SOFT_MBED =        ../Soft_MBED
 PATH_CPPROBLIB =        $$PATH_SOFT_MBED/ext/CppRobLib
@@ -137,19 +151,6 @@ SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
 
 HEADERS +=      $$PATH_MODELIA_COMMON/*.h \
                 $$PATH_MODELIA_ROBOT/*.h \
-# __________________________________________________
-# box2d
-INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/box2d/include
-linux {
-    contains(QMAKE_HOST.arch, arm.*):{
-        # Raspberry
-        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/arm64
-    }else{
-        # x86-64
-        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/ubuntu_x86_64
-    }
-}
-LIBS += -lbox2d
 
 CONFIG += plugins_designer
 
