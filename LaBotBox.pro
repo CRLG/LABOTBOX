@@ -69,7 +69,6 @@ LIST_TOOLS+= CustomPlot\
              ExternalControlerClient \
              DataLogger \
              CsvParser \
-		box2d
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
@@ -141,6 +140,21 @@ for(i, LIST_EXT_CPPROBLIB) {
     RESOURCES+= $$files($$_PRO_FILE_PWD_/ext/CppRobLib/$${i}/*.qrc)
 }
 
+# __________________________________________________
+# box2d
+INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/box2d/include
+linux {
+    contains(QMAKE_HOST.arch, arm.*):{
+        # Raspberry
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/arm64
+    }else{
+        # x86-64
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/ubuntu_x86_64
+    }
+}
+LIBS += -lbox2d
+
+
 CONFIG += plugins_designer
 
 # __________________________________________________
@@ -159,6 +173,4 @@ win32 {
 
 linux {
     LIBS +=`pkg-config opencv --libs`  # Ligne de commande qui renvoie toutes les librairies opencv sous la forme "-lopencv... -lopencv..."
-LIBS += -L"./Tools/box2d"
-LIBS += -lbox2d
 }

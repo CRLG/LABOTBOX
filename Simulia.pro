@@ -53,7 +53,6 @@ LIST_TOOLS+= CustomPlot\
              ExternalControlerClient \
              DataLogger \
              CsvParser \
-                box2d
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
@@ -138,6 +137,19 @@ SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
 
 HEADERS +=      $$PATH_MODELIA_COMMON/*.h \
                 $$PATH_MODELIA_ROBOT/*.h \
+# __________________________________________________
+# box2d
+INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/box2d/include
+linux {
+    contains(QMAKE_HOST.arch, arm.*):{
+        # Raspberry
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/arm64
+    }else{
+        # x86-64
+        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/ubuntu_x86_64
+    }
+}
+LIBS += -lbox2d
 
 CONFIG += plugins_designer
 
@@ -148,6 +160,3 @@ LIBS += -L$$[QT_INSTALL_LIBS]
 # Gestion du joystick
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system
 # __________________________________________________
-
-LIBS += -L"./Tools/box2d"
-LIBS += -lbox2d
