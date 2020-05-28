@@ -1,3 +1,6 @@
 [submodule "ext/CppRobLib"]
 	path = ext/CppRobLib
 	url = https://github.com/CRLG/CppRobLib.git
+[submodule "ext/box2d"]
+	path = ext/box2d
+	url = https://github.com/CRLG/box2d
