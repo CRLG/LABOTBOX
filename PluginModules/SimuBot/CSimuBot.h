@@ -93,8 +93,9 @@ private slots :
         void syncMove(bool activated);
         void enableTwoBots(int state);
         void on_active_external_robot2(bool state);
-        void on_timeout_external_robot2();
+        //void on_timeout_external_robot2();
         void updateStepFromSimulia();
+        void box2d_enable(bool flag);
 private:
     Cihm_SimuBot m_ihm;
 
@@ -125,6 +126,7 @@ private:
     float iniTetaAsserv_bot2[2];
 
     CPhysicalEngine             m_physical_engine;
+    bool m_box2d_Enabled;
     int m_step;
 
     //pour la stratégie du robot adverse

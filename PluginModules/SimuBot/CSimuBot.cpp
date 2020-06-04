@@ -117,6 +117,7 @@ void CSimuBot::init(CApplication *application)
     QPolygonF MiniBotFormeOriented=MiniBotForme.united(MiniBotFormeOrientation);
 
     //Initialisation du moteur physique
+    m_box2d_Enabled=true;
     m_physical_engine.createPhysicalWorld(m_application,GrosBotForme,MiniBotForme);
 
     //récupération des positions d'init de GrosBot
@@ -340,6 +341,7 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Telemetres.AVD2", 99);
     m_application->m_data_center->write("Simubot.Telemetres.ARG2", 99);
     m_application->m_data_center->write("Simubot.Telemetres.ARD2", 99);
+    m_application->m_data_center->write("Simubot.box2d.activated", true);
     m_application->m_data_center->write("Simubot.Init", true);
 
     //pour le mode simu (fonctionnement avec Simulia)
@@ -372,9 +374,10 @@ void CSimuBot::init(CApplication *application)
 
     // Robot n°2 externe
       connect(m_ihm.ui.active_external_robot2, SIGNAL(clicked(bool)), this, SLOT(on_active_external_robot2(bool)));
-      connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
+      //connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
 
       //pour le moteur physique
+      connect(m_application->m_data_center->getData("Simubot.box2d.activated", true), SIGNAL(valueChanged(bool)), this, SLOT(box2d_enable(bool)));
         connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
 
     //positionnement par défaut
@@ -434,6 +437,7 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
     qreal y_prim_graphic=OldGrosBot->y();
 
     //on redessine la ligne entre l'ancienne et la nouvelle position
+    //TODO : déporter cette mise à jour car ça crée un 2ème appel à ce slot
     liaison_GrosBot->setLine(x_graphic,y_graphic,x_prim_graphic,y_prim_graphic);
 
     //on calcule la distance entre l'ancienne et la nouvelle position
@@ -509,9 +513,11 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
         //m_ihm.ui.lineEdit_theta->setValue(theta_view);
 
         // Informe le DataCenter de la mise à jour
-        /*m_application->m_data_center->write("PosX_robot", x_view);
-        m_application->m_data_center->write("PosY_robot", y_view);
-        m_application->m_data_center->write("DirDistance_robot", deltaDistance);*/
+        m_application->m_data_center->write("x_pos", x_view);
+        m_application->m_data_center->write("y_pos", y_view);
+        m_application->m_data_center->write("teta_pos", theta_view);
+        m_application->m_data_center->write("DirDistance_robot", deltaDistance);
+
         /*m_application->m_data_center->write("Simubot.Bot.x", GrosBot->getX_terrain());
         m_application->m_data_center->write("Simubot.Bot.y", GrosBot->getY_terrain());
         m_application->m_data_center->write("Simubot.Bot.teta", GrosBot->getTheta());
@@ -847,7 +853,8 @@ void CSimuBot::changeMode(int iMode)
  */
 void CSimuBot::real_robot_position_changed()
 {
-    //Si on est en mode VISU
+    //Si on est en mode VISU ou SIMU
+    //attention en mode TEST la modification de la position du robot change x_pos et y_pos dans le data center
     if ((modeVisu==SIMUBOT::VISU) || (modeVisu==SIMUBOT::SIMU))
     {
         //on récupère les nouvelles coordonnées du robot
@@ -1434,8 +1441,9 @@ void CSimuBot::on_active_external_robot2(bool state)
           port_external_robot2 = m_application->m_eeprom->read(getName(), "port_external_robot2", QVariant(1234)).toInt();
           bool connected = m_external_controler_client_robot2.open((char*)host_external_robot2.toStdString().c_str(), port_external_robot2);
           if (connected) {
-              //m_timer_external_robot2.start(100);
               m_connected_host=true;
+              m_external_controler_client_robot2.writeData("Simubot.box2d.activated", false);
+              m_external_controler_client_robot2.writeData("Simubot.step", m_step2);
               m_application->m_print_view->print_info(this, QString("Connecte au robot 2 externe %1 / port %2").arg(host_external_robot2).arg(port_external_robot2));
               MiniBot->setFlag(QGraphicsItem::ItemIsMovable, false);
               MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, false);
@@ -1450,39 +1458,16 @@ void CSimuBot::on_active_external_robot2(bool state)
     }
     else {
         //m_timer_external_robot2.stop();
+        if(m_connected_host)
+        {
+            m_external_controler_client_robot2.writeData("Simubot.box2d.activated", true);
+            m_external_controler_client_robot2.close();
+        }
         m_connected_host=false;
         MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
         MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
         MiniBot->setBrush(QBrush(QColor(255, 255,255, 255)));
     }
-}
-// ___________________________________________________
-// Lecture des données du robot n°2 sur une instance externe de Simulia
-void CSimuBot::on_timeout_external_robot2()
-{
-    int error_code;
-    QVariant val;
-
-    // Lecture des données de la simu externe du robot n°2
-    val = m_external_controler_client_robot2.readData("x_pos", &error_code);
-    if (error_code == 0) m_application->m_data_center->write("x_pos2", val);
-
-    val = m_external_controler_client_robot2.readData("y_pos", &error_code);
-    if (error_code == 0) m_application->m_data_center->write("y_pos2", val);
-
-    val = m_external_controler_client_robot2.readData("teta_pos", &error_code);
-    if (error_code == 0) m_application->m_data_center->write("teta_pos2", val);
-
-    // Envoie des données vers la simu du robot n°2
-    m_external_controler_client_robot2.writeData("Capteurs.Tirette", m_application->m_data_center->getData("Capteurs.Tirette")->read());
-    /*m_external_controler_client_robot2.writeData("PosX_robot", m_application->m_data_center->getData("PosX_robot2")->read());
-    m_external_controler_client_robot2.writeData("PosY_robot", m_application->m_data_center->getData("PosY_robot2")->read());
-    m_external_controler_client_robot2.writeData("PosTeta_robot", m_application->m_data_center->getData("PosTeta_robot2")->read());*/
-    m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARD", m_application->m_data_center->getData("Simubot.Telemetres.ARD2")->read());
-    m_external_controler_client_robot2.writeData("Simubot.Telemetres.ARG", m_application->m_data_center->getData("Simubot.Telemetres.ARG2")->read());
-    m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVD", m_application->m_data_center->getData("Simubot.Telemetres.AVD2")->read());
-    m_external_controler_client_robot2.writeData("Simubot.Telemetres.AVG", m_application->m_data_center->getData("Simubot.Telemetres.AVG2")->read());
-
 }
 
 QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
@@ -1497,10 +1482,16 @@ QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
     return element;
 }
 
+void CSimuBot::box2d_enable(bool flag)
+{
+    m_box2d_Enabled=flag;
+}
+
 void CSimuBot::updateStepFromSimulia()
 {
     int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
-    if((updatedStep>0)&&(updatedStep>m_step))
+    //int box2Activated=m_application->m_data_center->read("Simubot.box2d.activated").toBool();
+    if((updatedStep>0) && (updatedStep>m_step) && m_box2d_Enabled && (modeVisu==SIMUBOT::SIMU))
     {
         float vect_G_B1 = m_application->m_data_center->getData("Simulia.vect_G")->read().toFloat();
         float vect_D_B1 = m_application->m_data_center->getData("Simulia.vect_D")->read().toFloat();
@@ -1511,6 +1502,7 @@ void CSimuBot::updateStepFromSimulia()
         // Lecture des données de la simu externe du robot n°2 s'il est connecté
         if(m_connected_host)
         {
+           m_external_controler_client_robot2.writeData("Capteurs.Tirette", m_application->m_data_center->getData("Capteurs.Tirette")->read());
             int error_code;
             QVariant val;
 
@@ -1555,8 +1547,8 @@ void CSimuBot::updateStepFromSimulia()
             m_external_controler_client_robot2.writeData("Simubot.codeur_D", m_physical_engine.m_deltaRoue_D_bot2);
 
             //on avertit Simulia des changement de déplacement codeur
-            if(updatedStep2>=m_step2)
-                m_step2=updatedStep;
+            //if(updatedStep2>=m_step2)
+                m_step2=updatedStep2;
             m_external_controler_client_robot2.writeData("Simubot.step", m_step2);
         }
 

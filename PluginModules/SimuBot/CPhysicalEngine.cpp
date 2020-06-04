@@ -288,7 +288,7 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         m_old_bot2_pos_G.x=0.0f;
         m_old_bot2_pos_G.y=0.0f;
         m_old_bot2_pos_D.x=0.0f;
-        m_old_bot1_pos_D.y=0.0f;
+        m_old_bot2_pos_D.y=0.0f;
         m_bot2_pos_G.x=0.0f;
         m_bot2_pos_G.y=0.0f;
         m_bot2_pos_D.x=0.0f;
@@ -336,7 +336,7 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
     m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_D,0)),
                              m_bot1->GetWorldPoint(b2Vec2(0.0f,-12.0f)),
                              true);
-    if(m_bot2_activated)
+    /*if(m_bot2_activated)
     {
         m_bot2->ApplyLinearImpulse(m_bot2->GetWorldVector(b2Vec2(vect_deplacement_G_2,0)),
                                  m_bot2->GetWorldPoint(b2Vec2(0.0f,8.0f)),
@@ -344,7 +344,7 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         m_bot2->ApplyLinearImpulse(m_bot2->GetWorldVector(b2Vec2(vect_deplacement_D_2,0)),
                                  m_bot2->GetWorldPoint(b2Vec2(0.0f,-8.0f)),
                                  true);
-    }
+    }*/
 
     int32 velocityIterations =8;
     int32 positionIterations = 2;
@@ -392,7 +392,7 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         m_bot2_pos_G.y=m_bot2->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT_2/2))).y;
         m_bot2_pos_D.x=m_bot2->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT_2/2))).x;
         m_bot2_pos_D.y=m_bot2->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT_2/2))).y;
-
+/*
         //delta codeur Gauche
         int sens_G_2=1;
         if ((cos(angle)*(m_bot2_pos_G.x-m_old_bot2_pos_G.x)) >=0)
@@ -408,7 +408,7 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         else
             sens_D_2=-1;
         m_deltaRoue_D_bot2=(sens_D_2 * sqrt(pow((m_bot2_pos_D.x-m_old_bot2_pos_D.x),2)+pow((m_bot2_pos_D.y-m_old_bot2_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D_2);
-
+*/
     }
 }
 
@@ -500,7 +500,7 @@ void CPhysicalEngine::activateBot2(bool flag)
         m_old_bot2_pos_G.x=0.0f;
         m_old_bot2_pos_G.y=0.0f;
         m_old_bot2_pos_D.x=0.0f;
-        m_old_bot1_pos_D.y=0.0f;
+        m_old_bot2_pos_D.y=0.0f;
         m_bot2_pos_G.x=0.0f;
         m_bot2_pos_G.y=0.0f;
         m_bot2_pos_D.x=0.0f;

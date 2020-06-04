@@ -1870,18 +1870,18 @@ void CActuatorSequencer::Slot_get_XYTeta()
     QVariant val;
     if(id=="XY")
     {
-        val = m_application->m_data_center->read("PosX_robot");
+        val = m_application->m_data_center->read("x_pos");
         m_ihm.ui.lE_Asser_1->setValue(val.toInt());
-        val = m_application->m_data_center->read("PosY_robot");
+        val = m_application->m_data_center->read("y_pos");
         m_ihm.ui.lE_Asser_2->setValue(val.toInt());
     }
     if(id=="XYTheta")
     {
-        val = m_application->m_data_center->read("PosX_robot");
+        val = m_application->m_data_center->read("x_pos");
         m_ihm.ui.lE_Asser_1->setValue(val.toInt());
-        val = m_application->m_data_center->read("PosY_robot");
+        val = m_application->m_data_center->read("y_pos");
         m_ihm.ui.lE_Asser_2->setValue(val.toInt());
-        val = m_application->m_data_center->read("PosTeta_robot");
+        val = m_application->m_data_center->read("teta_pos");
         m_ihm.ui.lE_Asser_3->setValue(val.toDouble());
     }
 
@@ -1889,7 +1889,7 @@ void CActuatorSequencer::Slot_get_XYTeta()
     {
         val = m_application->m_data_center->read("DirDistance_robot");
         m_ihm.ui.lE_Asser_1->setValue(val.toInt());
-        val = m_application->m_data_center->read("PosTeta_robot");
+        val = m_application->m_data_center->read("teta_pos");
         m_ihm.ui.lE_Asser_3->setValue(val.toDouble());
     }
 }
