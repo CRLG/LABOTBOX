@@ -332,5 +332,22 @@ QVariant CDataManager::getDataProperty(QString varname, QString prop_name)
 }
 
 
+// _____________________________________________________________________
+/*!
+*  Lit la valeur d'une propriété d'une variable
+*
+* \param [in] varname nom de la variable à tester
+* \param [in] timeout_msec durée avant de déclarer une perte de la donnée et forcer sa valeur par défaut
+* \param [in] valdef valeur valeur par défaut à appliquer en cas de non rafraichissement de la donnée
+*/
+void CDataManager::startMonitoring(QString varname, unsigned long timeout_msec, QVariant valdef)
+{
+    CData *data = getData(varname);
+    if (data != NULL) {
+      data->startMonotoring(timeout_msec, valdef);
+    }
+}
+
+
 
 /*! @} */

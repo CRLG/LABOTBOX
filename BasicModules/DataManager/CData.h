@@ -11,6 +11,7 @@
 #include <QMutex>
 #include <QHash>
 #include <QDateTime>
+#include <QTimer>
 
 /*! \addtogroup DataManager
    *  Additional documentation for group DataManager
@@ -39,6 +40,10 @@ public:
     QVariant getProperty(QString name);
     void getPropertiesList(QStringList &list);
     QString getPropertiesString(void);
+    void startMonotoring(unsigned long timeout_msec, QVariant valdef);
+    void stopMonitoring();
+    bool isLost();
+    bool isMonitored();
 
 private:
     //! Stockage de la valeur de la data
@@ -51,6 +56,18 @@ private:
     QMutex m_mutex;
     //! Liste d'options associées à la data (QString = nom de la propriété / QVariant = valeur de la propriété)
     t_map_properties m_properties;
+
+    // Monitoring : surveillance de permet de mise à jour
+    //! Est-ce que la donnée doit être surveillée (absence de mise à jour)
+    bool m_monitored;
+    //! Valeur par défaut
+    QVariant m_data_valdef;
+    //! Durée sans rafraichissement avant de déclarer la donnée perdue
+    unsigned long m_lost_time_confirmation;
+    //! Timer de gestion de la perte de la data
+    QTimer m_lost_timer;
+    //! Flag de data perdue
+    bool m_lost;
 
 signals:
     //! Signal emis par la donnee lorsqu'une ecriture est faite et que la valeur a changé
@@ -67,6 +84,8 @@ signals:
     //! Signal emis par la donnee lorsqu'une ecriture est faite sans forcément modification de la valeur
     void valueUpdated(QVariant value);
     void valueUpdated(QVariant value, quint64 update_time);
+    //! Signal emis par la donnee lorque la perte de communication est confirmee
+    void lost();
 
 public slots :
     void write(QVariant data);
@@ -74,6 +93,9 @@ public slots :
     void write(int value);
     void write(double value);
     void write(QString value);
+
+private slots :
+    void lost_timeout();
 };
 
 

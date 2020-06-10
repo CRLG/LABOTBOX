@@ -48,6 +48,7 @@ public:
     void            getListeVariablesName(QStringList &var_list);
     void            setDataProperty(QString varname, QString prop_name, QVariant val);
     QVariant        getDataProperty(QString varname, QString prop_name);
+    void            startMonitoring(QString varname, unsigned long timeout_msec, QVariant valdef);
 
 private:
     t_map_data m_map_data;
