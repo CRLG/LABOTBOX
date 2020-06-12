@@ -929,8 +929,7 @@ void CRS232::SimuRx_DonneesEntrantesFichierBrut(void)
        // Récupère le contenu du fichier et l'envoie
        QFile data(fileName);
        if (data.open(QFile::ReadOnly)) {
-           QTextStream in(&data);
-           QByteArray byteArray = in.readAll().toLocal8Bit();
+           QByteArray byteArray = data.readAll();
            emit readyBytes(byteArray); // envoie les données vers l'applicatif
            m_ihm.ui.statusbar->showMessage(QString::number(byteArray.size()) + " octets entrants simules");
        }
