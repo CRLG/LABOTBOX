@@ -203,7 +203,12 @@ void CSimuBot::init(CApplication *application)
 
 
     //ajout du robot
-    GrosBot=new GraphicElement(GrosBotFormeOriented,255,255,255);
+    val = m_application->m_eeprom->read(getName(), "bot_oriented", QVariant(false));
+    bool isOriented=val.toBool();
+    if(isOriented)
+        GrosBot=new GraphicElement(GrosBotFormeOriented,255,255,255);
+    else
+        GrosBot=new GraphicElement(GrosBotForme,255,255,255);
     GrosBot->setBrush(QBrush(QColor(255, 255,255, 255)));
 
     //ajout du point de référence du robot
@@ -229,7 +234,10 @@ void CSimuBot::init(CApplication *application)
     OtherBot->setBrush(QBrush(QColor(255,0,0, 100)));
 
     //ajout d'un MiniBot
-    MiniBot= new GraphicElement(MiniBotFormeOriented,255,255,255);
+    if(isOriented)
+        MiniBot= new GraphicElement(MiniBotFormeOriented,255,255,255);
+    else
+        MiniBot= new GraphicElement(MiniBotForme,255,255,255);
     MiniBot->setFlag(QGraphicsItem::ItemIsMovable, true);
     MiniBot->setFlag(QGraphicsItem::ItemIsSelectable, true);
     MiniBot->setBrush(QBrush(QColor(255,255,255, 255)));
