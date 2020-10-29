@@ -69,6 +69,8 @@ private:
     void refresh_camera_list();
     tVideoInput getCalibrationValues();
     void showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5);
+    int m_compteur_Nord;
+    int m_compteur_Sud;
 private slots :
     void onRightClicGUI(QPoint pos);
     void video_worker_init(int video_source_id);

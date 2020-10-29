@@ -128,6 +128,9 @@ void CImageProcessing::init(CApplication *application)
     b_robStarted=false;
     refresh_camera_list();
 
+    m_compteur_Nord=0;
+        m_compteur_Sud=0;
+
     if(m_auto_on)
     {
         initVideoThread();
@@ -287,6 +290,10 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.rob3_angle->setValue(result.value[IDX_ROBOT3_ANGLE]);
     m_ihm.ui.qLed_Nord->setValue(((result.value[IDX_NORD]==1.)?true:false));
     m_ihm.ui.qLed_Sud->setValue(((result.value[IDX_SUD]==1.)?true:false));
+
+    m_compteur_Nord=m_compteur_Nord+result.value[IDX_NORD];
+    m_compteur_Sud=m_compteur_Sud+result.value[IDX_SUD];
+
     m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
     m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
 
