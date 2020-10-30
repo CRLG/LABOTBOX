@@ -24,8 +24,8 @@ VideoWorker::VideoWorker()
     m_charucoCalibParam._a=1.0; //Fix aspect ratio (fx/fy) to this value
     m_charucoCalibParam._w=6; //Number of squares in X direction
     m_charucoCalibParam._h=4; //Number of squares in Y direction
-    m_charucoCalibParam._sl=0.0045; //Square side length (in meters)
-    m_charucoCalibParam._ml=0.0022; //Marker side length (in meters)
+    m_charucoCalibParam._sl=0.00456; //Square side length (in meters)
+    m_charucoCalibParam._ml=0.00347; //Marker side length (in meters)
     m_charucoCalibParam._d=10;  //dictionary of tags
                 /*DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,
                 DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7,
@@ -33,7 +33,7 @@ VideoWorker::VideoWorker()
                 DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL=16*/
     m_charucoCalibParam._zt=false; //Assume zero tangential distortion
     m_charucoCalibParam._pc=false; //Fix the principal point at the center
-    m_charucoCalibParam._rs=false; //Apply refind strategy
+    m_charucoCalibParam._rs=true; //Apply refind strategy
 }
 
 void VideoWorker::stopWork()
@@ -146,7 +146,7 @@ bool VideoWorker::init(int video_id, QString parameter_file)
         }
 
         //init de la taille des marqueurs AruCo
-        markerLength=7;
+        markerLength=4.25;
 
         //on ne peut pas travailler avec une caméra non calibrée
         if(bCalibrated)
@@ -285,14 +285,16 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             //on donne la valeur normale à la caméra dans la console pour cahque marqueur
             for(unsigned int i = 0; i < markerIds.size(); i++)
             {
-                if((markerIds.at(i)==1)||(markerIds.at(i)==2))
+                //if((markerIds.at(i)==1)||(markerIds.at(i)==2))
+                if(markerIds.at(i)==93)
                 {
                     cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
+                    //double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     result.value[IDX_ROBOT1_DIST] = dist;
                     float teta=0;
-                    if(tvecs[i][1]!=0)
-                        teta=acos(tvecs[i][0]/tvecs[i][1]);
+                    if(tvecs[i][2]!=0)
+                        teta=atan(-tvecs[i][0]/tvecs[i][2]);
                     result.value[IDX_ROBOT1_ANGLE]=teta;
                     /*result.markers_detected = markerIds;*/
                 }
@@ -327,6 +329,10 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             //conversion de l'image en RGB
             frame_converted=m_frame.clone();
             cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
+
+            //affichage des droites de reperage
+            //centre
+            cv::line(frame_converted,cv::Point2f(m_iL/2,0),cv::Point2f(m_iL/2,m_iH),cv::Scalar(255,0,0),2);
 
             //affichage overlay
             char str[200];

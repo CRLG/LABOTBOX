@@ -282,10 +282,13 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_ihm.ui.containerVideo->setPixmap(QPixmap(":/icons/cancel.png"));
     }
 
-    m_ihm.ui.rob1_dist->setValue(result.value[IDX_ROBOT1_DIST]);
-    m_ihm.ui.rob1_angle->setValue(result.value[IDX_ROBOT1_ANGLE]);
-    m_ihm.ui.rob2_dist->setValue(result.value[IDX_ROBOT2_DIST]);
-    m_ihm.ui.rob2_angle->setValue(result.value[IDX_ROBOT2_ANGLE]);
+    float angle=result.value[IDX_ROBOT1_ANGLE];
+    float ratio=1.618*angle*angle -0.05*angle + 0.781;
+    float distance=ratio*result.value[IDX_ROBOT1_DIST];
+    m_ihm.ui.rob1_dist->setValue(distance);
+    m_ihm.ui.rob1_angle->setValue(angle);
+    m_ihm.ui.rob2_dist->setValue(result.value[IDX_ROBOT1_DIST]);
+    m_ihm.ui.rob2_angle->setValue(result.value[IDX_ROBOT1_ANGLE]);
     m_ihm.ui.rob3_dist->setValue(result.value[IDX_ROBOT3_DIST]);
     m_ihm.ui.rob3_angle->setValue(result.value[IDX_ROBOT3_ANGLE]);
     m_ihm.ui.qLed_Nord->setValue(((result.value[IDX_NORD]==1.)?true:false));
@@ -293,6 +296,8 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
 
     m_compteur_Nord=m_compteur_Nord+result.value[IDX_NORD];
     m_compteur_Sud=m_compteur_Sud+result.value[IDX_SUD];
+
+
 
     m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
     m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
@@ -330,28 +335,39 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.fps->setValue(result.m_fps);
 
     //Mise à jour des informations en fonction de l'algo
-    float ro=0.;
-    float teta=0.;
+    //float ro=0.;
+    //float teta=0.;
     switch(m_ihm.ui.list_algo->currentIndex())
     {
         case VIDEO_PROCESS_BALISE_MAT:
             //Robot 1
             //calcul des cordonnées polaires rapportées au terrain (centre = projection de la caméra)
-            ro=sqrt(result.value[IDX_ROBOT1_DIST]*result.value[IDX_ROBOT1_DIST]+57*57);
-            teta=result.value[IDX_ROBOT1_ANGLE];
+            //ro=sqrt(result.value[IDX_ROBOT1_DIST]*result.value[IDX_ROBOT1_DIST]+57*57);
+            //teta=result.value[IDX_ROBOT1_ANGLE];
             //envoi des coordonnées cartésiennes
-            m_application->m_data_center->write("Robot1_X",  ro*cos(teta));
-            m_application->m_data_center->write("Robot1_Y",  ro*sin(teta));
-            m_application->m_data_center->write("Robot1_Teta",  teta);
+            //m_application->m_data_center->write("Robot1_X",  ro*cos(teta));
+            //m_application->m_data_center->write("Robot1_Y",  ro*sin(teta));
+            m_application->m_data_center->write("Robot1_Dist",  result.value[IDX_ROBOT1_DIST]);
+            m_application->m_data_center->write("Robot1_Teta",  result.value[IDX_ROBOT1_ANGLE]);
 
             //Robot 2
             //calcul des cordonnées polaires rapportées au terrain (centre = projection de la caméra)
-            ro=sqrt(result.value[IDX_ROBOT2_DIST]*result.value[IDX_ROBOT2_DIST]+57*57);
-            teta=result.value[IDX_ROBOT2_ANGLE];
+            //ro=sqrt(result.value[IDX_ROBOT2_DIST]*result.value[IDX_ROBOT2_DIST]+57*57);
+            //teta=result.value[IDX_ROBOT2_ANGLE];
             //envoi des coordonnées cartésiennes
-            m_application->m_data_center->write("Robot2_X",  ro*cos(teta));
-            m_application->m_data_center->write("Robot2_Y",  ro*sin(teta));
-            m_application->m_data_center->write("Robot2_Teta",  teta);
+            //m_application->m_data_center->write("Robot2_X",  ro*cos(teta));
+            //m_application->m_data_center->write("Robot2_Y",  ro*sin(teta));
+            m_application->m_data_center->write("Robot2_Dist",  result.value[IDX_ROBOT2_DIST]);
+            m_application->m_data_center->write("Robot2_Teta",  result.value[IDX_ROBOT2_ANGLE]);
+
+            //envoi de l'info au mbed
+            m_application->m_data_center->write("MBED_CMDE_TxSync", 1);
+            m_application->m_data_center->write("valeur_mbed_cmde_01", result.value[IDX_ROBOT1_DIST]);
+            m_application->m_data_center->write("valeur_mbed_cmde_02", result.value[IDX_ROBOT2_DIST]);
+            m_application->m_data_center->write("valeur_mbed_cmde_03", result.value[IDX_ROBOT1_ANGLE]);
+            m_application->m_data_center->write("valeur_mbed_cmde_04", result.value[IDX_ROBOT2_ANGLE]);
+            m_application->m_data_center->write("CodeCommande",1 );
+            m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
         break;
 
         /*case VIDEO_PROCESS_NORD_SUD:
