@@ -285,11 +285,9 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             //on donne la valeur normale à la caméra dans la console pour cahque marqueur
             for(unsigned int i = 0; i < markerIds.size(); i++)
             {
-                //if((markerIds.at(i)==1)||(markerIds.at(i)==2))
-                if(markerIds.at(i)==93)
+                if((markerIds.at(i)==91)||(markerIds.at(i)==92))
                 {
                     cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-                    //double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
                     double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     result.value[IDX_ROBOT1_DIST] = dist;
                     float teta=0;
@@ -299,14 +297,14 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
                     /*result.markers_detected = markerIds;*/
                 }
 
-                if((markerIds.at(i)==3)||(markerIds.at(i)==4))
+                if((markerIds.at(i)==93)||(markerIds.at(i)==94))
                 {
                     cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     result.value[IDX_ROBOT2_DIST] = dist;
                     float teta=0;
-                    if(tvecs[i][1]!=0)
-                        teta=acos(tvecs[i][0]/tvecs[i][1]);
+                    if(tvecs[i][2]!=0)
+                        teta=atan(-tvecs[i][0]/tvecs[i][2]);
                     result.value[IDX_ROBOT2_ANGLE]=teta;
                     /*result.markers_detected = markerIds;*/
                 }

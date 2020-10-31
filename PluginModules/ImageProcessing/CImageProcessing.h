@@ -57,6 +57,7 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
 
+    static float getLensRatio(float angle);
 private:
     Cihm_ImageProcessing m_ihm;
     QList<QCameraInfo> m_cameras;
