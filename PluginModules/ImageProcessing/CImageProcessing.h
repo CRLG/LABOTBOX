@@ -89,6 +89,7 @@ public slots:
 
      void startVideoWork(void);
      void stopVideoWork();
+     void changeVideoWork(QVariant mode);
 
      void initVideoThread();
      void killVideoThread();

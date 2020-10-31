@@ -56,50 +56,48 @@ CImageProcessing::~CImageProcessing()
 */
 void CImageProcessing::init(CApplication *application)
 {
-  CModule::init(application);
-  setGUI(&m_ihm); // indique à la classe de base l'IHM
+    CModule::init(application);
+    setGUI(&m_ihm); // indique à la classe de base l'IHM
 
-  // Gère les actions sur clic droit sur le panel graphique du module
-  m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
+    // Gère les actions sur clic droit sur le panel graphique du module
+    m_ihm.setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
-  // Restore la taille de la fenêtre
-  QVariant val;
-  val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
-  m_ihm.setGeometry(val.toRect());
-  // Restore le fait que la fenêtre est visible ou non
-  val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
-  if (val.toBool()) { m_ihm.show(); }
-  else              { m_ihm.hide(); }
-  // Restore le niveau d'affichage
-  val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
-  setNiveauTrace(val.toUInt());
-  // Restore la couleur de fond
-  val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
-  setBackgroundColor(val.value<QColor>());
-  //enregistrement de la vidéo
-  val = m_application->m_eeprom->read(getName(), "record", QVariant(false));
-  m_record=val.toBool();
-  m_ihm.ui.cB_record->setChecked(m_record);
-  //parametres intrinseques de la camera
-  val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant("cam_parameters.txt"));
-  m_camera_parameters=val.toString();
-  //en cas de balise la camera démarre toute seule
-  val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
-  m_auto_on=val.toBool();
-  m_ihm.ui.chck_asBeacon->setChecked(m_auto_on);
+    // Restore la taille de la fenêtre
+    QVariant val;
+    val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
+    m_ihm.setGeometry(val.toRect());
+    // Restore le fait que la fenêtre est visible ou non
+    val = m_application->m_eeprom->read(getName(), "visible", QVariant(true));
+    if (val.toBool()) { m_ihm.show(); }
+    else              { m_ihm.hide(); }
+    // Restore le niveau d'affichage
+    val = m_application->m_eeprom->read(getName(), "niveau_trace", QVariant(MSG_TOUS));
+    setNiveauTrace(val.toUInt());
+    // Restore la couleur de fond
+    val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
+    setBackgroundColor(val.value<QColor>());
+    //enregistrement de la vidéo
+    val = m_application->m_eeprom->read(getName(), "record", QVariant(false));
+    m_record=val.toBool();
+    m_ihm.ui.cB_record->setChecked(m_record);
+    //parametres intrinseques de la camera
+    val = m_application->m_eeprom->read(getName(), "camera_parameters", QVariant("cam_parameters.txt"));
+    m_camera_parameters=val.toString();
+    //en cas de balise la camera démarre toute seule
+    val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
+    m_auto_on=val.toBool();
+    m_ihm.ui.chck_asBeacon->setChecked(m_auto_on);
 
-  m_application->m_data_center->write("TempsMatch", -1);
-
-  /*
-  VIDEO_PROCESS_BALISE_MAT = 0,
-  VIDEO_PROCESS_NORD_SUD,
-  VIDEO_PROCESS_SEQUENCE_COULEUR
+    /*
+    VIDEO_PROCESS_BALISE_MAT = 0,
+    VIDEO_PROCESS_NORD_SUD,
+    VIDEO_PROCESS_SEQUENCE_COULEUR
     VIDEO_PROCESS_CALIBRATION*/
-  QStringList str_list_algo;
-  str_list_algo << "MAT BALISE" << "RECO NORD SUD" << "SEQUENCE COULEURS" <<"CALIBRATION";
-  m_ihm.ui.list_algo->clear();
-  m_ihm.ui.list_algo->addItems(str_list_algo);
+    QStringList str_list_algo;
+    str_list_algo << "MAT BALISE" << "RECO NORD SUD" << "SEQUENCE COULEURS" <<"CALIBRATION";
+    m_ihm.ui.list_algo->clear();
+    m_ihm.ui.list_algo->addItems(str_list_algo);
 
     connect(m_ihm.ui.pB_setCharuco,SIGNAL(clicked(bool)),this,SLOT(setCharucoCalibration()));
     connect(m_ihm.ui.pB_getCharuco,SIGNAL(clicked(bool)),this,SLOT(getCharucoCalibration()));
@@ -107,29 +105,28 @@ void CImageProcessing::init(CApplication *application)
     connect(m_ihm.ui.pB_SetCalibration,SIGNAL(clicked(bool)),this,SLOT(setCalibration()));
     connect(m_ihm.ui.cB_record,SIGNAL(stateChanged(int)),this,SLOT(setRecord(int)));
 
-  // Crée les variables dans le data manager
-  // 3 jeux de données (X, Y, Teta) par robot
-  // 4 robots possibles gérés par le plugin (Grosbot, Minibot, robot adverse n°1, robot adverse n°2)
-  m_application->m_data_center->write("Robot1_X",  -32000);
-  m_application->m_data_center->write("Robot1_Y",  -32000);
-  m_application->m_data_center->write("Robot1_Teta",  -32000);
-  m_application->m_data_center->write("Robot2_X",  -32000);
-  m_application->m_data_center->write("Robot2_Y",  -32000);
-  m_application->m_data_center->write("Robot2_Teta",  -32000);
-  m_application->m_data_center->write("Robot3_X",  -32000);
-  m_application->m_data_center->write("Robot3_Y",  -32000);
-  m_application->m_data_center->write("Robot3_Teta",  -32000);
-  m_application->m_data_center->write("Robot4_X",  -32000);
-  m_application->m_data_center->write("Robot4_Y",  -32000);
-  m_application->m_data_center->write("Robot4_Teta",  -32000);
-  m_application->m_data_center->write("VideoActive", 0);
-  m_application->m_data_center->write("TIMESTAMP_MATCH.Timestamp", 0);
-    connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
+    // Crée les variables dans le data manager
+    // 3 jeux de données (X, Y, Teta) par robot
+    // 4 robots possibles gérés par le plugin (Grosbot, Minibot, robot adverse n°1, robot adverse n°2)
+    m_application->m_data_center->write("Camera.Robot1_Dist",  -32000);
+    m_application->m_data_center->write("Camera.Robot1_Teta",  -32000);
+    m_application->m_data_center->write("Camera.Robot2_Dist",  -32000);
+    m_application->m_data_center->write("Camera.Robot2_Teta",  -32000);
+    m_application->m_data_center->write("Camera.Nord",  0);
+    m_application->m_data_center->write("Camera.Sud",  0);
+    m_application->m_data_center->write("Camera.ColorSequence", 0);
+    m_application->m_data_center->write("Camera.VideoActive", 0);
+    m_application->m_data_center->write("Code_mbed_etat", 1);
+
+    connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp",true), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
+    connect(m_application->m_data_center->getData("Valeur_mbed_etat_03",true), SIGNAL(valueChanged(QVariant)), this, SLOT(changeVideoWork(QVariant)));
+
     b_robStarted=false;
     refresh_camera_list();
 
+    //compteurs NordSud pour filtrage si besoin
     m_compteur_Nord=0;
-        m_compteur_Sud=0;
+    m_compteur_Sud=0;
 
     if(m_auto_on)
     {
@@ -341,8 +338,6 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.fps->setValue(result.m_fps);
 
     //Mise à jour des informations en fonction de l'algo
-    //float ro=0.;
-    //float teta=0.;
     switch(m_ihm.ui.list_algo->currentIndex())
     {
         case VIDEO_PROCESS_BALISE_MAT:
@@ -360,7 +355,7 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("valeur_mbed_cmde_02", distance2);
             m_application->m_data_center->write("valeur_mbed_cmde_03", 0);
             m_application->m_data_center->write("valeur_mbed_cmde_04", 0);
-            m_application->m_data_center->write("CodeCommande",1 );
+            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_BALISE_MAT );
             m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
         break;
 
@@ -374,13 +369,22 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("valeur_mbed_cmde_02", 0);
             m_application->m_data_center->write("valeur_mbed_cmde_03", ((result.value[IDX_NORD]==1.)?1:0));
             m_application->m_data_center->write("valeur_mbed_cmde_04", ((result.value[IDX_SUD]==1.)?1:0));
-            m_application->m_data_center->write("CodeCommande",2 );
+            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_NORD_SUD );
             m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
         break;
 
-        /*case VIDEO_PROCESS_SEQUENCE_COULEUR:
+        case VIDEO_PROCESS_SEQUENCE_COULEUR:
+            m_application->m_data_center->write("Camera.ColorSequence", result.value[IDX_SEQUENCE]);
 
-        break;*/
+            //envoi de l'info au mbed
+            m_application->m_data_center->write("MBED_CMDE_TxSync", 1);
+            m_application->m_data_center->write("valeur_mbed_cmde_01", 0);
+            m_application->m_data_center->write("valeur_mbed_cmde_02", 0);
+            m_application->m_data_center->write("valeur_mbed_cmde_03", result.value[IDX_SEQUENCE]);
+            m_application->m_data_center->write("valeur_mbed_cmde_04", 0);
+            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE_COULEUR );
+            m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
+        break;
 
         default: break;
     }
@@ -465,7 +469,7 @@ void CImageProcessing::killVideoThread()
 
     delete m_video_worker;
     m_video_worker = NULL;
-    m_application->m_data_center->write("VideoActive", 0);
+    m_application->m_data_center->write("Camera.VideoActive", 0);
 
     bool state = false;
     m_ihm.ui.cam_status->setValue(0);
@@ -509,6 +513,20 @@ void CImageProcessing::stopVideoWork()
     if (m_video_worker) m_video_worker->stopWork();
 }
 
+void CImageProcessing::changeVideoWork(QVariant mode)
+{
+    int CmdMBED=m_application->m_data_center->read("Code_mbed_etat").toInt();
+    if(CmdMBED==1) //il s'agit d'une demande de traitement video dans la trame generique
+    {
+        if((mode.toInt()<=3) && m_video_worker)
+        {
+            m_video_worker->stopWork();
+            m_ihm.ui.list_algo->setCurrentIndex(mode.toInt());
+            startVideoWork();
+        }
+    }
+}
+
 void CImageProcessing::activeDebug(int state)
 {
     bool on_off=(state==Qt::Checked?true:false);
@@ -519,7 +537,7 @@ void CImageProcessing::getCamState(int state)
 {
     //initialise l'état caméra
     m_ihm.ui.cam_status->setValue(state);
-    m_application->m_data_center->write("VideoActive",  state);
+    m_application->m_data_center->write("Camera.VideoActive",  state);
 }
 
 void CImageProcessing::TpsMatch_changed(QVariant val)
