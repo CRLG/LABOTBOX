@@ -11,8 +11,8 @@
 #define X_TERRAIN 300.0f
 #define Y_TERRAIN 200.0f
 
-#define DISTANCE_PAS_CODEUR_G 0.00325568f*20  // valeur par défaut reprise de GROSBOT
-#define DISTANCE_PAS_CODEUR_D 0.00325568f*20
+#define DISTANCE_PAS_CODEUR_G 0.0651136f  // valeur par défaut reprise de GROSBOT
+#define DISTANCE_PAS_CODEUR_D 0.0651136f
 #define VOIE_BOT 31.6867261f
 #define DISTANCE_PAS_CODEUR_G_2 0.00325568f*20  // valeur par défaut reprise de GROSBOT
 #define DISTANCE_PAS_CODEUR_D_2 0.00325568f*20

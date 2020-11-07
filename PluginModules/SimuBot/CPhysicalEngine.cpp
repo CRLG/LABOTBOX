@@ -5,6 +5,7 @@
 #include "CApplication.h"
 #include "CDataManager.h"
 #include <QRectF>
+#include <QDebug>
 //___________________________________________________________________________
 /*!
    \brief Constructeur
@@ -199,14 +200,19 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     if(countShape>8)
     {
         b2Vec2 botDefaultShape[8];
-        botDefaultShape[0].x=10;botDefaultShape[0].y=16;
-        botDefaultShape[1].x=-10;botDefaultShape[1].y=16;
-        botDefaultShape[2].x=-15;botDefaultShape[2].y=10;
-        botDefaultShape[3].x=-15;botDefaultShape[3].y=-10;
-        botDefaultShape[4].x=-10;botDefaultShape[4].y=-16;
-        botDefaultShape[5].x=10;botDefaultShape[5].y=-16;
-        botDefaultShape[6].x=15;botDefaultShape[6].y=-10;
-        botDefaultShape[7].x=15;botDefaultShape[7].y=10;
+        QRectF boundingShape=m_shape_bot1.boundingRect();
+        int max_x=abs(floor(boundingShape.x()));
+        int max_y=abs(floor(boundingShape.y()));
+        int min_x=max_x-4;
+        int min_y=max_y-4;
+        botDefaultShape[0].x=min_x;botDefaultShape[0].y=max_y;
+        botDefaultShape[1].x=-min_x;botDefaultShape[1].y=max_y;
+        botDefaultShape[2].x=-max_x;botDefaultShape[2].y=min_y;
+        botDefaultShape[3].x=-max_x;botDefaultShape[3].y=-min_y;
+        botDefaultShape[4].x=-min_x;botDefaultShape[4].y=-max_y;
+        botDefaultShape[5].x=min_x;botDefaultShape[5].y=-max_y;
+        botDefaultShape[6].x=max_x;botDefaultShape[6].y=-min_y;
+        botDefaultShape[7].x=max_x;botDefaultShape[7].y=min_y;
         Forme_Robot.Set(botDefaultShape,8);
     }
     else
@@ -258,15 +264,20 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         if(countShape2>8)
         {
             b2Vec2 bot2DefaultShape[8];
-            bot2DefaultShape[0].x=10;bot2DefaultShape[0].y=16;
-            bot2DefaultShape[1].x=-10;bot2DefaultShape[1].y=16;
-            bot2DefaultShape[2].x=-15;bot2DefaultShape[2].y=10;
-            bot2DefaultShape[3].x=-15;bot2DefaultShape[3].y=-10;
-            bot2DefaultShape[4].x=-10;bot2DefaultShape[4].y=-16;
-            bot2DefaultShape[5].x=10;bot2DefaultShape[5].y=-16;
-            bot2DefaultShape[6].x=15;bot2DefaultShape[6].y=-10;
-            bot2DefaultShape[7].x=15;bot2DefaultShape[7].y=10;
-            Forme_bot2.Set(bot2DefaultShape,8);
+            QRectF boundingShape=m_shape_bot2.boundingRect();
+            int max_x=abs(floor(boundingShape.x()));
+            int max_y=abs(floor(boundingShape.y()));
+            int min_x=max_x-4;
+            int min_y=max_y-4;
+            bot2DefaultShape[0].x=min_x;bot2DefaultShape[0].y=max_y;
+            bot2DefaultShape[1].x=-min_x;bot2DefaultShape[1].y=max_y;
+            bot2DefaultShape[2].x=-max_x;bot2DefaultShape[2].y=min_y;
+            bot2DefaultShape[3].x=-max_x;bot2DefaultShape[3].y=-min_y;
+            bot2DefaultShape[4].x=-min_x;bot2DefaultShape[4].y=-max_y;
+            bot2DefaultShape[5].x=min_x;bot2DefaultShape[5].y=-max_y;
+            bot2DefaultShape[6].x=max_x;bot2DefaultShape[6].y=-min_y;
+            bot2DefaultShape[7].x=max_x;bot2DefaultShape[7].y=min_y;
+            Forme_Robot.Set(bot2DefaultShape,8);
         }
         else
         {
@@ -369,7 +380,9 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         sens_G=1;
     else
         sens_G=-1;
-    m_deltaRoue_G_bot1=(sens_G * sqrt(pow((m_bot1_pos_G.x-m_old_bot1_pos_G.x),2)+pow((m_bot1_pos_G.y-m_old_bot1_pos_G.y),2)))/(DISTANCE_PAS_CODEUR_G);
+    double f_deltaRG=(sens_G * sqrt(pow((m_bot1_pos_G.x-m_old_bot1_pos_G.x),2)+pow((m_bot1_pos_G.y-m_old_bot1_pos_G.y),2)))/(DISTANCE_PAS_CODEUR_G);
+    m_deltaRoue_G_bot1=(int)round(f_deltaRG);
+    //m_deltaRoue_G_bot1=(sens_G * sqrt(pow((m_bot1_pos_G.x-m_old_bot1_pos_G.x),2)+pow((m_bot1_pos_G.y-m_old_bot1_pos_G.y),2)))/(DISTANCE_PAS_CODEUR_G);
 
     //delta codeur Droit
     int sens_D=1;
@@ -377,7 +390,9 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         sens_D=1;
     else
         sens_D=-1;
-    m_deltaRoue_D_bot1=(sens_D * sqrt(pow((m_bot1_pos_D.x-m_old_bot1_pos_D.x),2)+pow((m_bot1_pos_D.y-m_old_bot1_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D);
+    double f_deltaRD=(sens_D * sqrt(pow((m_bot1_pos_D.x-m_old_bot1_pos_D.x),2)+pow((m_bot1_pos_D.y-m_old_bot1_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D);
+    m_deltaRoue_D_bot1=(int)round(f_deltaRD);
+    //m_deltaRoue_D_bot1=(sens_D * sqrt(pow((m_bot1_pos_D.x-m_old_bot1_pos_D.x),2)+pow((m_bot1_pos_D.y-m_old_bot1_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D);
 
     if(m_bot2_activated)
     {
