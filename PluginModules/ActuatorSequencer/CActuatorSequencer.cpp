@@ -80,8 +80,8 @@ void CActuatorSequencer::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
   //restaure le répertoire par défaut pour les sauvegardes
-  val = m_application->m_eeprom->read(getName(), "default_path", QVariant("."));
-  defaultPath=val.toString();
+  val = m_application->m_eeprom->read(getName(), "default_path_modelia", QVariant("."));
+  m_defaultPath_Modelia=val.toString();
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
   QTableWidget * newSequence= new QTableWidget();
@@ -176,6 +176,7 @@ void CActuatorSequencer::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+  m_application->m_eeprom->write(getName(), "default_path_modelia", QVariant(m_defaultPath_Modelia));
 }
 
 // _____________________________________________________________________
@@ -2086,8 +2087,32 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
     QString caption("Generate Strategie in CPP file");
     QString filter("CPP Files (*.cpp)");
-    QString fullPathFile=defaultPath+"/"+ficName_cpp;
+
+    //on verifie si le chemin par defaut de Modelia est valide
+    if(m_defaultPath_Modelia!=".")
+    {
+        const QFileInfo outputDir(m_defaultPath_Modelia);
+        if ((!outputDir.exists()) || (!outputDir.isDir()) || (!outputDir.isWritable())) {
+            qDebug() << "Modelia default path (" << m_defaultPath_Modelia << " ) does not exist, is not a directory, or is not writeable";
+            m_defaultPath_Modelia=".";
+        }
+        /*else
+            qDebug() << "Modelia default path (" << m_defaultPath_Modelia << " ) is regular";*/
+    }
+
+    //on demande de choisir un fichier cible pour générer le code source
+    QString fullPathFile=m_defaultPath_Modelia+"/"+ficName_cpp;
     QString fileName_cpp = QFileDialog::getSaveFileName(&m_ihm,caption, fullPathFile,filter);
+
+    //on ne génère pas de code source si aucun fichier cible n'est choisi ("cancel" choisi)
+    if(fileName_cpp.isEmpty())
+        return;
+    //sinon on sauvegarde ce nouvel emplacement
+    else
+    {
+        const QFileInfo outputDir(fileName_cpp);
+        m_defaultPath_Modelia=outputDir.absolutePath();
+    }
 
     /*
       * pour le fichier .cpp
@@ -2479,7 +2504,6 @@ void CActuatorSequencer::Slot_Generate_CPP()
     //assemblage du cpp
     strWholeFile_cpp= strComments + strInclude + strConstructor + strGetName + strState2Name.arg(strEnumStates)+strStep.arg(champStrategie);
 
-    //bool isAlreadyExist=false;
     if(!fileName_cpp.isEmpty())
     {
         QFile file_cpp(fileName_cpp);
@@ -2489,8 +2513,8 @@ void CActuatorSequencer::Slot_Generate_CPP()
             stream << strWholeFile_cpp;
             file_cpp.close();
         }
-        else{
-            //isAlreadyExist=true;
+        else
+        {
             file_cpp.close();
         }
     }

@@ -94,7 +94,8 @@ private:
     QList<QCheckBox *> listChoice;
     QList<int> strategies2Combine;
 
-    QString defaultPath;
+    QString m_defaultPath_Modelia;
+    QString m_defaultPath_SoftMbed;
 
     void updateComboBox();
     void update_sequenceButtons();
