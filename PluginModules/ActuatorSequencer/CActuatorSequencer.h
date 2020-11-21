@@ -8,6 +8,7 @@
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QTableWidget>
+#include <QHash>
 #include "CPluginModule.h"
 #include "ui_ihm_ActuatorSequencer.h"
 
@@ -40,7 +41,6 @@ typedef enum {
     FREE_ACTION,
     NODE
 }tType;
-
 
  class Cihm_ActuatorSequencer : public QMainWindow
 {
@@ -96,6 +96,11 @@ private:
 
     QString m_defaultPath_Modelia;
     QString m_defaultPath_SoftMbed;
+
+
+    QHash<QString, int> m_hash_const_SD20;
+    QHash<QString, int> m_hash_const_AX;
+    bool getEnum(QString fileName, QString enum_name, QHash<QString, int> * results);
 
     void updateComboBox();
     void update_sequenceButtons();

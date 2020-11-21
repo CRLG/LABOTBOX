@@ -20,7 +20,6 @@
 #include <QMessageBox>
 
 
-
 /*! \addtogroup Module_Test2
    * 
    *  @{
@@ -82,6 +81,8 @@ void CActuatorSequencer::init(CApplication *application)
   //restaure le répertoire par défaut pour les sauvegardes
   val = m_application->m_eeprom->read(getName(), "default_path_modelia", QVariant("."));
   m_defaultPath_Modelia=val.toString();
+  val = m_application->m_eeprom->read(getName(), "default_path_softmbed", QVariant("."));
+  m_defaultPath_SoftMbed=val.toString();
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
   QTableWidget * newSequence= new QTableWidget();
@@ -148,6 +149,9 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.cB_SD20,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Asser,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Power,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_SD20_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_AX_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_AX_type_cde,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   m_ihm.ui.cB_AX->setCurrentIndex(0);
   m_ihm.ui.cB_Motor->setCurrentIndex(0);
   m_ihm.ui.cB_SD20->setCurrentIndex(0);
@@ -284,9 +288,38 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
  sensorConditions << ">" << "=" << "<";
  for (int i=0; i<sensorConditions.count();i++)
      m_ihm.ui.cB_Conditions->addItem(sensorConditions.at(i),QVariant(i));
- //m_ihm.ui.cB_Conditions->addItems(sensorConditions);
 
+    //remplissage des valeurs prédéfinies dans le fichier d'entete spécifique à la coupe
+    //contenant les valeurs de position des servos SD20 et AX
+    QString str_FicCoupe;
+    str_FicCoupe=m_defaultPath_SoftMbed+"/Includes/ConfigSpecifiqueCoupe.h";
+    const QFileInfo outputDir(str_FicCoupe);
 
+    //on verifie si le chemin par defaut du fichier d'entete est valide
+    if ((!outputDir.exists()) || (!outputDir.isReadable()))
+    {
+        qDebug() << "[CActuatorSequencer] Conf Specifique coupe (" << str_FicCoupe << " ) does not exist or is not readable";
+    }
+    else
+    {
+        //on parcourt le fichier d'entete pour extraire les valeurs
+        getEnum(str_FicCoupe,"eVALUES_SERVOS_SD20",&m_hash_const_SD20);
+        getEnum(str_FicCoupe,"eVALUES_SERVOS_AX",&m_hash_const_AX);
+    }
+
+    //mise à jour des valeurs prédéfinies pour les SD20
+    m_ihm.ui.cB_SD20_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+    QStringList strList_const_SD20=m_hash_const_SD20.keys();
+    strList_const_SD20.sort();
+    for(int i=0;i<strList_const_SD20.count();i++)
+        m_ihm.ui.cB_SD20_const_values->addItem(strList_const_SD20.at(i),QVariant(m_hash_const_SD20[strList_const_SD20.at(i)]));
+
+    //mise à jour des valeurs prédéfinies pour les AX
+    m_ihm.ui.cB_AX_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+    QStringList strList_const_AX=m_hash_const_AX.keys();
+    strList_const_AX.sort();
+    for(int i=0;i<strList_const_AX.count();i++)
+        m_ihm.ui.cB_AX_const_values->addItem(strList_const_AX.at(i),QVariant(m_hash_const_AX[strList_const_AX.at(i)]));
 }
 
 void CActuatorSequencer::updateTooltip(void)
@@ -316,6 +349,32 @@ void CActuatorSequencer::updateTooltip(void)
         str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
         m_ihm.ui.tip_Power->setText(str_tooltip);
         m_ihm.ui.tip_Power->setCursorPosition(0);
+    }
+
+    if(m_ihm.ui.cB_SD20_const_values==wdgt)
+    {
+        i=m_ihm.ui.cB_SD20_const_values->currentIndex();
+        if (i==0)
+            m_ihm.ui.sB_SD20->setEnabled(true);
+        else
+            m_ihm.ui.sB_SD20->setEnabled(false);
+    }
+    if(m_ihm.ui.cB_AX_const_values==wdgt)
+    {
+        i=m_ihm.ui.cB_AX_const_values->currentIndex();
+        if (i==0)
+            m_ihm.ui.sB_AX->setEnabled(true);
+        else
+        {
+            m_ihm.ui.sB_AX->setEnabled(false);
+            m_ihm.ui.cB_AX_type_cde->setCurrentIndex(0);
+        }
+    }
+    if(m_ihm.ui.cB_AX_type_cde==wdgt)
+    {
+        i=m_ihm.ui.cB_AX_type_cde->currentIndex();
+        if (i!=0)
+            m_ihm.ui.cB_AX_const_values->setCurrentIndex(0);
     }
 
      //SD20
@@ -501,8 +560,16 @@ void CActuatorSequencer::addSequenceItem(void)
 
         QString id_int;
         id=id_int.setNum(m_ihm.ui.cB_AX->currentIndex());
-        comments=m_ihm.ui.cB_AX->currentText();
-        value.setNum(m_ihm.ui.sB_AX->value());
+        if(m_ihm.ui.sB_AX->isEnabled())
+        {
+            comments=m_ihm.ui.cB_AX->currentText();
+            value.setNum(m_ihm.ui.sB_AX->value());
+        }
+        else
+        {
+            comments=m_ihm.ui.cB_AX->currentText()+" value="+m_ihm.ui.cB_AX_const_values->currentText();
+            value.setNum(m_hash_const_AX[m_ihm.ui.cB_AX_const_values->currentText()]);
+        }
     }
     if(pB_Add==m_ihm.ui.pB_Add_Sensor)
     {
@@ -533,8 +600,16 @@ void CActuatorSequencer::addSequenceItem(void)
         type="SD20";
         QString id_int;
         id=id_int.setNum(m_ihm.ui.cB_SD20->currentIndex()+13);
-        comments=m_ihm.ui.cB_SD20->currentText();
-        value.setNum(m_ihm.ui.sB_SD20->value());
+        if(m_ihm.ui.sB_SD20->isEnabled())
+        {
+            comments=m_ihm.ui.cB_SD20->currentText();
+            value.setNum(m_ihm.ui.sB_SD20->value());
+        }
+        else
+        {
+            comments=m_ihm.ui.cB_SD20->currentText()+" value="+m_ihm.ui.cB_SD20_const_values->currentText();
+            value.setNum(m_hash_const_SD20[m_ihm.ui.cB_SD20_const_values->currentText()]);
+        }
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Motor)
     {
@@ -1597,7 +1672,10 @@ void CActuatorSequencer::Slot_Play_only_SD20()
     QString id;
     QString value;
     id.setNum(m_ihm.ui.cB_SD20->currentIndex()+13);
-    value.setNum(m_ihm.ui.sB_SD20->value());
+    if(m_ihm.ui.sB_SD20->isEnabled())
+        value.setNum(m_ihm.ui.sB_SD20->value());
+    else
+        value.setNum(m_hash_const_SD20[m_ihm.ui.cB_SD20_const_values->currentText()]);
 
     qDebug() << "SD20 number" << id << "at" <<value;
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
@@ -1615,7 +1693,10 @@ void CActuatorSequencer::Slot_Play_only_AX()
     QString id;
     QString value;
     id.setNum(m_ihm.ui.cB_AX->currentIndex());
-    value.setNum(m_ihm.ui.sB_AX->value());
+    if (m_ihm.ui.sB_AX->isEnabled())
+        value.setNum(m_ihm.ui.sB_AX->value());
+    else
+        value.setNum(m_hash_const_AX[m_ihm.ui.cB_AX_const_values->currentText()]);
 
     qDebug() << "AX number" << id <<m_ihm.ui.cB_AX_type_cde->currentText() <<"at" <<value;
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_AX_TxSync", true);
@@ -3089,4 +3170,79 @@ QList<int> CActuatorSequencer::findTransitionsOut(QTableWidget* table_sequence, 
         }
     }
     return transitionsList;
+}
+
+bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QString, int> *results)
+{
+    bool is_ok=false;
+    bool enum_begin=false;
+    bool enum_end=false;
+    bool enum_find=false;
+    QString enum_concat;
+    QFile inputFile(fileName);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&inputFile);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            line=line.trimmed();
+            //début de l'enum
+            if(line.contains("typedef") && line.contains("enum") && !enum_begin)
+                enum_begin=true;
+
+            if(enum_concat.contains(";"))
+                enum_end=true;
+
+            if(enum_begin)
+            {
+                if(enum_end)
+                {
+                    enum_find=true;
+                }
+                else
+                {
+                    enum_concat+=line;
+                    if(enum_concat.contains(";"))
+                    {
+                        enum_end=true;
+                        enum_find=true;
+                    }
+                }
+            }
+
+            if(enum_find)
+            {
+                if(enum_concat.contains(enum_name))
+                {
+                    //qDebug() << enum_concat;
+                    QString enum_core=enum_concat.section('{',1);
+                    int i_begin=enum_core.indexOf('}');
+                    enum_core.truncate(i_begin);
+                    enum_core=enum_core.trimmed();
+                    //qDebug() << enum_core;
+                    QStringList enum_list = enum_core.split(QLatin1Char(','),QString::SkipEmptyParts);
+                    //qDebug() << enum_list;
+                    for (int i=0;i<enum_list.size();i++)
+                    {
+                        QStringList key_value=enum_list.at(i).split(QLatin1Char('='));
+                        results->insert(key_value.at(0),key_value.at(1).toInt());
+                    }
+
+                    is_ok=true;
+                    return is_ok;
+                }
+                else
+                {
+                    enum_begin=false;
+                    enum_end=false;
+                    enum_find=false;
+                    enum_concat.clear();
+                }
+            }
+        }
+        inputFile.close();
+    }
+
+    return is_ok;
 }
