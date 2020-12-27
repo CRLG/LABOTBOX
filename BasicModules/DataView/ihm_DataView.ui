@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
+    <width>706</width>
     <height>320</height>
    </rect>
   </property>
@@ -22,7 +22,7 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="7">
+    <item row="0" column="10">
      <widget class="QPushButton" name="pb_effacer_liste">
       <property name="toolTip">
        <string>Effacer le contenu de la trace</string>
@@ -48,7 +48,173 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="4">
+    <item row="3" column="10">
+     <widget class="QLineEdit" name="valueToWrite">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="toolTip">
+       <string>Appuyer sur &quot;Entrée&quot; pour valider la saisie</string>
+      </property>
+      <property name="statusTip">
+       <string>Modifie la ou les variables sélectionnées dans la liste des variables observées</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="9">
+     <widget class="QLabel" name="valueToWrite_label">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Write</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="choix_mode_inspection">
+      <item>
+       <property name="text">
+        <string>Instantané</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Temporel</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="9">
+     <widget class="QPushButton" name="pb_enregistrer_trace">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="toolTip">
+       <string>Enregistrer la trace dans un fichier</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="7">
+     <widget class="QPushButton" name="pb_up">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="toolTip">
+       <string>Monte la variable sélectionnée dans la liste</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="8">
+     <widget class="QPushButton" name="pb_down">
+      <property name="toolTip">
+       <string>Descend  la variable sélectionnée dans la liste</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/down.png</normaloff>:/icons/down.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QPushButton" name="pb_save_variables_liste">
+      <property name="toolTip">
+       <string>Savegarde la liste des variables observées</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QCheckBox" name="affiche_diff_seulement">
+      <property name="toolTip">
+       <string>N'affiche que si la donnée a changé</string>
+      </property>
+      <property name="text">
+       <string>Diff</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="3">
+     <widget class="QLineEdit" name="filtre_noms_variables">
+      <property name="placeholderText">
+       <string>Filtre sur le nom</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QPushButton" name="pb_open_variables_liste">
+      <property name="toolTip">
+       <string>Charge une liste de variables à observer</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="6">
      <widget class="QListWidget" name="liste_variables">
       <property name="alternatingRowColors">
        <bool>true</bool>
@@ -72,7 +238,7 @@
       </item>
      </widget>
     </item>
-    <item row="1" column="4" colspan="4">
+    <item row="2" column="6" colspan="5">
      <widget class="QTableWidget" name="table_variables_valeurs">
       <attribute name="horizontalHeaderVisible">
        <bool>true</bool>
@@ -103,104 +269,6 @@
       </column>
      </widget>
     </item>
-    <item row="2" column="7">
-     <widget class="QLineEdit" name="valueToWrite">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="toolTip">
-       <string>Appuyer sur &quot;Entrée&quot; pour valider la saisie</string>
-      </property>
-      <property name="statusTip">
-       <string>Modifie la ou les variables sélectionnées dans la liste des variables observées</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="placeholderText">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="6">
-     <widget class="QLabel" name="valueToWrite_label">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>Write</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="choix_mode_inspection">
-      <item>
-       <property name="text">
-        <string>Instantané</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Temporel</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="0" column="6">
-     <widget class="QPushButton" name="pb_enregistrer_trace">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="toolTip">
-       <string>Enregistrer la trace dans un fichier</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="autoDefault">
-       <bool>false</bool>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QPushButton" name="pb_up">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="toolTip">
-       <string>Monte la variable sélectionnée dans la liste</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
-      </property>
-      <property name="checkable">
-       <bool>false</bool>
-      </property>
-      <property name="autoDefault">
-       <bool>false</bool>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="3">
      <widget class="QPushButton" name="PB_refresh_liste">
       <property name="toolTip">
@@ -224,30 +292,20 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="pb_down">
+    <item row="0" column="4">
+     <widget class="QPushButton" name="pb_decoche_tout">
       <property name="toolTip">
-       <string>Descend  la variable sélectionnée dans la liste</string>
+       <string>Décoche tout</string>
       </property>
       <property name="text">
        <string/>
       </property>
       <property name="icon">
        <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/down.png</normaloff>:/icons/down.png</iconset>
+        <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
       </property>
       <property name="flat">
        <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QCheckBox" name="affiche_diff_seulement">
-      <property name="toolTip">
-       <string>N'affiche que si la donnée a changé</string>
-      </property>
-      <property name="text">
-       <string>Diff</string>
       </property>
      </widget>
     </item>
@@ -258,7 +316,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>633</width>
+     <width>706</width>
      <height>22</height>
     </rect>
    </property>

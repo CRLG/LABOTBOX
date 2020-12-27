@@ -43,7 +43,7 @@ public:
 class CDataView : public CBasicModule
 {
     Q_OBJECT
-#define     VERSION_DataView   "1.2"
+#define     VERSION_DataView   "1.3"
 #define     AUTEUR_DataView    "Nico"
 #define     INFO_DataView      "Visualise l'évolution d'une ou plusieurs données du DataCenter"
 
@@ -70,9 +70,12 @@ private :
     void connectDiscconnectVariablesTemporel(bool choix, bool only_diff);
     void addTraceVariable(QString name, QString value = "", quint64 time=0);
     double normaliseTemps(qint64 ms_epoch);
+    void addVariablesObserver(QStringList liste_variables);
+    QStringList getListeVariablesObservees();
 
 private slots :
     void onRightClicGUI(QPoint pos);
+    void onDataFilterChanged(QString filter_name);
 
 private:
     Cihm_DataView m_ihm;
@@ -90,6 +93,9 @@ public slots :
     void effacerListeVariablesValues(void);
     void editingFinishedWriteValueInstantane(void);
     void saveToFile();
+    void loadListeVariablesObservees(void);
+    void saveListeVariablesObservees(void);
+    void decocheToutesVariables();
 
 
 };
