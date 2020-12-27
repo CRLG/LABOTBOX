@@ -38,28 +38,41 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="pb_resume">
+    <item row="0" column="10">
+     <widget class="QPushButton" name="pb_up">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="toolTip">
-       <string>Met en pause le traçage des courbes</string>
+       <string>Monte la variable sélectionnée dans la liste</string>
       </property>
       <property name="text">
        <string/>
       </property>
       <property name="icon">
        <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/player_pause.png</normaloff>:/icons/player_pause.png</iconset>
+        <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
       </property>
       <property name="checkable">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="autoDefault">
        <bool>false</bool>
       </property>
      </widget>
+    </item>
+    <item row="0" column="12" colspan="6">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>378</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
     <item row="0" column="2" colspan="2">
      <widget class="QPushButton" name="pb_cusor">
@@ -84,66 +97,30 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="4">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>157</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="PB_refresh_liste">
-      <property name="toolTip">
-       <string>Mise à jour de la liste des variables disponibles</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/refresh.png</normaloff>:/icons/refresh.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="6">
-     <widget class="QPushButton" name="pb_up">
+    <item row="0" column="1">
+     <widget class="QPushButton" name="pb_resume">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="toolTip">
-       <string>Monte la variable sélectionnée dans la liste</string>
+       <string>Met en pause le traçage des courbes</string>
       </property>
       <property name="text">
        <string/>
       </property>
       <property name="icon">
        <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
+        <normaloff>:/icons/player_pause.png</normaloff>:/icons/player_pause.png</iconset>
       </property>
       <property name="checkable">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="autoDefault">
        <bool>false</bool>
       </property>
      </widget>
     </item>
-    <item row="0" column="7">
+    <item row="0" column="11">
      <widget class="QPushButton" name="pb_down">
       <property name="toolTip">
        <string>Descend  la variable sélectionnée dans la liste</string>
@@ -157,20 +134,7 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="8" colspan="6">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>378</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="1" column="0" colspan="5">
+    <item row="2" column="0" colspan="9">
      <widget class="QListWidget" name="liste_variables">
       <property name="maximumSize">
        <size>
@@ -200,7 +164,203 @@
       </item>
      </widget>
     </item>
-    <item row="1" column="5" colspan="9">
+    <item row="3" column="0" colspan="3">
+     <widget class="QPushButton" name="pb_resetZoom">
+      <property name="toolTip">
+       <string>Efface le zoom</string>
+      </property>
+      <property name="text">
+       <string>Reset ZOOM</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3" colspan="6">
+     <widget class="QSlider" name="sliderZoom">
+      <property name="minimum">
+       <number>-100</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBelow</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="9" colspan="2">
+     <widget class="QPushButton" name="pb_Range">
+      <property name="text">
+       <string>Range</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="11" colspan="2">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>axe 1</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="13">
+     <widget class="QLineEdit" name="inputRangeAxe1">
+      <property name="minimumSize">
+       <size>
+        <width>30</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="14">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>axe 2</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="15">
+     <widget class="QLineEdit" name="inputRangeAxe2">
+      <property name="minimumSize">
+       <size>
+        <width>30</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="16">
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>129</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="3" column="17">
+     <widget class="QLabel" name="label_deltaT">
+      <property name="minimumSize">
+       <size>
+        <width>80</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="18">
+     <widget class="QCustomPlot" name="customPlot" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>721</width>
+        <height>221</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QPushButton" name="PB_refresh_liste">
+      <property name="toolTip">
+       <string>Mise à jour de la liste des variables disponibles</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/refresh.png</normaloff>:/icons/refresh.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
+     <widget class="QPushButton" name="pb_decoche_tout">
+      <property name="toolTip">
+       <string>Décoche tout</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="6">
+     <widget class="QPushButton" name="pb_open_variables_liste">
+      <property name="toolTip">
+       <string>Charge une liste de variables à observer</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="7">
+     <widget class="QPushButton" name="pb_save_variables_liste">
+      <property name="toolTip">
+       <string>Savegarde la liste des variables observées</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../../icons.qrc">
+        <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="8">
+     <widget class="QLineEdit" name="filtre_noms_variables">
+      <property name="placeholderText">
+       <string>Filtre sur le nom</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="9" rowspan="2" colspan="9">
      <widget class="QTableWidget" name="table_variables_valeurs">
       <property name="columnCount">
        <number>5</number>
@@ -244,121 +404,6 @@
       </column>
      </widget>
     </item>
-    <item row="2" column="0" colspan="3">
-     <widget class="QPushButton" name="pb_resetZoom">
-      <property name="toolTip">
-       <string>Efface le zoom</string>
-      </property>
-      <property name="text">
-       <string>Reset ZOOM</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3" colspan="2">
-     <widget class="QSlider" name="sliderZoom">
-      <property name="minimum">
-       <number>-100</number>
-      </property>
-      <property name="maximum">
-       <number>100</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="tickPosition">
-       <enum>QSlider::TicksBelow</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="5" colspan="2">
-     <widget class="QPushButton" name="pb_Range">
-      <property name="text">
-       <string>Range</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="7" colspan="2">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>axe 1</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="9">
-     <widget class="QLineEdit" name="inputRangeAxe1">
-      <property name="minimumSize">
-       <size>
-        <width>30</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="10">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>axe 2</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="11">
-     <widget class="QLineEdit" name="inputRangeAxe2">
-      <property name="minimumSize">
-       <size>
-        <width>30</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="12">
-     <spacer name="horizontalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>129</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="2" column="13">
-     <widget class="QLabel" name="label_deltaT">
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="14">
-     <widget class="QCustomPlot" name="customPlot" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>721</width>
-        <height>221</height>
-       </size>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -367,7 +412,7 @@
      <x>0</x>
      <y>0</y>
      <width>739</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

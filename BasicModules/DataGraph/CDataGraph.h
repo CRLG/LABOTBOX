@@ -35,7 +35,7 @@ public:
 class CDataGraph : public CBasicModule
 {
     Q_OBJECT
-#define     VERSION_DataGraph   "1.0"
+#define     VERSION_DataGraph   "1.1"
 #define     AUTEUR_DataGraph    "Laguiche"
 #define     INFO_DataGraph      "Trace les variables du datacenter"
 
@@ -65,12 +65,16 @@ private :
     void ResetCursor(void);
     QColor variousColor();
     QComboBox* widgetCouleur(int indexRow);
+    void addVariablesObserver(QStringList liste_variables);
+    QStringList getListeVariablesObservees();
+
 	QFile* sauvFic;
 	QTextStream sauvStream;
     
 private slots :
     void onRightClicGUI(QPoint pos);
 	void Slot_save(bool toggleState);
+    void onDataFilterChanged(QString filter_name);
 
 private:
     Cihm_DataGraph m_ihm;
@@ -113,6 +117,9 @@ public slots :
     void userRescaleGraph(void);
     void userZoomGraph(int value);
     void rescaleGraph(double newMaxRange, double newMaxRange2);
+    void loadListeVariablesObservees(void);
+    void saveListeVariablesObservees(void);
+    void decocheToutesVariables();
 
 private slots:
     void mousePress(QMouseEvent *event);

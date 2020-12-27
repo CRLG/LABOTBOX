@@ -10,6 +10,7 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include "CDataListOpenSave.h"
 #include <QTest>
 #include <QFile>
 #include <QDate>
@@ -107,19 +108,7 @@ void CDataGraph::init(CApplication *application)
     //Restore les dernières variables loggées (créé la data dans le DataManager + l'ajoute sur l'IHM + coche la case)
     val = m_application->m_eeprom->read(getName(), "datalist_logged", "");
     QStringList datalist_memo = val.toStringList();
-    for (int i=0; i<datalist_memo.count(); i++) {
-        QString dataname = datalist_memo.at(i);
-        if (dataname.simplified() != "") {
-            m_application->m_data_center->write(dataname, "");  //crée la donnée si elle n'existe pas
-            m_ihm.ui.liste_variables->addItem(datalist_memo.at(i));
-        }
-    }
-    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-        if (datalist_memo.contains(m_ihm.ui.liste_variables->item(i)->text())) {
-            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
-        }
-    }
-    refreshListeVariables();
+    addVariablesObserver(datalist_memo);
 
     //On cache les contrà´les agissant sur les courbes (réactivés lors de la pause des courbes)
     m_ihm.ui.label_deltaT->setVisible(false);
@@ -140,6 +129,10 @@ void CDataGraph::init(CApplication *application)
     connect(m_ihm.ui.pb_up, SIGNAL(clicked()), this, SLOT(upVariable()));
     connect(m_ihm.ui.pb_down, SIGNAL(clicked()), this, SLOT(downVariable()));
     connect(m_ihm.ui.liste_variables,SIGNAL(itemChanged(QListWidgetItem*)),this,SLOT(authorizePlay(QListWidgetItem*)));
+    connect(m_ihm.ui.filtre_noms_variables, SIGNAL(textChanged(QString)), this, SLOT(onDataFilterChanged(QString)));
+    connect(m_ihm.ui.pb_open_variables_liste, SIGNAL(clicked(bool)), this, SLOT(loadListeVariablesObservees()));
+    connect(m_ihm.ui.pb_save_variables_liste, SIGNAL(clicked(bool)), this, SLOT(saveListeVariablesObservees()));
+    connect(m_ihm.ui.pb_decoche_tout, SIGNAL(clicked(bool)), this, SLOT(decocheToutesVariables()));
 
     connect(&m_timer_lecture_variables, SIGNAL(timeout()), this, SLOT(refreshValeursVariables()));
 
@@ -236,13 +229,7 @@ void CDataGraph::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
 
   // mémorise en EEPROM la liste des variables sous surveillance (cochées sur l'IHM)
-  QStringList liste_variables_observees;
-  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-      if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
-          liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
-      }
-  }
-  m_application->m_eeprom->write(getName(), "datalist_logged", QVariant(liste_variables_observees));
+  m_application->m_eeprom->write(getName(), "datalist_logged", QVariant(getListeVariablesObservees()));
 }
 
 // _____________________________________________________________________
@@ -297,6 +284,96 @@ void CDataGraph::refreshListeVariables(void)
         m_ihm.ui.liste_variables->item(i)->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         // Restitue le fait que la case était cochée ou décochée avant la mise à jour de liste
         m_ihm.ui.liste_variables->item(i)->setCheckState(liste_variables_observees.contains(data_name) ? Qt::Checked : Qt::Unchecked);
+    }
+}
+
+// _____________________________________________________________________
+/*!
+*  Ajout des varibales à observer
+*/
+void CDataGraph::addVariablesObserver(QStringList liste_variables)
+{
+    for (int i=0; i<liste_variables.count(); i++) {
+        QString dataname = liste_variables.at(i);
+        if (dataname.simplified() != "") {
+            bool force_creation = true;
+            m_application->m_data_center->getData(dataname, force_creation); //crée la donnée si elle n'existe pas. Si elle existe, conserve sa valeur
+            m_ihm.ui.liste_variables->addItem(dataname);
+        }
+    }
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        if (liste_variables.contains(m_ihm.ui.liste_variables->item(i)->text())) {
+            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
+        }
+    }
+    refreshListeVariables();
+}
+
+// _____________________________________________________________________
+/*!
+*  Récupère la liste des variables à observer
+*/
+QStringList CDataGraph::getListeVariablesObservees()
+{
+    QStringList liste_variables_observees;
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
+            liste_variables_observees.append(m_ihm.ui.liste_variables->item(i)->text());
+        }
+    }
+    return liste_variables_observees;
+}
+
+// _____________________________________________________________________
+/*!
+*  Décoche toutes les variables
+*/
+void CDataGraph::decocheToutesVariables()
+{
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+    }
+}
+
+// _____________________________________________________________________
+/*!
+*  Charge une liste de variables à observer
+*/
+void CDataGraph::loadListeVariablesObservees(void)
+{
+    QString fileName = QFileDialog::getOpenFileName(&m_ihm, tr("Open File"), ".");
+    if (fileName.isEmpty()) return;
+
+    QStringList liste_variables;
+    CDataListOpenSave::open(fileName, liste_variables);
+
+    addVariablesObserver(liste_variables);
+}
+
+// _____________________________________________________________________
+/*!
+*  Sauvegarde la liste des variables observées
+*/
+void CDataGraph::saveListeVariablesObservees(void)
+{
+    QString fileName = QFileDialog::getSaveFileName(&m_ihm, tr("Save File"), ".");
+    if (fileName.isEmpty()) return;
+
+    QStringList liste_variables = getListeVariablesObservees();
+    CDataListOpenSave::save(fileName, liste_variables);
+}
+
+// _____________________________________________________________________
+/*!
+*  Filtre les variables sur le nom
+*/
+void CDataGraph::onDataFilterChanged(QString filter_name)
+{
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        m_ihm.ui.liste_variables->item(i)->setHidden(true);
+        if (m_ihm.ui.liste_variables->item(i)->text().toLower().contains(filter_name.toLower())) {
+            m_ihm.ui.liste_variables->item(i)->setHidden(false);
+        }
     }
 }
 
