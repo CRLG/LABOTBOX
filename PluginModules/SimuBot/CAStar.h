@@ -49,15 +49,25 @@
 #include <stdlib.h>
 #include <vector>
 
-/**< taille horizontale du terrain avec un pas de 2cm */
-#define n 300
-/**< taille verticale du terrain avec un pas de 2cm */
-#define m 200
+#include <cmath>
+#include <utility>
+#include <stdexcept>
+
+#define PRECISION 5
+
+/**< taille horizontale du terrain avec un pas de "PRECISION" en cm */
+#define n 300/PRECISION
+/**< taille verticale du terrain avec un pas de "PRECISION" en cm */
+#define m 200/PRECISION
 /**< nombre de directions possibles a partir d'un point
     8 on peut aller en diagonale, 4 juste les directions orthogonales */
 #define dir 8
 /**< Euclidien=0, Manhattan=1, Chebyshev=2 */
 #define method_dist 0
+
+#define IMAX 500
+
+typedef std::pair<double, double> Point;
 
 /**
  *  Classe definissant un noeud dans l'algorithme A*
@@ -87,56 +97,60 @@ public:
     const int & estimate(const int & xDest, const int & yDest) const;
 
     bool operator<(const node &) const;
-
- /*
-	//Racine carre tres rapide (tire/pompe d'une pres RCA)
-	static float fsqrt( float in )
-	{
-		long estimator;
-		float out,inhalfs;
-		const float threehalfs=1.5F;
-		inhalfs=in*0.5F;
-		estimator=*(long*)&in; // get bits from float to int
-		estimator=0x5f375a86-(estimator>>1); // strange estimator...
-		out =*(float*)&estimator; // get bits back from int to float
-		out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
-		out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
-		//out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
-		//out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
-		return out*in;
-	}
-*/
 };
 
 class AStar
 {
 public:
 
-	AStar();
+    AStar();
 
-	int map[n][m];
-	int closed_nodes_map[n][m]; // map of closed (tried-out) nodes
-	int open_nodes_map[n][m]; // map of open (not-yet-tried) nodes
+    int map[n][m];
+    int closed_nodes_map[n][m]; // map of closed (tried-out) nodes
+    int open_nodes_map[n][m]; // map of open (not-yet-tried) nodes
 
-	int dir_map[n][m]; // map of directions
+    int dir_map[n][m]; // map of directions
 
-/*
-//dir==4
-static int dx[dir]={1, 0, -1, 0};
-static int dy[dir]={0, 1, 0, -1};
-*/
+    /*
+    //dir==4
+    static int dx[dir]={1, 0, -1, 0};
+    static int dy[dir]={0, 1, 0, -1};
+    */
 
-//dir==8
-int dx[dir];
-int dy[dir];
-std::vector<int> path_dir;
-std::vector<int> x_dir;
-std::vector<int> y_dir;
+    //dir==8
+    int dx[dir];
+    int dy[dir];
+    int nb_points;
+    int i_path_dir[IMAX];
+    int i_x_dir[IMAX];
+    int i_y_dir[IMAX];
 
-void initMap(int xRobot,int yRobot);
-int pathFind( const int & xStart, const int & yStart, const int & xFinish, const int & yFinish );
-int pathBuild(int x0, int y0);
+    void initMap(int xRobot,int yRobot);
+    void addBot2Map(int xRobot,int yRobot);
+    int pathFind( const int & xStart, const int & yStart, const int & xFinish, const int & yFinish );
+    int pathBuild(int x0, int y0);
+
+    //Racine carre tres rapide (tire/pompe d'une pres RCA)
+    static float r_sqrt( float in )
+    {
+        long estimator;
+        float out,inhalfs;
+        const float threehalfs=1.5F;
+        inhalfs=in*0.5F;
+        estimator=*(long*)&in; // get bits from float to int
+        estimator=0x5f375a86-(estimator>>1); // strange estimator...
+        out =*(float*)&estimator; // get bits back from int to float
+        out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
+        out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
+        //out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
+        //out*=(threehalfs-(inhalfs*out*out)); // Newton iteration
+        return out*in;
+    }
+
+private:
+    int adapt(int coord);
+    int expand(int coord);
+    double PerpendicularDistance(const Point &pt, const Point &lineStart, const Point &lineEnd);
+    void RamerDouglasPeucker(const std::vector<Point> &pointList, double epsilon, std::vector<Point> &out);
 };
-
-
 #endif

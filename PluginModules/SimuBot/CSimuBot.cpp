@@ -201,6 +201,23 @@ void CSimuBot::init(CApplication *application)
     elementsJeu[22]=setElementJeu(166.5f,35.0f,Qt::green);
     elementsJeu[23]=setElementJeu(160.5f,4.5f,Qt::red);
 
+    //ajout des tasseaux 2020
+    //(89,0)->(89,15)
+    //(149,0)->(149,30)
+    //(209,0)->(209,15)
+    QGraphicsLineItem * Tasseau01;
+    Tasseau01=new QGraphicsLineItem(89,0,89,-15);
+    Tasseau01->setPen(QPen(Qt::blue,3));
+    terrain->addItem(Tasseau01);
+    QGraphicsLineItem * Tasseau02;
+    Tasseau02=new QGraphicsLineItem(149,0,149,-30);
+    Tasseau02->setPen(QPen(Qt::blue,3));
+    terrain->addItem(Tasseau02);
+    QGraphicsLineItem * Tasseau03;
+    Tasseau03=new QGraphicsLineItem(209,0,209,-15);
+    Tasseau03->setPen(QPen(Qt::blue,3));
+    terrain->addItem(Tasseau03);
+
 
     //ajout du robot
     val = m_application->m_eeprom->read(getName(), "bot_oriented", QVariant(false));
@@ -311,6 +328,7 @@ void CSimuBot::init(CApplication *application)
 
     //pour calculer une trajectoire d'evitement
     connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
+    connect(m_ihm.ui.pB_clearEvitement,SIGNAL(clicked()),this,SLOT(slot_clearPath()));
 
     // Positions x, y, teta du robot physique
     m_application->m_data_center->write("x_pos", 0);
@@ -926,104 +944,103 @@ void CSimuBot::slot_dial_turned(void)
     }
 }
 
+void CSimuBot::slot_clearPath(void)
+{
+    //effacement de la dernière trajectoire
+    if (!(evitement.isEmpty()))
+            for(int k=0;k<evitement.size();k++ ){
+                //QGraphicsLineItem
+                terrain->removeItem(evitement.at(k));
+            }
+    evitement.clear();
+}
+
 void CSimuBot::slot_getPath(void)
 {
-    /*AStar Recherche(,
-                    );*/
     AStar *Recherche=new AStar();
     int xA, yA, xB, yB; //A depart, B objetcif
     int xC,yC;
+    int xD,yD;
 
-    xA=GrosBot->getX_terrain();
-    yA=GrosBot->getY_terrain();
-    xB=0;
-    yB=0;
+    xA=OldGrosBot->getX_terrain();
+    yA=OldGrosBot->getY_terrain();
+    xB=GrosBot->getX_terrain();
+    yB=GrosBot->getY_terrain();
     xC=OtherBot->getX_terrain();
     yC=OtherBot->getY_terrain();
 
     //initialisation de la carte des obstacles
     Recherche->initMap(xC,yC);
+    if (m_ihm.ui.ckhB_2Bot->isChecked())
+    {
+        xD=MiniBot->getX_terrain();
+        yD=MiniBot->getY_terrain();
+        Recherche->addBot2Map(xD,yD);
+    }
 
     int nb_points_asser=0;
 
-        //lancement de l'algorithme
-        clock_t start = std::clock();
+    //lancement de l'algorithme et estimation du temps de calcul
+    clock_t start = std::clock();
     int nb_points=Recherche->pathFind(xA, yA, xB, yB);
     clock_t end = std::clock();
     if(nb_points<=0)
     {
-        qDebug()<<"Pas de chemin trouve!";
-        qDebug()<<"Dimension carte (X,Y):\t"<<n<<"x"<<m;
-                qDebug()<<"Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
-                //qDebug()<<"Scenario:\t\t"<<scenar<<std::endl;
-                qDebug()<<"Autre robot:\t\t("<<xC<<","<<yC<<")";
-                double time_elapsed = double(end - start);
-                qDebug()<<"Temps calcul (ms):\t"<<time_elapsed;
+        qDebug()<<"\n[CSimuBot][A*] Calcul d'une trajectoire d'évitement";
+        qDebug()<<"[CSimuBot][A*] Pas de chemin trouve!\n";
+        /*qDebug()<<"[CSimuBot][A*] Dimension carte (X,Y):\t"<<n*PRECISION<<"x"<<m*PRECISION;
+        qDebug()<<"[CSimuBot][A*] Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
+        qDebug()<<"[CSimuBot][A*] Autre robot:\t\t("<<xC<<","<<yC<<")";
+        double time_elapsed = double(double(end - start)/CLOCKS_PER_SEC);
+        qDebug()<<"[CSimuBot][A*] Temps calcul (s):\t"<<time_elapsed<<"\n";*/
     }
     else
+        //l'algorithme étant itératif on est obligé de rebrousser chemin pour le reconstruire
         nb_points_asser=Recherche->pathBuild(xA,yA);
 
-
-
+    //dans le cas où on a trouvé un chemin possible
     if(nb_points>0)
-	{
-        qDebug()<<"Dimension carte (X,Y):\t"<<n<<"x"<<m;
-                qDebug()<<"Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
-                //qDebug()<<"Scenario:\t\t"<<scenar<<std::endl;
-                qDebug()<<"Autre robot:\t\t("<<xC<<","<<yC<<")";
-                double time_elapsed = double(end - start);
-                qDebug()<<"Temps calcul (ms):\t"<<time_elapsed;
-                qDebug()<<"\nRoute:\t\t\t"<<nb_points<<" pts";
-                std::vector<int>::reverse_iterator it;
-                for(it=Recherche->path_dir.rbegin(); it!=Recherche->path_dir.rend(); ++it)
-                    qDebug()<<(*it);
+    {
+        qDebug()<<"\n[CSimuBot][A*] Calcul d'une trajectoire d'évitement";
+        qDebug()<<"[CSimuBot][A*] Dimension carte (X,Y):\t"<<n*PRECISION<<"x"<<m*PRECISION;
+        qDebug()<<"[CSimuBot][A*] Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
+        qDebug()<<"[CSimuBot][A*] Autre robot:\t\t("<<xC<<","<<yC<<")";
+        double time_elapsed = double(double(end - start)/CLOCKS_PER_SEC);
+        qDebug()<<"[CSimuBot][A*] Temps calcul (s):\t"<<time_elapsed;
+        qDebug()<<"[CSimuBot][A*] Route:\t\t\t"<<nb_points<<" pts";
+        qDebug()<<"[CSimuBot][A*] Trajectoire:\t\t"<<nb_points_asser<<" pts\n";
 
+        //effacement graphique de la dernière trajectoire
+        slot_clearPath();
 
+        int x_temp=xB;
+        int y_temp=-yB;
+        int j=nb_points_asser-1;
 
-                qDebug()<<"Trajectoire:\t\t"<<nb_points_asser<<" pts";
-                std::vector<int>::iterator it1;
-                std::vector<int>::iterator it2;
-                it1=Recherche->x_dir.begin();
-                it2=Recherche->y_dir.begin();
-                int x1,y1;
+        //reconstruction du chemin en segments à afficher
+        while(j>=0)
+        {
+            //qDebug()<<"("<<x_temp<<","<<y_temp<<") => ("<<(Recherche->i_x_dir[j])<<","<<-(Recherche->i_y_dir[j])<<")";
 
-                //QPolygon loophole;
-                if (!(evitement.isEmpty()))
-                        for(int k=0;k<evitement.size();k++ ){
-                            //QGraphicsLineItem
-                            terrain->removeItem(evitement.at(k));
-                        }
-                evitement.clear();
+            //on attend de calculer un point avant de tracer un segment
+            if(j!=nb_points_asser-1)
+                evitement.append(new QGraphicsLineItem(x_temp,y_temp,(Recherche->i_x_dir[j]),-(Recherche->i_y_dir[j])));
 
-                int i_points=0;
-                int x_temp=0;
-                int y_temp=0;
+            //sauvegarde du point en cours pour tracer le prochain segment
+            x_temp=(Recherche->i_x_dir[j]);
+            y_temp=-(Recherche->i_y_dir[j]);
 
-                while((it1!=Recherche->x_dir.end())&&(it1!=Recherche->x_dir.end()))
-                {
-                    if(i_points==0)
-                        i_points++;
-                    else
-                        evitement.append(new QGraphicsLineItem(x_temp,y_temp,(*it1),-(*it2)));
+            j--;
+        }
 
-                    x_temp=(*it1);
-                    y_temp=-(*it2);
-
-                    //qDebug()<<"("<<x_temp<<","<<-y_temp<<");";
-                    ++it1;
-                    ++it2;
-                }
-
-                for(int k=0;k<evitement.size();k++)
-                {
-                    evitement.at(k)->setPen(QPen(Qt::red,3));
-                    terrain->addItem(evitement.at(k));
-                }
-
+        //traçage du chemin d'évitement et affichage
+        for(int k=0;k<evitement.size();k++)
+        {
+            evitement.at(k)->setPen(QPen(Qt::red,3));
+            terrain->addItem(evitement.at(k));
+        }
     }
 }
-
-
 
 
 void CSimuBot::catchDoubleClick()

@@ -96,6 +96,7 @@ private slots :
         //void on_timeout_external_robot2();
         void updateStepFromSimulia();
         void box2d_enable(bool flag);
+        void slot_clearPath();
 private:
     Cihm_SimuBot m_ihm;
 

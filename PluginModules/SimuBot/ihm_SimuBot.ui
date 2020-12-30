@@ -1251,13 +1251,26 @@
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>70</y>
+          <y>190</y>
           <width>80</width>
           <height>25</height>
          </rect>
         </property>
         <property name="text">
          <string>Obstacle</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pB_clearEvitement">
+        <property name="geometry">
+         <rect>
+          <x>158</x>
+          <y>30</y>
+          <width>161</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Effacement Evitement</string>
         </property>
        </widget>
       </widget>
