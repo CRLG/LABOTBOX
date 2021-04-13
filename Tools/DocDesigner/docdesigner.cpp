@@ -4,22 +4,24 @@
 #include <QStatusBar>
 #include <QPainter>
 #include <QTextDocumentWriter>
+#include <QPrinter>
+#include <QFileInfo>
+#include <QTextList>
+#include <QDebug>
+#include <QBuffer>
 #include <textedit.h>
 
 #include "docdesigner.h"
 
-DocDesigner::DocDesigner(QWidget *parent)
-    : HtmlTextEditor(parent),
+DocDesigner::DocDesigner(QObject*parent)
+    : QTextDocument(parent),
       m_current_chapter_level_1(0),
       m_current_chapter_level_2(0),
       m_current_chapter_level_3(0),
-      m_default_font("DejaVu Sans", 10, false, false, false, QColor(Qt::black), Qt::AlignLeft),
-      m_current_font("DejaVu Sans", 10, false, false, false, QColor(Qt::black), Qt::AlignLeft)
+      m_default_font("DejaVu Sans", 10, false, false, false, QColor(Qt::black), Qt::AlignLeft, 0),
+      m_current_font("DejaVu Sans", 10, false, false, false, QColor(Qt::black), Qt::AlignLeft, 0),
+      m_text_cursor(this)
 {
-    // bug d'affichage dans certains cas si cette séquence n'est pas appelée
-    show();
-    hide();
-
     setDefaultFont();
 }
 
@@ -32,6 +34,7 @@ QString DocDesigner::getDefaultFamilyFont()
 // ________________________________________________________
 void DocDesigner::setDefaultFont()
 {
+
     textFamily(m_default_font.m_family);
     textSize(m_default_font.m_size);
     textBold(m_default_font.m_bold);
@@ -39,8 +42,7 @@ void DocDesigner::setDefaultFont()
     textUnderline(m_default_font.m_underline);
     textColor(m_default_font.m_color);
     textAlign(m_default_font.m_align);
-    textStyle(QTextListFormat::ListStyleUndefined);
-
+    textIndent(m_default_font.m_indent);
     m_current_font = m_default_font;
 }
 
@@ -54,12 +56,14 @@ void DocDesigner::setDefaultFont(const DocFont& font)
     m_default_font.m_underline  = font.m_underline;
     m_default_font.m_color      = font.m_color;
     m_default_font.m_align      = font.m_align;
+    m_current_font.m_indent     = font.m_indent;
     setDefaultFont();
 }
 
 // ________________________________________________________
 void DocDesigner::setFont(const DocFont& font)
 {
+
     if (font.m_family != "") textFamily(font.m_family);
     textSize(font.m_size);
     textBold(font.m_bold);
@@ -67,6 +71,7 @@ void DocDesigner::setFont(const DocFont& font)
     textUnderline(font.m_underline);
     textColor(font.m_color);
     textAlign(font.m_align);
+    textIndent(font.m_indent);
 
     if (font.m_family != "") m_current_font.m_family = font.m_family;
     m_current_font.m_size       = font.m_size;
@@ -75,6 +80,7 @@ void DocDesigner::setFont(const DocFont& font)
     m_current_font.m_underline  = font.m_underline;
     m_current_font.m_color      = font.m_color;
     m_current_font.m_align      = font.m_align;
+    m_current_font.m_indent     = font.m_indent;
 }
 
 // ________________________________________________________
@@ -89,29 +95,37 @@ QString DocDesigner::getFormatedText(const QString& text, const DocFont& font, b
 // ________________________________________________________
 void DocDesigner::setAlign(Qt::Alignment align)
 {
-  textAlign(align);
-  m_current_font.m_align = align;
+    textAlign(align);
+    m_current_font.m_align = align;
+}
+
+// ________________________________________________________
+void DocDesigner::setIndent(int indent)
+{
+    textIndent(indent);
+    m_current_font.m_indent = indent;
 }
 
 // ________________________________________________________
 void DocDesigner::appendText(QString text, bool final_crlf)
 {
-    textEdit->insertPlainText(text);
-    if (final_crlf) textEdit->insertPlainText("\n");
+    m_text_cursor.insertText(text);
+    if (final_crlf) m_text_cursor.insertText("\n");
 }
 
 // ________________________________________________________
 void DocDesigner::appendText(QString text, const DocFont& font, bool final_crlf)
 {
-    textEdit->insertHtml(getFormatedText(text, font));
-    if (final_crlf) textEdit->insertPlainText("\n");
+
+    m_text_cursor.insertHtml(getFormatedText(text, font));
+    if (final_crlf) appendCRLF(1);
 }
 
 // ________________________________________________________
 void DocDesigner::appendCRLF(unsigned int number)
 {
     for (unsigned int i=0; i<number; i++) {
-        textEdit->insertPlainText("\n");
+        m_text_cursor.insertText("\n");
     }
 }
 
@@ -125,26 +139,27 @@ void DocDesigner::appendDocTitle(QString text)
                     true,   // underline
                     QColor("darkBlue"),
                     Qt::AlignHCenter));
-    textEdit->insertPlainText(text);
+    appendText(text, false);
     if (!text.endsWith("\n")) {
-         textEdit->insertPlainText("\n");
+         appendCRLF();
     }
     setDefaultFont();
 }
 
 // ________________________________________________________
-void DocDesigner::appendChapterTitle(int level, QString title, bool final_crlf)
+void DocDesigner::appendChapterTitle(int level, QString title, bool before_crlf, bool final_crlf)
 {
     QString txt;
 
     setDefaultFont();
+    if (before_crlf) appendCRLF();
     switch(level) {
     // 1. Titre Niveau 1
     case 0:
     case 1:
         textBold(true);
         textUnderline(true);
-        textSize("14");
+        textSize(14);
         m_current_chapter_level_1++;
         m_current_chapter_level_2 = 0;
         m_current_chapter_level_3 = 0;
@@ -152,16 +167,15 @@ void DocDesigner::appendChapterTitle(int level, QString title, bool final_crlf)
         txt += QString::number(m_current_chapter_level_1);
         txt += ". ";
         txt += title;
-        txt += "\n";
-        textEdit->insertPlainText(txt);
+        appendText(txt, true);
         break;
     // 1.1 Titre Niveau 2
     case 2:
         textUnderline(false);
-        textEdit->insertPlainText("    ");   //indentation
         textBold(true);
         textUnderline(true);
-        textSize("12");
+        textSize(12);
+        textIndent(1);
         m_current_chapter_level_2++;
         m_current_chapter_level_3 = 0;
         txt += QString::number(m_current_chapter_level_1);
@@ -169,16 +183,15 @@ void DocDesigner::appendChapterTitle(int level, QString title, bool final_crlf)
         txt += QString::number(m_current_chapter_level_2);
         txt += ". ";
         txt += title;
-        txt += "\n";
-        textEdit->insertPlainText(txt);
+        appendText(txt, true);
         break;
     // 1.1.1 Titre Niveau 3
     case 3:
         textUnderline(false);
-        textEdit->insertPlainText("         ");   //indentation
         textBold(true);
         textUnderline(true);
-        textSize("11");
+        textSize(11);
+        textIndent(2);
         m_current_chapter_level_3++;
         txt += QString::number(m_current_chapter_level_1);
         txt += ".";
@@ -187,13 +200,11 @@ void DocDesigner::appendChapterTitle(int level, QString title, bool final_crlf)
         txt += QString::number(m_current_chapter_level_3);
         txt += ". ";
         txt += title;
-        txt += "\n";
-        textEdit->insertPlainText(txt);
+        appendText(txt, true);
         break;
      default :
         txt += title;
-        txt += "\n";
-        textEdit->insertPlainText(txt);
+        appendText(txt, true);
         break;
     }
     if (final_crlf) appendCRLF();
@@ -201,13 +212,28 @@ void DocDesigner::appendChapterTitle(int level, QString title, bool final_crlf)
 }
 
 // ________________________________________________________
-void DocDesigner::appendBulletList(QStringList lst, QTextListFormat::Style style)
+void DocDesigner::appendBulletList(QStringList lst, QString bullet_char, int indent)
 {
-  textStyle(style);
-  for (int i=0; i<lst.size(); i++) {
-      appendText(lst.at(i));
-  }
-  textStyle(QTextListFormat::ListStyleUndefined);
+    int current_indent = m_text_cursor.blockFormat().indent();
+    if (indent < 0) setIndent(current_indent + 1);  // indentation automatique : idente d'un cran
+    else setIndent(indent);                         // indentation manuelle
+    for (int i=0; i<lst.size(); i++) {
+        appendText(bullet_char + " " + lst.at(i));
+    }
+    setIndent(current_indent); // restitue le niveau d'indentation initial
+}
+
+
+// ________________________________________________________
+void DocDesigner::appendNumList(QStringList lst, int start_num, int indent)
+{
+    int current_indent = m_text_cursor.blockFormat().indent();
+    if (indent < 0) setIndent(current_indent + 1);  // indentation automatique : idente d'un cran
+    else setIndent(indent);                         // indentation manuelle
+    for (int i=0; i<lst.size(); i++) {
+        appendText(QString::number(start_num + i) + ". " + lst.at(i));
+    }
+    setIndent(current_indent); // restitue le niveau d'indentation initial
 }
 
 // ______________________________________________________
@@ -231,56 +257,104 @@ void DocDesigner::appendTable(QVector<QStringList> rows)
         html += "</tr>";
     }
     html += "</table>";
-    textEdit->insertHtml(html);
+    m_text_cursor.insertHtml(html);
     setFont(m_current_font);  // Restitue la dernière police de caractère utilisée qui a été perdue lors de l'insertion du tableau
+
 }
 
 // ______________________________________________________
-void DocDesigner::appendPicture(const QImage& image, double scale, bool final_crlf)
+void DocDesigner::appendPicture(const QImage& image, double width, double height, bool final_crlf, Qt::Alignment align)
 {
-    textEdit->dropImage(image, "JPG", scale);
-    if (final_crlf) textEdit->insertPlainText("\n");
-    setFont(m_current_font);  // Restitue la dernière police de caractère utilisée qui a été perdue lors de l'insertion de l'image
+    Qt::Alignment save_align = m_text_cursor.blockFormat().alignment();
+    textAlign(align);
+
+    dropImage(image, "JPG", width, height);
+
+     if (final_crlf) appendCRLF();
+
+    textAlign(save_align);  // restitue le mode d'alignement changé juste
 }
 
+
 // ______________________________________________________
-void DocDesigner::appendPicture(QString pathfilename, double scale, bool final_crlf)
+void DocDesigner::appendPicture(QString pathfilename, double width, double height, bool final_crlf, Qt::Alignment align)
 {
-    appendPicture(QImage(pathfilename), scale, final_crlf);
+    QImage image(pathfilename);
+    appendPicture(image, width, height, final_crlf, align);
 }
 
 // ______________________________________________________
-void DocDesigner::appendWidget(QWidget* wdgt, double scale, bool final_crlf)
+void DocDesigner::appendWidget(QWidget* wdgt, double width, double height, bool final_crlf, Qt::Alignment align)
 {
     QImage image(wdgt->size(), QImage::Format_ARGB32);
     image.fill(Qt::transparent);
     QPainter painter(&image);
     wdgt->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
-    appendPicture(image, scale, final_crlf);
+    appendPicture(image, width, height, final_crlf, align);
 }
+
+// ______________________________________________________
+void DocDesigner::dropImage(const QImage& image, const QString& format, double width, double height)
+{
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, format.toLocal8Bit().data());
+    buffer.close();
+    QByteArray base64 = bytes.toBase64();
+    QByteArray base64l;
+    for (int i=0; i<base64.size(); i++) {
+        base64l.append(base64[i]);
+        if (i%80 == 0) {
+            base64l.append("\n");
+        }
+    }
+
+    QTextImageFormat imageFormat;
+    if (width < 0)  imageFormat.setWidth(image.width());
+    else            imageFormat.setWidth(width);
+    if (height < 0) imageFormat.setHeight(image.height());
+    else            imageFormat.setHeight(height );
+    imageFormat.setName   ( QString("data:image/%1;base64,%2")
+                            .arg(QString("%1.%2").arg(rand()).arg(format))
+                            .arg(base64l.data())
+                            );
+    m_text_cursor.insertImage(imageFormat);
+}
+
 
 // ______________________________________________________
 void DocDesigner::appendDoc(DocDesigner *doc)
 {
-    textEdit->insertHtml(doc->getHtml());
+    appendHtml(doc->getHtml());
 }
 
 // ______________________________________________________
 void DocDesigner::appendHtml(QString html)
 {
-    textEdit->insertHtml(html);
+    m_text_cursor.insertHtml(html);
+    setFont(m_current_font);  // Restitue la dernière police de caractère utilisée qui a été perdue lors de l'insertion du tableau
 }
 
 // ________________________________________________________
 QString DocDesigner::getHtml()
 {
-    return textEdit->toHtml();
+    return toHtml();
 }
 
 // ________________________________________________________
 void DocDesigner::exportToPdf(QString pathfilename)
 {
-    saveToPdf(pathfilename);
+#ifndef QT_NO_PRINTER
+    if (!pathfilename.isEmpty()) {
+        if (QFileInfo(pathfilename).suffix().isEmpty())
+            pathfilename.append(".pdf");
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(pathfilename);
+        print(&printer);
+    }
+#endif
 }
 
 // ________________________________________________________
@@ -291,17 +365,84 @@ void DocDesigner::exportToHtml(QString pathfilename)
             pathfilename.append(".html");
     }
     writer.setFormat("html");
-    writer.write(textEdit->document());
+    writer.write(this);
 }
 
 // ________________________________________________________
 //! BUG : les images ne sont pas présentes dans le document ODF généré
 void DocDesigner::exportToOdf(QString pathfilename)
 {
+
     QTextDocumentWriter writer(pathfilename);
-    if (!pathfilename.endsWith(".odf")) {
-        pathfilename.append(".odf");
+    if (!pathfilename.endsWith(".odt")) {
+        pathfilename.append(".odt");
     }
     writer.setFormat("odf");
-    writer.write(textEdit->document());
+    writer.write(this);
+}
+
+// ________________________________________________________
+void DocDesigner::textColor(QColor col)
+{
+    QTextCharFormat fmt;
+    fmt.setForeground(col);
+    m_text_cursor.mergeCharFormat(fmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textBold(bool bold)
+{
+    QTextCharFormat fmt;
+    fmt.setFontWeight(bold ? QFont::Bold : QFont::Normal);
+    m_text_cursor.mergeCharFormat(fmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textUnderline(bool underline)
+{
+    QTextCharFormat fmt;
+    fmt.setFontUnderline(underline);
+    m_text_cursor.mergeCharFormat(fmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textItalic(bool italic)
+{
+    QTextCharFormat fmt;
+    fmt.setFontItalic(italic);
+    m_text_cursor.mergeCharFormat(fmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textFamily(const QString &f)
+{
+    QTextCharFormat fmt;
+    fmt.setFontFamily(f);
+    m_text_cursor.mergeCharFormat(fmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textSize(qreal pointSize)
+{
+    if (pointSize > 0) {
+        QTextCharFormat fmt;
+        fmt.setFontPointSize(pointSize);
+        m_text_cursor.mergeCharFormat(fmt);
+    }
+}
+
+// ________________________________________________________
+void DocDesigner::textAlign(Qt::Alignment align)
+{
+    QTextBlockFormat blockFmt = m_text_cursor.blockFormat();
+    blockFmt.setAlignment(align);
+    m_text_cursor.mergeBlockFormat(blockFmt);
+}
+
+// ________________________________________________________
+void DocDesigner::textIndent(int indent)
+{
+    QTextBlockFormat blockFmt = m_text_cursor.blockFormat();
+    blockFmt.setIndent(indent);
+    m_text_cursor.mergeBlockFormat(blockFmt);
 }

@@ -1,13 +1,30 @@
 #ifndef _DOC_DESIGNER_H_
 #define _DOC_DESIGNER_H_
 
-#include "htmltexteditor.h"
+#include <QTextDocument>
+#include <QColor>
+#include <QTextListFormat>
+#include <QTextCursor>
 
 /*
   Classe d'aide à la création de documents.
   Cette classe permet de créer des titres, des chapitres, des tableaux, du texte, du texte sur puces, des images.
   La police du texte peut être sélectionnée (taille, couleur, gras, ...), l'alignement des objets également.
   Le document est construit au fur et à mesure et peut être visualisé, exporté en html, exporté en PDF.
+
+  Il est possible d'ajouter :
+    - Des titres
+    - Des chapitres (3 niveaux possibles)
+    - Du texte simple
+    - Des images
+    - Des listes à puces
+    - Des listes numérotées
+    - Des tableaux
+    - Des indentations
+
+  Pour assembler des portions de documents ou créer des documents complexes, il est également possible :
+    - D'ajouter des blocs html
+    - De concaténer le document avec un autre document DocDesigner
 
   Les images peuvent provenir soit de fichiers, soit de widgets Qt. Il est ainsi possible d'inclure dans le document
    la copie d'écran d'une fenêtre affichée à l'utilisateur.
@@ -26,7 +43,6 @@
   - Exemple d'utilisation :
 
   DocDesigner m_doc_designer;
-  m_doc_designer.show();
 
   m_doc_designer.setAlign(Qt::AlignHCenter);
   m_doc_designer.appendPicture(":/icons/bloc_note.png", 2.5);
@@ -120,13 +136,14 @@
     - Pour les images, il peut y avoir un effet de compression sur l'affichage, que l'on ne retrouve pas dans le document généré au format html ou pdf.
     - Dans le document généré au format .odf, les images sont absentes.
     - Il peut y avoir quelques petites différences de rendu en fonction du format exporté (pdf, html, odf).
+    - En pratique, le meilleur rendu est obtenu lorsque le document est exporté au format pdf.
 */
 
 class DocFont
 {
 public:
-    DocFont(QString family, qreal size, bool bold=false, bool italic=false, bool underline=false, QColor color=Qt::black, Qt::Alignment align=Qt::AlignLeft | Qt::AlignAbsolute)
-        : m_family(family), m_size(size), m_bold(bold), m_italic(italic), m_underline(underline), m_color(color), m_align(align)
+    DocFont(QString family, qreal size, bool bold=false, bool italic=false, bool underline=false, QColor color=Qt::black, Qt::Alignment align=Qt::AlignLeft | Qt::AlignAbsolute, int indent=0)
+        : m_family(family), m_size(size), m_bold(bold), m_italic(italic), m_underline(underline), m_color(color), m_align(align), m_indent(indent)
     { }
 
     QString         m_family;
@@ -136,13 +153,14 @@ public:
     bool            m_underline;
     QColor          m_color;
     Qt::Alignment   m_align;
+    int             m_indent;
 };
 
-class DocDesigner : public HtmlTextEditor
+class DocDesigner : public QTextDocument
 {
     Q_OBJECT
 public:
-    explicit DocDesigner(QWidget *parent = 0);
+    explicit DocDesigner(QObject *parent = 0);
 
 public slots:
     void setDefaultFont();
@@ -150,17 +168,19 @@ public slots:
     QString getDefaultFamilyFont();
     void setFont(const DocFont& font);
     void setAlign(Qt::Alignment align);
+    void setIndent(int indent);
 
     void appendText(QString text, bool final_crlf=true);
     void appendText(QString text, const DocFont& font, bool final_crlf=true);
     void appendCRLF(unsigned int number=1);
     void appendDocTitle(QString text);
-    void appendChapterTitle(int level, QString title, bool final_crlf=false);
-    void appendBulletList(QStringList lst, QTextListFormat::Style style=QTextListFormat::ListDisc);
+    void appendChapterTitle(int level, QString title, bool before_crlf=true, bool final_crlf=false);
+    void appendBulletList(QStringList lst, QString bullet_char="-", int indent=-1);
+    void appendNumList(QStringList lst, int start_num=1, int indent=-1);
     void appendTable(QVector<QStringList> rows);
-    void appendPicture(QString pathfilename, double scale=1.0, bool final_crlf=true);
-    void appendPicture(const QImage& image, double scale=1.0, bool final_crlf=true);
-    void appendWidget(QWidget* wdgt, double scale=1.0, bool final_crlf=true);
+    void appendPicture(QString pathfilename, double width=-1., double height=-1., bool final_crlf=true, Qt::Alignment align=Qt::AlignCenter);
+    void appendPicture(const QImage& image, double width=-1., double height=-1., bool final_crlf=true, Qt::Alignment align=Qt::AlignCenter);
+    void appendWidget(QWidget* wdgt, double width=-1., double height=-1., bool final_crlf=true, Qt::Alignment align=Qt::AlignCenter);
     void appendDoc(DocDesigner *doc);
     void appendHtml(QString html);
 
@@ -179,6 +199,19 @@ private :
 
     DocFont m_default_font;
     DocFont m_current_font;
+
+    QTextCursor m_text_cursor;
+
+    void textColor(QColor col);
+    void textBold(bool bold);
+    void textUnderline(bool underline);
+    void textItalic(bool italic);
+    void textFamily(const QString &f);
+    void textSize(qreal pointSize);
+    void textAlign(Qt::Alignment align);
+    void textIndent(int indent);
+
+    void dropImage(const QImage& image, const QString& format, double width=0., double height=0.);
 };
 
 #endif // _DOC_DESIGNER_H_
