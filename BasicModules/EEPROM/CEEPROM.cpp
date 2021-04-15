@@ -51,7 +51,11 @@ void CEEPROM::init(CApplication *application)
   pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
   m_settings = new QSettings(pathfilename, QSettings::IniFormat);
   m_settings->setIniCodec("UTF-8");
-  m_application->m_print_view->print_debug(this, "Fichier EEPROM = " + pathfilename);
+
+  if (m_application->m_print_view) {
+      connect(this, SIGNAL(print_debug(CModule*,QString)), m_application->m_print_view, SLOT(print_debug(CModule*,QString)));
+  }
+  emit print_debug(this, "Fichier EEPROM = " + pathfilename);
 
   m_initialized = true;
 }
@@ -76,7 +80,7 @@ void CEEPROM::write(QString section, QString param, QVariant val)
   m_mutex.lock();
   m_settings->setValue(completname, val);
   m_mutex.unlock();
-  m_application->m_print_view->print_debug(this, "Ecriture du parametre: " + completname + " = " + val.toString());
+  emit print_debug(this, "Ecriture du parametre: " + completname + " = " + val.toString());
 }
 
 // _____________________________________________________________________
@@ -115,7 +119,7 @@ QVariant CEEPROM::read(QString section, QString param, QVariant def_val)
   m_mutex.lock();
   val = m_settings->value(completname, def_val);
   m_mutex.unlock();
-  m_application->m_print_view->print_debug(this, "Lecture du parametre: " + completname + " = " + val.toString());
+  emit print_debug(this, "Lecture du parametre: " + completname + " = " + val.toString());
   return(val);
 }
 
@@ -131,11 +135,6 @@ QVariant CEEPROM::read(QString param, QVariant def_val)
 {
  return(read("", param, def_val));
 }
-
-
-
-
-
 
 
 /*! @} */

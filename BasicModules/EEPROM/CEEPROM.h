@@ -24,7 +24,7 @@ class CEEPROM : public CBasicModule
     Q_OBJECT
 
 private :
-#define     VERSION_EEPROM         "1.0"
+#define     VERSION_EEPROM         "1.1"
 #define     AUTEUR_EEPROM          "Nico"
 #define     INFO_EEPROM            "Gestionnaire de la sauvegarde des paramètres de configuration"
 
@@ -48,6 +48,9 @@ private:
 
     //! Indique si l'initialisation du module à déjà étét faite
     bool m_initialized;
+
+signals:
+    void print_debug(CModule *module, QString msg);
 
 };
 
