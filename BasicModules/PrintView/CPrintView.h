@@ -40,20 +40,13 @@ class CPrintView : public CBasicModule
     Q_OBJECT
 
 private :
-#define     VERSION         "1.0"
+#define     VERSION         "1.1"
 #define     AUTEUR          "Nico"
 #define     INFO            "Logger de traces"
 
 public:
     CPrintView(const char *plugin_name);
     ~CPrintView();
-
-    void print(QString msg);
-    void print(CModule *module, QString msg, unsigned long type_trace);
-    void print_error(CModule *module, QString msg)    { print(module, msg, MSG_ERREUR); }
-    void print_warning(CModule *module, QString msg)  { print(module, msg, MSG_WARNING); }
-    void print_info(CModule *module, QString msg)     { print(module, msg, MSG_INFO); }
-    void print_debug(CModule *module, QString msg)    { print(module, msg, MSG_DEBUG); }
 
     virtual void init(CApplication *application);
     virtual void close(void);
@@ -74,6 +67,12 @@ public slots :
     void enregistreTrace(void);
     //void setVisible(void);
 
+    void print(QString msg);
+    void print(CModule *module, QString msg, unsigned long type_trace);
+    void print_error(CModule *module, QString msg)    { print(module, msg, MSG_ERREUR); }
+    void print_warning(CModule *module, QString msg)  { print(module, msg, MSG_WARNING); }
+    void print_info(CModule *module, QString msg)     { print(module, msg, MSG_INFO); }
+    void print_debug(CModule *module, QString msg)    { print(module, msg, MSG_DEBUG); }
 };
 
 #endif // _CTRACE_LOGGER_H_
