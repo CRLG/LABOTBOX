@@ -83,11 +83,11 @@ bool csvParser::parse(const QString& pathfilename, csvData& out_data, QStringLis
     int line_num = 0;
     QString line;
     //int found_columns_on_first_line;
+    int num_of_columns_expected = 0;
     while ((line = in.readLine()) != NULL) {
       line_num++;
       QStringList split_line = line.split(m_separator);
       int found_columns = split_line.size();
-      int num_of_columns_expected;
       // The number of columns found on first line becomes the reference to compare with each lines
       if (line_num == 1) {
          if (m_num_of_columns_expected == -1) num_of_columns_expected = found_columns; // auto-detect
