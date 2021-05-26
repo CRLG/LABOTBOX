@@ -26,6 +26,15 @@ DocDesigner::DocDesigner(QObject*parent)
 }
 
 // ________________________________________________________
+void DocDesigner::clear()
+{
+    m_current_chapter_level_1 = 0;
+    m_current_chapter_level_2 = 0;
+    m_current_chapter_level_3 = 0;
+    QTextDocument::clear();
+}
+
+// ________________________________________________________
 QString DocDesigner::getDefaultFamilyFont()
 {
     return m_default_font.m_family;

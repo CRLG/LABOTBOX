@@ -162,6 +162,8 @@ class DocDesigner : public QTextDocument
 public:
     explicit DocDesigner(QObject *parent = 0);
 
+    /*virtual*/ void clear();
+
 public slots:
     void setDefaultFont();
     void setDefaultFont(const DocFont& font);
