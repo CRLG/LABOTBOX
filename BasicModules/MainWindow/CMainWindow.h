@@ -85,7 +85,9 @@ public:
     // Fournit l'accès à la barre de menu pour qu'un module puisse ajouter des menus, actions, ... en fonction du besoin
     QMenuBar    *getMenuBar(void)   { return(m_ihm.menuBar()); }
     QStatusBar  *getStatusBar(void) { return(m_ihm.statusBar()); }
-    QMenu       *getMenu(QString name); // TODO à implémenter
+    QMenu       *getMenu(QString name);
+    QMenu       *getExistingMenu(QString name);
+
 private:
     Cihm_main_window m_ihm;
 

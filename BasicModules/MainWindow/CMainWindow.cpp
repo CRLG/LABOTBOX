@@ -122,23 +122,48 @@ void  CMainWindow::InfoModules(void)
 
 // _____________________________________________________________________
 /*!
+*   Renvoie un pointeur sur le menu s'il existe ou null sinon
 *
+*/
+QMenu *CMainWindow::getExistingMenu(QString name)
+{
+    tListeMenu::iterator it1 = m_liste_menu.find(name);
+    if (it1 != m_liste_menu.end()) {
+        return it1.value();
+    }
+    return nullptr;
+}
+
+// _____________________________________________________________________
+/*!
+*  Crée le menu s'il n'existe pas
+*  Exemple :    BasicModule         -> Créé le menu BasicModule
+*               BasicModule/Data    -> Crée le menu BasicModule et le sous menu Data en dessous
+*               N1/N2/N3            -> Crée le menu N1, son sous module N2 et un sous module N3 de N2
 *
 */
 QMenu *CMainWindow::getMenu(QString name)
 {
- QMenu *menu;
+    // Le menu existe déjà
+    QMenu *menu = getExistingMenu(name);
+    if (menu) return menu;
 
- tListeMenu::iterator it1 = m_liste_menu.find(name);
- if (it1 != m_liste_menu.end()) {
-    menu = it1.value();
- }
- else {
-     // crï¿½e le menu s'il n'exite pas
-     menu = m_ihm.menuBar()->addMenu(name);
-     m_liste_menu.insert(name, menu); // ajoute le nouveau menu ï¿½ la liste
- }
- return(menu);
+    QStringList split_names = name.split("/");
+    QString tree_name="";
+    QMenu *parent_menu=nullptr;
+    for (int i=0; i < split_names.size(); i++) {
+        if (i != 0) tree_name.append("/");
+        tree_name.append(split_names.at(i));
+
+        menu = getExistingMenu(tree_name);
+        if (!menu) { // Le menu n'existe pas encore -> le créé
+            if (i==0)               menu = m_ihm.menuBar()->addMenu(split_names.at(i));   // le menu de plus haut niveau s'attache à la barre principale
+            else if (parent_menu)   menu = parent_menu->addMenu(split_names.at(i));       // les sous-menus s'attachent au menu parent
+        }
+        parent_menu = menu;
+        m_liste_menu.insert(tree_name, menu); // ajoute le nouveau menu à la liste
+    }
+    return(menu);
 }
 
 
