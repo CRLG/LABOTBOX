@@ -1,6 +1,6 @@
 #ifndef VIDEO_THREAD_H
 #define VIDEO_THREAD_H
-
+//CBY
 #include <QObject>
 #include <QThread>
 #include <QImage>
