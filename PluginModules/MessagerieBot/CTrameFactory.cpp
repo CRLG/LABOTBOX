@@ -87,6 +87,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_SERVO_AX(m_messagerie_bot, m_data_manager));
  // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -3017,6 +3018,46 @@ void CTrame_MBED_ETAT::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write("Valeur_mbed_etat_03", Valeur_mbed_etat_03);
    m_data_manager->write("Valeur_mbed_etat_04", Valeur_mbed_etat_04);
    m_data_manager->write("Code_mbed_etat", Cde_mbed_etat);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME ETAT_SERVO_AX
+// ========================================================
+CTrame_ETAT_SERVO_AX::CTrame_ETAT_SERVO_AX(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_SERVO_AX";
+ m_id = ID_ETAT_SERVO_AX;
+ m_dlc = DLC_ETAT_SERVO_AX;
+
+ // Cas particulier pour les servos AX.
+ // Les données dans le DataManager sont renseignées au fur et à mesure de l'arrivée des messages.
+ // Car le nom des data contiennent le numéro du servo et Labotbox ne connais pas à priori les
+ // ID des servos utilisés dans l'application embarquée.
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_SERVO_AX::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+
+   num_servo_ax = (trameRecue->Data[0]);
+   position = ( ( ((unsigned short)(trameRecue->Data[2])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) << 8 );
+   temperature = (trameRecue->Data[3]);
+   couple = ( ( ((unsigned short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) << 8 );
+   mouvement_en_cours = (trameRecue->Data[6]);
+
+   // Envoie les données au data manager
+   m_data_manager->write(QString("ServoAX_%1.Position").arg(num_servo_ax), position);
+   m_data_manager->write(QString("ServoAX_%1.Temperature").arg(num_servo_ax), temperature);
+   m_data_manager->write(QString("ServoAX_%1.Torque").arg(num_servo_ax), couple);
+   m_data_manager->write(QString("ServoAX_%1.Moving").arg(num_servo_ax), mouvement_en_cours);
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

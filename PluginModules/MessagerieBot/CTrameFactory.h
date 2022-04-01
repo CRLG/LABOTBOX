@@ -1189,6 +1189,31 @@ public :
 
 private slots :
 };
+
+
+// ========================================================
+//             TRAME ETAT_SERVO_AX
+// ========================================================
+#define ID_ETAT_SERVO_AX 0x97
+#define DLC_ETAT_SERVO_AX 8
+class CTrame_ETAT_SERVO_AX : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_SERVO_AX(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_SERVO_AX() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    unsigned char num_servo_ax;
+    unsigned short position;
+    unsigned char temperature;
+    unsigned short couple;
+    unsigned char mouvement_en_cours;
+
+private slots :
+};
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
