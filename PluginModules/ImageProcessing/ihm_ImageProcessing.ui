@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tabControles">
      <attribute name="title">
@@ -240,7 +240,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="8" column="2">
-       <widget class="QLed" name="cam_status">
+       <widget class="QLed" name="cam_status" native="true">
         <property name="minimumSize">
          <size>
           <width>31</width>
@@ -259,7 +259,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
         </property>
        </widget>
@@ -272,7 +272,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="9" column="2">
-       <widget class="QLed" name="work_status">
+       <widget class="QLed" name="work_status" native="true">
         <property name="minimumSize">
          <size>
           <width>31</width>
@@ -291,7 +291,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
         </property>
        </widget>
@@ -400,8 +400,8 @@ is neceassary)</string>
       <string>Balise</string>
      </attribute>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_6">
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_15">
         <property name="maximumSize">
          <size>
           <width>110</width>
@@ -409,12 +409,28 @@ is neceassary)</string>
          </size>
         </property>
         <property name="text">
-         <string>robot_1 dist</string>
+         <string>tag aruco 2 -&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="rob1_dist">
+      <item row="1" column="5">
+       <widget class="QSpinBox" name="aruco_tag2">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="fps">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -438,19 +454,6 @@ is neceassary)</string>
         </property>
         <property name="maximum">
          <double>1000000000000000019884624838656.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_10">
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>robot_1 angle</string>
         </property>
        </widget>
       </item>
@@ -491,38 +494,103 @@ is neceassary)</string>
          </size>
         </property>
         <property name="text">
-         <string>tag aruco -&gt;</string>
+         <string>tag aruco 1 -&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
-       <widget class="QSpinBox" name="spinBox">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>robot_3 dist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="rob3_dist">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>30</width>
+          <width>0</width>
           <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>50</width>
+          <width>69</width>
           <height>25</height>
          </size>
         </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="minimum">
+         <double>-999999999999999983222784.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000000000000000019884624838656.000000000000000</double>
+        </property>
        </widget>
       </item>
-      <item row="0" column="6" rowspan="6">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_12">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="maximumSize">
          <size>
-          <width>94</width>
-          <height>498</height>
+          <width>110</width>
+          <height>25</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string>robot_3 angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="rob3_angle">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>69</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="minimum">
+         <double>-999999999999999983222784.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000000000000000019884624838656.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_4">
@@ -562,6 +630,90 @@ is neceassary)</string>
         </property>
         <property name="maximum">
          <double>1000000000000000019884624838656.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QSpinBox" name="aruco_size">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="6">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>548</width>
+          <height>399</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="5">
+       <widget class="QSpinBox" name="aruco_tag1">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6" rowspan="5">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>94</width>
+          <height>498</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="4">
+       <widget class="QLabel" name="label_16">
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>size aruco -&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>robot_1 dist</string>
         </property>
        </widget>
       </item>
@@ -606,50 +758,8 @@ is neceassary)</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
-       <widget class="QLabel" name="label_15">
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>tag aruco -&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="5">
-       <widget class="QSpinBox" name="spinBox_2">
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>25</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>robot_3 dist</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="rob3_dist">
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="rob1_dist">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -676,8 +786,8 @@ is neceassary)</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_12">
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_10">
         <property name="maximumSize">
          <size>
           <width>110</width>
@@ -685,64 +795,7 @@ is neceassary)</string>
          </size>
         </property>
         <property name="text">
-         <string>robot_3 angle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="rob3_angle">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>69</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="minimum">
-         <double>-999999999999999983222784.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>1000000000000000019884624838656.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QLabel" name="label_16">
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>tag aruco -&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="5">
-       <widget class="QSpinBox" name="spinBox_3">
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>25</height>
-         </size>
+         <string>robot_1 angle</string>
         </property>
        </widget>
       </item>
@@ -758,111 +811,6 @@ is neceassary)</string>
          <string>FPS</string>
         </property>
        </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="fps">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>69</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="minimum">
-         <double>-999999999999999983222784.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>1000000000000000019884624838656.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_21">
-        <property name="text">
-         <string>NORD</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLed" name="qLed_Nord">
-        <property name="minimumSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Binary Led</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="label_22">
-        <property name="text">
-         <string>SUD</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLed" name="qLed_Sud">
-        <property name="minimumSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Binary Led</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="6">
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>548</width>
-          <height>399</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -1168,7 +1116,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="6" column="7">
-       <widget class="QLed" name="qLed_Nord_2">
+       <widget class="QLed" name="qLed_Nord_2" native="true">
         <property name="minimumSize">
          <size>
           <width>25</width>
@@ -1187,7 +1135,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
         </property>
        </widget>
@@ -1215,7 +1163,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="6" column="9">
-       <widget class="QLed" name="qLed_Sud_2">
+       <widget class="QLed" name="qLed_Sud_2" native="true">
         <property name="minimumSize">
          <size>
           <width>25</width>
@@ -1234,7 +1182,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
         </property>
        </widget>
@@ -1310,7 +1258,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="9" column="0">
-       <widget class="QLed" name="qLed_gob_01">
+       <widget class="QLed" name="qLed_gob_01" native="true">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1329,22 +1277,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
         </property>
        </widget>
       </item>
       <item row="9" column="1">
-       <widget class="QLed" name="qLed_gob_02">
+       <widget class="QLed" name="qLed_gob_02" native="true">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1363,22 +1302,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
         </property>
        </widget>
       </item>
       <item row="9" column="2">
-       <widget class="QLed" name="qLed_gob_03">
+       <widget class="QLed" name="qLed_gob_03" native="true">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1397,22 +1327,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
         </property>
        </widget>
       </item>
       <item row="9" column="3">
-       <widget class="QLed" name="qLed_gob_04">
+       <widget class="QLed" name="qLed_gob_04" native="true">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1431,22 +1352,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
         </property>
        </widget>
       </item>
       <item row="9" column="4">
-       <widget class="QLed" name="qLed_gob_05">
+       <widget class="QLed" name="qLed_gob_05" native="true">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1465,17 +1377,8 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
         </property>
        </widget>
       </item>

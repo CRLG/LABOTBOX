@@ -33,7 +33,6 @@ CImageProcessing::CImageProcessing(const char *plugin_name)
     connect(m_ihm.ui.init_thread, SIGNAL(released()), this, SLOT(initVideoThread()));
     connect(m_ihm.ui.kill_thread, SIGNAL(released()), this, SLOT(killVideoThread()));
     connect(m_ihm.ui.active_debug, SIGNAL(stateChanged(int)), this, SLOT(activeDebug(int)));
-
 }
 
 
@@ -64,7 +63,7 @@ void CImageProcessing::init(CApplication *application)
     connect(&m_ihm, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicGUI(QPoint)));
 
     // Restore la taille de la fenêtre
-    QVariant val;
+    QVariant val,val2,val3;
     val = m_application->m_eeprom->read(getName(), "geometry", QRect(50, 50, 150, 150));
     m_ihm.setGeometry(val.toRect());
     // Restore le fait que la fenêtre est visible ou non
@@ -88,16 +87,33 @@ void CImageProcessing::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "auto_on", QVariant(false));
     m_auto_on=val.toBool();
     m_ihm.ui.chck_asBeacon->setChecked(m_auto_on);
-
+    // active debug mémorisé CBY
+    val = m_application->m_eeprom->read(getName(), "debug_active", QVariant(false));
+    if (val.toBool())
+        m_ihm.ui.active_debug->setEnabled(true);
+    else
+        m_ihm.ui.active_debug->setEnabled(false);
+    // les data Aruco
+    val = m_application->m_eeprom->read(getName(),"taille_aruco_lat",QVariant(45));
+    m_ihm.ui.aruco_size->setValue(val.toInt());
+    val = m_application->m_eeprom->read(getName(),"tag1_aruco_lat",QVariant(91));
+    m_ihm.ui.aruco_tag1->setValue(val.toInt());
+    val = m_application->m_eeprom->read(getName(),"tag2_aruco_lat",QVariant(92));
+    m_ihm.ui.aruco_tag2->setValue(val.toInt());
     /*
-    VIDEO_PROCESS_BALISE_MAT = 0,
-    VIDEO_PROCESS_NORD_SUD,
+    VIDEO_PROCESS_BALISE_MAT = 0
+    VIDEO_PROCESS_BALISE_LATERALE
+    VIDEO_PROCESS_CAM_ROBOT
     VIDEO_PROCESS_SEQUENCE_COULEUR
-    VIDEO_PROCESS_CALIBRATION*/
+    VIDEO_PROCESS_CALIBRATION*/ //CBY
     QStringList str_list_algo;
-    str_list_algo << "MAT BALISE" << "RECO NORD SUD" << "SEQUENCE COULEURS" <<"CALIBRATION";
+    str_list_algo << "MAT BALISE" << "BALISE LATERALE" << "CAMERA ROBOT"  <<"CALIBRATION" ;
     m_ihm.ui.list_algo->clear();
     m_ihm.ui.list_algo->addItems(str_list_algo);
+
+    // le type de traitement video
+    val = m_application->m_eeprom->read(getName(), "algo_video", QVariant(0));
+    m_ihm.ui.list_algo->setCurrentIndex(val.toInt());//CBY
 
     connect(m_ihm.ui.pB_setCharuco,SIGNAL(clicked(bool)),this,SLOT(setCharucoCalibration()));
     connect(m_ihm.ui.pB_getCharuco,SIGNAL(clicked(bool)),this,SLOT(getCharucoCalibration()));
@@ -112,9 +128,9 @@ void CImageProcessing::init(CApplication *application)
     m_application->m_data_center->write("Camera.Robot1_Teta",  -32000);
     m_application->m_data_center->write("Camera.Robot2_Dist",  -32000);
     m_application->m_data_center->write("Camera.Robot2_Teta",  -32000);
-    m_application->m_data_center->write("Camera.Nord",  0);
-    m_application->m_data_center->write("Camera.Sud",  0);
-    m_application->m_data_center->write("Camera.ColorSequence", 0);
+//    m_application->m_data_center->write("Camera.Nord",  0);//
+//    m_application->m_data_center->write("Camera.Sud",  0);
+//    m_application->m_data_center->write("Camera.ColorSequence", 0);
     m_application->m_data_center->write("Camera.VideoActive", 0);
     m_application->m_data_center->write("Code_mbed_etat", 1);
 
@@ -125,8 +141,8 @@ void CImageProcessing::init(CApplication *application)
     refresh_camera_list();
 
     //compteurs NordSud pour filtrage si besoin
-    m_compteur_Nord=0;
-    m_compteur_Sud=0;
+//    m_compteur_Nord=0;
+//    m_compteur_Sud=0;
 
     if(m_auto_on)
     {
@@ -153,6 +169,11 @@ void CImageProcessing::close(void)
   m_auto_on=m_ihm.ui.chck_asBeacon->isChecked();
   m_application->m_eeprom->write(getName(), "auto_on", QVariant(m_auto_on));
   m_application->m_eeprom->write(getName(), "record", QVariant(m_record));
+  m_application->m_eeprom->write(getName(), "debug_active", QVariant(m_ihm.ui.active_debug->isChecked()));
+  m_application->m_eeprom->write(getName(), "algo_video", QVariant(m_ihm.ui.list_algo->currentIndex())); //CBY
+  m_application->m_eeprom->write(getName(), "tag1_aruco_lat", QVariant(m_ihm.ui.aruco_tag1->value())); //CBY
+  m_application->m_eeprom->write(getName(), "tag2_aruco_lat", QVariant(m_ihm.ui.aruco_tag2->value())); //CBY
+  m_application->m_eeprom->write(getName(), "taille_aruco_lat", QVariant(m_ihm.ui.aruco_size->value())); //CBY
 
 }
 
@@ -280,18 +301,18 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     }
 
     float angle1=result.value[IDX_ROBOT1_ANGLE];
-    float ratio1=getLensRatio(result.value[IDX_ROBOT1_ANGLE]);
+    float ratio1=0.1;//getLensRatio(result.value[IDX_ROBOT1_ANGLE]);
     int distance1=floorf(10*ratio1*result.value[IDX_ROBOT1_DIST]); //en mm
     m_ihm.ui.rob1_dist->setValue(distance1);
     m_ihm.ui.rob1_angle->setValue(angle1);
 
     float angle2=result.value[IDX_ROBOT2_ANGLE];
-    float ratio2=getLensRatio(result.value[IDX_ROBOT2_ANGLE]);
+    float ratio2=0.1;//getLensRatio(result.value[IDX_ROBOT2_ANGLE]);
     float distance2=floorf(10*ratio2*result.value[IDX_ROBOT2_DIST]); //en mm
     m_ihm.ui.rob2_dist->setValue(distance2);
     m_ihm.ui.rob2_angle->setValue(angle2);
 
-    m_ihm.ui.rob3_dist->setValue(result.value[IDX_ROBOT3_DIST]);
+/*    m_ihm.ui.rob3_dist->setValue(result.value[IDX_ROBOT3_DIST]);
     m_ihm.ui.rob3_angle->setValue(result.value[IDX_ROBOT3_ANGLE]);
 
     m_ihm.ui.qLed_Nord->setValue(((result.value[IDX_NORD]==1.)?true:false));
@@ -300,12 +321,12 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_compteur_Nord=m_compteur_Nord+result.value[IDX_NORD];
     m_compteur_Sud=m_compteur_Sud+result.value[IDX_SUD];
 
+*/
 
+ //   m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
+ //   m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
 
-    m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
-    m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
-
-    int iG=Qt::green;
+/*    int iG=Qt::green;
     int iR=Qt::red;
     switch((int)result.value[IDX_SEQUENCE])
     {
@@ -334,15 +355,16 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             showResultGobelets(0,0,0,0,0);
             break;
     }
-
+*/
     m_ihm.ui.fps->setValue(result.m_fps);
 
     //Mise à jour des informations en fonction de l'algo
     switch(m_ihm.ui.list_algo->currentIndex())
     {
         case VIDEO_PROCESS_BALISE_MAT:
+        case VIDEO_PROCESS_CAM_ROBOT:
             //Robot 1
-            m_application->m_data_center->write("Camera.Robot1_Dist",  distance1/10);
+            m_application->m_data_center->write("Camera.Robot1_Dist",  distance1/10); // en cm?
             m_application->m_data_center->write("Camera.Robot1_Teta",  angle1);
 
             //Robot 2
@@ -359,21 +381,7 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
         break;
 
-        case VIDEO_PROCESS_NORD_SUD:
-            m_application->m_data_center->write("Camera.Nord", ((result.value[IDX_NORD]==1.)?1:0));
-            m_application->m_data_center->write("Camera.Sudd", ((result.value[IDX_SUD]==1.)?1:0));
-
-            //envoi de l'info au mbed
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 1);
-            m_application->m_data_center->write("valeur_mbed_cmde_01", 0);
-            m_application->m_data_center->write("valeur_mbed_cmde_02", 0);
-            m_application->m_data_center->write("valeur_mbed_cmde_03", ((result.value[IDX_NORD]==1.)?1:0));
-            m_application->m_data_center->write("valeur_mbed_cmde_04", ((result.value[IDX_SUD]==1.)?1:0));
-            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_NORD_SUD );
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
-        break;
-
-        case VIDEO_PROCESS_SEQUENCE_COULEUR:
+/*        case VIDEO_PROCESS_SEQUENCE_COULEUR:
             m_application->m_data_center->write("Camera.ColorSequence", result.value[IDX_SEQUENCE]);
 
             //envoi de l'info au mbed
@@ -384,7 +392,7 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("valeur_mbed_cmde_04", 0);
             m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE_COULEUR );
             m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
-        break;
+        break;*/
 
         default: break;
     }
@@ -467,8 +475,8 @@ void CImageProcessing::killVideoThread()
     m_video_worker_thread.quit();
     m_video_worker_thread.wait();
 
-    delete m_video_worker;
-    m_video_worker = NULL;
+    //delete m_video_worker; // CBY pas propre mais ça fait planter Labotbox si on le laisse
+    //m_video_worker = NULL; // CBY pareil
     m_application->m_data_center->write("Camera.VideoActive", 0);
 
     bool state = false;
@@ -496,6 +504,9 @@ void CImageProcessing::startVideoWork(void)
     param.value[IDX_PARAM_PURETE_ROUGE]=m_ihm.ui.pureteRouge->value();
     param.value[IDX_PARAM_PIXEL_MIN]=m_ihm.ui.pixelMin->value();
     param.value[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
+    param.value[IDX_PARAM_ARUCO_TAILLE]=m_ihm.ui.aruco_size->value();
+    param.value[IDX_PARAM_ARUCO_TAG1]=m_ihm.ui.aruco_tag1->value();
+    param.value[IDX_PARAM_ARUCO_TAG2]=m_ihm.ui.aruco_tag2->value();
     param.record=m_record;
 
     if(m_ihm.ui.list_algo->currentIndex()==VIDEO_PROCESS_CALIBRATION)
@@ -532,6 +543,11 @@ void CImageProcessing::activeDebug(int state)
     bool on_off=(state==Qt::Checked?true:false);
     if (m_video_worker) m_video_worker->activeDebug(on_off);
 }
+/*
+void CImageProcessing::arucoValues(int v)
+{
+    if (m_video_worker) m_video_worker->setArucoValues(m_ihm.ui.aruco_size->value(),m_ihm.ui.aruco_tag1->value(),m_ihm.ui.aruco_tag2->value());
+}*/
 
 void CImageProcessing::getCamState(int state)
 {
@@ -573,94 +589,6 @@ void CImageProcessing::setCalibration()
     m_video_worker->m_internal_param[IDX_PARAM_PIXEL_MAX]=m_ihm.ui.pixelMax->value();
 }
 
-void CImageProcessing::showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5)
-{
-    switch(gob1)
-    {
-     case 0:
-        m_ihm.ui.qLed_gob_01->setValue(false);
-        break;
-    case Qt::green:
-        m_ihm.ui.qLed_gob_01->setOnColor(QLed::ledColor::Green);
-        m_ihm.ui.qLed_gob_01->setValue(true);
-        break;
-    case Qt::red:
-        m_ihm.ui.qLed_gob_01->setOnColor(QLed::ledColor::Red);
-        m_ihm.ui.qLed_gob_01->setValue(true);
-        break;
-    default:
-        m_ihm.ui.qLed_gob_01->setValue(false);
-        break;
-    }
-    switch(gob2)
-    {
-     case 0:
-        m_ihm.ui.qLed_gob_02->setValue(false);
-        break;
-    case Qt::green:
-        m_ihm.ui.qLed_gob_02->setOnColor(QLed::ledColor::Green);
-        m_ihm.ui.qLed_gob_02->setValue(true);
-        break;
-    case Qt::red:
-        m_ihm.ui.qLed_gob_02->setOnColor(QLed::ledColor::Red);
-        m_ihm.ui.qLed_gob_02->setValue(true);
-        break;
-    default:
-        m_ihm.ui.qLed_gob_02->setValue(false);
-        break;
-    }
-    switch(gob3)
-    {
-     case 0:
-        m_ihm.ui.qLed_gob_03->setValue(false);
-        break;
-    case Qt::green:
-        m_ihm.ui.qLed_gob_03->setOnColor(QLed::ledColor::Green);
-        m_ihm.ui.qLed_gob_03->setValue(true);
-        break;
-    case Qt::red:
-        m_ihm.ui.qLed_gob_03->setOnColor(QLed::ledColor::Red);
-        m_ihm.ui.qLed_gob_03->setValue(true);
-        break;
-    default:
-        m_ihm.ui.qLed_gob_03->setValue(false);
-        break;
-    }
-    switch(gob4)
-    {
-     case 0:
-        m_ihm.ui.qLed_gob_04->setValue(false);
-        break;
-    case Qt::green:
-        m_ihm.ui.qLed_gob_04->setOnColor(QLed::ledColor::Green);
-        m_ihm.ui.qLed_gob_04->setValue(true);
-        break;
-    case Qt::red:
-        m_ihm.ui.qLed_gob_04->setOnColor(QLed::ledColor::Red);
-        m_ihm.ui.qLed_gob_04->setValue(true);
-        break;
-    default:
-        m_ihm.ui.qLed_gob_04->setValue(false);
-        break;
-    }
-    switch(gob5)
-    {
-     case 0:
-        m_ihm.ui.qLed_gob_05->setValue(false);
-        break;
-    case Qt::green:
-        m_ihm.ui.qLed_gob_05->setOnColor(QLed::ledColor::Green);
-        m_ihm.ui.qLed_gob_05->setValue(true);
-        break;
-    case Qt::red:
-        m_ihm.ui.qLed_gob_05->setOnColor(QLed::ledColor::Red);
-        m_ihm.ui.qLed_gob_05->setValue(true);
-        break;
-    default:
-        m_ihm.ui.qLed_gob_05->setValue(false);
-        break;
-    }
-}
 
 void CImageProcessing::getCharucoCalibration()
 {

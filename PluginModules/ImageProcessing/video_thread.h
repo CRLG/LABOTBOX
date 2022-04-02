@@ -43,12 +43,12 @@ typedef struct{
 
 typedef enum {
     VIDEO_PROCESS_BALISE_MAT = 0,
-    VIDEO_PROCESS_NORD_SUD,
-    VIDEO_PROCESS_SEQUENCE_COULEUR,
+    VIDEO_PROCESS_BALISE_LATERALE,
+    VIDEO_PROCESS_CAM_ROBOT,
     VIDEO_PROCESS_CALIBRATION
-}tVideoProcessAlgoType;
+}tVideoProcessAlgoType; //CBY
 
-typedef enum {
+/*typedef enum {
     SEQUENCE_UNKNOWN=0,
     SEQUENCE_GRGGR,
     SEQUENCE_GRRGR,
@@ -57,7 +57,7 @@ typedef enum {
     SEQUENCE_GGGRR,
     SEQUENCE_GGRRR
 }tVideoSequence;
-
+*/
 typedef struct
 {
     tVideoProcessAlgoType video_process_algo;
@@ -88,7 +88,10 @@ typedef enum {
     IDX_PARAM_LARGEUR_FENETRE,
     IDX_PARAM_HAUTEUR_FENETRE,
     IDX_PARAM_GET_CHARUCO_FRAME,
-    IDX_PARAM_SET_CHARUCO_FRAME //16 sur 20
+    IDX_PARAM_SET_CHARUCO_FRAME, //16 sur 20
+    IDX_PARAM_ARUCO_TAILLE,
+    IDX_PARAM_ARUCO_TAG1,
+    IDX_PARAM_ARUCO_TAG2
 } tIdxParam;
 
 typedef enum {
@@ -96,11 +99,11 @@ typedef enum {
     IDX_ROBOT1_ANGLE,
     IDX_ROBOT2_DIST,
     IDX_ROBOT2_ANGLE,
-    IDX_ROBOT3_DIST,
-    IDX_ROBOT3_ANGLE,
-    IDX_NORD,
-    IDX_SUD,
-    IDX_SEQUENCE,
+//    IDX_ROBOT3_DIST,
+//    IDX_ROBOT3_ANGLE,
+//    IDX_NORD,
+//    IDX_SUD,
+//    IDX_SEQUENCE,
     IDX_CHARUCO_IS_SET//9 sur 20
 } tIdxResult;
 
@@ -126,6 +129,9 @@ private :
     int m_video_id;
     bool m_stop_work_request;
     bool m_dbg_active;
+    float m_aruco_size_lat;
+    int m_aruco_taglat_1;
+    int m_aruco_taglat_2;
 
     cv::VideoCapture * capture;
     cv::VideoWriter * record;
@@ -154,6 +160,7 @@ public slots:
     void doWork(tVideoInput parameter);
     void stopWork();
     void activeDebug(bool on_off=true);
+    void setArucoValues(int taille, int tag1, int tag2);
 
 signals:
     void resultReady(tVideoResult result,QImage imgConst);
@@ -163,8 +170,8 @@ signals:
 
 private:
     void _video_process_Balise(tVideoInput parameter);
-    void _video_process_NordSud(tVideoInput parameter);
-    void _video_process_ColorSequence(tVideoInput parameter);
+    void _video_process_CameraRobot(tVideoInput parameter);
+//    void _video_process_ColorSequence(tVideoInput parameter);
     void _video_process_Calibration(tVideoInput parameter);
     void _video_record(cv::Mat frametoRecord);
     void _video_confirm_parameters(cv::Mat frameSample);

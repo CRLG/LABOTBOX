@@ -41,8 +41,8 @@ class VideoWorker;
 class CImageProcessing : public CPluginModule
 {
     Q_OBJECT
-#define     VERSION_ImageProcessing   "1.0"
-#define     AUTEUR_ImageProcessing    "Laguiche"
+#define     VERSION_ImageProcessing   "2.0"
+#define     AUTEUR_ImageProcessing    "Bichon"
 #define     INFO_ImageProcessing      "Traitement d'images OpenCV"
 
 public:
@@ -69,9 +69,9 @@ private:
     bool m_record;
     void refresh_camera_list();
     tVideoInput getCalibrationValues();
-    void showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5);
-    int m_compteur_Nord;
-    int m_compteur_Sud;
+//    void showResultGobelets(int gob1, int gob2, int gob3, int gob4, int gob5);
+//    int m_compteur_Nord;
+//    int m_compteur_Sud;
 private slots :
     void onRightClicGUI(QPoint pos);
     void video_worker_init(int video_source_id);
@@ -95,6 +95,7 @@ public slots:
      void killVideoThread();
 
      void activeDebug(int state);
+//     void arucoValues(int v);
      void TpsMatch_changed(QVariant val);
 
 signals:

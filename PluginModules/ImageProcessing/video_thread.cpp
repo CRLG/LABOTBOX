@@ -46,11 +46,23 @@ void VideoWorker::activeDebug(bool on_off)
     m_dbg_active = on_off;
 }
 
+void VideoWorker::setArucoValues(int taille, int tag1, int tag2)
+{
+    m_aruco_size_lat = taille;
+    m_aruco_taglat_1 = tag1;
+    m_aruco_taglat_1 = tag2;
+    qDebug() << "Aruco param" << m_aruco_size_lat << m_aruco_taglat_1 << m_aruco_taglat_2 ;
+}
 // ======================================================
 // ======================================================
 bool VideoWorker::init(int video_id, QString parameter_file)
 {
     bool isInit=false;
+  //  QVariant val;
+
+   // val = m_application->m_eeprom->read(getName(), "aruco_taille", QVariant(4.5));
+   // m_aruco_size=val.toDouble();
+    qDebug() << "VideoWorker::init";// << m_aruco_size;
 
     calibrationFixParameters="%YAML:1.0 \n\
             --- \n\
@@ -80,14 +92,14 @@ bool VideoWorker::init(int video_id, QString parameter_file)
     capture= new cv::VideoCapture(m_video_id);
     if(!(capture->isOpened()))
         capture= new cv::VideoCapture(-1);
-
+    m_dbg_active = true;
     if(capture->isOpened())
     {
         int FourCC=capture->get(CV_CAP_PROP_FOURCC);
         int hasToBeConvertedRGB=capture->get(CV_CAP_PROP_CONVERT_RGB);
         int setHeight=capture->set(CV_CAP_PROP_FRAME_HEIGHT,480);
         int setWidth=capture->set(CV_CAP_PROP_FRAME_WIDTH,640);
-
+            qDebug() << "capture opened" << m_dbg_active;
         if(m_dbg_active)
         {
             unsigned char m_1_CC = FourCC;
@@ -209,12 +221,16 @@ void VideoWorker::doWork(tVideoInput parameter) {
                 _video_process_Balise(parameter);
             break;
 
-            case VIDEO_PROCESS_SEQUENCE_COULEUR :
-                _video_process_ColorSequence(parameter);
+//            case VIDEO_PROCESS_SEQUENCE_COULEUR :
+//                _video_process_ColorSequence(parameter);
+//            break;
+
+            case VIDEO_PROCESS_BALISE_LATERALE :
+               // _video_process_NordSud(parameter);
             break;
 
-            case VIDEO_PROCESS_NORD_SUD :
-                _video_process_NordSud(parameter);
+            case VIDEO_PROCESS_CAM_ROBOT : //CBY
+                _video_process_CameraRobot(parameter);
             break;
 
             case VIDEO_PROCESS_CALIBRATION :
@@ -232,6 +248,187 @@ void VideoWorker::doWork(tVideoInput parameter) {
     emit workFinished();
 }
 
+
+// ========================================================
+void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
+{
+    tVideoResult result;
+    _init_tResult(&result);
+    QTime t;
+      t.start();
+
+
+    //capture d'une image du flux video
+    capture->grab();
+
+    //récupération de l'image
+    bool captureOK=capture->retrieve(m_frame,0);
+
+    //initialisation des resultats, des fois que ça ne marche pas comme on voulait CBY
+    result.value[IDX_ROBOT1_DIST] = -32000;
+    result.value[IDX_ROBOT1_ANGLE] = -32000;
+    result.value[IDX_ROBOT2_DIST] = -32000;
+    result.value[IDX_ROBOT2_ANGLE] = -32000;
+
+    //l'image a-t-elle bien été récupérée
+    if (captureOK)
+    {
+        cv::Mat frame_converted;
+        cv::Mat3b frame_record;
+
+        //dans le cas ou la configuration de la caméra aurait mal fonctionné
+        if(!parameterConfirmed)
+            _video_confirm_parameters(m_frame);
+
+        //clone de l'image pour la persistence des données
+        m_frameCloned=m_frame.clone();
+
+        if(parameter.record)
+            _video_record(m_frame);//on enregistre le flux video
+
+        //analyse de l'image
+        cv::Mat inputImage=m_frameCloned.clone();
+
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
+        std::vector< cv::Vec3d > rvecs, tvecs;
+
+        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
+        cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
+
+
+        if (markerIds.size() > 0)
+        {
+            // variables qui servent à savoir combien on a trouvé de tag1 ou 2
+            int nb_tag1=0;
+            int nb_tag2=0;
+            //on dessine les marqueurs trouvés
+            if (m_dbg_active)
+                cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
+            //on estime leur position en 3D par rapport à la caméra
+            cv::aruco::estimatePoseSingleMarkers(markerCorners, parameter.value[IDX_PARAM_ARUCO_TAILLE], camMatrix, distCoeffs, rvecs,tvecs); //param à la place de MarkerLength
+            //tvecs[i][2] est la distance par rapport à la caméra
+            //tvecs[i][0] est la l'abscisse, centre = 0, gauche négatif, droitep ositif
+            //tvecs[i][1] est la hauteur. centre = 0, haut négatif, bas positif
+            //on donne la valeur normale à la caméra dans la console pour cahque marqueur
+            for(unsigned int i = 0; i < markerIds.size(); i++)
+            {
+                if(markerIds.at(i)==(int)(parameter.value[IDX_PARAM_ARUCO_TAG1]))
+                {
+                    if (m_dbg_active)
+                        cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
+                   // double l_center = tvecs[i][2]*TAILLE_BALISE*cos()
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
+                    float teta=0;
+                    if(tvecs[i][2]!=0)
+                        teta=atan(-tvecs[i][0]/tvecs[i][2]);
+                   // teta =rvecs[i][0];
+                   // qDebug() << rvecs[i][0] << rvecs[i][1] << rvecs[i][2];
+                   // qDebug() << dist << teta*180.0/3.1415;
+                    if (nb_tag1 >0)// si on en a déjà trouvé un, on fait le barycentre pour affiner le résultat
+                    {
+                        result.value[IDX_ROBOT1_DIST] = (result.value[IDX_ROBOT1_DIST] + dist)/2.0f;
+                        result.value[IDX_ROBOT1_ANGLE] = (result.value[IDX_ROBOT1_ANGLE]+teta)/2.0f;
+                    }
+                    else // sinon on prend le résultat trouvé
+                    {
+                        result.value[IDX_ROBOT1_DIST] = dist;
+                        result.value[IDX_ROBOT1_ANGLE]=teta;
+                    }
+                    nb_tag1++;
+                    /*result.markers_detected = markerIds;*/
+                }
+
+                if(markerIds.at(i)==(int)(parameter.value[IDX_PARAM_ARUCO_TAG2]))
+                {
+                    if (m_dbg_active)
+                        cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
+                    double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
+                    //result.value[IDX_ROBOT2_DIST] = dist;
+                    float teta=0;
+                    if(tvecs[i][2]!=0)
+                        teta=atan(-tvecs[i][0]/tvecs[i][2]);
+                    if (nb_tag2 >0)// si on en a déjà trouvé un, on fait le barycentre pour affiner le résultat
+                    {
+                        result.value[IDX_ROBOT2_DIST] = (result.value[IDX_ROBOT2_DIST] + dist)/2.0f;
+                        result.value[IDX_ROBOT2_ANGLE] = (result.value[IDX_ROBOT2_ANGLE]+teta)/2.0f;
+                    }
+                    else // sinon on prend le résultat trouvé
+                    {
+                        result.value[IDX_ROBOT2_DIST] = dist;
+                        result.value[IDX_ROBOT2_ANGLE]=teta;
+                    }
+                    nb_tag2++;
+                    /*result.markers_detected = markerIds;*/
+                }
+            }
+        }
+
+        int fps=1000/(t.elapsed());
+        result.m_fps=fps;
+
+        //TIMESTAMP_MATCH.Timestamp
+
+        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
+
+        //on affiche l'image traitée
+        if (m_dbg_active)
+        {
+            //recuperation des donnees de la frame
+            //et referencement dans l'image Qt
+            //ATTENTION: pas de copie des donnees -> garbage collector
+            //conversion de l'image en RGB
+            frame_converted=m_frame.clone();
+            cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
+
+            //affichage des droites de reperage
+            //centre
+            cv::line(frame_converted,cv::Point2f(m_iL/2,0),cv::Point2f(m_iL/2,m_iH),cv::Scalar(255,0,0),2);
+
+            //affichage overlay
+            char str[200];
+            sprintf(str,"%d fps",fps);
+            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
+
+            const uchar *qImageBuffer = (const uchar*)frame_converted.data;
+            //const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
+            //cv::imwrite("tata.jpg",frame);
+            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
+
+            //copie complete de l'image pour eviter une desallocation sauvage de la frame
+            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
+
+        }
+
+        if(parameter.record)
+        {
+            if (m_dbg_active)
+            {
+                cv::cvtColor(frame_converted,frame_record, CV_RGB2BGR);
+                _video_record(frame_record);//on enregistre le flux video
+            }
+            else
+                _video_record(m_frame);
+        }
+
+        emit resultReady(result,imgConst);
+
+        //QThread::msleep(5);
+        inputImage.release();
+
+       //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+        frame_converted.release();
+        frame_record.release();
+    }
+    else
+    {
+        //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+    }
+}
 
 // ========================================================
 void VideoWorker::_video_process_Balise(tVideoInput parameter)
@@ -378,433 +575,304 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
 }
 
 // ========================================================
-void VideoWorker::_video_process_NordSud(tVideoInput parameter)
-{
-    tVideoResult result;
-    _init_tResult(&result);
-
-    QTime t;
-      t.start();
-
-
-    //capture d'une image du flux video
-    capture->grab();
-
-    //récupération de l'image
-    bool captureOK=capture->retrieve(m_frame,0);
-
-    //l'image a-t-elle bien été récupérée
-    if (captureOK)
-    {
-        //dans le cas ou la configuration de la caméra aurait mal fonctionné
-        if(!parameterConfirmed)
-            _video_confirm_parameters(m_frame);
-
-        //clone de l'image pour la persistence des données
-        m_frameCloned=m_frame.clone();
-
-        if(parameter.record)
-            _video_record(m_frame);//on enregistre le flux video
-
-        //analyse de l'image
-        cv::Mat inputImage=m_frameCloned.clone();
-
-        std::vector<int> markerIds;
-        std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
-        std::vector< cv::Vec3d > rvecs, tvecs;
-
-        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
-        cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
-
-
-        if (markerIds.size() > 0)
-        {
-
-            //on dessine les marqueurs trouvés
-            if (m_dbg_active)
-            cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
-            //on estime leur position en 3D par rapport à la caméra
-            cv::aruco::estimatePoseSingleMarkers(markerCorners, markerLength, camMatrix, distCoeffs, rvecs,tvecs);
-            //on donne la valeur normale à la caméra dans la console pour cahque marqueur
-            /*
-            for(unsigned int i = 0; i < markerIds.size(); i++)
-            {
-                cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-                qDebug() << 100*tvecs[0][2] << "cm";
-            }
-            */
-            for(unsigned int i = 0; i < markerIds.size(); i++)
-            {
-                //La girouette a le marqueur n°17
-                if(markerIds.at(i)==17)
-                {
-                    cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
-
-                    //double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][1]*tvecs[i][1]+tvecs[i][2]*tvecs[i][2]);
-                    if(fabs(rvecs[i][0])>2.8)
-                        result.value[IDX_NORD]=1.0;
-                    else
-                        result.value[IDX_NORD]=0.0;
-
-                    if(fabs(rvecs[i][1])>2.8)
-                        result.value[IDX_SUD]=1.0;
-                    else
-                        result.value[IDX_SUD]=0.0;
-
-                    /*result.markers_detected = markerIds;*/
-                }
-            }
-        }
-
-        int fps=1000/(t.elapsed());
-        result.m_fps=fps;
-
-        //TIMESTAMP_MATCH.Timestamp
-
-        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
-
-        //on affiche l'image traitée
-        if (m_dbg_active)
-        {
-            //recuperation des donnees de la frame
-            //et referencement dans l'image Qt
-            //ATTENTION: pas de copie des donnees -> garbage collector
-            //conversion de l'image en RGB
-            cv::Mat frame_converted;
-            frame_converted=m_frame.clone();
-            cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
-
-            //affichage overlay
-            char str[200];
-            sprintf(str,"%d fps",fps);
-            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
-
-            const uchar *qImageBuffer = (const uchar*)frame_converted.data;
-            //const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
-            //cv::imwrite("tata.jpg",frame);
-            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
-
-            //copie complete de l'image pour eviter une desallocation sauvage de la frame
-            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
-             frame_converted.release();
-        }
-
-        emit resultReady(result,imgConst);
-
-        //QThread::msleep(5);
-        inputImage.release();
-
-       //opencv ne profite pas du garbage collector de Qt
-        m_frame.release();
-        m_frameCloned.release();
-    }
-    else
-    {
-        //opencv ne profite pas du garbage collector de Qt
-        m_frame.release();
-        m_frameCloned.release();
-    }
-}
-
-// ========================================================
-void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
-{
-    /*
-    http://fr.wikipedia.org/wiki/Teinte_Saturation_Valeur
-    Le modèle TSV pour Teinte Saturation Valeur (en anglais HSV pour Hue Saturation Value),
-    est un système de gestion des couleurs en informatique.
-
-    Teinte ou "H":
-    La teinte est codée suivant l'angle qui lui correspond sur le cercle des couleurs ==>
-    0° ou 360° : rouge ;
-    60° : jaune ;
-    120° : vert ;
-    180° : cyan ;
-    240° : bleu ;
-    300° : magenta;
-    ATTENTION ramené de 0 à 180 dans opencv
-
-    Saturation ou "S":
-    La saturation est l'« intensité » de la couleur :
-    elle varie entre 0 et 100 % ;
-    elle est parfois appelée « pureté » ;
-    plus la saturation d'une couleur est faible, plus l'image sera « grisée » et plus elle apparaîtra fade
-    ATTENTION codé sur un octet dans opencv (0/255)
-
-    Valeur ou "V"
-    La valeur est la « brillance » de la couleur :
-    elle varie entre 0 et 100 %
-    plus la valeur d'une couleur est faible, plus la couleur est sombre. Une valeur de 0 correspond au noir.
-    ATTENTION codé sur un octet dans opencv (0/255)
-    */
-
-    tVideoResult result;
-    _init_tResult(&result);
-    QTime t;
-    t.start();
-
-    //capture d'une image du flux video
-    capture->grab();
-
-    //récupération de l'image
-    bool captureOK=capture->retrieve(m_frame,0);
-
-    //par défaut : aucune séquence
-    result.value[IDX_SEQUENCE]=SEQUENCE_UNKNOWN;
-
-    //l'image a-t-elle bien été récupérée
-    if (captureOK)
-    {
-        //images temporaires pour le traitement video
-        cv::Mat inputImage;
-        cv::Mat3b frameHSV;
-        cv::Mat3b inputRGB;
-        cv::Mat3b maskedRGB;
-        cv::Mat3b maskedRed;
-        cv::Mat3b maskedGreen;
-        cv::Mat1b maskRGB;
-        cv::Mat1b maskRed;
-        cv::Mat1b maskRed_1;
-        cv::Mat1b maskRed_2;
-        cv::Mat1b maskGreen;
-        cv::Mat3b frameBlur;
-        cv::Mat3b frameAffichage;
-
-        //dans le cas ou la configuration de la caméra aurait mal fonctionné
-        if(!parameterConfirmed)
-            _video_confirm_parameters(m_frame);
-
-        //clone de l'image pour la persistence des données
-        m_frameCloned=m_frame.clone();
-
-        if(parameter.record)
-            _video_record(m_frame);//on enregistre le flux video
-
-        //clone de l'image acquise de l'image
-        inputImage=m_frameCloned.clone();
-
-        //conversion en RGB pour l'affichage
-        cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
-
-        //init des images filtrées
-        maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-        maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-        maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
-
-        //floutage de l'image couleur pour enlever les pixels parasites
-        cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
-
-        //Conversion de l'image floutée dans l'espace colorimetrique HSV
-        cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
-
-        //pour stocker les résultats
-        QList<int> combinaison_color;
-        QList<int> combinaison_x;
-        QList<int> combinaison_width;
-
-        //MAJ du zonage
-        //TODO récupérer des paramètres
-        /*int x_traitement=0;
-        int y_traitement=0;
-        int H_traitement=m_iH;
-        int L_traitement=m_iL;*/
-
-        //Nombre de pixels minimum à détecter
-        int nb_pixels_minimum=1000;
-        int nb_pixels_maximum=50000;
-        int iPureteRed=parameter.value[IDX_PARAM_PURETE_ROUGE];
-        int iEcartTeinteRed=parameter.value[IDX_PARAM_ECART_ROUGE];
-        int iPureteGreen=parameter.value[IDX_PARAM_PURETE_VERT];
-        int iEcartTeinteGreen=parameter.value[IDX_PARAM_ECART_VERT];
-
-        cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
-        cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
-        cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
-
-        minHSV = cv::Scalar(0, 255-iPureteRed, 50);
-        maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
-        minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
-        maxHSV = cv::Scalar(180, 255, 255);
-        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
-        maskRed=maskRed_1|maskRed_2;
-        cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
-
-        maskRGB = maskGreen | maskRed;
-        cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
-
-        //séquence qui contiendra les contours des éléments verts trouvés
-        std::vector < std::vector<cv::Point> > contoursGreen;
-        cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
-
-        for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
-        {
-            std::vector<cv::Point> approx;
-            cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
-            double aire_detectee = cv::contourArea(approx);
-            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
-            {
-                //Rectangle circonscrit de la forme détectée
-                cv::Rect RectCirconscrit=cv::boundingRect( approx );
-
-                //barycentre du rectangle
-                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
-                combinaison_x << centre_x;
-                combinaison_color << Qt::green;
-                combinaison_width << RectCirconscrit.width;
-                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
-                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
-
-                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
-            }
-        }
-
-        //séquence qui contiendra les contours des éléments verts trouvés
-        std::vector < std::vector<cv::Point> > contoursRed;
-        cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
-
-        for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
-        {
-            std::vector<cv::Point> approx;
-            cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
-            double aire_detectee = cv::contourArea(approx);
-            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
-            {
-                //Rectangle circonscrit de la forme détectée
-                cv::Rect RectCirconscrit=cv::boundingRect( approx );
-
-                //barycentre du rectangle
-                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
-                combinaison_x << centre_x;
-                combinaison_color << Qt::red;
-                combinaison_width << RectCirconscrit.width;
-                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
-                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
-
-                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
-            }
-        }
-
-
-        //on analyse les résultats
-        if(!combinaison_x.isEmpty())
-        {
-            //on réordonne selon les x croissants
-            for(int i=combinaison_x.count()-1;i>0;i--)
-                for(int j=0;j<i;j++)
-                {
-                    if(combinaison_x[j+1] < combinaison_x[j])
-                    {
-                        combinaison_x.swap(j+1,j);
-                        combinaison_color.swap(j+1,j);
-                        combinaison_width.swap(j+1,j);
-                    }
-                }
-
-            /*for(int i=0;i<combinaison_x.count();i++)
-                qDebug() << (combinaison_color[i]==Qt::green?"VERT ":"ROUGE ") << combinaison_width[i];
-            qDebug() << "\n\n";*/
-
-            //coupe 2020 : cf règlement page 11
-            //CAS N°1:
-            //côté BLEU: GRGGR   côté JAUNE: GRRGR
-            //CAS N°2:
-            //côté BLEU: GGRGR   côté JAUNE: GRGRR
-            //CAS N°3:
-            //côté BLEU: GGGRR   côté JAUNE: GGRRR
-
-            //largeur de tous les gobelets détectés
-            int largeur_totale=0;
-            for(int i=0;i<combinaison_width.count();i++)
-                largeur_totale=largeur_totale+combinaison_width[i];
-            //largeur moyenne d'un gobelet
-            int largeur_gobelet = largeur_totale/5;
-            QString str_combinaison;
-            for(int i=0;i<combinaison_width.count();i++)
-            {
-                float nb_gobelet_estim = combinaison_width[i] / largeur_gobelet;
-                if(nb_gobelet_estim < 1.4)
-                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"G":"R");
-                else if((nb_gobelet_estim > 1.6)&&(nb_gobelet_estim < 2.4))
-                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GG":"RR");
-                else
-                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GGG":"RRR");
-            }
-
-            //qDebug() << str_combinaison <<"\n";
-
-            if(str_combinaison=="GRGGR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GRGGR;
-            if(str_combinaison=="GRRGR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GRRGR;
-            if(str_combinaison=="GGRGR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GGRGR;
-            if(str_combinaison=="GRGRR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GRGRR;
-            if(str_combinaison=="GGGRR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GGGRR;
-            if(str_combinaison=="GGRRR")
-                result.value[IDX_SEQUENCE]=SEQUENCE_GGRRR;
-        }
-
-        int fps=1000/(t.elapsed());
-        result.m_fps=fps;
-
-        //TIMESTAMP_MATCH.Timestamp
-
-        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
-
-        //on affiche l'image traitée
-        if (m_dbg_active)
-        {
-            //recuperation des donnees de la frame
-            //et referencement dans l'image Qt
-            //ATTENTION: pas de copie des donnees -> garbage collector
-
-            //affichage overlay
-            char str[200];
-            sprintf(str,"%d fps",fps);
-            cv::putText(maskedRGB, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
-
-            const uchar *qImageBuffer = (const uchar*)inputRGB.data;
-            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
-            //const uchar *qImageBuffer = (const uchar*)frameGrey_green.data;
-            //QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_Grayscale8);
-
-            //copie complete de l'image pour eviter une desallocation sauvage de la frame
-            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
-        }
-
-        emit resultReady(result,imgConst);
-
-        //QThread::msleep(5);
-        inputImage.release();
-
-       //opencv ne profite pas du garbage collector de Qt
-        m_frame.release();
-        m_frameCloned.release();
-        inputImage.release();
-        inputRGB.release();
-        frameBlur.release();
-        frameHSV.release();
-        maskedRGB.release();
-        maskedRed.release();
-        maskedGreen.release();
-        maskRGB.release();
-        maskRed.release();
-        maskRed_1.release();
-        maskRed_2.release();
-        maskGreen.release();
-        frameAffichage.release();
-    }
-    else
-    {
-        //opencv ne profite pas du garbage collector de Qt
-        m_frame.release();
-        m_frameCloned.release();
-    }
-}
+//void VideoWorker::_video_process_ColorSequence(tVideoInput parameter)
+//{
+//    /*
+//    http://fr.wikipedia.org/wiki/Teinte_Saturation_Valeur
+//    Le modèle TSV pour Teinte Saturation Valeur (en anglais HSV pour Hue Saturation Value),
+//    est un système de gestion des couleurs en informatique.
+
+//    Teinte ou "H":
+//    La teinte est codée suivant l'angle qui lui correspond sur le cercle des couleurs ==>
+//    0° ou 360° : rouge ;
+//    60° : jaune ;
+//    120° : vert ;
+//    180° : cyan ;
+//    240° : bleu ;
+//    300° : magenta;
+//    ATTENTION ramené de 0 à 180 dans opencv
+
+//    Saturation ou "S":
+//    La saturation est l'« intensité » de la couleur :
+//    elle varie entre 0 et 100 % ;
+//    elle est parfois appelée « pureté » ;
+//    plus la saturation d'une couleur est faible, plus l'image sera « grisée » et plus elle apparaîtra fade
+//    ATTENTION codé sur un octet dans opencv (0/255)
+
+//    Valeur ou "V"
+//    La valeur est la « brillance » de la couleur :
+//    elle varie entre 0 et 100 %
+//    plus la valeur d'une couleur est faible, plus la couleur est sombre. Une valeur de 0 correspond au noir.
+//    ATTENTION codé sur un octet dans opencv (0/255)
+//    */
+
+//    tVideoResult result;
+//    _init_tResult(&result);
+//    QTime t;
+//    t.start();
+
+//    //capture d'une image du flux video
+//    capture->grab();
+
+//    //récupération de l'image
+//    bool captureOK=capture->retrieve(m_frame,0);
+
+//    //par défaut : aucune séquence
+// //    result.value[IDX_SEQUENCE]=SEQUENCE_UNKNOWN;
+
+//    //l'image a-t-elle bien été récupérée
+//    if (captureOK)
+//    {
+//        //images temporaires pour le traitement video
+//        cv::Mat inputImage;
+//        cv::Mat3b frameHSV;
+//        cv::Mat3b inputRGB;
+//        cv::Mat3b maskedRGB;
+//        cv::Mat3b maskedRed;
+//        cv::Mat3b maskedGreen;
+//        cv::Mat1b maskRGB;
+//        cv::Mat1b maskRed;
+//        cv::Mat1b maskRed_1;
+//        cv::Mat1b maskRed_2;
+//        cv::Mat1b maskGreen;
+//        cv::Mat3b frameBlur;
+//        cv::Mat3b frameAffichage;
+
+//        //dans le cas ou la configuration de la caméra aurait mal fonctionné
+//        if(!parameterConfirmed)
+//            _video_confirm_parameters(m_frame);
+
+//        //clone de l'image pour la persistence des données
+//        m_frameCloned=m_frame.clone();
+
+//        if(parameter.record)
+//            _video_record(m_frame);//on enregistre le flux video
+
+//        //clone de l'image acquise de l'image
+//        inputImage=m_frameCloned.clone();
+
+//        //conversion en RGB pour l'affichage
+//        cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
+
+//        //init des images filtrées
+//        maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+//        maskedRed=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+//        maskedGreen=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
+
+//        //floutage de l'image couleur pour enlever les pixels parasites
+//        cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
+
+//        //Conversion de l'image floutée dans l'espace colorimetrique HSV
+//        cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
+
+//        //pour stocker les résultats
+//        QList<int> combinaison_color;
+//        QList<int> combinaison_x;
+//        QList<int> combinaison_width;
+
+//        //MAJ du zonage
+//        //TODO récupérer des paramètres
+//        /*int x_traitement=0;
+//        int y_traitement=0;
+//        int H_traitement=m_iH;
+//        int L_traitement=m_iL;*/
+
+//        //Nombre de pixels minimum à détecter
+//        int nb_pixels_minimum=1000;
+//        int nb_pixels_maximum=50000;
+//        int iPureteRed=parameter.value[IDX_PARAM_PURETE_ROUGE];
+//        int iEcartTeinteRed=parameter.value[IDX_PARAM_ECART_ROUGE];
+//        int iPureteGreen=parameter.value[IDX_PARAM_PURETE_VERT];
+//        int iEcartTeinteGreen=parameter.value[IDX_PARAM_ECART_VERT];
+
+//        cv::Scalar minHSV = cv::Scalar(60-iEcartTeinteGreen, 255-iPureteGreen, 50);
+//        cv::Scalar maxHSV = cv::Scalar(60+iEcartTeinteGreen, 255, 255);
+//        cv::inRange(frameHSV, minHSV, maxHSV, maskGreen);
+//        cv::bitwise_and(inputImage, inputImage, maskedGreen, maskGreen);
+
+//        minHSV = cv::Scalar(0, 255-iPureteRed, 50);
+//        maxHSV = cv::Scalar(0+iEcartTeinteRed, 255, 255);
+//        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_1);
+//        minHSV = cv::Scalar(180-iEcartTeinteRed, 255-iPureteRed, 50);
+//        maxHSV = cv::Scalar(180, 255, 255);
+//        cv::inRange(frameHSV, minHSV, maxHSV, maskRed_2);
+//        maskRed=maskRed_1|maskRed_2;
+//        cv::bitwise_and(inputImage, inputImage, maskedRed, maskRed);
+
+//        maskRGB = maskGreen | maskRed;
+//        cv::bitwise_and(inputRGB, inputRGB, maskedRGB, maskRGB);
+
+//        //séquence qui contiendra les contours des éléments verts trouvés
+//        std::vector < std::vector<cv::Point> > contoursGreen;
+//        cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+//        for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
+//        {
+//            std::vector<cv::Point> approx;
+//            cv::approxPolyDP(contoursGreen[contourIdx], approx, 5, true);
+//            double aire_detectee = cv::contourArea(approx);
+//            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+//            {
+//                //Rectangle circonscrit de la forme détectée
+//                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+//                //barycentre du rectangle
+//                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+//                combinaison_x << centre_x;
+//                combinaison_color << Qt::green;
+//                combinaison_width << RectCirconscrit.width;
+//                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+//                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+
+//                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+//            }
+//        }
+
+//        //séquence qui contiendra les contours des éléments verts trouvés
+//        std::vector < std::vector<cv::Point> > contoursRed;
+//        cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+
+//        for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
+//        {
+//            std::vector<cv::Point> approx;
+//            cv::approxPolyDP(contoursRed[contourIdx], approx, 5, true);
+//            double aire_detectee = cv::contourArea(approx);
+//            if((aire_detectee>nb_pixels_minimum)&&(aire_detectee<nb_pixels_maximum))
+//            {
+//                //Rectangle circonscrit de la forme détectée
+//                cv::Rect RectCirconscrit=cv::boundingRect( approx );
+
+//                //barycentre du rectangle
+//                int centre_x=RectCirconscrit.x+RectCirconscrit.width/2;
+//                combinaison_x << centre_x;
+//                combinaison_color << Qt::red;
+//                combinaison_width << RectCirconscrit.width;
+//                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
+//                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
+
+//                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+//            }
+//        }
+
+
+//        //on analyse les résultats
+//        if(!combinaison_x.isEmpty())
+//        {
+//            //on réordonne selon les x croissants
+//            for(int i=combinaison_x.count()-1;i>0;i--)
+//                for(int j=0;j<i;j++)
+//                {
+//                    if(combinaison_x[j+1] < combinaison_x[j])
+//                    {
+//                        combinaison_x.swap(j+1,j);
+//                        combinaison_color.swap(j+1,j);
+//                        combinaison_width.swap(j+1,j);
+//                    }
+//                }
+
+//            /*for(int i=0;i<combinaison_x.count();i++)
+//                qDebug() << (combinaison_color[i]==Qt::green?"VERT ":"ROUGE ") << combinaison_width[i];
+//            qDebug() << "\n\n";*/
+
+//            //coupe 2020 : cf règlement page 11
+//            //CAS N°1:
+//            //côté BLEU: GRGGR   côté JAUNE: GRRGR
+//            //CAS N°2:
+//            //côté BLEU: GGRGR   côté JAUNE: GRGRR
+//            //CAS N°3:
+//            //côté BLEU: GGGRR   côté JAUNE: GGRRR
+
+//            //largeur de tous les gobelets détectés
+//            int largeur_totale=0;
+//            for(int i=0;i<combinaison_width.count();i++)
+//                largeur_totale=largeur_totale+combinaison_width[i];
+//            //largeur moyenne d'un gobelet
+//            int largeur_gobelet = largeur_totale/5;
+//            QString str_combinaison;
+//            for(int i=0;i<combinaison_width.count();i++)
+//            {
+//                float nb_gobelet_estim = combinaison_width[i] / largeur_gobelet;
+//                if(nb_gobelet_estim < 1.4)
+//                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"G":"R");
+//                else if((nb_gobelet_estim > 1.6)&&(nb_gobelet_estim < 2.4))
+//                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GG":"RR");
+//                else
+//                    str_combinaison=str_combinaison+(combinaison_color[i]==Qt::green?"GGG":"RRR");
+//            }
+
+//            //qDebug() << str_combinaison <<"\n";
+
+//            if(str_combinaison=="GRGGR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GRGGR;
+//            if(str_combinaison=="GRRGR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GRRGR;
+//            if(str_combinaison=="GGRGR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GGRGR;
+//            if(str_combinaison=="GRGRR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GRGRR;
+//            if(str_combinaison=="GGGRR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GGGRR;
+//            if(str_combinaison=="GGRRR")
+//                result.value[IDX_SEQUENCE]=SEQUENCE_GGRRR;
+//        }
+
+//        int fps=1000/(t.elapsed());
+//        result.m_fps=fps;
+
+//        //TIMESTAMP_MATCH.Timestamp
+
+//        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
+
+//        //on affiche l'image traitée
+//        if (m_dbg_active)
+//        {
+//            //recuperation des donnees de la frame
+//            //et referencement dans l'image Qt
+//            //ATTENTION: pas de copie des donnees -> garbage collector
+
+//            //affichage overlay
+//            char str[200];
+//            sprintf(str,"%d fps",fps);
+//            cv::putText(maskedRGB, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
+
+//            const uchar *qImageBuffer = (const uchar*)inputRGB.data;
+//            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
+//            //const uchar *qImageBuffer = (const uchar*)frameGrey_green.data;
+//            //QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_Grayscale8);
+
+//            //copie complete de l'image pour eviter une desallocation sauvage de la frame
+//            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
+//        }
+
+//        emit resultReady(result,imgConst);
+
+//        //QThread::msleep(5);
+//        inputImage.release();
+
+//       //opencv ne profite pas du garbage collector de Qt
+//        m_frame.release();
+//        m_frameCloned.release();
+//        inputImage.release();
+//        inputRGB.release();
+//        frameBlur.release();
+//        frameHSV.release();
+//        maskedRGB.release();
+//        maskedRed.release();
+//        maskedGreen.release();
+//        maskRGB.release();
+//        maskRed.release();
+//        maskRed_1.release();
+//        maskRed_2.release();
+//        maskGreen.release();
+//        frameAffichage.release();
+//    }
+//    else
+//    {
+//        //opencv ne profite pas du garbage collector de Qt
+//        m_frame.release();
+//        m_frameCloned.release();
+//    }
+//}
 
 void VideoWorker::_video_process_Calibration(tVideoInput parameter)
 {
