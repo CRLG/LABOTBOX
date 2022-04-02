@@ -51,7 +51,7 @@ LIST_TOOLS+= CustomPlot\
              DocDesigner \
              NetworkServer \
              ExternalControlerClient \
-             DataLogger \
+             DataHandler \
              CsvParser \
 
 # __________________________________________________
