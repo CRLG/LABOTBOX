@@ -48,6 +48,7 @@ class CBalise;
 class CPowerElectrobot;
 class CSimulia;
 class CLidarBot;
+class CKMAR;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -174,6 +175,9 @@ public:
 #ifdef MODULE_LidarBot
    CLidarBot     *m_LidarBot;
 #endif // MODULE_LidarBot
+#ifdef MODULE_KMAR
+   CKMAR     *m_KMAR;
+#endif // MODULE_KMAR
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

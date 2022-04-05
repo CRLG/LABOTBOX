@@ -105,6 +105,9 @@
 #ifdef MODULE_LidarBot
    #include "CLidarBot.h"
 #endif // MODULE_LidarBot
+#ifdef MODULE_KMAR
+   #include "CKMAR.h"
+#endif // MODULE_KMAR
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -408,6 +411,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_LidarBot);
   m_list_modules.append(m_LidarBot);
 #endif // MODULE_LidarBot
+
+#ifdef MODULE_KMAR
+  m_KMAR     = new CKMAR("KMAR");
+  m_list_plugin_modules.append(m_KMAR);
+  m_list_modules.append(m_KMAR);
+#endif // MODULE_KMAR
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

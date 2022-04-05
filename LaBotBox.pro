@@ -58,6 +58,7 @@ LIST_PLUGIN_MODULES+= \
         #Balise \ 
         PowerElectrobot \ 
         #LidarBot \
+        KMAR \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
