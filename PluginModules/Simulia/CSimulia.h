@@ -82,6 +82,10 @@ private slots :
 
     void updatePositionFromSimubot();
     void updateStepFromSimuBot();
+
+    void on_pb_kmar_mouvement_init();
+    void on_pb_kmar_mouvement_ramasse();
+
 };
 
 #endif // _CPLUGIN_MODULE_Simulia_H_

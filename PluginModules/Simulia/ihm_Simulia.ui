@@ -806,6 +806,37 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_kmar">
+     <attribute name="title">
+      <string>Kmar</string>
+     </attribute>
+     <widget class="QPushButton" name="dde_kmar_init_position">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>141</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start INIT</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="dde_kmar_ramasse">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>141</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start RAMASSE</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QComboBox" name="CouleurEquipe">
     <property name="geometry">

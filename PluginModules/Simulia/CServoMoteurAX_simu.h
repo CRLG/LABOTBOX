@@ -32,6 +32,9 @@ public:
     void init(CApplication *application);
     void Init();
 
+
+    int servo_id_to_index_present(unsigned char servo_id);
+
     void simu();
 
 private :

@@ -16,6 +16,7 @@
 #include "CTelemetres_simu.h"
 #include "CDetectionObstacles_simu.h"
 #include "CCapteurs_simu.h"
+#include "CKmar_simu.h"
 #include "ia.h"
 
 
@@ -34,6 +35,7 @@ public :
     CAsservissementChariotSimu  m_asservissement_chariot;
     CTelemetresSimu             m_telemetres;
     CDetectionObstaclesSimu     m_detection_obstacles;
+    CKmarSimu                   m_kmar;
     IA                          m_modelia;
 
     // Gestion des LED

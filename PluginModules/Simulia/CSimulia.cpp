@@ -126,6 +126,9 @@ void CSimulia::init(CApplication *application)
   connect(m_ihm.ui.pb_init_all, SIGNAL(pressed()), this, SLOT(on_pb_init_all()));
   connect(m_ihm.ui.dde_autotest, SIGNAL(pressed()), this, SLOT(on_dde_autotest_pressed()));
 
+  connect(m_ihm.ui.dde_kmar_init_position, SIGNAL(pressed()), this, SLOT(on_pb_kmar_mouvement_init()));
+  connect(m_ihm.ui.dde_kmar_ramasse, SIGNAL(pressed()), this, SLOT(on_pb_kmar_mouvement_ramasse()));
+
   connect(&m_timer, SIGNAL(timeout()), this, SLOT(on_timeout()));
   connect(m_ihm.ui.PlaySimu, SIGNAL(clicked(bool)), &m_timer, SLOT(start()));
   connect(m_ihm.ui.PauseSimu, SIGNAL(clicked(bool)), &m_timer, SLOT(stop()));
@@ -356,6 +359,7 @@ void CSimulia::simu_task_sequencer()
 
       Application.m_messenger_xbee_ntw.execute();
       Application.m_leds.compute();
+
     }
     // ______________________________
     cpt100msec++;
@@ -368,6 +372,7 @@ void CSimulia::simu_task_sequencer()
       cpt200msec = 0;
 
       Application.m_capteurs.Traitement();
+      Application.m_kmar.compute();
     }
     // ______________________________
     cpt500msec++;
@@ -486,6 +491,18 @@ void CSimulia::updateStepFromSimuBot()
         Application.m_roues.addSteps_Codeur_G(steps_G);
         Application.m_roues.addSteps_Codeur_D(steps_D);
     }
+}
+
+// ___________________________________________________
+void CSimulia::on_pb_kmar_mouvement_init()
+{
+    Application.m_kmar.start(1);
+}
+
+// ___________________________________________________
+void CSimulia::on_pb_kmar_mouvement_ramasse()
+{
+    Application.m_kmar.start(2);
 }
 
 // ___________________________________________________

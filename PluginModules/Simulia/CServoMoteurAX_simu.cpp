@@ -86,6 +86,12 @@ void CServoMoteurAXSimu::Init()
 }
 
 // ____________________________________________________________
+int CServoMoteurAXSimu::servo_id_to_index_present(unsigned char servo_id)
+{
+    return servo_id; // TODO : à vérifier
+}
+
+// ____________________________________________________________
 // Simule un déplacement du servo vers la position attendue
 void CServoMoteurAXSimu::simu()
 {
