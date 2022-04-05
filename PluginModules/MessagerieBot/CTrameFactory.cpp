@@ -107,6 +107,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ECRAN_ETAT_ECRAN(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_COMMANDE_KMAR(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -3060,4 +3061,108 @@ void CTrame_ETAT_SERVO_AX::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write(QString("ServoAX_%1.Moving").arg(num_servo_ax), mouvement_en_cours);
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME COMMANDE_KMAR
+// ========================================================
+CTrame_COMMANDE_KMAR::CTrame_COMMANDE_KMAR(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "COMMANDE_KMAR";
+ m_id = ID_COMMANDE_KMAR;
+ m_dlc = DLC_COMMANDE_KMAR;
+ m_liste_noms_signaux.append("value_cmd_kmar");
+ m_liste_noms_signaux.append("cmd_kmar");
+ m_liste_noms_signaux.append("num_kmar");
+
+ // Initialise les données de la messagerie
+ value_cmd_kmar = 0;
+ cmd_kmar = 0;
+ num_kmar = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("value_cmd_kmar",  value_cmd_kmar);
+ data_manager->write("cmd_kmar",  cmd_kmar);
+ data_manager->write("num_kmar",  num_kmar);
+ data_manager->write("COMMANDE_KMAR_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("value_cmd_kmar"), SIGNAL(valueChanged(QVariant)), this, SLOT(value_cmd_kmar_changed(QVariant)));
+ connect(data_manager->getData("cmd_kmar"), SIGNAL(valueChanged(QVariant)), this, SLOT(cmd_kmar_changed(QVariant)));
+ connect(data_manager->getData("num_kmar"), SIGNAL(valueChanged(QVariant)), this, SLOT(num_kmar_changed(QVariant)));
+ connect(data_manager->getData("COMMANDE_KMAR_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_KMAR::value_cmd_kmar_changed(QVariant val)
+{
+  value_cmd_kmar = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_KMAR::cmd_kmar_changed(QVariant val)
+{
+  cmd_kmar = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_KMAR::num_kmar_changed(QVariant val)
+{
+  num_kmar = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_COMMANDE_KMAR::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_COMMANDE_KMAR::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_COMMANDE_KMAR;
+  trame.DLC = DLC_COMMANDE_KMAR;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[4] |= (unsigned char)( ( (value_cmd_kmar) & 0xFF) );
+    trame.Data[3] |= (unsigned char)( ( (value_cmd_kmar >> 8) & 0xFF) );
+
+    trame.Data[2] |= (unsigned char)( ( (cmd_kmar) & 0xFF) );
+    trame.Data[1] |= (unsigned char)( ( (cmd_kmar >> 8) & 0xFF) );
+
+    trame.Data[0] |= (unsigned char)( ( (num_kmar) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
 }

@@ -1214,6 +1214,32 @@ public :
 private slots :
 };
 
+// ========================================================
+//             TRAME COMMANDE_KMAR
+// ========================================================
+#define ID_COMMANDE_KMAR 0x55
+#define DLC_COMMANDE_KMAR 5
+class CTrame_COMMANDE_KMAR : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_KMAR(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_KMAR() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned short value_cmd_kmar; // [0;300]
+    unsigned short cmd_kmar;
+    unsigned char num_kmar;
+    bool m_synchro_tx;
+
+private slots :
+    void value_cmd_kmar_changed(QVariant val);
+    void cmd_kmar_changed(QVariant val);
+    void num_kmar_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
