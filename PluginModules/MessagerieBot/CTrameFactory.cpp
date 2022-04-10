@@ -88,6 +88,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_SERVO_AX(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_KMAR_GENERAL(m_messagerie_bot, m_data_manager));
  // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -3052,11 +3053,6 @@ void CTrame_ETAT_SERVO_AX::Decode(tStructTrameBrute *trameRecue)
    temperature =        CDataEncoderDecoder::decode_int8(trameRecue->Data,  3);
    couple =             CDataEncoderDecoder::decode_int16(trameRecue->Data, 4);
    mouvement_en_cours = CDataEncoderDecoder::decode_int8(trameRecue->Data,  6);
-   //trameRecue->Data[0]);
-   //position = ( ( ((unsigned short)(trameRecue->Data[2])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) << 8 );
-   //temperature = (trameRecue->Data[3]);
-   //couple = ( ( ((unsigned short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) << 8 );
-   //mouvement_en_cours = (trameRecue->Data[6]);
 
    // Envoie les données au data manager
    m_data_manager->write(QString("ServoAX_%1.Position").arg(num_servo_ax), position);
@@ -3165,4 +3161,49 @@ void CTrame_COMMANDE_KMAR::Encode(void)
 
   // Comptabilise le nombre de trames émises
   m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME ETAT_KMAR_GENERAL
+// ========================================================
+CTrame_ETAT_KMAR_GENERAL::CTrame_ETAT_KMAR_GENERAL(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_KMAR_GENERAL";
+ m_id = ID_ETAT_KMAR_GENERAL;
+ m_dlc = DLC_ETAT_KMAR_GENERAL;
+
+ // Cas particulier pour les servos AX.
+ // Les données dans le DataManager sont renseignées au fur et à mesure de l'arrivée des messages.
+ // Car le nom des data contiennent le numéro du Kmar et Labotbox ne connais pas à priori le nombre
+ // de Kmar utilisés sur le robot.
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
+{
+    // Encode chacun des signaux de la trame
+    num_kmar =                  CDataEncoderDecoder::decode_int8(trameRecue->Data, 0);
+    status =                    CDataEncoderDecoder::decode_int8(trameRecue->Data, 1);
+    num_mouvement_en_cours =    CDataEncoderDecoder::decode_int8(trameRecue->Data, 2);
+    moving =                    CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 0);
+    axis1_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 1);
+    axis2_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 2);
+    axis3_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 3);
+    axis4_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 4);
+
+   // Envoie les données au data manager
+   m_data_manager->write(QString("Kmar%1.status").arg(num_kmar), status);
+   m_data_manager->write(QString("Kmar%1.num_mouvement_en_cours").arg(num_kmar), num_mouvement_en_cours);
+   m_data_manager->write(QString("Kmar%1.moving").arg(num_kmar), moving);
+   m_data_manager->write(QString("Kmar%1.axis1_moving").arg(num_kmar), axis1_moving);
+   m_data_manager->write(QString("Kmar%1.axis2_moving").arg(num_kmar), axis2_moving);
+   m_data_manager->write(QString("Kmar%1.axis3_moving").arg(num_kmar), axis3_moving);
+   m_data_manager->write(QString("Kmar%1.axis4_moving").arg(num_kmar), axis4_moving);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
 }

@@ -111,7 +111,7 @@ void CKMAR::send_mouvement_clicked(void)
     m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
     m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
     m_application->m_data_center->write("cmd_kmar", KMAR_CMD_MOUVEMENT);
-    m_application->m_data_center->write("value_cmd_kmar", m_ihm.ui.choix_mouvement->currentIndex());
+    m_application->m_data_center->write("value_cmd_kmar", m_ihm.ui.choix_mouvement->currentIndex()+1);
     m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
 }
 

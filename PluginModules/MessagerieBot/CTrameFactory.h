@@ -1240,6 +1240,32 @@ private slots :
     void Synchro_changed(QVariant val);
 };
 
+// ========================================================
+//             TRAME ETAT_KMAR_GENERAL
+// ========================================================
+#define ID_ETAT_KMAR_GENERAL 0x98
+#define DLC_ETAT_KMAR_GENERAL 5
+class CTrame_ETAT_KMAR_GENERAL : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_KMAR_GENERAL(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_KMAR_GENERAL() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+     unsigned char num_kmar;
+    unsigned char status;
+    unsigned char num_mouvement_en_cours;
+    bool moving;
+    bool axis1_moving;
+    bool axis2_moving;
+    bool axis3_moving;
+    bool axis4_moving;
+
+private slots :
+};
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
