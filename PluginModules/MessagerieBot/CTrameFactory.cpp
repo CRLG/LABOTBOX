@@ -12,7 +12,7 @@
 #include "CMessagerieBot.h"
 
 #include "CTrameFactory.h"
-
+#include "data_encoder_decoder.h"
 
 /*! \addtogroup DataManager
    * 
@@ -3047,12 +3047,16 @@ CTrame_ETAT_SERVO_AX::CTrame_ETAT_SERVO_AX(CMessagerieBot *messagerie_bot, CData
 void CTrame_ETAT_SERVO_AX::Decode(tStructTrameBrute *trameRecue)
 {
    // Decode les signaux de la trame
-
-   num_servo_ax = (trameRecue->Data[0]);
-   position = ( ( ((unsigned short)(trameRecue->Data[2])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) << 8 );
-   temperature = (trameRecue->Data[3]);
-   couple = ( ( ((unsigned short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) << 8 );
-   mouvement_en_cours = (trameRecue->Data[6]);
+   num_servo_ax =       CDataEncoderDecoder::decode_int8(trameRecue->Data,  0);
+   position =           CDataEncoderDecoder::decode_int16(trameRecue->Data, 1);
+   temperature =        CDataEncoderDecoder::decode_int8(trameRecue->Data,  3);
+   couple =             CDataEncoderDecoder::decode_int16(trameRecue->Data, 4);
+   mouvement_en_cours = CDataEncoderDecoder::decode_int8(trameRecue->Data,  6);
+   //trameRecue->Data[0]);
+   //position = ( ( ((unsigned short)(trameRecue->Data[2])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[1])) & 0xFF) << 8 );
+   //temperature = (trameRecue->Data[3]);
+   //couple = ( ( ((unsigned short)(trameRecue->Data[5])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) << 8 );
+   //mouvement_en_cours = (trameRecue->Data[6]);
 
    // Envoie les données au data manager
    m_data_manager->write(QString("ServoAX_%1.Position").arg(num_servo_ax), position);
@@ -3152,13 +3156,9 @@ void CTrame_COMMANDE_KMAR::Encode(void)
      trame.Data[i] = 0;
  }
   // Encode chacun des signaux de la trame
-    trame.Data[4] |= (unsigned char)( ( (value_cmd_kmar) & 0xFF) );
-    trame.Data[3] |= (unsigned char)( ( (value_cmd_kmar >> 8) & 0xFF) );
-
-    trame.Data[2] |= (unsigned char)( ( (cmd_kmar) & 0xFF) );
-    trame.Data[1] |= (unsigned char)( ( (cmd_kmar >> 8) & 0xFF) );
-
-    trame.Data[0] |= (unsigned char)( ( (num_kmar) & 0xFF) );
+ CDataEncoderDecoder::encode_int8(trame.Data,   0, num_kmar);
+ CDataEncoderDecoder::encode_int16(trame.Data,  1, cmd_kmar);
+ CDataEncoderDecoder::encode_int16(trame.Data,  3, value_cmd_kmar);
 
   // Envoie la trame
   m_messagerie_bot->SerialiseTrame(&trame);

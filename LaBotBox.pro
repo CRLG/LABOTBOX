@@ -79,6 +79,7 @@ LIST_EXT_CPPROBLIB+= \
         Communication/Messenger/MessagesGeneric \
         Communication/Messenger/DatabaseXbeeNetwork2019 \
         Communication/XBEE \
+        Communication/DataEncoderDecoder \
 
 DEFINES+= MESSENGER_FULL
 # __________________________________________________
