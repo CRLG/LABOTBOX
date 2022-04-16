@@ -3195,15 +3195,24 @@ void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
     axis2_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 2);
     axis3_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 3);
     axis4_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 4);
+    axis1_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  4);
+    axis2_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  6);
+    axis3_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  8);
+    axis4_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  10);
 
    // Envoie les données au data manager
    m_data_manager->write(QString("Kmar%1.status").arg(num_kmar), status);
    m_data_manager->write(QString("Kmar%1.num_mouvement_en_cours").arg(num_kmar), num_mouvement_en_cours);
    m_data_manager->write(QString("Kmar%1.moving").arg(num_kmar), moving);
-   m_data_manager->write(QString("Kmar%1.axis1_moving").arg(num_kmar), axis1_moving);
-   m_data_manager->write(QString("Kmar%1.axis2_moving").arg(num_kmar), axis2_moving);
-   m_data_manager->write(QString("Kmar%1.axis3_moving").arg(num_kmar), axis3_moving);
-   m_data_manager->write(QString("Kmar%1.axis4_moving").arg(num_kmar), axis4_moving);
+   m_data_manager->write(QString("Kmar%1.axis1.moving").arg(num_kmar), axis1_moving);
+   m_data_manager->write(QString("Kmar%1.axis2.moving").arg(num_kmar), axis2_moving);
+   m_data_manager->write(QString("Kmar%1.axis3.moving").arg(num_kmar), axis3_moving);
+   m_data_manager->write(QString("Kmar%1.axis4.moving").arg(num_kmar), axis4_moving);
+   m_data_manager->write(QString("Kmar%1.axis1.position").arg(num_kmar), axis1_position);
+   m_data_manager->write(QString("Kmar%1.axis2.position").arg(num_kmar), axis2_position);
+   m_data_manager->write(QString("Kmar%1.axis3.position").arg(num_kmar), axis3_position);
+   m_data_manager->write(QString("Kmar%1.axis4.position").arg(num_kmar), axis4_position);
+
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

@@ -71,6 +71,20 @@ void CKMAR::init(CApplication *application)
   connect(m_ihm.ui.send_mouvement, SIGNAL(clicked(bool)), this, SLOT(send_mouvement_clicked()));
   connect(m_ihm.ui.send_speed, SIGNAL(clicked(bool)), this, SLOT(send_vitesse_clicked()));
   connect(m_ihm.ui.disarm, SIGNAL(clicked(bool)), this, SLOT(send_disarm_clicked()));
+  connect(m_ihm.ui.arret_urgence, SIGNAL(clicked(bool)), this, SLOT(send_disarm_clicked()));
+
+  int num_kmar = m_application->m_eeprom->read(getName(), "num_kmar", 1).toInt();  // pour prévoir plusieurs instances du module pour chaque Kmar
+  QString kmar_name = QString("Kmar%1").arg(num_kmar);
+  connect(m_application->m_data_center->getData(QString("%1.axis1.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_1, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis2.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_2, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis3.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_3, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis4.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_4, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis1.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe1, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis2.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe2, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis3.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe3, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis4.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe4, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mouvement_en_cours, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.num_mouvement_en_cours").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.num_mouvement_en_cours, SLOT(setValue(int)));
 }
 
 

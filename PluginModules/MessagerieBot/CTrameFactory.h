@@ -1244,7 +1244,7 @@ private slots :
 //             TRAME ETAT_KMAR_GENERAL
 // ========================================================
 #define ID_ETAT_KMAR_GENERAL 0x98
-#define DLC_ETAT_KMAR_GENERAL 5
+#define DLC_ETAT_KMAR_GENERAL 12
 class CTrame_ETAT_KMAR_GENERAL : public CTrameBot
 {
    Q_OBJECT
@@ -1262,6 +1262,10 @@ public :
     bool axis2_moving;
     bool axis3_moving;
     bool axis4_moving;
+    unsigned short axis1_position;
+    unsigned short axis2_position;
+    unsigned short axis3_position;
+    unsigned short axis4_position;
 
 private slots :
 };

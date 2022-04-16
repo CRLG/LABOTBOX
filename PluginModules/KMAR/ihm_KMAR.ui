@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>296</height>
+    <width>374</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,13 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="7" column="0" colspan="5">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
     <item row="3" column="1" colspan="2">
      <widget class="QComboBox" name="choix_mouvement">
       <item>
@@ -50,12 +43,12 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0" colspan="5">
+    <item row="9" column="0" colspan="5">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="2">
        <widget class="QSpinBox" name="pos_axe3">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Position Axe 3</string>
@@ -74,7 +67,7 @@
       <item row="1" column="1">
        <widget class="QLed" name="mvt_axe_2">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -89,7 +82,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Binary Led</string>
+         <string>Mouvement en cours Axe 2</string>
         </property>
         <property name="whatsThis">
          <string>Led widget</string>
@@ -111,7 +104,7 @@
       <item row="1" column="2">
        <widget class="QLed" name="mvt_axe_3">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -126,7 +119,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Binary Led</string>
+         <string>Mouvement en cours Axe 3</string>
         </property>
         <property name="whatsThis">
          <string>Led widget</string>
@@ -148,7 +141,7 @@
       <item row="0" column="4">
        <widget class="QLed" name="mouvement_en_cours">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -185,7 +178,7 @@
       <item row="1" column="3">
        <widget class="QLed" name="mvt_axe_4">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -200,7 +193,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Binary Led</string>
+         <string>Mouvement en cours Axe 4</string>
         </property>
         <property name="whatsThis">
          <string>Led widget</string>
@@ -222,7 +215,7 @@
       <item row="0" column="3">
        <widget class="QSpinBox" name="pos_axe4">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Position Axe 4</string>
@@ -241,7 +234,7 @@
       <item row="0" column="1">
        <widget class="QSpinBox" name="pos_axe2">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Position Axe 2</string>
@@ -260,7 +253,7 @@
       <item row="0" column="0">
        <widget class="QSpinBox" name="pos_axe1">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Position Axe 1</string>
@@ -279,7 +272,7 @@
       <item row="1" column="0">
        <widget class="QLed" name="mvt_axe_1">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -294,7 +287,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Binary Led</string>
+         <string>Mouvement en cours Axe 1</string>
         </property>
         <property name="whatsThis">
          <string>Led widget</string>
@@ -325,7 +318,7 @@
     <item row="0" column="0" colspan="5">
      <widget class="QPushButton" name="arret_urgence">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(204, 0, 0);</string>
@@ -401,6 +394,39 @@
       </property>
      </widget>
     </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>N° mouvement en cours</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="1">
+     <widget class="QSpinBox" name="num_mouvement_en_cours">
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="buttonSymbols">
+       <enum>QAbstractSpinBox::NoButtons</enum>
+      </property>
+      <property name="specialValueText">
+       <string>Aucun</string>
+      </property>
+      <property name="maximum">
+       <number>255</number>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="4">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -408,7 +434,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>370</width>
+     <width>374</width>
      <height>22</height>
     </rect>
    </property>
