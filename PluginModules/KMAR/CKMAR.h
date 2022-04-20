@@ -59,7 +59,20 @@ private slots :
 
     void send_mouvement_clicked(void);
     void send_vitesse_clicked(void);
-    void send_disarm_clicked(void);
+    void send_stop_and_disarm_clicked(void);
+    void send_disarm_axis_1(void);
+    void send_arm_axis_1(void);
+
+    void send_disarm_axis_2(void);
+    void send_arm_axis_2(void);
+
+    void send_disarm_axis_3(void);
+    void send_arm_axis_3(void);
+
+    void send_disarm_axis_4(void);
+    void send_arm_axis_4(void);
+
+
 };
 
 #endif // _CPLUGIN_MODULE_KMAR_H_
