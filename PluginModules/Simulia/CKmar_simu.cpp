@@ -4,7 +4,8 @@
 
 CKmarSimu::CKmarSimu() :
     m_mouvement_init(this),
-    m_mouvement_ramasse(this)
+    m_mouvement_ramasse(this),
+    m_object_catched(false)
 {
 
 }
@@ -150,4 +151,24 @@ void CKmarSimu::start(int mouvement)
 
     }
     if (m_mouvement_en_cours) m_mouvement_en_cours->start();
+}
+
+// __________________________________________________
+void CKmarSimu::catchObject()
+{
+   qDebug() << "Catch object";
+   m_object_catched = true;
+}
+
+// __________________________________________________
+void CKmarSimu::releaseObject()
+{
+   qDebug() << "Release object";
+   m_object_catched = false;
+}
+
+// __________________________________________________
+bool CKmarSimu::isObjectCatched()
+{
+    return m_object_catched;
 }

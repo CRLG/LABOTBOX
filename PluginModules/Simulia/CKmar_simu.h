@@ -22,6 +22,10 @@ public:
     /*virtual*/void delay_ms(int delay);
     /*virtual*/void start(int mouvement);
 
+    /*virtual*/void catchObject();
+    /*virtual*/void releaseObject();
+    /*virtual*/bool isObjectCatched();
+
     /*virtual*/void compute();
 
     typedef enum {
@@ -49,6 +53,7 @@ public:
     static const int MAX_AXIS_NUMBER = 10;
     int m_axis_pos[MAX_AXIS_NUMBER];
     int m_axis_goal_position[MAX_AXIS_NUMBER];
+    bool m_object_catched;
 };
 
 #endif // CKMAR_SIMU_H
