@@ -461,10 +461,20 @@
       <item row="2" column="4">
        <widget class="QPushButton" name="disarm">
         <property name="toolTip">
-         <string>Stop &amp; Disarm all</string>
+         <string>Désarme tous les axes</string>
         </property>
         <property name="text">
          <string>Disarm</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QPushButton" name="arm">
+        <property name="toolTip">
+         <string>Arme tous les axes</string>
+        </property>
+        <property name="text">
+         <string>Arm</string>
         </property>
        </widget>
       </item>
@@ -474,6 +484,16 @@
      <widget class="Line" name="line">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QPushButton" name="fix_position">
+      <property name="toolTip">
+       <string>Arrêt le mouvement et fixe la position</string>
+      </property>
+      <property name="text">
+       <string>Fix</string>
       </property>
      </widget>
     </item>

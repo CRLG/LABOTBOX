@@ -71,6 +71,8 @@ void CKMAR::init(CApplication *application)
   connect(m_ihm.ui.send_mouvement, SIGNAL(clicked(bool)), this, SLOT(send_mouvement_clicked()));
   connect(m_ihm.ui.send_speed, SIGNAL(clicked(bool)), this, SLOT(send_vitesse_clicked()));
   connect(m_ihm.ui.disarm, SIGNAL(clicked(bool)), this, SLOT(send_stop_and_disarm_clicked()));
+  connect(m_ihm.ui.arm, SIGNAL(clicked(bool)), this, SLOT(send_arm()));
+  connect(m_ihm.ui.fix_position, SIGNAL(clicked(bool)), this, SLOT(send_stop_and_fix_clicked()));
   connect(m_ihm.ui.arret_urgence, SIGNAL(clicked(bool)), this, SLOT(send_stop_and_disarm_clicked()));
   connect(m_ihm.ui.disarm_1, SIGNAL(clicked(bool)), this, SLOT(send_disarm_axis_1()));
   connect(m_ihm.ui.arm_1, SIGNAL(clicked(bool)), this, SLOT(send_arm_axis_1()));
@@ -125,11 +127,15 @@ void CKMAR::onRightClicGUI(QPoint pos)
 
 // ____________________________________________________
 // TODO : rendre commun ces définitions avec le robot
-#define KMAR_CMD_MOUVEMENT              (1)
-#define KMAR_CMD_VITESSE                (2)
-#define KMAR_CMD_STOP_AND_DISARM_ALL    (3)
-#define KMAR_CMD_DISARM_AXIS            (4)
-#define KMAR_CMD_ARM_AXIS               (5)
+typedef enum {
+    KMAR_CMD_MOUVEMENT = 1,
+    KMAR_CMD_VITESSE,
+    KMAR_CMD_STOP_AND_FIX_POSITION,
+    KMAR_CMD_STOP_AND_DISARM_ALL,
+    KMAR_CMD_ARM_ALL,
+    KMAR_CMD_DISARM_AXIS,
+    KMAR_CMD_ARM_AXIS
+}KmarCmd;
 
 typedef enum {
     AXIS_1 = 0,
@@ -162,6 +168,24 @@ void CKMAR::send_stop_and_disarm_clicked()
     m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
     m_application->m_data_center->write("cmd_kmar", KMAR_CMD_STOP_AND_DISARM_ALL);
     m_application->m_data_center->write("value_cmd_kmar", 0);
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+}
+
+void CKMAR::send_stop_and_fix_clicked()
+{
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+    m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
+    m_application->m_data_center->write("cmd_kmar", KMAR_CMD_STOP_AND_FIX_POSITION);
+    m_application->m_data_center->write("value_cmd_kmar", 0);
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+}
+
+void CKMAR::send_arm()
+{
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+    m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
+    m_application->m_data_center->write("cmd_kmar", KMAR_CMD_ARM_ALL);
+    m_application->m_data_center->write("value_cmd_kmar", AXIS_1);
     m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
 }
 
