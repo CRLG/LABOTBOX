@@ -3195,6 +3195,7 @@ void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
     axis2_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 2);
     axis3_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 3);
     axis4_moving =              CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 4);
+    object_catched =            CDataEncoderDecoder::decode_bit(trameRecue->Data, 3, 5);
     axis1_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  4);
     axis2_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  6);
     axis3_position =            CDataEncoderDecoder::decode_int16(trameRecue->Data,  8);
@@ -3208,6 +3209,7 @@ void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write(QString("Kmar%1.axis2.moving").arg(num_kmar), axis2_moving);
    m_data_manager->write(QString("Kmar%1.axis3.moving").arg(num_kmar), axis3_moving);
    m_data_manager->write(QString("Kmar%1.axis4.moving").arg(num_kmar), axis4_moving);
+   m_data_manager->write(QString("Kmar%1.object_catched").arg(num_kmar), object_catched);
    m_data_manager->write(QString("Kmar%1.axis1.position").arg(num_kmar), axis1_position);
    m_data_manager->write(QString("Kmar%1.axis2.position").arg(num_kmar), axis2_position);
    m_data_manager->write(QString("Kmar%1.axis3.position").arg(num_kmar), axis3_position);

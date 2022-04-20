@@ -75,7 +75,8 @@ private slots :
     void send_disarm_axis_4(void);
     void send_arm_axis_4(void);
 
-
+    void send_catch_object(void);
+    void send_release_object(void);
 };
 
 #endif // _CPLUGIN_MODULE_KMAR_H_

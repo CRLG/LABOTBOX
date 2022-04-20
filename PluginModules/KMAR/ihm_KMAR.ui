@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>444</width>
-    <height>361</height>
+    <width>475</width>
+    <height>408</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0" colspan="5">
+    <item row="11" column="0" colspan="5">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="2">
        <widget class="QSpinBox" name="pos_axe3">
@@ -374,14 +374,14 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>N° mouvement en cours</string>
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="QSpinBox" name="num_mouvement_en_cours">
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -480,7 +480,7 @@
       </item>
      </layout>
     </item>
-    <item row="7" column="0" colspan="5">
+    <item row="8" column="0" colspan="5">
      <widget class="Line" name="line">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -497,6 +497,65 @@
       </property>
      </widget>
     </item>
+    <item row="7" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="release_object">
+        <property name="text">
+         <string>Release Object</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLed" name="object_catched">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Object attrapé</string>
+        </property>
+        <property name="whatsThis">
+         <string>Led widget</string>
+        </property>
+        <property name="value">
+         <bool>false</bool>
+        </property>
+        <property name="onColor">
+         <enum>QLed::Green</enum>
+        </property>
+        <property name="offColor">
+         <enum>QLed::Grey</enum>
+        </property>
+        <property name="shape">
+         <enum>QLed::Circle</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="catch_object">
+        <property name="text">
+         <string>Catch Object</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="6" column="0" colspan="5">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -504,7 +563,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>444</width>
+     <width>475</width>
      <height>22</height>
     </rect>
    </property>

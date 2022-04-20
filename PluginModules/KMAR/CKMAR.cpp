@@ -82,19 +82,22 @@ void CKMAR::init(CApplication *application)
   connect(m_ihm.ui.arm_3, SIGNAL(clicked(bool)), this, SLOT(send_arm_axis_3()));
   connect(m_ihm.ui.disarm_4, SIGNAL(clicked(bool)), this, SLOT(send_disarm_axis_4()));
   connect(m_ihm.ui.arm_4, SIGNAL(clicked(bool)), this, SLOT(send_arm_axis_4()));
+  connect(m_ihm.ui.catch_object, SIGNAL(clicked(bool)), this, SLOT(send_catch_object()));
+  connect(m_ihm.ui.release_object, SIGNAL(clicked(bool)), this, SLOT(send_release_object()));
 
   int num_kmar = m_application->m_eeprom->read(getName(), "num_kmar", 1).toInt();  // pour prévoir plusieurs instances du module pour chaque Kmar
   QString kmar_name = QString("Kmar%1").arg(num_kmar);
-  connect(m_application->m_data_center->getData(QString("%1.axis1.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_1, SLOT(setValue(bool)));
-  connect(m_application->m_data_center->getData(QString("%1.axis2.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_2, SLOT(setValue(bool)));
-  connect(m_application->m_data_center->getData(QString("%1.axis3.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_3, SLOT(setValue(bool)));
-  connect(m_application->m_data_center->getData(QString("%1.axis4.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_4, SLOT(setValue(bool)));
-  connect(m_application->m_data_center->getData(QString("%1.axis1.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe1, SLOT(setValue(int)));
-  connect(m_application->m_data_center->getData(QString("%1.axis2.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe2, SLOT(setValue(int)));
-  connect(m_application->m_data_center->getData(QString("%1.axis3.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe3, SLOT(setValue(int)));
-  connect(m_application->m_data_center->getData(QString("%1.axis4.position").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe4, SLOT(setValue(int)));
-  connect(m_application->m_data_center->getData(QString("%1.moving").arg(kmar_name)), SIGNAL(valueChanged(bool)), m_ihm.ui.mouvement_en_cours, SLOT(setValue(bool)));
-  connect(m_application->m_data_center->getData(QString("%1.num_mouvement_en_cours").arg(kmar_name)), SIGNAL(valueChanged(int)), m_ihm.ui.num_mouvement_en_cours, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis1.moving").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_1, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis2.moving").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_2, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis3.moving").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_3, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis4.moving").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.mvt_axe_4, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.object_catched").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.object_catched, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.axis1.position").arg(kmar_name), true), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe1, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis2.position").arg(kmar_name), true), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe2, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis3.position").arg(kmar_name), true), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe3, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.axis4.position").arg(kmar_name), true), SIGNAL(valueChanged(int)), m_ihm.ui.pos_axe4, SLOT(setValue(int)));
+  connect(m_application->m_data_center->getData(QString("%1.moving").arg(kmar_name), true), SIGNAL(valueChanged(bool)), m_ihm.ui.mouvement_en_cours, SLOT(setValue(bool)));
+  connect(m_application->m_data_center->getData(QString("%1.num_mouvement_en_cours").arg(kmar_name), true), SIGNAL(valueChanged(int)), m_ihm.ui.num_mouvement_en_cours, SLOT(setValue(int)));
 }
 
 
@@ -134,7 +137,9 @@ typedef enum {
     KMAR_CMD_STOP_AND_DISARM_ALL,
     KMAR_CMD_ARM_ALL,
     KMAR_CMD_DISARM_AXIS,
-    KMAR_CMD_ARM_AXIS
+    KMAR_CMD_ARM_AXIS,
+    KMAR_CMD_CATCH_OBJECT,
+    KMAR_CMD_RELEASE_OBJECT
 }KmarCmd;
 
 typedef enum {
@@ -258,5 +263,23 @@ void CKMAR::send_arm_axis_4()
     m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
     m_application->m_data_center->write("cmd_kmar", KMAR_CMD_ARM_AXIS);
     m_application->m_data_center->write("value_cmd_kmar", AXIS_4);
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+}
+
+void CKMAR::send_catch_object()
+{
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+    m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
+    m_application->m_data_center->write("cmd_kmar", KMAR_CMD_CATCH_OBJECT);
+    m_application->m_data_center->write("value_cmd_kmar", 0);
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+}
+
+void CKMAR::send_release_object()
+{
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+    m_application->m_data_center->write("num_kmar", m_ihm.ui.num_kmar->value());
+    m_application->m_data_center->write("cmd_kmar", KMAR_CMD_RELEASE_OBJECT);
+    m_application->m_data_center->write("value_cmd_kmar", 0);
     m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
 }

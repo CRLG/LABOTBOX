@@ -1262,6 +1262,7 @@ public :
     bool axis2_moving;
     bool axis3_moving;
     bool axis4_moving;
+    bool object_catched;
     unsigned short axis1_position;
     unsigned short axis2_position;
     unsigned short axis3_position;
