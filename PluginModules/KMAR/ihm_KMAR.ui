@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>408</height>
+    <width>496</width>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,307 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="1" colspan="2">
-     <widget class="QComboBox" name="choix_mouvement">
-      <item>
-       <property name="text">
-        <string>INIT</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>RAMASSE</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Numéro du Kmar</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="3">
-     <widget class="QPushButton" name="send_mouvement">
-      <property name="text">
-       <string>Send</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="0" colspan="5">
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="2">
-       <widget class="QSpinBox" name="pos_axe3">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Position Axe 3</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLed" name="mvt_axe_2">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Mouvement en cours Axe 2</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLed" name="mvt_axe_3">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Mouvement en cours Axe 3</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLed" name="mouvement_en_cours">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Mouvement en cours</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLed" name="mvt_axe_4">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Mouvement en cours Axe 4</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QSpinBox" name="pos_axe4">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Position Axe 4</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="pos_axe2">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Position Axe 2</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QSpinBox" name="pos_axe1">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Position Axe 1</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLed" name="mvt_axe_1">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Mouvement en cours Axe 1</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Red</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Choix du mouvement</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="5">
+    <item row="0" column="0" colspan="2">
      <widget class="QPushButton" name="arret_urgence">
       <property name="enabled">
        <bool>true</bool>
@@ -328,232 +28,711 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QSpinBox" name="facteur_vitesse">
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="suffix">
-       <string> [%]</string>
-      </property>
-      <property name="maximum">
-       <number>600</number>
-      </property>
-      <property name="value">
-       <number>100</number>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3">
-     <widget class="QPushButton" name="send_speed">
-      <property name="text">
-       <string>Send</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QSpinBox" name="num_kmar">
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="showGroupSeparator" stdset="0">
-       <bool>false</bool>
-      </property>
-      <property name="minimum">
-       <number>1</number>
-      </property>
-      <property name="maximum">
-       <number>100</number>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Facteur de vitesse</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>N° mouvement en cours</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <widget class="QSpinBox" name="num_mouvement_en_cours">
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="readOnly">
+    <item row="1" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
        <bool>true</bool>
       </property>
-      <property name="buttonSymbols">
-       <enum>QAbstractSpinBox::NoButtons</enum>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="specialValueText">
-       <string>Aucun</string>
-      </property>
-      <property name="maximum">
-       <number>255</number>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="5">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="2">
-       <widget class="QPushButton" name="arm_3">
-        <property name="text">
-         <string>Arm3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="arm_1">
-        <property name="text">
-         <string>Arm1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="arm_4">
-        <property name="text">
-         <string>Arm4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="arm_2">
-        <property name="text">
-         <string>Arm2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="disarm_1">
-        <property name="text">
-         <string>Disarm1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="disarm_2">
-        <property name="text">
-         <string>Disarm2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="disarm_3">
-        <property name="text">
-         <string>Disarm3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QPushButton" name="disarm_4">
-        <property name="text">
-         <string>Disarm4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QPushButton" name="disarm">
-        <property name="toolTip">
-         <string>Désarme tous les axes</string>
-        </property>
-        <property name="text">
-         <string>Disarm</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QPushButton" name="arm">
-        <property name="toolTip">
-         <string>Arme tous les axes</string>
-        </property>
-        <property name="text">
-         <string>Arm</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="8" column="0" colspan="5">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <widget class="QPushButton" name="fix_position">
-      <property name="toolTip">
-       <string>Arrêt le mouvement et fixe la position</string>
-      </property>
-      <property name="text">
-       <string>Fix</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0" colspan="2">
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="1">
-       <widget class="QPushButton" name="release_object">
-        <property name="text">
-         <string>Release Object</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLed" name="object_catched">
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Object attrapé</string>
-        </property>
-        <property name="whatsThis">
-         <string>Led widget</string>
-        </property>
-        <property name="value">
-         <bool>false</bool>
-        </property>
-        <property name="onColor">
-         <enum>QLed::Green</enum>
-        </property>
-        <property name="offColor">
-         <enum>QLed::Grey</enum>
-        </property>
-        <property name="shape">
-         <enum>QLed::Circle</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="catch_object">
-        <property name="text">
-         <string>Catch Object</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="6" column="0" colspan="5">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
+      <widget class="QWidget" name="tab_general">
+       <attribute name="title">
+        <string>General</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_14">
+        <item row="3" column="0" colspan="5">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="1" column="2">
+           <widget class="QPushButton" name="arm_3">
+            <property name="text">
+             <string>Arm3</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="arm_1">
+            <property name="text">
+             <string>Arm1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QPushButton" name="arm_4">
+            <property name="text">
+             <string>Arm4</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="arm_2">
+            <property name="text">
+             <string>Arm2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="disarm_1">
+            <property name="text">
+             <string>Disarm1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="disarm_2">
+            <property name="text">
+             <string>Disarm2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="disarm_3">
+            <property name="text">
+             <string>Disarm3</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QPushButton" name="disarm_4">
+            <property name="text">
+             <string>Disarm4</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QPushButton" name="disarm">
+            <property name="toolTip">
+             <string>Désarme tous les axes</string>
+            </property>
+            <property name="text">
+             <string>Disarm</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="arm">
+            <property name="toolTip">
+             <string>Arme tous les axes</string>
+            </property>
+            <property name="text">
+             <string>Arm</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="0" colspan="6">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="6">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>N° mouvement en cours</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Facteur de vitesse</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Choix du mouvement</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Numéro du Kmar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="facteur_vitesse">
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="suffix">
+           <string> [%]</string>
+          </property>
+          <property name="maximum">
+           <number>600</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="choix_mouvement">
+          <item>
+           <property name="text">
+            <string>INIT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>RAMASSE</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="num_kmar">
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="showGroupSeparator" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="send_speed">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="send_mouvement">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="fix_position">
+          <property name="toolTip">
+           <string>Arrêt le mouvement et fixe la position</string>
+          </property>
+          <property name="text">
+           <string>Fix</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QSpinBox" name="num_mouvement_en_cours">
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="specialValueText">
+           <string>Aucun</string>
+          </property>
+          <property name="maximum">
+           <number>255</number>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="3">
+         <layout class="QGridLayout" name="gridLayout_11">
+          <item row="0" column="2">
+           <widget class="QSpinBox" name="pos_axe3">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Position Axe 3</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLed" name="mvt_axe_2">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Mouvement en cours Axe 2</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Red</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLed" name="mvt_axe_3">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Mouvement en cours Axe 3</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Red</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QLed" name="mouvement_en_cours">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Mouvement en cours</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Red</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLed" name="mvt_axe_4">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Mouvement en cours Axe 4</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Red</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QSpinBox" name="pos_axe4">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Position Axe 4</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="pos_axe2">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Position Axe 2</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QSpinBox" name="pos_axe1">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Position Axe 1</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLed" name="mvt_axe_1">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Mouvement en cours Axe 1</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Red</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="1">
+           <widget class="QPushButton" name="release_object">
+            <property name="text">
+             <string>Release Object</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLed" name="object_catched">
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Object attrapé</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>false</bool>
+            </property>
+            <property name="onColor">
+             <enum>QLed::Green</enum>
+            </property>
+            <property name="offColor">
+             <enum>QLed::Grey</enum>
+            </property>
+            <property name="shape">
+             <enum>QLed::Circle</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="catch_object">
+            <property name="text">
+             <string>Catch Object</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_sequencer">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <attribute name="title">
+        <string>Sequencer</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_16">
+        <item row="2" column="0">
+         <widget class="QTableWidget" name="tableWidget">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>50</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Pos1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Spd1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Pos2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Spd2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Pos3</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Spd3</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Pos4</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Spd4</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Comm</string>
+           </property>
+           <property name="toolTip">
+            <string>Commentaire</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_15">
+          <item row="1" column="3">
+           <widget class="QPushButton" name="pushButton_7">
+            <property name="text">
+             <string>Clean</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="pushButton_3">
+            <property name="text">
+             <string>-&gt; C++</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/pince.png</normaloff>:/icons/pince.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Load</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButton_5">
+            <property name="text">
+             <string>Remove</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/minus.png</normaloff>:/icons/minus.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>Save</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="text">
+             <string>Add</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/edit_add.png</normaloff>:/icons/edit_add.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QPushButton" name="pushButton_4">
+            <property name="text">
+             <string>Play</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../icons.qrc">
+              <normaloff>:/icons/player_play.png</normaloff>:/icons/player_play.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -563,7 +742,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>475</width>
+     <width>496</width>
      <height>22</height>
     </rect>
    </property>
@@ -577,6 +756,8 @@
    <header>qled.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
