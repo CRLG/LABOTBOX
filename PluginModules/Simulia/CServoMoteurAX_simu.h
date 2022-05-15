@@ -37,6 +37,10 @@ public:
 
     void simu();
 
+    static const int NOMBRE_MAX_SERVOS = 100;
+    int m_positions[NOMBRE_MAX_SERVOS]; // Simule la relecture de position dans le servo
+    int m_moving[NOMBRE_MAX_SERVOS];    // Simule la relecture de l'état en mouvement/repos dans le servo
+
 private :
     CApplication *m_application;
     typedef struct {
@@ -46,7 +50,6 @@ private :
         unsigned short position_limit_min;
         unsigned short position_limit_max;
     }tServoAXSimu;
-    static const int NOMBRE_MAX_SERVOS = 100;
     tServoAXSimu m_servos[NOMBRE_MAX_SERVOS];
 };
 

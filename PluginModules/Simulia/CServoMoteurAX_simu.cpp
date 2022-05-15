@@ -107,6 +107,9 @@ void CServoMoteurAXSimu::simu()
             m_application->m_data_center->write(data_name, m_servos[i].position);
         }
         // else : le servo est à la position attendue -> ne rien faire
+
+        m_moving[i] = isMoving(i);
+        m_positions[i] = m_servos[i].position;
     }
 }
 
