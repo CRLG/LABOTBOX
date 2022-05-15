@@ -188,7 +188,32 @@
           </item>
           <item>
            <property name="text">
-            <string>RAMASSE</string>
+            <string>APPRENTISSAGE_CHARIOT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PRISE_STATUETTE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>POSER_STATUETTE_SUR_VITRINE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PRENDRE_ECHANTILLON_AU_SOL</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>DEPOSER_ECHANTILLON_SUR_GALERIE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>RANGER_STATUETTE_DANS_ROBOT</string>
            </property>
           </item>
          </widget>
