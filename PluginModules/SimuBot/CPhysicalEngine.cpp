@@ -106,6 +106,20 @@ void CPhysicalEngine::createPhysicalWorld(CApplication *application, QPolygonF b
     Fixture_Bordure_basse.density = 1.0f;
     Fixture_Bordure_basse.friction = 1.0f;
     Corps_Bordure_basse->CreateFixture(&Fixture_Bordure_basse);
+    
+    //comportement de la bordure dans le monde simulé
+    b2BodyDef Definition_Chantier_jaune;
+    Definition_Chantier_jaune.position.Set(0.0f,0.0f);
+    //ajout de la bordure au monde simulé
+    b2Body* Corps_Chantier_jaune = realWorld->CreateBody(&Definition_Chantier_jaune);
+    //caractéristiques physiques de la bordure
+    b2PolygonShape Forme_Chantier_jaune;
+    Forme_Chantier_jaune.SetAsBox(36.06f,0.5f,b2Vec2(25.5f,25.5f),-M_PI/4);
+    b2FixtureDef Fixture_Chantier_jaune;
+    Fixture_Chantier_jaune.shape = &Forme_Chantier_jaune;
+    Fixture_Chantier_jaune.density = 1.0f;
+    Fixture_Chantier_jaune.friction = 1.0f;
+    Corps_Chantier_jaune->CreateFixture(&Fixture_Chantier_jaune);
 
     m_old_bot1_pos_G.x=0.0f;
     m_old_bot1_pos_G.y=0.0f;
@@ -133,42 +147,27 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         realWorld->DestroyBody(m_bot1);
     if(m_bot2)
         realWorld->DestroyBody(m_bot2);
-    for(int i=0; i<24;i++)
+    for(int i=0; i<12;i++)
     {
         if(elementsJeu[i])
             realWorld->DestroyBody(elementsJeu[i]);
     }
 
     //éléments de jeux
-    elementsJeu[0]=setElement(30.0f,160.0f);
-    elementsJeu[1]=setElement(45.0f,149.0f);
-    elementsJeu[2]=setElement(67.0f,190.0f);
-    elementsJeu[3]=setElement(95.0f,160.0f);
+    elementsJeu[0]=setElement(90.0f,144.5f);
+    elementsJeu[1]=setElement(83.0f,132.5f);
+    elementsJeu[2]=setElement(90.0f,120.5f);
+    elementsJeu[3]=setElement(210.0f,144.5f);
+    elementsJeu[4]=setElement(217.0f,132.5f);
+    elementsJeu[5]=setElement(210.0f,120.5f);
 
-    elementsJeu[4]=setElement(30.0f,80.0f);
-    elementsJeu[5]=setElement(45.0f,92.0f);
-    elementsJeu[6]=setElement(110.0f,120.0f);
-    elementsJeu[7]=setElement(127.0f,80.0f);
+    elementsJeu[6]=setElement(87.5f,70.0f);
+    elementsJeu[7]=setElement(92.5f,53.0f);
+    elementsJeu[8]=setElement(106.0f,70.0f);
+    elementsJeu[9]=setElement(192.5f,70.0f);
+    elementsJeu[10]=setElement(197.5f,53.0f);
+    elementsJeu[11]=setElement(211.0f,70.0f);
 
-    elementsJeu[8]=setElement(100.5f,4.5f);
-    elementsJeu[9]=setElement(106.5f,35.0f);
-    elementsJeu[10]=setElement(133.5f,35.0f);
-    elementsJeu[11]=setElement(139.5f,4.5f);
-
-    elementsJeu[12]=setElement(270.0f,160.0f);
-    elementsJeu[13]=setElement(255.0f,149.0f);
-    elementsJeu[14]=setElement(230.0f,190.0f);
-    elementsJeu[15]=setElement(205.0f,160.0f);
-
-    elementsJeu[16]=setElement(270.0f,80.0f);
-    elementsJeu[17]=setElement(255.0f,92.0f);
-    elementsJeu[18]=setElement(190.0f,120.0f);
-    elementsJeu[19]=setElement(173.0f,80.0f);
-
-    elementsJeu[20]=setElement(199.5f,4.5f);
-    elementsJeu[21]=setElement(193.5f,35.0f);
-    elementsJeu[22]=setElement(166.5f,35.0f);
-    elementsJeu[23]=setElement(160.5f,4.5f);
 
     //comme pour l'asservissement on centre le repère de notre monde sur le centre de notre robot
     //on utilisera donc les offset d'init x et y en paramètres
@@ -183,8 +182,8 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     //comportement du robot dans le monde simulé
     b2BodyDef Definition_Robot;
     Definition_Robot.type = b2_dynamicBody; //corps dynamique
-    Definition_Robot.linearDamping = 8.0f; //frottement lineaire pour simuler une gravite Y
-    Definition_Robot.angularDamping=2.0f; //idem pour l'angle
+    Definition_Robot.linearDamping = 6.0f; //frottement lineaire pour simuler une gravite Y
+    Definition_Robot.angularDamping=4.0f; //idem pour l'angle
     Definition_Robot.position.Set(m_x_init1,m_y_init1); //position de depart
     Definition_Robot.angle=m_teta_init1;
 
@@ -249,8 +248,8 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         //comportement du robot dans le monde simulé
         b2BodyDef Definition_bot2;
         Definition_bot2.type = b2_dynamicBody; //corps dynamique
-        Definition_bot2.linearDamping = 8.0f; //frottement lineaire pour simuler une gravite Y
-        Definition_bot2.angularDamping=2.0f; //idem pour l'angle
+        Definition_bot2.linearDamping = 10.0f; //frottement lineaire pour simuler une gravite Y
+        Definition_bot2.angularDamping=1.0f; //idem pour l'angle
         Definition_bot2.position.Set(m_x_init2,m_y_init2); //position de depart
         Definition_bot2.angle=m_teta_init2;
         x_pos_2=0;
@@ -341,12 +340,29 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
 
     realWorld->ClearForces();
 
-    m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_G,0)),
+    if((vect_deplacement_G*vect_deplacement_D)>=0)
+    {
+        m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2((vect_deplacement_G+vect_deplacement_D),0)),
+                                 m_bot1->GetWorldCenter(),
+                                 true);
+    }
+    else
+    {
+        m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_G,0)),
+                                 m_bot1->GetWorldPoint(b2Vec2(0.0f,12.0f)),
+                                 true);
+        m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_D,0)),
+                                 m_bot1->GetWorldPoint(b2Vec2(0.0f,-12.0f)),
+                                 true);
+    }
+
+
+    /*m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_G,0)),
                              m_bot1->GetWorldPoint(b2Vec2(0.0f,12.0f)),
                              true);
     m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_D,0)),
                              m_bot1->GetWorldPoint(b2Vec2(0.0f,-12.0f)),
-                             true);
+                             true);*/
     /*if(m_bot2_activated)
     {
         m_bot2->ApplyLinearImpulse(m_bot2->GetWorldVector(b2Vec2(vect_deplacement_G_2,0)),
@@ -433,7 +449,11 @@ QPointF CPhysicalEngine::getElement(int num)
     QPointF elementCoord(elementsJeu[num]->GetPosition().x,elementsJeu[num]->GetPosition().y);
 
     return elementCoord;
+}
 
+float CPhysicalEngine::getElementRotation(int num)
+{
+    return elementsJeu[num]->GetAngle();
 }
 
 
@@ -447,9 +467,19 @@ b2Body* CPhysicalEngine::setElement(float x, float y)
     Definition_ElJeu.position.Set(x,y); //position de depart
     //ajout du robot au monde simulé
     nouveauElement = realWorld->CreateBody(&Definition_ElJeu);
+    //caractéristiques physiques de l'élément
     //caractéristiques physiques du robot
-    b2CircleShape Forme_ElJeu;
-    Forme_ElJeu.m_radius=3.6f;
+    b2PolygonShape Forme_ElJeu;
+
+    b2Vec2 polygonShape[6];
+    polygonShape[0].x=7.5*cos(M_PI/6);polygonShape[0].y=7.5*sin(M_PI/6);
+    polygonShape[1].x=0;polygonShape[1].y=7.5;
+    polygonShape[2].x=7.5*cos(5*M_PI/6);polygonShape[2].y=7.5*sin(5*M_PI/6);
+    polygonShape[3].x=7.5*cos(-5*M_PI/6);polygonShape[3].y=7.5*sin(-5*M_PI/6);
+    polygonShape[4].x=0;polygonShape[4].y=-7.5;
+    polygonShape[5].x=7.5*cos(-M_PI/6);polygonShape[5].y=7.5*sin(-M_PI/6);
+    //polygonShape[6].x=7.5*cos(M_PI/6);polygonShape[6].y=7.5*sin(M_PI/6);
+    Forme_ElJeu.Set(polygonShape,6);
     b2FixtureDef Fixture_ElJeu;
     Fixture_ElJeu.shape = &Forme_ElJeu;
     Fixture_ElJeu.density = 1.0f;
@@ -522,3 +552,19 @@ void CPhysicalEngine::activateBot2(bool flag)
         m_bot2_pos_D.y=0.0f;
     }
 }
+
+b2Vec2 CPhysicalEngine::getBotLateralVelocity(int numBot) {
+    b2Vec2 currentRightNormal; //norme de la vitesse latérale
+    float currentLateralVelocity; //vitesse latérale=(direction de la composante latérale de la vitesse linéaire)*norme de la vitesse latérale;
+    if(numBot==1)
+    {
+        currentRightNormal = m_bot1->GetWorldVector( b2Vec2(1,0) );
+        currentLateralVelocity=b2Dot( currentRightNormal, m_bot1->GetLinearVelocity() );
+    }
+    else
+    {
+        currentRightNormal = m_bot2->GetWorldVector( b2Vec2(1,0) );
+        currentLateralVelocity=b2Dot( currentRightNormal, m_bot2->GetLinearVelocity() );
+    }
+     return  (currentLateralVelocity * currentRightNormal);
+ }

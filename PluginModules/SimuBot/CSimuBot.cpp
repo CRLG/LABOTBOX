@@ -164,58 +164,39 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2020_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2022_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-    elementsJeu[0]=setElementJeu(30.0f,160.0f,Qt::red);
-    elementsJeu[1]=setElementJeu(45.0f,149.0f,Qt::green);
-    elementsJeu[2]=setElementJeu(67.0f,190.0f,Qt::red);
-    elementsJeu[3]=setElementJeu(95.0f,160.0f,Qt::green);
+    elementsJeu[0]=setElementJeu(90.0f,144.5f,Qt::cyan);
+    elementsJeu[1]=setElementJeu(83.0f,132.5f,Qt::cyan);
+    elementsJeu[2]=setElementJeu(90.0f,120.5f,Qt::cyan);
+    elementsJeu[3]=setElementJeu(210.0f,144.5f,Qt::cyan);
+    elementsJeu[4]=setElementJeu(217.0f,132.5f,Qt::cyan);
+    elementsJeu[5]=setElementJeu(210.0f,120.5f,Qt::cyan);
 
-    elementsJeu[4]=setElementJeu(30.0f,80.0f,Qt::green);
-    elementsJeu[5]=setElementJeu(45.0f,92.0f,Qt::red);
-    elementsJeu[6]=setElementJeu(110.0f,120.0f,Qt::red);
-    elementsJeu[7]=setElementJeu(127.0f,80.0f,Qt::green);
+    elementsJeu[6]=setElementJeu(87.5f,70.0f,Qt::red);
+    elementsJeu[7]=setElementJeu(92.5f,53.0f,Qt::blue);
+    elementsJeu[8]=setElementJeu(106.0f,70.0f,Qt::green);
+    elementsJeu[9]=setElementJeu(192.5f,70.0f,Qt::red);
+    elementsJeu[10]=setElementJeu(197.5f,53.0f,Qt::blue);
+    elementsJeu[11]=setElementJeu(211.0f,70.0f,Qt::green);
 
-    elementsJeu[8]=setElementJeu(100.5f,4.5f,Qt::red);
-    elementsJeu[9]=setElementJeu(106.5f,35.0f,Qt::green);
-    elementsJeu[10]=setElementJeu(133.5f,35.0f,Qt::red);
-    elementsJeu[11]=setElementJeu(139.5f,4.5f,Qt::green);
-
-    elementsJeu[12]=setElementJeu(270.0f,160.0f,Qt::green);
-    elementsJeu[13]=setElementJeu(255.0f,149.0f,Qt::red);
-    elementsJeu[14]=setElementJeu(230.0f,190.0f,Qt::green);
-    elementsJeu[15]=setElementJeu(205.0f,160.0f,Qt::red);
-
-    elementsJeu[16]=setElementJeu(270.0f,80.0f,Qt::red);
-    elementsJeu[17]=setElementJeu(255.0f,92.0f,Qt::green);
-    elementsJeu[18]=setElementJeu(190.0f,120.0f,Qt::green);
-    elementsJeu[19]=setElementJeu(173.0f,80.0f,Qt::red);
-
-    elementsJeu[20]=setElementJeu(199.5f,4.5f,Qt::green);
-    elementsJeu[21]=setElementJeu(193.5f,35.0f,Qt::red);
-    elementsJeu[22]=setElementJeu(166.5f,35.0f,Qt::green);
-    elementsJeu[23]=setElementJeu(160.5f,4.5f,Qt::red);
-
-    //ajout des tasseaux 2020
-    //(89,0)->(89,15)
-    //(149,0)->(149,30)
-    //(209,0)->(209,15)
+    //ajout des tasseaux 2022
     QGraphicsLineItem * Tasseau01;
-    Tasseau01=new QGraphicsLineItem(89,0,89,-15);
-    Tasseau01->setPen(QPen(Qt::blue,3));
+    Tasseau01=new QGraphicsLineItem(0,-51,51,0);
+    Tasseau01->setPen(QPen(Qt::yellow,1));
     terrain->addItem(Tasseau01);
     QGraphicsLineItem * Tasseau02;
-    Tasseau02=new QGraphicsLineItem(149,0,149,-30);
-    Tasseau02->setPen(QPen(Qt::blue,3));
+    Tasseau02=new QGraphicsLineItem(249,0,300,-51);
+    Tasseau02->setPen(QPen(Qt::blue,1));
     terrain->addItem(Tasseau02);
     QGraphicsLineItem * Tasseau03;
-    Tasseau03=new QGraphicsLineItem(209,0,209,-15);
-    Tasseau03->setPen(QPen(Qt::blue,3));
+    Tasseau03=new QGraphicsLineItem(150,-200,150,-170);
+    Tasseau03->setPen(QPen(Qt::gray,2));
     terrain->addItem(Tasseau03);
 
 
@@ -640,9 +621,11 @@ void CSimuBot::initView(void){
             m_physical_engine.Init(x_init,y_init,Pi*theta_init/180.0f,x_init_2,y_init_2,Pi*theta_init_2/180.0f,twoBotsEnabled);
         }
 
-        for(int i=0;i<24;i++)
+        //placement des élements de jeu dans le monde simulé
+        for(int i=0;i<12;i++)
         {
-            elementsJeu[i]->setRect(QRect(m_physical_engine.getElement(i).x()-3.6f, -m_physical_engine.getElement(i).y()-3.6f,7.2f,7.2f));
+            elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
         }
 
         //init data manager 1er Robot
@@ -1495,13 +1478,25 @@ void CSimuBot::on_active_external_robot2(bool state)
     }
 }
 
-QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
+QGraphicsPolygonItem * CSimuBot::setElementJeu(float x, float y, int Color)
 {
-    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(QRect(x,-y,7.2,7.2));
+    //QGraphicsEllipseItem* element=new QGraphicsEllipseItem(QRect(x,-y,7.2,7.2));
+    QPolygonF element_shape;
+    element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
+    element_shape << QPointF(7.5*cos(5*M_PI/6),7.5*sin(5*M_PI/6)) << QPointF(7.5*cos(-5*M_PI/6),7.5*sin(-5*M_PI/6));
+    element_shape << QPointF(0,-7.5) << QPointF(7.5*cos(-M_PI/6),7.5*sin(-M_PI/6));
+    element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6));
+    QGraphicsPolygonItem* element=new QGraphicsPolygonItem(element_shape);
+    element->setPos(x,-y);
+    if(Color==Qt::cyan)
+        element->setBrush(QBrush(QColor(139,69,19, 255)));
+    if(Color==Qt::blue)
+        element->setBrush(QBrush(QColor(0,0,255, 255)));
     if(Color==Qt::green)
         element->setBrush(QBrush(QColor(0,255,0, 255)));
-    else
+    if(Color==Qt::red)
         element->setBrush(QBrush(QColor(255,0,0, 255)));
+
     terrain->addItem(element);
 
     return element;
@@ -1516,7 +1511,7 @@ void CSimuBot::updateStepFromSimulia()
 {
     int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
     //int box2Activated=m_application->m_data_center->read("Simubot.box2d.activated").toBool();
-    if((updatedStep>0) && (updatedStep>m_step) && m_box2d_Enabled && (modeVisu==SIMUBOT::SIMU))
+    if((updatedStep>0) && (updatedStep>m_step) && (modeVisu==SIMUBOT::SIMU))
     {
         float vect_G_B1 = m_application->m_data_center->getData("Simulia.vect_G")->read().toFloat();
         float vect_D_B1 = m_application->m_data_center->getData("Simulia.vect_D")->read().toFloat();
@@ -1539,11 +1534,14 @@ void CSimuBot::updateStepFromSimulia()
             if (error_code == 0) vect_D_B2=val.toFloat();
         }
 
+        //simulation des déplacements du robot avec le moteur box2d
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2);
 
-        for(int i=0;i<24;i++)
+        //récupération des données simulées pour les éléments de jeu
+        for(int i=0;i<12;i++)
         {
-            elementsJeu[i]->setRect(QRect(m_physical_engine.getElement(i).x()-3.6f, -m_physical_engine.getElement(i).y()-3.6f,7.2f,7.2f));
+            elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
         }
 
         //environnement physique mis à jour, on l'affiche dans SimuBot

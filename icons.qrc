@@ -64,5 +64,6 @@
         <file>icons/raspberrypi_logo.png</file>
         <file>icons/terrain_2019_simubot.png</file>
         <file>icons/terrain_2020_simubot.png</file>
+        <file>icons/terrain_2022_simubot.png</file>
     </qresource>
 </RCC>

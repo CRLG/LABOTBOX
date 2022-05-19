@@ -22,6 +22,7 @@
 #include <QGraphicsEllipseItem>
 #include "CPhysicalEngine.h"
 
+
 enum SIMUBOT{
     TEST=0,
     VISU,
@@ -107,7 +108,7 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
-    QGraphicsEllipseItem * elementsJeu[24];
+    QGraphicsPolygonItem * elementsJeu[12];
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -146,7 +147,7 @@ private:
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
-    QGraphicsEllipseItem *setElementJeu(float x, float y, int Color);
+    QGraphicsPolygonItem *setElementJeu(float x, float y, int Color);
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
