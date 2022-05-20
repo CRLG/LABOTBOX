@@ -39,7 +39,8 @@ typedef enum {
     SENSOR,
     FREE_EVENT,
     FREE_ACTION,
-    NODE
+    NODE,
+    ARM
 }tType;
 
  class Cihm_ActuatorSequencer : public QMainWindow
@@ -100,6 +101,7 @@ private:
 
     QHash<QString, int> m_hash_const_SD20;
     QHash<QString, int> m_hash_const_AX;
+    QHash<QString, int> m_hash_const_arm;
     bool getEnum(QString fileName, QString enum_name, QHash<QString, int> * results);
 
     void updateComboBox();
@@ -141,7 +143,7 @@ private:
 private slots :
     void updateTooltip();
     void onRightClicGUI(QPoint pos);
-    void addSequenceItem();
+    void Slot_Add_Sequence_Item();
     void removeSequenceItem();
     void Slot_Play(bool oneStep=false, int idStart=0);
     void Slot_Resume();
@@ -177,6 +179,8 @@ private slots :
     void Slot_moveStrategy();
     void Slot_Generate_XML(QString strPath);
     //void Slot_formatStrategy(QColor newColor);
+    void Slot_Play_only_arm();
+    void Slot_Stop_only_arm();
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_

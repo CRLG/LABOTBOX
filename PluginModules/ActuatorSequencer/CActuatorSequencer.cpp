@@ -99,22 +99,27 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.strategyName, SIGNAL(textEdited(QString)), this, SLOT(Slot_setStrategyName_tab(QString)));
   connect(m_ihm.ui.tW_TabSequences, SIGNAL(currentChanged(int)), this, SLOT(Slot_setStrategyName_text(int)));
 
-  connect(m_ihm.ui.pB_Add_AX,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_SD20,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Motor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Power,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Wait,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Asser,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Event,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Sensor,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Node,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
-  connect(m_ihm.ui.pB_Add_Free_Action,SIGNAL(clicked(bool)),this,SLOT(addSequenceItem()));
+  //pour ajouter des actions ou des conditions à la séquence
+  connect(m_ihm.ui.pB_Add_AX,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_SD20,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Motor,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Power,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Wait,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Asser,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Event,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Sensor,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Node,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+  connect(m_ihm.ui.pB_Add_ARM,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
+
+  //pour gérer les actions et conditions libres (injection de code)
   connect(m_ihm.ui.pB_Edit_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeItem()));
   connect(m_ihm.ui.pB_Load_Free_Action,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeItem()));
   connect(m_ihm.ui.pB_Edit_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(Slot_editFreeItem()));
   connect(m_ihm.ui.pB_Load_Free_Transition,SIGNAL(clicked(bool)),this,SLOT(Slot_loadFreeItem()));
 
+  //pour gérer la liste des actions et conditions
   connect(m_ihm.ui.pB_Remove, SIGNAL(clicked(bool)),this,SLOT(removeSequenceItem()));
   connect(m_ihm.ui.pB_Up, SIGNAL(clicked(bool)),this,SLOT(Slot_up()));
   connect(m_ihm.ui.pB_Down, SIGNAL(clicked(bool)),this,SLOT(Slot_down()));
@@ -143,6 +148,8 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Stop_Power, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_power()));
   connect(m_ihm.ui.pB_Play_Asser, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_asser()));
   connect(m_ihm.ui.pB_Stop_Asser, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_asser()));
+  connect(m_ihm.ui.pB_Play_ARM, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_arm()));
+  connect(m_ihm.ui.pB_Stop_ARM, SIGNAL(clicked(bool)),this,SLOT(Slot_Stop_only_arm()));
 
   connect(m_ihm.ui.cB_AX,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Motor,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
@@ -152,6 +159,8 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.cB_SD20_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_AX_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_AX_type_cde,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_ARM,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_ARM_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   m_ihm.ui.cB_AX->setCurrentIndex(0);
   m_ihm.ui.cB_Motor->setCurrentIndex(0);
   m_ihm.ui.cB_SD20->setCurrentIndex(0);
@@ -263,9 +272,21 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
  m_ihm.ui.lE_Asser_2->setEnabled(true);
  m_ihm.ui.lE_Asser_3->setEnabled(false);
 
+ //ARM
+ m_ihm.ui.cB_ARM->addItem("MOUVEMENT",QVariant(0));
+  m_ihm.ui.cB_ARM->addItem("STOP",QVariant(1));
+ m_ihm.ui.cB_ARM->addItem("BLOQUE",QVariant(2));
+  m_ihm.ui.cB_ARM->addItem("DEBLOQUE",QVariant(3));
+  m_ihm.ui.cB_ARM->addItem("PREND",QVariant(4));
+  m_ihm.ui.cB_ARM->addItem("RELACHE",QVariant(5));
+ m_ihm.ui.sB_ARM->setValue(0);
+ m_ihm.ui.sB_ARM->setMaximum(50);
+ m_ihm.ui.sB_ARM->setMinimum(0);
+ m_ihm.ui.sB_ARM->setEnabled(true);
+
  //Event
  QStringList eventsAvalaible;
- eventsAvalaible << "convAsserv" << "convRack";
+ eventsAvalaible << "convAsserv" << "convRack" << "convArm" << "objetPris";
  m_ihm.ui.cB_Events->addItems(eventsAvalaible);
 
  //Sensor
@@ -305,6 +326,7 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
         //on parcourt le fichier d'entete pour extraire les valeurs
         getEnum(str_FicCoupe,"eVALUES_SERVOS_SD20",&m_hash_const_SD20);
         getEnum(str_FicCoupe,"eVALUES_SERVOS_AX",&m_hash_const_AX);
+        getEnum(str_FicCoupe,"eVALUES_ARM",&m_hash_const_arm);
     }
 
     //mise à jour des valeurs prédéfinies pour les SD20
@@ -320,6 +342,13 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
     strList_const_AX.sort();
     for(int i=0;i<strList_const_AX.count();i++)
         m_ihm.ui.cB_AX_const_values->addItem(strList_const_AX.at(i),QVariant(m_hash_const_AX[strList_const_AX.at(i)]));
+
+    //mise à jour des valeurs prédéfinies pour le bras robotisé
+    m_ihm.ui.cB_ARM_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+    QStringList strList_const_arm=m_hash_const_arm.keys();
+    strList_const_arm.sort();
+    for(int i=0;i<strList_const_arm.count();i++)
+        m_ihm.ui.cB_ARM_const_values->addItem(strList_const_arm.at(i),QVariant(m_hash_const_arm[strList_const_arm.at(i)]));
 }
 
 void CActuatorSequencer::updateTooltip(void)
@@ -351,6 +380,8 @@ void CActuatorSequencer::updateTooltip(void)
         m_ihm.ui.tip_Power->setCursorPosition(0);
     }
 
+    //pour les valeurs prédéfinies (SD20, AX, ARM,...)
+    //valeurs prédéfinies SD20
     if(m_ihm.ui.cB_SD20_const_values==wdgt)
     {
         i=m_ihm.ui.cB_SD20_const_values->currentIndex();
@@ -359,6 +390,7 @@ void CActuatorSequencer::updateTooltip(void)
         else
             m_ihm.ui.sB_SD20->setEnabled(false);
     }
+    //valeurs prédéfinies AX
     if(m_ihm.ui.cB_AX_const_values==wdgt)
     {
         i=m_ihm.ui.cB_AX_const_values->currentIndex();
@@ -375,6 +407,15 @@ void CActuatorSequencer::updateTooltip(void)
         i=m_ihm.ui.cB_AX_type_cde->currentIndex();
         if (i!=0)
             m_ihm.ui.cB_AX_const_values->setCurrentIndex(0);
+    }
+    //valeurs prédéfinies ARM
+    if(m_ihm.ui.cB_ARM_const_values==wdgt)
+    {
+        i=m_ihm.ui.cB_ARM_const_values->currentIndex();
+        if (i==0)
+            m_ihm.ui.sB_ARM->setEnabled(true);
+        else
+            m_ihm.ui.sB_ARM->setEnabled(false);
     }
 
      //SD20
@@ -395,6 +436,26 @@ void CActuatorSequencer::updateTooltip(void)
         str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
         m_ihm.ui.tip_AX->setText(str_tooltip);
         m_ihm.ui.tip_AX->setCursorPosition(0);
+    }
+
+    //ARM
+    if(m_ihm.ui.cB_ARM==wdgt)
+    {
+        //ARM
+        QString currentARM=m_ihm.ui.cB_ARM->currentText();
+        m_ihm.ui.sB_ARM->setValue(0);
+        m_ihm.ui.cB_ARM_const_values->setCurrentIndex(0);
+
+        if(currentARM=="MOUVEMENT")
+        {
+            m_ihm.ui.sB_ARM->setEnabled(true);
+            m_ihm.ui.cB_ARM_const_values->setEnabled(true);
+        }
+        else
+        {
+            m_ihm.ui.sB_ARM->setEnabled(false);
+            m_ihm.ui.cB_ARM_const_values->setEnabled(false);
+        }
     }
 
     if(m_ihm.ui.cB_Asser==wdgt)
@@ -527,7 +588,7 @@ void CActuatorSequencer::updateTooltip(void)
     }
 }
 
-void CActuatorSequencer::addSequenceItem(void)
+void CActuatorSequencer::Slot_Add_Sequence_Item(void)
 {
     int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
     QTableWidget * currentSequence=listSequence.at(tabIndex);
@@ -542,6 +603,7 @@ void CActuatorSequencer::addSequenceItem(void)
 
     bool bFormat=false;
 
+    //ajout d'une action pour un servo AX
     if(pB_Add==m_ihm.ui.pB_Add_AX)
     {
         switch(m_ihm.ui.cB_AX_type_cde->currentData().toInt())
@@ -571,6 +633,8 @@ void CActuatorSequencer::addSequenceItem(void)
             value.setNum(m_hash_const_AX[m_ihm.ui.cB_AX_const_values->currentText()]);
         }
     }
+
+    //ajout d'une action pour un capteur
     if(pB_Add==m_ihm.ui.pB_Add_Sensor)
     {
         id=m_ihm.ui.cB_Sensors->currentText();
@@ -595,6 +659,7 @@ void CActuatorSequencer::addSequenceItem(void)
         bFormat=true;
 
     }
+    //ajout d'une action pour un servo SD20
     else if(pB_Add==m_ihm.ui.pB_Add_SD20)
     {
         type="SD20";
@@ -609,6 +674,62 @@ void CActuatorSequencer::addSequenceItem(void)
         {
             comments=m_ihm.ui.cB_SD20->currentText()+" value="+m_ihm.ui.cB_SD20_const_values->currentText();
             value.setNum(m_hash_const_SD20[m_ihm.ui.cB_SD20_const_values->currentText()]);
+        }
+    }
+    else if(pB_Add==m_ihm.ui.pB_Add_ARM)
+    {
+        type="ARM";
+
+        if (m_ihm.ui.cB_ARM->currentText()=="MOUVEMENT")
+        {
+            id="MVT";
+            if(m_ihm.ui.sB_ARM->isEnabled())
+            {
+                value.setNum(m_ihm.ui.sB_ARM->value());
+                comments="mouvement index "+ value;
+            }
+            else
+            {
+                comments= "mouvement " + m_ihm.ui.cB_ARM_const_values->currentText();
+                value.setNum(m_hash_const_arm[m_ihm.ui.cB_ARM_const_values->currentText()]);
+            }
+
+        }
+        else if (m_ihm.ui.cB_ARM->currentText()=="STOP")
+        {
+            id="STOP";
+            value="0";
+            comments="Arret du bras robotise";
+        }
+        else if (m_ihm.ui.cB_ARM->currentText()=="BLOQUE")
+        {
+            id="FIX";
+            value="0";
+            comments="blocage du bras robotise";
+        }
+        else if (m_ihm.ui.cB_ARM->currentText()=="DEBLOQUE")
+        {
+            id="UNFIX";
+            value="0";
+            comments="deblocage du bras robotise";
+        }
+        else if (m_ihm.ui.cB_ARM->currentText()=="PREND")
+        {
+            id="CATCH";
+            value="0";
+            comments="prendre un objet avec le bras robotise";
+        }
+        else if (m_ihm.ui.cB_ARM->currentText()=="RELACHE")
+        {
+            id="RELEASE";
+            value="0";
+            comments="relacher un objet par le bras robotise";
+        }
+        else
+        {
+            id="MVT";
+            value="0";
+            comments="Mouvement nul";
         }
     }
     else if(pB_Add==m_ihm.ui.pB_Add_Motor)
@@ -980,6 +1101,68 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     m_application->m_data_center->write(str_name, bvalue);
                     m_application->m_data_center->write("ELECTROBOT_CDE_POWER_SWITCH_TxSync", 0);
                     msg="POWERSWITCH "+id+" à "+ (bvalue?"ON":"OFF");
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
+                }
+
+                if(sActuator.compare("ARM")==0)//KMAR
+                {
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
+
+                    if(id=="MVT")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 1);
+                        m_application->m_data_center->write("value_cmd_kmar", value);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id+" à "+ value;
+                    }
+                    if(id=="STOP")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 3);
+                        m_application->m_data_center->write("value_cmd_kmar", 0);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id;
+                    }
+                    if(id=="FIX")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 5);
+                        m_application->m_data_center->write("value_cmd_kmar", 0);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id;
+                    }
+                    if(id=="UNFIX")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 4);
+                        m_application->m_data_center->write("value_cmd_kmar", 0);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id;
+                    }
+                    if(id=="CATCH")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 8);
+                        m_application->m_data_center->write("value_cmd_kmar", 0);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id;
+                    }
+                    if(id=="RELEASE")
+                    {
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+                        m_application->m_data_center->write("num_kmar", 1);
+                        m_application->m_data_center->write("cmd_kmar", 9);
+                        m_application->m_data_center->write("value_cmd_kmar", 0);
+                        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+                        msg="KMAR "+id;
+                    }
                     setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
@@ -1879,6 +2062,98 @@ void CActuatorSequencer::Slot_Stop_only_asser()
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
 }
 
+void CActuatorSequencer::Slot_Play_only_arm()
+{
+    QString id;
+    id=m_ihm.ui.cB_ARM->currentText();
+
+    //infos
+    /*
+
+typedef enum {
+    KMAR_CMD_MOUVEMENT = 1,
+    KMAR_CMD_VITESSE,
+    KMAR_CMD_STOP_AND_FIX_POSITION,
+    KMAR_CMD_STOP_AND_DISARM_ALL,
+    KMAR_CMD_ARM_ALL,
+    KMAR_CMD_DISARM_AXIS,
+    KMAR_CMD_ARM_AXIS,
+    KMAR_CMD_CATCH_OBJECT,
+    KMAR_CMD_RELEASE_OBJECT
+}KmarCmd;
+*/
+
+    if(id=="MOUVEMENT")
+    {
+        if(m_ihm.ui.sB_ARM->isEnabled())
+        {
+            m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+            m_application->m_data_center->write("num_kmar", 1);
+            m_application->m_data_center->write("cmd_kmar", 1);
+            m_application->m_data_center->write("value_cmd_kmar", m_ihm.ui.sB_ARM->value());
+            m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+        }
+        else {
+            m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+            m_application->m_data_center->write("num_kmar", 1);
+            m_application->m_data_center->write("cmd_kmar", 1);
+            m_application->m_data_center->write("value_cmd_kmar", m_hash_const_arm[m_ihm.ui.cB_ARM_const_values->currentText()]);
+            m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+        }
+    }
+    if(id=="STOP")
+    {
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+        m_application->m_data_center->write("num_kmar", 1);
+        m_application->m_data_center->write("cmd_kmar", 3);
+        m_application->m_data_center->write("value_cmd_kmar", 0);
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+    }
+    if(id=="BLOQUE")
+    {
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+        m_application->m_data_center->write("num_kmar", 1);
+        m_application->m_data_center->write("cmd_kmar", 5);
+        m_application->m_data_center->write("value_cmd_kmar", 0);
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+    }
+    if(id=="DEBLOQUE")
+    {
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+        m_application->m_data_center->write("num_kmar", 1);
+        m_application->m_data_center->write("cmd_kmar", 4);
+        m_application->m_data_center->write("value_cmd_kmar", 0);
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+    }
+    if(id=="PREND")
+    {
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+        m_application->m_data_center->write("num_kmar", 1);
+        m_application->m_data_center->write("cmd_kmar", 8);
+        m_application->m_data_center->write("value_cmd_kmar", 0);
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+    }
+    if(id=="RELACHE")
+    {
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+        m_application->m_data_center->write("num_kmar", 1);
+        m_application->m_data_center->write("cmd_kmar", 9);
+        m_application->m_data_center->write("value_cmd_kmar", 0);
+        m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+    }
+
+}
+
+void CActuatorSequencer::Slot_Stop_only_arm()
+{
+    qDebug() << "Stop kmar";
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", true);
+    m_application->m_data_center->write("num_kmar", 1);
+    m_application->m_data_center->write("cmd_kmar", 4);
+    m_application->m_data_center->write("value_cmd_kmar", 0);
+    m_application->m_data_center->write("COMMANDE_KMAR_TxSync", false);
+}
+
 QTableWidget* CActuatorSequencer::Slot_Add_Sequence()
 { 
     QTableWidget * last_table_sequence=listSequence.last();
@@ -2355,7 +2630,7 @@ void CActuatorSequencer::Slot_Generate_CPP()
 
             case POWER:
                 strConsigne = (sValue.compare("1")==0) ? "true" : "false";
-                sConverted=sConverted+QString("Application.m_power_electrobot.setOutput(%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
+                sConverted=sConverted+QString("Application.m_power_electrobot.setOutput((dsPicPowerElectrobotBase::tSwitchOutput)%1,%2);/*%3*/").arg(sId).arg(strConsigne).arg(sComments);
                 break;
 
             case ASSER:
@@ -2410,6 +2685,10 @@ void CActuatorSequencer::Slot_Generate_CPP()
                     sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergence(%1,%2);").arg(strNextSate).arg(sValue);
                 if(sId.compare("convRack")==0)
                     sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceRack(%1,%2);").arg(strNextSate).arg(sValue);
+                if(sId.compare("convArm")==0)
+                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceArm(%1,%2);").arg(strNextSate).arg(sValue);
+                if(sId.compare("objetPris")==0)
+                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfObjetPris(%1,%2);").arg(strNextSate).arg(sValue);
                 break;
 
             case SENSOR:
@@ -2440,6 +2719,21 @@ void CActuatorSequencer::Slot_Generate_CPP()
             case NODE:
                 isNode=true;
                 sConverted=sConverted+QString("/*Ne rien mettre ici (cf doc Modélia)*/");
+            break;
+
+            case ARM:
+                    if(sId.compare("MVT")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.start(%1);/*%2*/").arg(sValue).arg(sComments);
+                    if(sId.compare("STOP")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.stop();/*%1*/").arg(sComments);
+                    if(sId.compare("FIX")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.arm();/*%1*/").arg(sComments);
+                    if(sId.compare("UNFIX")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.disarm();/*%1*/").arg(sComments);
+                    if(sId.compare("CATCH")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.catchObject();/*%1*/").arg(sComments);
+                    if(sId.compare("RELEASE")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.releaseObject();/*%1*/").arg(sComments);
             break;
 
             default: break;
@@ -2934,7 +3228,7 @@ void CActuatorSequencer::Slot_moveStrategy(void)
 bool CActuatorSequencer::isTransition(QString sType)
 {
     return (!((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
-           (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction"))||(sType.compare("Node")==0) ));
+           (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction"))||(sType.compare("Node")==0)||(sType.compare("ARM")==0) ));
 
 }
 
@@ -3131,6 +3425,9 @@ int CActuatorSequencer::getType(QString sActuator)
     if(sActuator.contains("Node"))
         iType=NODE;
 
+    if(sActuator.contains("ARM"))
+        iType=ARM;
+
     return iType;
 }
 
@@ -3189,7 +3486,10 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
             line=line.trimmed();
             //début de l'enum
             if(line.contains("typedef") && line.contains("enum") && !enum_begin)
+            {
                 enum_begin=true;
+                qDebug() << "[CActuatorSequencer] Enum trouvé dans " << fileName;
+            }
 
             if(enum_concat.contains(";"))
                 enum_end=true;
@@ -3215,7 +3515,7 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
             {
                 if(enum_concat.contains(enum_name))
                 {
-                    //qDebug() << enum_concat;
+                    qDebug() << "[CActuatorSequencer] Contenu de l'enum " << enum_name<<" :";
                     QString enum_core=enum_concat.section('{',1);
                     int i_begin=enum_core.indexOf('}');
                     enum_core.truncate(i_begin);
@@ -3226,9 +3526,9 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
                     for (int i=0;i<enum_list.size();i++)
                     {
                         QStringList key_value=enum_list.at(i).split(QLatin1Char('='));
-                        results->insert(key_value.at(0),key_value.at(1).toInt());
+                        results->insert(key_value.at(0).simplified(),key_value.at(1).toInt());
                     }
-
+                    qDebug() << *results;
                     is_ok=true;
                     return is_ok;
                 }
