@@ -326,7 +326,7 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
         //on parcourt le fichier d'entete pour extraire les valeurs
         getEnum(str_FicCoupe,"eVALUES_SERVOS_SD20",&m_hash_const_SD20);
         getEnum(str_FicCoupe,"eVALUES_SERVOS_AX",&m_hash_const_AX);
-        getEnum(str_FicCoupe,"eVALUES_ARM",&m_hash_const_arm);
+        getEnum(str_FicCoupe,"eKMAR_MOUVEMENTS",&m_hash_const_arm);
     }
 
     //mise à jour des valeurs prédéfinies pour les SD20
@@ -1323,6 +1323,22 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                         if(id.compare("convRack")==0) // événement de convergence de l'asenceur
                         {
                             if(m_application->m_data_center->read("rack_convergence").toBool())
+                            {
+                                isMutliplesTransitions=false;
+                                goToNextValidStep=true;
+                            }
+                        }
+                        if(id.compare("convArm")==0) // événement de convergence du kmar
+                        {
+                            if(!(m_application->m_data_center->read("Kmar1.moving").toBool()))
+                            {
+                                isMutliplesTransitions=false;
+                                goToNextValidStep=true;
+                            }
+                        }
+                        if(id.compare("objetPris")==0) // événement pour la prise d'objet du kmar
+                        {
+                            if(m_application->m_data_center->read("Kmar1.object_catched").toBool())
                             {
                                 isMutliplesTransitions=false;
                                 goToNextValidStep=true;
@@ -2686,9 +2702,9 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 if(sId.compare("convRack")==0)
                     sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceRack(%1,%2);").arg(strNextSate).arg(sValue);
                 if(sId.compare("convArm")==0)
-                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceArm(%1,%2);").arg(strNextSate).arg(sValue);
+                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceKmar(%1,%2);").arg(strNextSate).arg(sValue);
                 if(sId.compare("objetPris")==0)
-                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfObjetPris(%1,%2);").arg(strNextSate).arg(sValue);
+                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfTrue(%1,Application.m_kmar.isObectCatched(),%2);").arg(strNextSate).arg(sValue);
                 break;
 
             case SENSOR:
