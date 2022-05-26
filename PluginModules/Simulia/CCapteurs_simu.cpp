@@ -68,6 +68,12 @@ bool CCapteursSimu::getAscenseurButeeBasse()
     return false;
 }
 
+// ____________________________________________
+float CCapteursSimu::getCapteurPressionKmar()
+{
+    return 1.25; // arbitrairement
+}
+
 // ============================================================
 //                          SIMULATION
 // ============================================================
