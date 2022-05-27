@@ -2704,7 +2704,7 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 if(sId.compare("convArm")==0)
                     sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfConvergenceKmar(%1,%2);").arg(strNextSate).arg(sValue);
                 if(sId.compare("objetPris")==0)
-                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfTrue(%1,Application.m_kmar.isObectCatched(),%2);").arg(strNextSate).arg(sValue);
+                    sConverted=sConverted+(isProto?"//":"")+QString("gotoStateIfTrue(%1,Application.m_kmar.isObjectCatched(),%2);").arg(strNextSate).arg(sValue);
                 break;
 
             case SENSOR:
