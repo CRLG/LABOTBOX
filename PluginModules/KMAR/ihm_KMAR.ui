@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>496</width>
+    <width>702</width>
     <height>459</height>
    </rect>
   </property>
@@ -214,6 +214,11 @@
           <item>
            <property name="text">
             <string>RANGER_STATUETTE_DANS_ROBOT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>LEVER_STATUETTE_AVANT_DEPLACEMENT</string>
            </property>
           </item>
          </widget>
@@ -767,7 +772,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>496</width>
+     <width>702</width>
      <height>22</height>
     </rect>
    </property>
