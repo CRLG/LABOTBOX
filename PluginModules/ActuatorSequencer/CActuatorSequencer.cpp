@@ -3504,7 +3504,7 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
             if(line.contains("typedef") && line.contains("enum") && !enum_begin)
             {
                 enum_begin=true;
-                qDebug() << "[CActuatorSequencer] Enum trouvé dans " << fileName;
+                //qDebug() << "[CActuatorSequencer] Enum trouvé dans " << fileName;
             }
 
             if(enum_concat.contains(";"))
@@ -3531,7 +3531,7 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
             {
                 if(enum_concat.contains(enum_name))
                 {
-                    qDebug() << "[CActuatorSequencer] Contenu de l'enum " << enum_name<<" :";
+                    //qDebug() << "[CActuatorSequencer] Contenu de l'enum " << enum_name<<" :";
                     QString enum_core=enum_concat.section('{',1);
                     int i_begin=enum_core.indexOf('}');
                     enum_core.truncate(i_begin);
@@ -3544,7 +3544,7 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
                         QStringList key_value=enum_list.at(i).split(QLatin1Char('='));
                         results->insert(key_value.at(0).simplified(),key_value.at(1).toInt());
                     }
-                    qDebug() << *results;
+                    //qDebug() << *results;
                     is_ok=true;
                     return is_ok;
                 }
