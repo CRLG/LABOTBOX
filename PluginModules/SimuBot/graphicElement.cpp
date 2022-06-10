@@ -49,7 +49,8 @@ GraphicElement::GraphicElement(float R, float G, float B)
     isRelativToBot=true;
     sensOrtho=1;
     vitesse=0.0;
-    isConvergence=true;
+    isConvergenceXY=true;
+    isConvergenceTeta=true;
     is_init_target=false;
 
 }
@@ -76,8 +77,11 @@ GraphicElement::GraphicElement(QPolygonF forme, float R, float G, float B)
     x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
     sensOrtho=1;
+
+    //pour l'aaservissement interne
     vitesse=0.0;
-    isConvergence=true;
+    isConvergenceXY=true;
+    isConvergenceTeta=true;
     is_init_target=false;
 }
 
@@ -104,7 +108,8 @@ GraphicElement::GraphicElement()
     isRelativToBot=true;
     sensOrtho=1;
     vitesse=0.0;
-    isConvergence=true;
+    isConvergenceXY=true;
+    isConvergenceTeta=true;
     is_init_target=false;
 }
 
@@ -223,20 +228,23 @@ void GraphicElement::setSpeed(double newVitesse)
 
 /*!
  * \brief GraphicElement::replace repositionne l'élément aux coordonnées indiquées et à la vitesse donnée de façon
- * linéaire. si la vitesse est nulle alors le déplacement est instantané.
+ * linéaire si la vitesse interne est non nulle sinon le déplacement est instantané.
  * \param x_new
  * \param y_new
- * \param speed
  */
-void GraphicElement::replace(qreal x_new, qreal y_new, float speed){
-
+void GraphicElement::replace(qreal x_new, qreal y_new){
+    //si la vitesse interne est nulle alors
+    //le robot se déplace instantanément
     if (vitesse==0.0)
         setPos(x_new,y_new);
     else
     {
+        //la vitesse du robot est non nulle on est dans un mode
+        //particulier avec un asservissement  interne bypassé par
+        //un déplacement à intervalle constant
         if(!is_init_target)
         {
-            moveInit(x(),y(),x_new,y_new);
+            moveInit(x_new,y_new);
             moveAtSpeed();
         }
     }
@@ -244,7 +252,7 @@ void GraphicElement::replace(qreal x_new, qreal y_new, float speed){
 
 void GraphicElement::raz(qreal x_new, qreal y_new, qreal angle_new)
 {
-    replace(x_new,-y_new,0.0); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
+    replace(x_new,-y_new); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
     setRotation(360-(angle_new)); //on tourne de angle_new ramené au repere orthonorme
 
     //on enregistre la position sur le terrain de simulation via un offset
@@ -259,7 +267,7 @@ void GraphicElement::raz(qreal x_new, qreal y_new, qreal angle_new)
 void GraphicElement::raz(Coord cTerrain, Coord cAsserv)
 {
     //Positionnement terrain
-    replace(cTerrain.x,-cTerrain.y,0.0); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
+    replace(cTerrain.x,-cTerrain.y); //on replace l'élément aux coordonnées ramenées à un repère orthonormé
     setRotation(360-cTerrain.teta); //on tourne de angle_new ramené au sens trigo
 
     //positionnement physique - on donne les offset du placement terrain
@@ -306,7 +314,7 @@ void GraphicElement::display_XY(qreal x_reel_new, qreal y_reel_new)
         y_view=-y_target;
     }
 
-    replace(x_view,y_view,0.0);
+    replace(x_view,y_view);
 
 }
 
@@ -338,10 +346,10 @@ void GraphicElement::moveAtSpeed(void)
         }
         else
         {
-            if(!isConvergence)
+            if(!isConvergenceXY)
             {
-                isConvergence=true;
-                is_init_target=false;
+                isConvergenceXY=true; //on indique qu'on est arrivé
+                is_init_target=false; //on désactive le déplacement à vitesse constante (on est arrivé au point voulu)
                 //qDebug()<<"Arrived at ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
                 setPos(x_internal_target,y_internal_target);
             }
@@ -349,21 +357,20 @@ void GraphicElement::moveAtSpeed(void)
     }
 }
 
-void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
+void GraphicElement::moveInit(float toX, float toY)
 {
-    count_step_target=0;
-    x_internal_hold=fromX;
-    y_internal_hold=fromY;
-    x_internal_target=toX;
-    y_internal_target=toY;
+    setTargetXY(toX,toY);
+
+    //Initialisation et calcul des éléments du déplacement à vitesse constante
     dY_target=0.0;
     dX_target=0.0;
-
+    count_step_target=0;
     //distance à parcourir
     double distance_to_move=sqrt(pow((x_internal_target-x_internal_hold),2)+pow((y_internal_target-y_internal_hold),2));
     //nombre de pas de déplacement et distance de déplacement à chaque pas
     nb_step_target=(distance_to_move/vitesse)/0.025;
 
+    //trajectoire rectiligine
     //y=m*x+p
     if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
     {
@@ -384,11 +391,7 @@ void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
         dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
     }
 
-
-    isConvergence=false;
-
-    is_init_target=true;
-    /*
+/*
     qDebug() << "New target ("<<x_internal_target<<","<<y_internal_target<<") from ("<<x_internal_hold<<","<<y_internal_hold<<")";
     qDebug() << "Internal parameters:";
     qDebug() << "Speed = "<<vitesse<<"cm/s";
@@ -402,8 +405,89 @@ void GraphicElement::moveInit(float fromX, float fromY, float toX, float toY)
         qDebug() << "dY = "<<m_target<<"*dX+"<<p_target;
     }
     qDebug() << "Time of moving estimated at "<<nb_step_target*0.025<<" secondes";
-    */
+*/
 }
 
+double GraphicElement::getErrorDistance(double x_target, double y_target)
+{
+    double x_view=this->getX();
+    double y_view=this->getY();
+
+    return sqrt(pow((x_target-x_view),2)+pow((y_target-y_view),2));
+}
+double GraphicElement::getErrorAngle(double x_target, double y_target)
+{
+    double x_view=this->getX();
+    double y_view=this->getY();
+    double teta_view=this->getTheta();
+    double deltaAngle=0.0;
+
+    //on calcule de l'angle par rapport à la consigne de position
+    if (x_view==x_target)
+    {
+        if (y_target>y_view)
+            deltaAngle=Pi/2;
+        else if (y_target==y_view)
+            deltaAngle=0;
+        else if (y_target<y_view)
+            deltaAngle=-Pi/2;
+    }
+    else if (x_target>x_view)
+        deltaAngle=atan((y_target-y_view)/(x_target-x_view));
+    else if (x_target<x_view)
+    {
+        if (y_target>y_view)
+            deltaAngle=atan((y_target-y_view)/(x_target-x_view))+Pi;
+        else if (y_target==y_view)
+            deltaAngle=Pi;
+        else if (y_target<y_view)
+            deltaAngle=atan((y_target-y_view)/(x_target-x_view))-Pi;
+    }
+
+    //on retourne l'erreur d'angle compensée par l'angle actuel du robot
+    return (deltaAngle-teta_view);
+}
+
+void GraphicElement::setTargetXY(float toX,float toY)
+{
+    /*x_internal_hold=this->getX();
+    y_internal_hold=this->getY();*/
+    x_internal_hold=x();
+    y_internal_hold=y();
+    x_internal_target=toX;
+    y_internal_target=toY;
+    qDebug() << "[CSimuBot] New target: ("<< toX << "," << toY <<") from ("<< x_internal_hold<<","<<y_internal_hold<<")";
+
+    isConvergenceXY=false;
+    isConvergenceTeta=false;
+    is_init_target=true;
+}
+void GraphicElement::setTargetTeta(float toTeta)
+{
+    teta_internal_hold=this->getX();
+    teta_internal_target=toTeta;
+
+
+    isConvergenceXY=false;
+    isConvergenceTeta=false;
+    is_init_target=true;
+}
+
+void GraphicElement::stepToTarget(float * forceG, float * forceD)
+{
+    //on a demandé un déplacement avec asservissement
+    if(is_init_target)
+    {
+        //La convergence XY n'est pas encore atteinte
+        if(!isConvergenceXY)
+        {
+            float posError=getErrorDistance(x_internal_target,y_internal_target);
+            //TODO : le retour d'erreur doit être signé
+            *forceG=4.0*posError;
+            *forceD=4.0*posError;
+            qDebug()<<"Consigne roue gauche et droite ("<<*forceG<<","<<*forceD<<")\n\n";
+        }
+    }
+}
 
 

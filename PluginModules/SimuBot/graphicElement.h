@@ -53,7 +53,8 @@ private:
     qreal x_offset, y_offset, angle_offset;
     qreal x_asserv_init, y_asserv_init, angle_asserv_init;
     QColor color;
-    //pour les déplacements non instantanés
+    //pour les déplacements non instantanés (avec asservissement)
+    bool asserEnabled;
     double vitesse;
     qreal x_internal_hold;
     qreal y_internal_hold;
@@ -69,7 +70,8 @@ private:
     double dY_target;
     bool is_init_target;
 
-    void moveInit(float fromX, float fromY, float toX, float toY);
+    void moveInit(float toX, float toY);
+
 public:
     qreal getTheta(void);
     qreal getX(void);
@@ -77,18 +79,24 @@ public:
     qreal getX_terrain(void);
     qreal getY_terrain(void);
     bool isRelativToBot;
-   int sensOrtho;
-   void setAsservInit(qreal x_init, qreal y_init, qreal angle_init);
-   void setSpeed(double newVitesse);
-       bool isConvergence;
+    int sensOrtho;
+    void setAsservInit(qreal x_init, qreal y_init, qreal angle_init);
+    void setSpeed(double newVitesse);
+    bool isConvergenceXY;
+    bool isConvergenceTeta;
 
+    double getErrorDistance(double x_target, double y_target);
+    double getErrorAngle(double x_target, double y_target);
+    void setTargetXY(float toX, float toY);
+    void setTargetTeta(float toTeta);
+    void stepToTarget(float *forceG, float *forceD);
 signals:
     void center(qreal x_new, qreal y_new,float speed);
     void isDoubleClicked();
     void newConvergence();
 
 public slots:
-    void replace(qreal x_new, qreal y_new,float speed);
+    void replace(qreal x_new, qreal y_new);
     void raz(qreal x_new, qreal y_new, qreal angle_new);
     void raz(Coord cTerrain, Coord cAsserv);
     void display_XY(qreal x_reel_new,qreal y_reel_new);

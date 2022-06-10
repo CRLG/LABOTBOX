@@ -98,6 +98,8 @@ private slots :
         void updateStepFromSimulia();
         void box2d_enable(bool flag);
         void slot_clearPath();
+
+        void updateStepFromSimuBot();
 private:
     Cihm_SimuBot m_ihm;
 
@@ -167,6 +169,7 @@ public slots:
     void estimate_Environment_Interactions();
     void real_robot_position_changed();
     void catchDoubleClick();
+    void Slot_catch_TxSync();
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_

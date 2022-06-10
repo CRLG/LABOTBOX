@@ -299,7 +299,7 @@ void CSimuBot::init(CApplication *application)
 
     GrosBot->isRelativToBot=val.toBool();
     OldGrosBot->isRelativToBot=val.toBool();
-    OtherBot->isRelativToBot=val.toBool();
+    MiniBot->isRelativToBot=val.toBool();
     OtherBot->isRelativToBot=val.toBool();
 
     //affichage et saisie en radian ou en degré
@@ -357,7 +357,7 @@ void CSimuBot::init(CApplication *application)
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
     connect(m_ihm.ui.pB_playOther,SIGNAL(clicked(bool)),this,SLOT(playOther()));
     connect(m_ihm.ui.pB_stopOther,SIGNAL(clicked(bool)),this,SLOT(stopOther()));
-    connect(cadenceur, SIGNAL(timeout()), this, SLOT(nextStepOther()));
+    connect(cadenceur, SIGNAL(timeout()), this, SLOT(updateStepFromSimuBot()));
     connect(m_ihm.ui.chkBox_enableMoveOther, SIGNAL(stateChanged(int)), this, SLOT(enableMoveOther(int)));
     connect(m_application->m_data_center->getData("Simubot.Init", true), SIGNAL(valueChanged(bool)), this, SLOT(initView()));
     connect(m_application->m_data_center->getData("Capteurs.Tirette", true), SIGNAL(valueChanged(bool)),this , SLOT(syncMove(bool)));
@@ -386,6 +386,11 @@ void CSimuBot::init(CApplication *application)
       //pour le moteur physique
       connect(m_application->m_data_center->getData("Simubot.box2d.activated", true), SIGNAL(valueChanged(bool)), this, SLOT(box2d_enable(bool)));
         connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
+
+        //pour le fonctionnement avec actuatorsequencer
+        m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
+        connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
+
 
     //positionnement par défaut
     initEquipe(EQUIPE1);
@@ -567,18 +572,10 @@ void CSimuBot::initView(void){
         m_step2=0;
         m_application->m_data_center->write("Simubot.step", m_step);
 
-        if(m_ihm.ui.radioButton_robot_relative->isChecked()){
-            GrosBot->isRelativToBot=true;
-            OldGrosBot->isRelativToBot=true;
-            OtherBot->isRelativToBot=true;
-            MiniBot->isRelativToBot=true;
-        }
-        else{
-            GrosBot->isRelativToBot=false;
-            OldGrosBot->isRelativToBot=false;
-            OtherBot->isRelativToBot=false;
-            MiniBot->isRelativToBot=false;
-        }
+        GrosBot->isRelativToBot=m_ihm.ui.radioButton_robot_relative->isChecked();
+        OldGrosBot->isRelativToBot=m_ihm.ui.radioButton_robot_relative->isChecked();
+        OtherBot->isRelativToBot=m_ihm.ui.radioButton_robot_relative->isChecked();
+        MiniBot->isRelativToBot=m_ihm.ui.radioButton_robot_relative->isChecked();
 
         setAndGetInRad=m_ihm.ui.radioButton_radian->isChecked();
 
@@ -679,7 +676,7 @@ void CSimuBot::initEquipe(int equipe)
 
         equipeOther.x=equipe2_bot1.x;
         equipeOther.y=equipe2_bot1.y;
-        equipeOther.teta=equipe2_bot1.teta;
+        equipeOther.teta=M_PIf64;//equipe2_bot1.teta;
         equipeOther.ortho=equipe2_bot1.ortho;
     }
     else
@@ -696,7 +693,7 @@ void CSimuBot::initEquipe(int equipe)
 
         equipeOther.x=equipe1_bot1.x;
         equipeOther.y=equipe1_bot1.y;
-        equipeOther.teta=equipe1_bot1.teta;
+        equipeOther.teta=0.0;//equipe1_bot1.teta;
         equipeOther.ortho=equipe1_bot1.ortho;
     }
 
@@ -1191,7 +1188,7 @@ void CSimuBot::playOther()
                 //float teta_record=str_teta_record.toFloat();
                 //qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
                 OtherBot->display_XY(x_record,y_record);
-                cadenceur->start(25);
+                isStarted=true;
             }
         }
     }
@@ -1199,7 +1196,7 @@ void CSimuBot::playOther()
 
 void CSimuBot::stopOther()
 {
-    cadenceur->stop();
+    isStarted=false;
     currentIndex=0;
     OtherBot->setSpeed(0);
 
@@ -1210,29 +1207,36 @@ void CSimuBot::stopOther()
 
 void CSimuBot::nextStepOther()
 {
-    if(OtherBot->isConvergence)
+    if (isStarted)
     {
-        currentIndex++;
-        if(currentIndex<=10)
+        if(OtherBot->isConvergenceXY)
         {
-            QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
-            QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
-            QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
-            if((widget_x)&&(widget_y)&&(widget_teta))
+            currentIndex++;
+            if(currentIndex<=10)
             {
-                QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
-                QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
-                QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
-                if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
+                QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
+                QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
+                QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
+                if((widget_x)&&(widget_y)&&(widget_teta))
                 {
-                    float x_record=str_x_record.toFloat();
-                    float y_record=str_y_record.toFloat();
-                    //float teta_record=str_teta_record.toFloat();
-                    //qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
-                    OtherBot->display_XY(x_record,y_record);
+                    QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
+                    QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
+                    QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
+                    if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
+                    {
+                        float x_record=str_x_record.toFloat();
+                        float y_record=str_y_record.toFloat();
+                        //float teta_record=str_teta_record.toFloat();
+                        //qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
+                        OtherBot->display_XY(x_record,y_record);
+                    }
+                    else
+                        stopOther();
                 }
                 else
+                {
                     stopOther();
+                }
             }
             else
             {
@@ -1240,12 +1244,8 @@ void CSimuBot::nextStepOther()
             }
         }
         else
-        {
-            stopOther();
-        }
+            OtherBot->moveAtSpeed();
     }
-    else
-        OtherBot->moveAtSpeed();
 }
 
 void CSimuBot::addStepOther(double x, double y, double teta, int row)
@@ -1283,16 +1283,20 @@ void CSimuBot::enableMoveOther(int state)
 
 void CSimuBot::syncMove(bool activated)
 {
-    if(activated&&(m_ihm.ui.chkBox_enableMoveOther->isChecked())&&(m_ihm.ui.chkBox_syncMeanBot->isChecked()))
+    int cmdTirette=m_application->m_data_center->read("Capteurs.Tirette").toInt();
+    if(cmdTirette==1)
     {
-        /*qDebug() << "\n\ntirette old "<<isStarted_old << "et new "<<isStarted<<"\n\n";
-        if(isStarted == !isStarted_old)
-            qDebug()<< "[SimuBot] Valeur tirette modifiée de " << isStarted_old << " à "<<isStarted;*/
+        if(activated&&(m_ihm.ui.chkBox_enableMoveOther->isChecked())&&(m_ihm.ui.chkBox_syncMeanBot->isChecked()))
+        {
+            /*qDebug() << "\n\ntirette old "<<isStarted_old << "et new "<<isStarted<<"\n\n";
+            if(isStarted == !isStarted_old)
+                qDebug()<< "[SimuBot] Valeur tirette modifiée de " << isStarted_old << " à "<<isStarted;*/
 
-        if(!cadenceur->isActive()) //front montant tirette
-       {
-            qDebug() << "[Simubot] Tirette levée!";
-            playOther();
+            if(!isStarted) //front montant tirette
+           {
+                qDebug() << "[Simubot] Tirette levée!";
+                playOther();
+            }
         }
     }
 }
@@ -1511,10 +1515,13 @@ void CSimuBot::updateStepFromSimulia()
 {
     int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
     //int box2Activated=m_application->m_data_center->read("Simubot.box2d.activated").toBool();
+    //qDebug() << "[CSimuBot] Simulia step n°\t" << updatedStep <<" and old step n°\t"<<m_step;
     if((updatedStep>0) && (updatedStep>m_step) && (modeVisu==SIMUBOT::SIMU))
     {
+        //qDebug() << "[CSimuBot] Simulia in loop step n°\t" << updatedStep;
         float vect_G_B1 = m_application->m_data_center->getData("Simulia.vect_G")->read().toFloat();
         float vect_D_B1 = m_application->m_data_center->getData("Simulia.vect_D")->read().toFloat();
+        //qDebug() << "[CSimuBot] Simulia commandes moteur (G,D):("<<vect_G_B1<<","<<vect_D_B1<<")";
 
         float vect_G_B2 = 0;
         float vect_D_B2 = 0;
@@ -1533,6 +1540,9 @@ void CSimuBot::updateStepFromSimulia()
             val = m_external_controler_client_robot2.readData("Simulia.vect_D", &error_code);
             if (error_code == 0) vect_D_B2=val.toFloat();
         }
+
+        //déplacement du robot adverse
+        nextStepOther();
 
         //simulation des déplacements du robot avec le moteur box2d
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2);
@@ -1579,4 +1589,26 @@ void CSimuBot::updateStepFromSimulia()
         m_step=updatedStep;
         m_application->m_data_center->write("Simubot.step", m_step);
     }
+}
+
+void CSimuBot::Slot_catch_TxSync()
+{
+    //TODO faire démarrer le timer (cadenceur->start(25);)
+    int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
+    if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
+    {
+        float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
+        float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
+        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+
+        qDebug() << "Teta target=" << teta_target << "\t\terror=" << GrosBot->getErrorAngle(x_target,y_target);
+        qDebug() << "XY target=" << x_target << " , "<<y_target << "\t\terror=" << GrosBot->getErrorDistance(x_target,y_target);
+    }
+}
+
+void CSimuBot::updateStepFromSimuBot()
+{
+    //TODO
+    //appel à box2d
+    //gérer le cadenceur suivant les convergences
 }
