@@ -82,7 +82,7 @@ void CRS232::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "portname", "");
   QString portname = val.toString();
   tConfigRS232 config;
-  val = m_application->m_eeprom->read(getName(), "baudrate", 115200);
+  val = m_application->m_eeprom->read(getName(), "baudrate", 921600);
   config.baudrate = (QSerialPort::BaudRate)val.toInt();
   val = m_application->m_eeprom->read(getName(), "databits", 8);
   config.databits = (QSerialPort::DataBits)val.toInt();
@@ -321,6 +321,7 @@ void CRS232::procFillingOptions(void)
     m_ihm.ui.baudBox->addItem(tr("38400"), QSerialPort::Baud38400);
     m_ihm.ui.baudBox->addItem(tr("57600"), QSerialPort::Baud57600);
     m_ihm.ui.baudBox->addItem(tr("115200"), QSerialPort::Baud115200);
+    m_ihm.ui.baudBox->addItem(tr("921600"), 921600);
     m_ihm.ui.baudBox->addItem(tr("Unknown"), QSerialPort::UnknownBaud);
 
     m_ihm.ui.dataBox->addItem(tr("5"), QSerialPort::Data5);
