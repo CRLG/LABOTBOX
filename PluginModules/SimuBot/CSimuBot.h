@@ -22,6 +22,9 @@
 #include <QGraphicsEllipseItem>
 #include "CPhysicalEngine.h"
 
+//#define DEBUG_OTHER
+//#define DEBUG_SIMULIA
+
 
 enum SIMUBOT{
     TEST=0,

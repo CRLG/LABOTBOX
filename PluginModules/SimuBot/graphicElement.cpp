@@ -48,11 +48,15 @@ GraphicElement::GraphicElement(float R, float G, float B)
     x_asserv_init=0.0; y_asserv_init=0.0; angle_asserv_init=0.0;
     isRelativToBot=true;
     sensOrtho=1;
+
+    //pour l'asservissement interne
+    asservEnabled=false;
     vitesse=0.0;
     isConvergenceXY=true;
     isConvergenceTeta=true;
-    is_init_target=false;
-
+    internalTargetsInitialized=false;
+    force_G=0.0;
+    force_D=0.0;
 }
 
 /*!
@@ -78,11 +82,14 @@ GraphicElement::GraphicElement(QPolygonF forme, float R, float G, float B)
     isRelativToBot=true;
     sensOrtho=1;
 
-    //pour l'aaservissement interne
+    //pour l'asservissement interne
+    asservEnabled=false;
     vitesse=0.0;
     isConvergenceXY=true;
     isConvergenceTeta=true;
-    is_init_target=false;
+    internalTargetsInitialized=false;
+    force_G=0.0;
+    force_D=0.0;
 }
 
 /*!
@@ -107,10 +114,15 @@ GraphicElement::GraphicElement()
     setFillRule(Qt::WindingFill);
     isRelativToBot=true;
     sensOrtho=1;
+
+    //pour l'asservissement interne
+    asservEnabled=false;
     vitesse=0.0;
     isConvergenceXY=true;
     isConvergenceTeta=true;
-    is_init_target=false;
+    internalTargetsInitialized=false;
+    force_G=0.0;
+    force_D=0.0;
 }
 
 /*!
@@ -128,7 +140,7 @@ void GraphicElement::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
 void GraphicElement::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    emit center(x(),y(),0.0);
+    emit center(x(),y());
     emit isDoubleClicked();
     QGraphicsPolygonItem::mouseDoubleClickEvent(event);
 }
@@ -223,7 +235,9 @@ void GraphicElement::setAsservInit(qreal x_init, qreal y_init, qreal angle_init)
 void GraphicElement::setSpeed(double newVitesse)
 {
     vitesse=newVitesse;
-    is_init_target=false;
+    //la vitesse a une influence sur les déplacements avec asservissement
+    //interne, il est donc préférable de réinitialiser les consignes
+    internalTargetsInitialized=false;
 }
 
 /*!
@@ -235,17 +249,18 @@ void GraphicElement::setSpeed(double newVitesse)
 void GraphicElement::replace(qreal x_new, qreal y_new){
     //si la vitesse interne est nulle alors
     //le robot se déplace instantanément
-    if (vitesse==0.0)
+    if (!asservEnabled)
         setPos(x_new,y_new);
     else
     {
-        //la vitesse du robot est non nulle on est dans un mode
-        //particulier avec un asservissement  interne bypassé par
-        //un déplacement à intervalle constant
-        if(!is_init_target)
+        //on est dans un mode
+        //particulier avec un asservissement  interne
+        //soit pas à pas pour une utilisation avec box2d par exemple
+        //soit avec un déplacement à intervalle constant
+        if(!internalTargetsInitialized)
         {
-            moveInit(x_new,y_new);
-            moveAtSpeed();
+            initInternalAsservDist(x_new,y_new);
+            stepInternalAsservDist();
         }
     }
 }
@@ -326,69 +341,117 @@ void GraphicElement::display_theta(qreal theta_reel_new)
         this->setRotation(-(180*(theta_reel_new)/Pi));
 }
 
-void GraphicElement::moveAtSpeed(void)
+void GraphicElement::stepInternalAsservDist(void)
 {
-    if(is_init_target)
+    //deplacement uniquement si les consignes ont été établies
+    if(internalTargetsInitialized)
     {
-        count_step_target++;
-
-        if(count_step_target<nb_step_target)
+        //déplacement à vitesse constante
+        if(vitesse!=0.0)
         {
-            double dX=count_step_target*dX_target;
-            double dY=count_step_target*dY_target;
-            //qDebug()<<"Next step to move ("<<x_internal_hold+dX<<","<<(m_target*(x_internal_hold*dX)+p_target)<<")";
-            if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
-                setPos(x_internal_target,y_internal_hold+dY);
-            else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
-                setPos(x_internal_hold+dX,y_internal_target);
+            count_step_target++;
+
+            if(count_step_target<nb_step_target)
+            {
+                double dX=count_step_target*dX_target;
+                double dY=count_step_target*dY_target;
+                //qDebug()<<"Next step to move ("<<x_internal_hold+dX<<","<<(m_target*(x_internal_hold*dX)+p_target)<<")";
+                if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
+                    setPos(x_internal_target,y_internal_hold+dY);
+                else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
+                    setPos(x_internal_hold+dX,y_internal_target);
+                else
+                    setPos(x_internal_hold+dX,m_target*(x_internal_hold+dX)+p_target);
+            }
             else
-                setPos(x_internal_hold+dX,m_target*(x_internal_hold+dX)+p_target);
+            {
+                if(!isConvergenceXY)
+                {
+                    isConvergenceXY=true; //on indique qu'on est arrivé
+                    internalTargetsInitialized=false; //on invalide les consignes de déplacement puisqu'on est arrivé au point voulu
+#ifdef DEBUG_INTERNAL_ASSERV
+                    qDebug()<<"[SimuBot] Asserv interne (à vitesse constante): arrivé au point de consigne ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
+#endif
+                    setPos(x_internal_target,y_internal_target); //on place le robot exactement au point voulu
+                }
+            }
         }
+        //déplacement à utiliser avec un moteur externe comme box2d
         else
         {
             if(!isConvergenceXY)
             {
-                isConvergenceXY=true; //on indique qu'on est arrivé
-                is_init_target=false; //on désactive le déplacement à vitesse constante (on est arrivé au point voulu)
-                //qDebug()<<"Arrived at ("<<x_internal_target<<","<<y_internal_target<<")\n\n";
-                setPos(x_internal_target,y_internal_target);
+                double angleError=getErrorAngle(x_internal_target,y_internal_target);
+                double posError=getErrorDistance(x_internal_target,y_internal_target);
+
+                //on corrige d'abord l'angle
+                if(angleError>=0.01)
+                {
+
+                }
+                //on corrige ensuite la distance
+                else if(posError>=0.5)
+                {
+                    force_G=4*posError;
+                    force_D=4*posError;
+                }
+                else
+                {
+                    isConvergenceXY=true;
+                    force_G=0.0;
+                    force_D=0.0;
+                }
+            }
+            else if(!isConvergenceTeta)
+            {
+                //on corrige l'angle
+            }
+            else
+            {
+                //on met fin au mouvement
+                force_G=0.0;
+                force_D=0.0;
             }
         }
     }
 }
 
-void GraphicElement::moveInit(float toX, float toY)
+void GraphicElement::initInternalAsservDist(float toX, float toY)
 {
+    //consigne de déplacement pour l'asservissement interne
     setTargetXY(toX,toY);
 
     //Initialisation et calcul des éléments du déplacement à vitesse constante
-    dY_target=0.0;
-    dX_target=0.0;
-    count_step_target=0;
-    //distance à parcourir
-    double distance_to_move=sqrt(pow((x_internal_target-x_internal_hold),2)+pow((y_internal_target-y_internal_hold),2));
-    //nombre de pas de déplacement et distance de déplacement à chaque pas
-    nb_step_target=(distance_to_move/vitesse)/0.025;
+    if(vitesse!=0.0)
+    {
+        dY_target=0.0;
+        dX_target=0.0;
+        count_step_target=0;
 
-    //trajectoire rectiligine
-    //y=m*x+p
-    if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
-    {
-        m_target=0.0;
-        p_target=0.0;
-        dY_target=(y_internal_target-y_internal_hold)/nb_step_target;
-    }
-    else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
-    {
-        m_target=0.0;
-        p_target=y_internal_hold;
-        dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
-    }
-    else
-    {
-        m_target=(y_internal_target-y_internal_hold)/(x_internal_target-x_internal_hold);
-        p_target=(y_internal_target-m_target*x_internal_target);
-        dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
+        //distance à parcourir
+        double distance_to_move=sqrt(pow((x_internal_target-x_internal_hold),2)+pow((y_internal_target-y_internal_hold),2));
+        //nombre de pas de déplacement et distance de déplacement à chaque pas
+        nb_step_target=(distance_to_move/vitesse)/0.025;
+
+        //trajectoire rectiligine (y=m*x+p)
+        if(fabs(x_internal_target-x_internal_hold)<0.01) //x constant
+        {
+            m_target=0.0;
+            p_target=0.0;
+            dY_target=(y_internal_target-y_internal_hold)/nb_step_target;
+        }
+        else if(fabs(y_internal_target-y_internal_hold)<0.01) //y constant
+        {
+            m_target=0.0;
+            p_target=y_internal_hold;
+            dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
+        }
+        else
+        {
+            m_target=(y_internal_target-y_internal_hold)/(x_internal_target-x_internal_hold);
+            p_target=(y_internal_target-m_target*x_internal_target);
+            dX_target=(x_internal_target-x_internal_hold)/nb_step_target;
+        }
     }
 
 /*
@@ -448,19 +511,36 @@ double GraphicElement::getErrorAngle(double x_target, double y_target)
     return (deltaAngle-teta_view);
 }
 
+/*!
+ * \brief GraphicElement::setTargetXY
+ * \param toX
+ * \param toY
+ * #COMPORTEMENT fonction pour définir les nouvelles coordonnées de déplacement
+ * uniquement pour l'asservissement interne
+ */
 void GraphicElement::setTargetXY(float toX,float toY)
 {
-    /*x_internal_hold=this->getX();
-    y_internal_hold=this->getY();*/
+    //coordonnées de la position actuelle
     x_internal_hold=x();
     y_internal_hold=y();
+    //coordonnées de la potion visée (consigne)
     x_internal_target=toX;
     y_internal_target=toY;
-    qDebug() << "[CSimuBot] New target: ("<< toX << "," << toY <<") from ("<< x_internal_hold<<","<<y_internal_hold<<")";
+#ifdef DEBUG_INTERNAL_ASSERV
+    qDebug() << "[SimuBot] Asserv interne"<< (vitesse!=0?" (à vitesse constante)":" ") <<": nouveau déplacement demandé de ("<< x_internal_hold<<","<<y_internal_hold<<") vers ("<< toX << "," << toY <<")";
 
+#endif
+
+    //on retire les flags de convergence
     isConvergenceXY=false;
     isConvergenceTeta=false;
-    is_init_target=true;
+
+    //on indique que la consigne a bien été définie
+    internalTargetsInitialized=true;
+
+    //on initialise les forces de déplacement appliquées à chaque roue
+    force_G=0.0;
+    force_D=0.0;
 }
 void GraphicElement::setTargetTeta(float toTeta)
 {
@@ -470,24 +550,40 @@ void GraphicElement::setTargetTeta(float toTeta)
 
     isConvergenceXY=false;
     isConvergenceTeta=false;
-    is_init_target=true;
+    internalTargetsInitialized=true;
+    force_G=0.0;
+    force_D=0.0;
 }
 
 void GraphicElement::stepToTarget(float * forceG, float * forceD)
 {
     //on a demandé un déplacement avec asservissement
-    if(is_init_target)
+    if(internalTargetsInitialized)
     {
-        //La convergence XY n'est pas encore atteinte
-        if(!isConvergenceXY)
-        {
-            float posError=getErrorDistance(x_internal_target,y_internal_target);
-            //TODO : le retour d'erreur doit être signé
-            *forceG=4.0*posError;
-            *forceD=4.0*posError;
-            qDebug()<<"Consigne roue gauche et droite ("<<*forceG<<","<<*forceD<<")\n\n";
-        }
+
     }
+}
+
+void GraphicElement::startInternalAsserv()
+{
+    internalTargetsInitialized=false;
+    asservEnabled=true;
+    force_G=0.0;
+    force_D=0.0;
+}
+
+void GraphicElement::stopInternalAsserv()
+{
+    internalTargetsInitialized=false;
+    asservEnabled=false;
+    force_G=0.0;
+    force_D=0.0;
+}
+
+void GraphicElement::getForcesAsserv(float * forceG, float * forceD)
+{
+    *forceG=force_G;
+    *forceD=force_D;
 }
 
 

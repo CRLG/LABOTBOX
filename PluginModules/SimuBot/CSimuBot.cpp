@@ -269,7 +269,7 @@ void CSimuBot::init(CApplication *application)
     //TODO: prendre un fichier de config pour l'emplacement et l'angle de départ pour le robot
     // pour l'instant c'est en dur dans le constructeur
     connect(terrain, SIGNAL(changed(QList<QRectF>)), this, SLOT(viewChanged(QList<QRectF>)));
-    connect(GrosBot,SIGNAL(center(qreal,qreal,float)),OldGrosBot,SLOT(replace(qreal,qreal,float)));
+    connect(GrosBot,SIGNAL(center(qreal,qreal)),OldGrosBot,SLOT(replace(qreal,qreal)));
     connect(GrosBot,SIGNAL(isDoubleClicked()),this,SLOT(catchDoubleClick()));
 	
 	
@@ -1153,29 +1153,39 @@ void CSimuBot::estimate_Environment_Interactions()
 }
 
 /*!
- * \brief CSimuBot::estimateEnvironmentVariables
+ * \brief CSimuBot::playOther
  *
  * # COMPORTEMENT
- * Calcule toutes les interactions entre le robot et l'environnement
- * - capteurs US
- * - blocage terrain
+ * Lance le déplacement d'un robot adverse (aka OtherBot dans le code)
+ * seulement si sa vitesse définie dans l'ihm est non nulle.
+ * Cette fonction execute également le premier ordre de déplacement défini
+ * dans la liste de l'onglet Simu
  */
 
 void CSimuBot::playOther()
 {
-
+    //récupération de la vitesse définie dans l'ihm
     double speedOther=m_ihm.ui.doubleSpinBox_speed->value();
+
+    //déplacement effectif si la vitesse est non nulle
     if(speedOther>0)
     {
         currentIndex=0;
+
+        //récupération du premier déplacement défini dans la liste
         QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
         QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
         QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
+
+        //Si toutes les données sont bien définies
         if((widget_x)&&(widget_y)&&(widget_teta))
         {
+            //extraction des données
             QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
             QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
             QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
+
+            //Si les données sont valides
             if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
             {
                 m_ihm.ui.pB_playOther->setDisabled(true);
@@ -1183,10 +1193,13 @@ void CSimuBot::playOther()
                 m_ihm.ui.pB_stopOther->setDisabled(false);
 
                 OtherBot->setSpeed(speedOther);
+                OtherBot->startInternalAsserv();
                 float x_record=str_x_record.toFloat();
                 float y_record=str_y_record.toFloat();
                 //float teta_record=str_teta_record.toFloat();
-                //qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
+#ifdef DEBUG_OTHER
+                qDebug() << "[SimuBot] Demande n°1 de déplacement du robot adverse ("<<x_record<<","<<y_record<<") à la vitesse "<<speedOther;
+#endif
                 OtherBot->display_XY(x_record,y_record);
                 isStarted=true;
             }
@@ -1196,9 +1209,13 @@ void CSimuBot::playOther()
 
 void CSimuBot::stopOther()
 {
+#ifdef DEBUG_OTHER
+    qDebug() << "[SimuBot] Fin de déplacement du robot adverse et désactivation de son asservissement interne";
+#endif
     isStarted=false;
     currentIndex=0;
-    OtherBot->setSpeed(0);
+    OtherBot->setSpeed(0.0);
+    OtherBot->stopInternalAsserv();
 
     m_ihm.ui.pB_playOther->setDisabled(false);
     m_ihm.ui.doubleSpinBox_speed->setDisabled(false);
@@ -1207,44 +1224,59 @@ void CSimuBot::stopOther()
 
 void CSimuBot::nextStepOther()
 {
+    //Si le robot adverse est lancé (cad en déplacement)
     if (isStarted)
     {
+        //Si le robot adverse est en convergence distance
         if(OtherBot->isConvergenceXY)
         {
+            //on récupère les prochaines consignes de déplacement (limitation à 10 consignes)
             currentIndex++;
             if(currentIndex<=10)
             {
+                //récupération du prochain déplacement défini dans la liste
                 QTableWidgetItem * widget_x=m_ihm.ui.tableWidget->item(currentIndex,0);
                 QTableWidgetItem * widget_y=m_ihm.ui.tableWidget->item(currentIndex,1);
                 QTableWidgetItem * widget_teta=m_ihm.ui.tableWidget->item(currentIndex,2);
+
+                //Si toutes les données sont bien définies
                 if((widget_x)&&(widget_y)&&(widget_teta))
                 {
+                    //extraction des données
                     QString str_x_record=m_ihm.ui.tableWidget->item(currentIndex,0)->text();
                     QString str_y_record=m_ihm.ui.tableWidget->item(currentIndex,1)->text();
                     QString str_teta_record=m_ihm.ui.tableWidget->item(currentIndex,2)->text();
+
+                    //Si toutes les données sont valides
                     if((!str_x_record.isEmpty())&&(!str_y_record.isEmpty())&&(!str_teta_record.isEmpty()))
                     {
                         float x_record=str_x_record.toFloat();
                         float y_record=str_y_record.toFloat();
                         //float teta_record=str_teta_record.toFloat();
-                        //qDebug() << "[SimuBot] Demande n°"<<currentIndex<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
+#ifdef DEBUG_OTHER
+                        qDebug() << "[SimuBot] Demande n°"<<currentIndex+1<<" de déplacement du robot adverse ("<<x_record<<","<<y_record<<")";
+#endif
                         OtherBot->display_XY(x_record,y_record);
                     }
+                    //si une des données n'est pas valide on arrête le robot adverse en invalidant son asservissement interne
                     else
                         stopOther();
                 }
+                //si une des données n'est pas définie on arrête le robot adverse en invalidant son asservissement interne
                 else
                 {
                     stopOther();
                 }
             }
+            //s'il y a eu plus de 10 consignes de déplacement on arrête le robot adverse en invalidant son asservissement interne
             else
             {
                 stopOther();
             }
         }
+        //si le robot n'est pas lancé (en déplacement) on désactive son asservissement interne (par sécurité)
         else
-            OtherBot->moveAtSpeed();
+            OtherBot->stepInternalAsservDist();
     }
 }
 
@@ -1441,9 +1473,11 @@ void CSimuBot::getUSDistance(Coord bot, Coord obstacle, float capteurs[])
     }
 }
 
-// =======================================================
-//              GESTION DU ROBOT N°2 EXTERNE
-// =======================================================
+/*!
+ * \brief CSimuBot::on_active_external_robot2
+ * \param state
+ * Gestion du second robot dans Simubot
+ */
 void CSimuBot::on_active_external_robot2(bool state)
 {
     if (state) {
@@ -1482,6 +1516,14 @@ void CSimuBot::on_active_external_robot2(bool state)
     }
 }
 
+/*!
+ * \brief CSimuBot::setElementJeu
+ * \param x
+ * \param y
+ * \param Color
+ * \return
+ * Fonction de positionnement des éléments de jeu
+ */
 QGraphicsPolygonItem * CSimuBot::setElementJeu(float x, float y, int Color)
 {
     //QGraphicsEllipseItem* element=new QGraphicsEllipseItem(QRect(x,-y,7.2,7.2));
@@ -1506,11 +1548,20 @@ QGraphicsPolygonItem * CSimuBot::setElementJeu(float x, float y, int Color)
     return element;
 }
 
+/*!
+ * \brief CSimuBot::box2d_enable
+ * \param flag
+ * Fonction d'accès au paramètre d'activation/désactivation de box2d
+ */
 void CSimuBot::box2d_enable(bool flag)
 {
     m_box2d_Enabled=flag;
 }
 
+/*!
+ * \brief CSimuBot::updateStepFromSimulia
+ * Fonction qui traite à chaque pas les déplacements demandés par le module Simulia
+ */
 void CSimuBot::updateStepFromSimulia()
 {
     int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
@@ -1591,9 +1642,14 @@ void CSimuBot::updateStepFromSimulia()
     }
 }
 
+/*!
+ * \brief CSimuBot::Slot_catch_TxSync
+ * Slot de récupération des signaux du module CActuatorSequencer
+ */
 void CSimuBot::Slot_catch_TxSync()
 {
     //TODO faire démarrer le timer (cadenceur->start(25);)
+    //TODO récupérer les autres ordres de actuatorsequencer
     int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
     if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
     {
@@ -1601,14 +1657,18 @@ void CSimuBot::Slot_catch_TxSync()
         float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
         float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
 
-        qDebug() << "Teta target=" << teta_target << "\t\terror=" << GrosBot->getErrorAngle(x_target,y_target);
-        qDebug() << "XY target=" << x_target << " , "<<y_target << "\t\terror=" << GrosBot->getErrorDistance(x_target,y_target);
+        //TODO demander les consignes de déplacement
     }
 }
 
+/*!
+ * \brief CSimuBot::updateStepFromSimuBot
+ * Fonction qui traite à chaque pas les déplacements demandés par le module CActuatorSequencer
+ */
 void CSimuBot::updateStepFromSimuBot()
 {
     //TODO
     //appel à box2d
     //gérer le cadenceur suivant les convergences
+
 }

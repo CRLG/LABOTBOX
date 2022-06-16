@@ -12,6 +12,8 @@
 #include <QtTest/QTest>
 #include <QTimer>
 
+//#define DEBUG_INTERNAL_ASSERV
+
 static const double Pi = 3.14159265358979323846264338327950288419717;
 static const double TwoPi = 2.0 * Pi;
 
@@ -54,7 +56,7 @@ private:
     qreal x_asserv_init, y_asserv_init, angle_asserv_init;
     QColor color;
     //pour les déplacements non instantanés (avec asservissement)
-    bool asserEnabled;
+    bool asservEnabled;
     double vitesse;
     qreal x_internal_hold;
     qreal y_internal_hold;
@@ -68,9 +70,11 @@ private:
     int nb_step_target;
     double dX_target;
     double dY_target;
-    bool is_init_target;
+    double force_G;
+    double force_D;
+    bool internalTargetsInitialized;
 
-    void moveInit(float toX, float toY);
+    void initInternalAsservDist(float toX, float toY);
 
 public:
     qreal getTheta(void);
@@ -90,8 +94,11 @@ public:
     void setTargetXY(float toX, float toY);
     void setTargetTeta(float toTeta);
     void stepToTarget(float *forceG, float *forceD);
+    void startInternalAsserv();
+    void stopInternalAsserv();
+    void getForcesAsserv(float *forceG, float *forceD);
 signals:
-    void center(qreal x_new, qreal y_new,float speed);
+    void center(qreal x_new, qreal y_new);
     void isDoubleClicked();
     void newConvergence();
 
@@ -102,7 +109,7 @@ public slots:
     void display_XY(qreal x_reel_new,qreal y_reel_new);
     //void display_Y(qreal y_reel_new);
     void display_theta(qreal theta_reel_new);
-    void moveAtSpeed(void);
+    void stepInternalAsservDist(void);
 
 };
 
