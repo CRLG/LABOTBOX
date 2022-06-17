@@ -352,6 +352,7 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Init", true);
 
     //pour le mode simu (fonctionnement avec Simulia)
+    m_simulia_Enabled=true;
     cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
     //connections pour éditer/gérer le déplacement autonome du 2ème robot
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
@@ -1330,6 +1331,8 @@ void CSimuBot::syncMove(bool activated)
                 playOther();
             }
         }
+        /*else
+            m_simulia_Enabled=true;*/
     }
 }
 
@@ -1559,6 +1562,31 @@ void CSimuBot::box2d_enable(bool flag)
 }
 
 /*!
+ * \brief CSimuBot::Slot_catch_TxSync
+ * Slot de récupération des signaux du module CActuatorSequencer
+ */
+void CSimuBot::Slot_catch_TxSync()
+{
+    //TODO récupérer les autres ordres de actuatorsequencer
+    int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
+    bool toRun=false;
+    if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
+    {
+        float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
+        float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
+        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+
+        //TODO demander les consignes de déplacement
+        /*GrosBot->setSpeed(0.0);
+        GrosBot->setTargetXY(x_target,y_target);
+        m_simulia_Enabled=false;
+        toRun=true;*/
+    }
+    /*if(toRun && !cadenceur->isActive())
+        cadenceur->start(25);*/
+}
+
+/*!
  * \brief CSimuBot::updateStepFromSimulia
  * Fonction qui traite à chaque pas les déplacements demandés par le module Simulia
  */
@@ -1567,7 +1595,7 @@ void CSimuBot::updateStepFromSimulia()
     int updatedStep=m_application->m_data_center->read("Simulia.step").toInt();
     //int box2Activated=m_application->m_data_center->read("Simubot.box2d.activated").toBool();
     //qDebug() << "[CSimuBot] Simulia step n°\t" << updatedStep <<" and old step n°\t"<<m_step;
-    if((updatedStep>0) && (updatedStep>m_step) && (modeVisu==SIMUBOT::SIMU))
+    if((updatedStep>0) && (updatedStep>m_step) && (modeVisu==SIMUBOT::SIMU) && m_simulia_Enabled)
     {
         //qDebug() << "[CSimuBot] Simulia in loop step n°\t" << updatedStep;
         float vect_G_B1 = m_application->m_data_center->getData("Simulia.vect_G")->read().toFloat();
@@ -1643,25 +1671,6 @@ void CSimuBot::updateStepFromSimulia()
 }
 
 /*!
- * \brief CSimuBot::Slot_catch_TxSync
- * Slot de récupération des signaux du module CActuatorSequencer
- */
-void CSimuBot::Slot_catch_TxSync()
-{
-    //TODO faire démarrer le timer (cadenceur->start(25);)
-    //TODO récupérer les autres ordres de actuatorsequencer
-    int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
-    if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
-    {
-        float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
-        float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
-        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
-
-        //TODO demander les consignes de déplacement
-    }
-}
-
-/*!
  * \brief CSimuBot::updateStepFromSimuBot
  * Fonction qui traite à chaque pas les déplacements demandés par le module CActuatorSequencer
  */
@@ -1670,5 +1679,23 @@ void CSimuBot::updateStepFromSimuBot()
     //TODO
     //appel à box2d
     //gérer le cadenceur suivant les convergences
+
+    if((modeVisu==SIMUBOT::SIMU) && !m_simulia_Enabled)
+    {
+        //défnition et récupération des forces de déplacement
+        float vect_G_B1 = 0.0;
+        float vect_D_B1=0.0;
+        GrosBot->getForcesAsserv(&vect_G_B1,&vect_D_B1);
+
+        qDebug() << "*";
+
+        //simulation des déplacements du robot avec le moteur box2d
+        m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,0.0,0.0);
+
+        //environnement physique mis à jour, on l'affiche dans SimuBot
+        m_application->m_data_center->write("x_pos", m_physical_engine.x_pos);
+        m_application->m_data_center->write("y_pos", m_physical_engine.y_pos);
+        m_application->m_data_center->write("teta_pos", m_physical_engine.teta_pos);
+    }
 
 }

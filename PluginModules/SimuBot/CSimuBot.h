@@ -132,9 +132,11 @@ private:
     float iniTetaAsserv_bot1[2];
     float iniTetaAsserv_bot2[2];
 
-    CPhysicalEngine             m_physical_engine;
-    bool m_box2d_Enabled;
+    //pour gérer simulia ou actuatorsequencer
+    CPhysicalEngine m_physical_engine;
+    bool m_box2d_Enabled; //TODO probablement inutile (à nettoyer
     int m_step;
+    bool m_simulia_Enabled;
 
     //pour la stratégie du robot adverse
     int currentIndex;

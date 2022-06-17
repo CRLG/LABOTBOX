@@ -381,14 +381,22 @@ void GraphicElement::stepInternalAsservDist(void)
         {
             if(!isConvergenceXY)
             {
-                double angleError=getErrorAngle(x_internal_target,y_internal_target);
+                double angleError=fabs(getErrorAngle(x_internal_target,y_internal_target));
                 double posError=getErrorDistance(x_internal_target,y_internal_target);
 
                 //on corrige d'abord l'angle
                 if(angleError>=0.01)
                 {
-
+                    //TODO tenir compte du signe de l'erreur pour tourner dans le bon sens
+                    force_G=4*posError;
+                    force_D=-4*posError;
                 }
+                else
+                {
+                    isConvergenceXY=true;
+                    isConvergenceTeta=true;
+                }
+                /*
                 //on corrige ensuite la distance
                 else if(posError>=0.5)
                 {
@@ -401,6 +409,7 @@ void GraphicElement::stepInternalAsservDist(void)
                     force_G=0.0;
                     force_D=0.0;
                 }
+                */
             }
             else if(!isConvergenceTeta)
             {
