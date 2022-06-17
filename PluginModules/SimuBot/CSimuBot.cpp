@@ -392,6 +392,8 @@ void CSimuBot::init(CApplication *application)
         m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
         connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
 
+// design robot
+    initDesign();
 
     //positionnement par défaut
     initEquipe(EQUIPE1);
@@ -1047,8 +1049,8 @@ void CSimuBot::estimate_Environment_Interactions()
 
     //récupération des différentes coordonnées (graphique et réelles) de notre premier robot
     Coord cGrosBot(GrosBot->getX_terrain(),GrosBot->getY_terrain(),GrosBot->getTheta(),(GrosBot->sensOrtho>0));
-    qreal x_bot_graphic=GrosBot->getX_terrain();
-    qreal theta_bot=GrosBot->getTheta();
+    //qreal x_bot_graphic=GrosBot->getX_terrain();
+    //qreal theta_bot=GrosBot->getTheta();
 
     //récupération des différentes coordonnées (graphique et réelles) de notre premier robot
     Coord cMiniBot(MiniBot->getX_terrain(),MiniBot->getY_terrain(),MiniBot->getTheta(),(MiniBot->sensOrtho>0));
@@ -1569,12 +1571,12 @@ void CSimuBot::Slot_catch_TxSync()
 {
     //TODO récupérer les autres ordres de actuatorsequencer
     int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
-    bool toRun=false;
+    //bool toRun=false;
     if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
     {
-        float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
+        /*float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
         float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
-        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();*/
 
         //TODO demander les consignes de déplacement
         /*GrosBot->setSpeed(0.0);
@@ -1698,4 +1700,32 @@ void CSimuBot::updateStepFromSimuBot()
         m_application->m_data_center->write("teta_pos", m_physical_engine.teta_pos);
     }
 
+}
+void CSimuBot::initDesign()
+{
+    scene_design=new QGraphicsScene();
+    scene_design->setSceneRect(-20,-20,40,40);
+    QGraphicsEllipseItem *points[8];
+    float points_x[8]={2.3,-2.3,-11.1,-11.1,-2.3,2.3,5.3,5.3};
+    float points_y[8]={12,12,7,-7,-12,-12,-7,7};
+
+    for(int i=0;i<8;i++)
+    {
+    points[i] = scene_design->addEllipse(points_x[i]-0.5,points_y[i]-0.5,1,1);
+    points[i]->setFlag(QGraphicsItem::ItemIsMovable,true);
+    points[i]->setBrush(QBrush(QColor(0,0,0, 255)));
+    }
+
+
+    QGraphicsLineItem *lignes[8];
+    for(int i=0;i<7;i++)
+    {
+        QLineF liaison_ligne(points_x[i],points_y[i],points_x[i+1],points_y[i+1]);
+    lignes[i] = scene_design->addLine(liaison_ligne);
+    lignes[i]->setFlag(QGraphicsItem::ItemIsMovable,true);
+   // lignes[i]->setBrush(QBrush(QColor(0,0,0, 255)));
+    }
+
+    m_ihm.ui.gV_vue_conception->setScene(scene_design);
+    m_ihm.ui.gV_vue_conception->scale(10,10);
 }

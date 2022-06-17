@@ -155,6 +155,12 @@ private:
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
     QGraphicsPolygonItem *setElementJeu(float x, float y, int Color);
+    //design robot
+    QGraphicsScene * scene_design;
+
+
+
+    void initDesign();
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
