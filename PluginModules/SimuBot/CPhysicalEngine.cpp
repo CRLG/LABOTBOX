@@ -182,8 +182,8 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     //comportement du robot dans le monde simulé
     b2BodyDef Definition_Robot;
     Definition_Robot.type = b2_dynamicBody; //corps dynamique
-    Definition_Robot.linearDamping = 6.0f; //frottement lineaire pour simuler une gravite Y
-    Definition_Robot.angularDamping=4.0f; //idem pour l'angle
+    Definition_Robot.linearDamping = 7.0f; //frottement lineaire pour simuler une gravite Y
+    Definition_Robot.angularDamping=8.0f; //idem pour l'angle
     Definition_Robot.position.Set(m_x_init1,m_y_init1); //position de depart
     Definition_Robot.angle=m_teta_init1;
 
@@ -318,19 +318,23 @@ float CPhysicalEngine::_y2(float y) {return (y-m_y_init2);}
 
 void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float vect_deplacement_D, float vect_deplacement_G_2, float vect_deplacement_D_2)
 {
+    //reset des pas codeurs
     m_deltaRoue_G_bot1=0;
     m_deltaRoue_D_bot1=0;
     m_deltaRoue_G_bot2=0;
     m_deltaRoue_D_bot2=0;
 
+    //sauvegarde de la position actuelle des codeurs pour calculer les deltas de distance
     m_old_bot1_pos_G.x=m_bot1->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT/2))).x;
     m_old_bot1_pos_G.y=m_bot1->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT/2))).y;
     m_old_bot1_pos_D.x=m_bot1->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT/2))).x;
     m_old_bot1_pos_D.y=m_bot1->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT/2))).y;
     m_old_bot1_teta=m_bot1->GetAngle();
 
+    //utilisation du robot secondaire
     if(m_bot2_activated)
     {
+        //sauvegarde de la position actuelle des codeurs pour calculer les deltas de distance
         m_old_bot2_pos_G.x=m_bot2->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT_2/2))).x;
         m_old_bot2_pos_G.y=m_bot2->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT_2/2))).y;
         m_old_bot2_pos_D.x=m_bot2->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT_2/2))).x;
@@ -338,16 +342,24 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         m_old_bot2_teta=m_bot2->GetAngle();
     }
 
+    //on réinitialise les forces appliquées aux différents système pour
+    //éviter les cumuls de force et donc les dérives dans le temps
+    //inconvénient: il n'y aura pas d'effet d'inertie pour le robot
     realWorld->ClearForces();
 
+    //les 2 roues tournent dans le même sens => on n'est pas en rotation
     if((vect_deplacement_G*vect_deplacement_D)>=0)
     {
+        //on applique la traction au centre d'inertie pour simuler au maximum un mouvement rectiligne
+        //on évite ainsi les louvoiement lors des déplacements
         m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2((vect_deplacement_G+vect_deplacement_D),0)),
                                  m_bot1->GetWorldCenter(),
                                  true);
     }
+    //les 2 roues tournent dans des sens opposés => on est en rotation
     else
     {
+       //on applique la traction unitairement aux roues
         m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_G,0)),
                                  m_bot1->GetWorldPoint(b2Vec2(0.0f,12.0f)),
                                  true);
@@ -356,35 +368,21 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
                                  true);
     }
 
-
-    /*m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_G,0)),
-                             m_bot1->GetWorldPoint(b2Vec2(0.0f,12.0f)),
-                             true);
-    m_bot1->ApplyLinearImpulse(m_bot1->GetWorldVector(b2Vec2(vect_deplacement_D,0)),
-                             m_bot1->GetWorldPoint(b2Vec2(0.0f,-12.0f)),
-                             true);*/
-    /*if(m_bot2_activated)
-    {
-        m_bot2->ApplyLinearImpulse(m_bot2->GetWorldVector(b2Vec2(vect_deplacement_G_2,0)),
-                                 m_bot2->GetWorldPoint(b2Vec2(0.0f,8.0f)),
-                                 true);
-        m_bot2->ApplyLinearImpulse(m_bot2->GetWorldVector(b2Vec2(vect_deplacement_D_2,0)),
-                                 m_bot2->GetWorldPoint(b2Vec2(0.0f,-8.0f)),
-                                 true);
-    }*/
-
-    int32 velocityIterations =8;
+    //variable d'ajustement du moteur box2d
+    int32 velocityIterations = 8;
     int32 positionIterations = 2;
 
+    //calcul des forces
     realWorld->Step(schedule_lap, velocityIterations, positionIterations);
 
+    //récupération de la position et l'angle résultants
     b2Vec2 position = m_bot1->GetPosition();
     float angle = m_bot1->GetAngle();
-
     x_pos=_x1(position.x);
     y_pos=_y1(position.y);
     teta_pos=angle;
 
+    //récupération des positions des codeurs pour calculer les pas codeurs
     m_bot1_pos_G.x=m_bot1->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT/2))).x;
     m_bot1_pos_G.y=m_bot1->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT/2))).y;
     m_bot1_pos_D.x=m_bot1->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT/2))).x;
@@ -398,7 +396,6 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         sens_G=-1;
     double f_deltaRG=(sens_G * sqrt(pow((m_bot1_pos_G.x-m_old_bot1_pos_G.x),2)+pow((m_bot1_pos_G.y-m_old_bot1_pos_G.y),2)))/(DISTANCE_PAS_CODEUR_G);
     m_deltaRoue_G_bot1=(int)round(f_deltaRG);
-    //m_deltaRoue_G_bot1=(sens_G * sqrt(pow((m_bot1_pos_G.x-m_old_bot1_pos_G.x),2)+pow((m_bot1_pos_G.y-m_old_bot1_pos_G.y),2)))/(DISTANCE_PAS_CODEUR_G);
 
     //delta codeur Droit
     int sens_D=1;
@@ -408,17 +405,18 @@ void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float v
         sens_D=-1;
     double f_deltaRD=(sens_D * sqrt(pow((m_bot1_pos_D.x-m_old_bot1_pos_D.x),2)+pow((m_bot1_pos_D.y-m_old_bot1_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D);
     m_deltaRoue_D_bot1=(int)round(f_deltaRD);
-    //m_deltaRoue_D_bot1=(sens_D * sqrt(pow((m_bot1_pos_D.x-m_old_bot1_pos_D.x),2)+pow((m_bot1_pos_D.y-m_old_bot1_pos_D.y),2)))/(DISTANCE_PAS_CODEUR_D);
 
+    //utilisation du robot secondaire
     if(m_bot2_activated)
     {
+        //récupération de la position et l'angle résultants
         b2Vec2 position2 = m_bot2->GetPosition();
         float angle2 = m_bot2->GetAngle();
-
         x_pos_2=_x2(position2.x);
         y_pos_2=_y2(position2.y);
         teta_pos_2=angle2;
 
+        //récupération des positions des codeurs pour calculer les pas codeurs
         m_bot2_pos_G.x=m_bot2->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT_2/2))).x;
         m_bot2_pos_G.y=m_bot2->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT_2/2))).y;
         m_bot2_pos_D.x=m_bot2->GetWorldPoint(b2Vec2(0.0f,-(VOIE_BOT_2/2))).x;
