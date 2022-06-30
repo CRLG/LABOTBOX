@@ -381,19 +381,20 @@ void CSimuBot::init(CApplication *application)
     m_ihm.ui.ckhB_2Bot->setChecked(val.toBool());
 
     // Robot n°2 externe
-      connect(m_ihm.ui.active_external_robot2, SIGNAL(clicked(bool)), this, SLOT(on_active_external_robot2(bool)));
-      //connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
+    connect(m_ihm.ui.active_external_robot2, SIGNAL(clicked(bool)), this, SLOT(on_active_external_robot2(bool)));
+    //connect(&m_timer_external_robot2, SIGNAL(timeout()), this, SLOT(on_timeout_external_robot2()));
 
-      //pour le moteur physique
-      connect(m_application->m_data_center->getData("Simubot.box2d.activated", true), SIGNAL(valueChanged(bool)), this, SLOT(box2d_enable(bool)));
-        connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
+    //pour le moteur physique
+    connect(m_application->m_data_center->getData("Simubot.box2d.activated", true), SIGNAL(valueChanged(bool)), this, SLOT(box2d_enable(bool)));
+    connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
 
-        //pour le fonctionnement avec actuatorsequencer
-        m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
-        connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
+    //pour le fonctionnement avec actuatorsequencer
+    m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
+    connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
 
-// design robot
+    // design robot
     initDesign();
+    //connect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
 
     //positionnement par défaut
     initEquipe(EQUIPE1);
@@ -1703,29 +1704,81 @@ void CSimuBot::updateStepFromSimuBot()
 }
 void CSimuBot::initDesign()
 {
-    scene_design=new QGraphicsScene();
-    scene_design->setSceneRect(-20,-20,40,40);
-    QGraphicsEllipseItem *points[8];
-    float points_x[8]={2.3,-2.3,-11.1,-11.1,-2.3,2.3,5.3,5.3};
-    float points_y[8]={12,12,7,-7,-12,-12,-7,7};
+    float echelle=10.;
+    int nb_points=2;
 
-    for(int i=0;i<8;i++)
+    scene_design=new QGraphicsScene;
+    m_ihm.ui.gV_vue_conception->setScene(scene_design);
+    //scene_design->setSceneRect(-200,200,400,400);
+    /*m_ihm.ui.gV_vue_conception->setRenderHint(QPainter::Antialiasing);
+    m_ihm.ui.gV_vue_conception->centerOn(QPointF(200,200));
+    m_ihm.ui.gV_vue_conception->setCacheMode(QGraphicsView::CacheBackground);
+    m_ihm.ui.gV_vue_conception->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    m_ihm.ui.gV_vue_conception->setDragMode(QGraphicsView::ScrollHandDrag);
+    m_ihm.ui.gV_vue_conception->resize(400, 400);*/
+
+
+
+    float points_x[8]={2.3,-2.3,-11.1,-11.1,-2.3,2.3,5.3,5.3};
+    float points_y[8]={12.,12.,7.,-7.,-12.,-12.,-7.,7.};
+
+    for(int k=0;k<nb_points;k++)
     {
-    points[i] = scene_design->addEllipse(points_x[i]-0.5,points_y[i]-0.5,1,1);
-    points[i]->setFlag(QGraphicsItem::ItemIsMovable,true);
-    points[i]->setBrush(QBrush(QColor(0,0,0, 255)));
+        points_x[k]=points_x[k]*echelle;
+        points_y[k]=points_y[k]*echelle;
     }
 
+    float x1,x2,y1,y2;
+    /*for(int j=0; j<8; j++)
+    {
+        //qDebug() << j << " => " <<lignes_design[0][j];
+        lignes_design[0][j]= new QGraphicsLineItem();
+        scene_design->addItem(lignes_design[0][j]);
+    }*/
+    for(int i=0;i<nb_points;i++)
+    {
+        x1=points_x[i];
+        y1=points_y[i];
+        if(i<7)
+        {
+            x2=points_x[i+1];
+            y2=points_y[i+1];
+        }
+        else
+        {
+            x2=points_x[0];
+            y2=points_y[0];
+        }
+        QLineF ligne(x1,y1,x2,y2);
+        lignes_design[0][i] = scene_design->addLine(ligne);
+        lignes_design[0][i]->setPos(QPointF(x1,y1));
+    }
 
-    QGraphicsLineItem *lignes[8];
+    for(int j=0; j<nb_points; j++)
+    {
+        qDebug() << j << " => " <<lignes_design[0][j];
+    }
+
+    for(int i=0;i<nb_points;i++)
+    {
+        points_design[0][i]= new QGraphicsEllipseItem();
+        //qDebug() << points_design[0][i]->boundingRect().center().x() << ", " << points_design[0][i]->boundingRect().center().y();
+        points_design[0][i]->setFlag(QGraphicsItem::ItemIsMovable,true);
+        points_design[0][i]->setBrush(QBrush(QColor(0,0,0, 255)));
+        scene_design->addItem(points_design[0][i]);
+        points_design[0][i]->setRect(points_x[i]-2.5,points_y[i]-2.5,5,5);
+    }
+}
+
+void CSimuBot::slot_designChanged(QList<QRectF> regions)
+{
+    disconnect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
     for(int i=0;i<7;i++)
     {
-        QLineF liaison_ligne(points_x[i],points_y[i],points_x[i+1],points_y[i+1]);
-    lignes[i] = scene_design->addLine(liaison_ligne);
-    lignes[i]->setFlag(QGraphicsItem::ItemIsMovable,true);
-   // lignes[i]->setBrush(QBrush(QColor(0,0,0, 255)));
+        //qDebug() << points_design[0][i]->boundingRect().center().x() << points_design[0][i]->boundingRect().center().y() << points_design[0][i+1]->boundingRect().center().x() << points_design[0][i+1]->boundingRect().center().y();
+        lignes_design[0][i]->setLine(points_design[0][i]->pos().x(),points_design[0][i]->pos().y(),
+                points_design[0][i+1]->pos().x(),points_design[0][i+1]->pos().y());
     }
+    connect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
 
-    m_ihm.ui.gV_vue_conception->setScene(scene_design);
-    m_ihm.ui.gV_vue_conception->scale(10,10);
 }

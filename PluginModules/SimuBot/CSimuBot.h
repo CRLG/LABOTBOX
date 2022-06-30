@@ -103,6 +103,7 @@ private slots :
         void slot_clearPath();
 
         void updateStepFromSimuBot();
+
 private:
     Cihm_SimuBot m_ihm;
 
@@ -158,8 +159,9 @@ private:
     //design robot
     QGraphicsScene * scene_design;
 
-
-
+    //pour le design
+    QGraphicsEllipseItem *points_design[5][8];
+    QGraphicsLineItem *lignes_design[5][8];
     void initDesign();
 signals:
     void displayCoord(qreal value_x,qreal value_y);
@@ -181,6 +183,7 @@ public slots:
     void real_robot_position_changed();
     void catchDoubleClick();
     void Slot_catch_TxSync();
+            void slot_designChanged(QList<QRectF> regions);
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_
