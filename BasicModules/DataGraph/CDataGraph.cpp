@@ -369,11 +369,18 @@ void CDataGraph::saveListeVariablesObservees(void)
 */
 void CDataGraph::onDataFilterChanged(QString filter_name)
 {
+    QStringList items_to_match;
+    items_to_match = filter_name.toLower().simplified().split(" ");
+
     for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
         m_ihm.ui.liste_variables->item(i)->setHidden(true);
-        if (m_ihm.ui.liste_variables->item(i)->text().toLower().contains(filter_name.toLower())) {
-            m_ihm.ui.liste_variables->item(i)->setHidden(false);
+        bool found = true;
+        foreach (QString item_to_match, items_to_match) {
+            if (!m_ihm.ui.liste_variables->item(i)->text().toLower().contains(item_to_match)) {
+                found = false; // si tous les mots clés du filtre ne sont pas présents dans le nom du script, le script est rejeté
+            }
         }
+        m_ihm.ui.liste_variables->item(i)->setHidden(!found);
     }
 }
 
