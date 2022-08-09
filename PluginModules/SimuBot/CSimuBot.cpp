@@ -353,6 +353,9 @@ void CSimuBot::init(CApplication *application)
 
     //pour le mode simu (fonctionnement avec Simulia)
     m_simulia_Enabled=true;
+    m_ihm.ui.checkBox_enableSimulia->setChecked(m_simulia_Enabled);
+    connect(m_ihm.ui.checkBox_enableSimulia,SIGNAL(stateChanged(int)),this,SLOT(slot_enableSimulia(int)));
+
     cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
     //connections pour éditer/gérer le déplacement autonome du 2ème robot
     connect(m_ihm.ui.pB_US,SIGNAL(clicked(bool)),this,SLOT(estimate_Environment_Interactions()));
@@ -1280,7 +1283,7 @@ void CSimuBot::nextStepOther()
         }
         //si le robot n'est pas lancé (en déplacement) on désactive son asservissement interne (par sécurité)
         else
-            OtherBot->stepInternalAsservDist();
+            OtherBot->stepInternalAsserv();
     }
 }
 
@@ -1572,21 +1575,24 @@ void CSimuBot::Slot_catch_TxSync()
 {
     //TODO récupérer les autres ordres de actuatorsequencer
     int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
-    //bool toRun=false;
-    if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
-    {
-        /*float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
-        float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
-        float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();*/
+    bool toRun=false;
 
-        //TODO demander les consignes de déplacement
-        /*GrosBot->setSpeed(0.0);
-        GrosBot->setTargetXY(x_target,y_target);
-        m_simulia_Enabled=false;
-        toRun=true;*/
+    if(!m_simulia_Enabled)
+    {
+        if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
+        {
+            float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
+            float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
+            float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+
+            //TODO demander les consignes de déplacement
+            GrosBot->setSpeed(0.0);
+            GrosBot->setTargetXY(x_target,y_target);
+            GrosBot->setTargetTeta(teta_target);
+            m_simulia_Enabled=false;
+            toRun=true;
+        }
     }
-    /*if(toRun && !cadenceur->isActive())
-        cadenceur->start(25);*/
 }
 
 /*!
@@ -1688,9 +1694,8 @@ void CSimuBot::updateStepFromSimuBot()
         //défnition et récupération des forces de déplacement
         float vect_G_B1 = 0.0;
         float vect_D_B1=0.0;
+        GrosBot->stepInternalAsserv();
         GrosBot->getForcesAsserv(&vect_G_B1,&vect_D_B1);
-
-        qDebug() << "*";
 
         //simulation des déplacements du robot avec le moteur box2d
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,0.0,0.0);
@@ -1754,10 +1759,10 @@ void CSimuBot::initDesign()
         lignes_design[0][i]->setPos(QPointF(x1,y1));
     }
 
-    for(int j=0; j<nb_points; j++)
+    /*for(int j=0; j<nb_points; j++)
     {
         qDebug() << j << " => " <<lignes_design[0][j];
-    }
+    }*/
 
     for(int i=0;i<nb_points;i++)
     {
@@ -1781,4 +1786,33 @@ void CSimuBot::slot_designChanged(QList<QRectF> regions)
     }
     connect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
 
+}
+
+void CSimuBot::slot_enableSimulia(int state)
+{
+    m_simulia_Enabled=((state==Qt::Checked)?true:false);
+    if(m_ihm.ui.horizontalSlider_toggle_simu->value()==SIMUBOT::SIMU)
+    {
+        //on est déjà en mode visu on se contente de réinitialiser la vue en simulant un changement de mode
+        changeMode(SIMUBOT::SIMU);
+    }
+    else
+    {
+        //sinon on change vraiment de vue
+        m_ihm.ui.horizontalSlider_toggle_simu->setValue(SIMUBOT::SIMU);
+    }
+
+    qDebug() << "[SimuBot] Simulia est maintenant " << (m_simulia_Enabled?"activé":"désactivé");
+    if(!m_simulia_Enabled)
+    {
+        cadenceur->start(25);
+        if(cadenceur->isActive())
+                qDebug() << "[SimuBot] cadenceur interne actif";
+    }
+    else
+    {
+        cadenceur->stop();
+        if(!cadenceur->isActive())
+                qDebug() << "[SimuBot] cadenceur interne actif";
+    }
 }

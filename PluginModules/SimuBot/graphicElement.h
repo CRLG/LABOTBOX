@@ -12,7 +12,8 @@
 #include <QtTest/QTest>
 #include <QTimer>
 
-#define DEBUG_INTERNAL_ASSERV
+//#define DEBUG_INTERNAL_ASSERV
+//#define DEBUG_INTERNAL_ASSERV_01
 
 static const double Pi = 3.14159265358979323846264338327950288419717;
 static const double TwoPi = 2.0 * Pi;
@@ -74,7 +75,7 @@ private:
     double force_D;
     bool internalTargetsInitialized;
 
-    void initInternalAsservDist(float toX, float toY);
+    void initInternalAsserv(float toX, float toY);
 
 public:
     qreal getTheta(void);
@@ -91,6 +92,7 @@ public:
 
     double getErrorDistance(double x_target, double y_target);
     double getErrorAngle(double x_target, double y_target);
+    double getErrorTeta(double teta_target);
     void setTargetXY(float toX, float toY);
     void setTargetTeta(float toTeta);
     void stepToTarget(float *forceG, float *forceD);
@@ -109,7 +111,7 @@ public slots:
     void display_XY(qreal x_reel_new,qreal y_reel_new);
     //void display_Y(qreal y_reel_new);
     void display_theta(qreal theta_reel_new);
-    void stepInternalAsservDist(void);
+    void stepInternalAsserv(void);
 
 };
 

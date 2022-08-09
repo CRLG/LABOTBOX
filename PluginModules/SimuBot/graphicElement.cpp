@@ -259,8 +259,8 @@ void GraphicElement::replace(qreal x_new, qreal y_new){
         //soit avec un déplacement à intervalle constant
         if(!internalTargetsInitialized)
         {
-            initInternalAsservDist(x_new,y_new);
-            stepInternalAsservDist();
+            initInternalAsserv(x_new,y_new);
+            stepInternalAsserv();
         }
     }
 }
@@ -341,7 +341,7 @@ void GraphicElement::display_theta(qreal theta_reel_new)
         this->setRotation(-(180*(theta_reel_new)/Pi));
 }
 
-void GraphicElement::stepInternalAsservDist(void)
+void GraphicElement::stepInternalAsserv(void)
 {
     //deplacement uniquement si les consignes ont été établies
     if(internalTargetsInitialized)
@@ -381,39 +381,62 @@ void GraphicElement::stepInternalAsservDist(void)
         {
             if(!isConvergenceXY)
             {
-                double angleError=fabs(getErrorAngle(x_internal_target,y_internal_target));
+                double angleError=getErrorAngle(x_internal_target,y_internal_target);
                 double posError=getErrorDistance(x_internal_target,y_internal_target);
 
                 //on corrige d'abord l'angle
-                if(angleError>=0.01)
+                if(fabs(angleError)>=0.05)
                 {
-                    //TODO tenir compte du signe de l'erreur pour tourner dans le bon sens
-                    force_G=4*posError;
-                    force_D=-4*posError;
+                    double sens=1.0;
+                    if(angleError<0.)
+                    {
+                        sens=-1.0;
+                    }
+                    force_G=600*fabs(angleError)*sens;
+                    force_D=-600*fabs(angleError)*sens;
                 }
-                else
-                {
-                    isConvergenceXY=true;
-                    isConvergenceTeta=true;
-                }
-                /*
                 //on corrige ensuite la distance
                 else if(posError>=0.5)
                 {
-                    force_G=4*posError;
-                    force_D=4*posError;
+                    //TODO tenir compte du signe de l'erreur pour aller dans le bon sens
+                    force_G=300*posError;
+                    force_D=300*posError;
                 }
                 else
                 {
                     isConvergenceXY=true;
+#ifdef DEBUG_INTERNAL_ASSERV
+                    qDebug() << "[Simubot] Convergence atteinte erreur angle = " << angleError << ", erreur distance = "<<posError;
+#endif
                     force_G=0.0;
                     force_D=0.0;
                 }
-                */
             }
             else if(!isConvergenceTeta)
             {
-                //on corrige l'angle
+                //on corrige l'angle (double convergence dans le XYTeta)
+                double angleError=getErrorTeta(teta_internal_target);
+
+                //on corrige d'abord l'angle
+                if(fabs(angleError)>=0.05)
+                {
+                    double sens=1.0;
+                    if(angleError<0.)
+                    {
+                        sens=-1.0;
+                    }
+                    force_G=600*fabs(angleError)*sens;
+                    force_D=-600*fabs(angleError)*sens;
+                }
+                else
+                {
+                    isConvergenceTeta=true;
+#ifdef DEBUG_INTERNAL_ASSERV
+                    qDebug() << "[Simubot] Convergence atteinte erreur angle = " << angleError;
+#endif
+                    force_G=0.0;
+                    force_D=0.0;
+                }
             }
             else
             {
@@ -425,7 +448,7 @@ void GraphicElement::stepInternalAsservDist(void)
     }
 }
 
-void GraphicElement::initInternalAsservDist(float toX, float toY)
+void GraphicElement::initInternalAsserv(float toX, float toY)
 {
     //consigne de déplacement pour l'asservissement interne
     setTargetXY(toX,toY);
@@ -493,31 +516,88 @@ double GraphicElement::getErrorAngle(double x_target, double y_target)
     double y_view=this->getY();
     double teta_view=this->getTheta();
     double deltaAngle=0.0;
+    double result=0.0;
 
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] CALCUL ERREUR ANGLE";
+    qDebug() << "[SimuBot] Données => coord actuelles: ("<<x_view<<","<<y_view<<") et coord target ("<<x_target<<","<<y_target<<")";
+#endif
     //on calcule de l'angle par rapport à la consigne de position
     if (x_view==x_target)
     {
         if (y_target>y_view)
+        {
             deltaAngle=Pi/2;
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] Sur la même droite x, y target au dessus ==> PI/2";
+#endif
+        }
         else if (y_target==y_view)
+        {
             deltaAngle=0;
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] Même point ==> 0";
+#endif
+        }
         else if (y_target<y_view)
+        {
             deltaAngle=-Pi/2;
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] Sur la même droite x, y target au dessous ==> -PI/2";
+#endif
+        }
     }
     else if (x_target>x_view)
+    {
         deltaAngle=atan((y_target-y_view)/(x_target-x_view));
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] x_target > X ==> arctangente";
+#endif
+    }
     else if (x_target<x_view)
     {
-        if (y_target>y_view)
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] x_target < X ==> arctangente +/-PI";
+#endif
+        if (y_target>=y_view)
+        {
             deltaAngle=atan((y_target-y_view)/(x_target-x_view))+Pi;
-        else if (y_target==y_view)
-            deltaAngle=Pi;
+        }
         else if (y_target<y_view)
             deltaAngle=atan((y_target-y_view)/(x_target-x_view))-Pi;
     }
 
+    result=normalizeAngleRad(teta_view-deltaAngle);
+
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] angle vu:"<<teta_view<<"\tangle par rapport consigne:"<<deltaAngle;
+    qDebug() << "[SimuBot] Erreur d'angle à rattraper (normalisé): "<<result;
+#endif
+
     //on retourne l'erreur d'angle compensée par l'angle actuel du robot
-    return (deltaAngle-teta_view);
+    return (result);
+}
+
+double GraphicElement::getErrorTeta(double teta_target)
+{
+    double teta_view=this->getTheta();
+    double deltaAngle=0.0;
+    double result=0.0;
+
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] CALCUL ERREUR TETA";
+    qDebug() << "[SimuBot] Données => angle actuels: "<<teta_view<<", et teta target "<<teta_target;
+#endif
+
+
+    result=normalizeAngleRad(teta_view-teta_target);
+
+#ifdef DEBUG_INTERNAL_ASSERV_01
+    qDebug() << "[SimuBot] Erreur d'angle à rattraper (normalisé): "<<result;
+#endif
+
+    //on retourne l'erreur d'angle compensée par l'angle actuel du robot
+    return (result);
 }
 
 /*!
@@ -536,13 +616,12 @@ void GraphicElement::setTargetXY(float toX,float toY)
     x_internal_target=toX;
     y_internal_target=toY;
 #ifdef DEBUG_INTERNAL_ASSERV
-    qDebug() << "[SimuBot] Asserv interne"<< (vitesse!=0?" (à vitesse constante)":" ") <<": nouveau déplacement demandé de ("<< x_internal_hold<<","<<y_internal_hold<<") vers ("<< toX << "," << toY <<")";
+    qDebug() << "[SimuBot] Asserv interne"<< (vitesse!=0?" (à vitesse constante)":" ") <<": nouveau déplacement XY demandé de ("<< x_internal_hold<<","<<y_internal_hold<<") vers ("<< toX << "," << toY <<")";
 
 #endif
 
     //on retire les flags de convergence
     isConvergenceXY=false;
-    isConvergenceTeta=false;
 
     //on indique que la consigne a bien été définie
     internalTargetsInitialized=true;
@@ -555,22 +634,20 @@ void GraphicElement::setTargetTeta(float toTeta)
 {
     teta_internal_hold=this->getX();
     teta_internal_target=toTeta;
+#ifdef DEBUG_INTERNAL_ASSERV
+    qDebug() << "[SimuBot] Asserv interne"<< (vitesse!=0?" (à vitesse constante)":" ") <<": nouveau déplacement angulaire demandé de "<< toTeta;
 
+#endif
 
-    isConvergenceXY=false;
+    //on retire les flags de convergence
     isConvergenceTeta=false;
+
+    //on indique que la consigne a bien été définie
     internalTargetsInitialized=true;
+
+    //on initialise les forces de déplacement appliquées à chaque roue
     force_G=0.0;
     force_D=0.0;
-}
-
-void GraphicElement::stepToTarget(float * forceG, float * forceD)
-{
-    //on a demandé un déplacement avec asservissement
-    if(internalTargetsInitialized)
-    {
-
-    }
 }
 
 void GraphicElement::startInternalAsserv()

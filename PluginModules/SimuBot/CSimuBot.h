@@ -183,7 +183,8 @@ public slots:
     void real_robot_position_changed();
     void catchDoubleClick();
     void Slot_catch_TxSync();
-            void slot_designChanged(QList<QRectF> regions);
+    void slot_designChanged(QList<QRectF> regions);
+    void slot_enableSimulia(int state);
 };
 
 #endif // _CBASIC_MODULE_SimuBot_H_

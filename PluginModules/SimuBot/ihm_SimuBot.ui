@@ -437,7 +437,7 @@
     <item row="2" column="10" rowspan="5" colspan="3">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tb_Placement">
        <attribute name="title">
@@ -1514,6 +1514,19 @@
         </property>
         <property name="text">
          <string>Enable blocking on borders</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="checkBox_enableSimulia">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>231</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Enable Simulia</string>
         </property>
        </widget>
       </widget>
