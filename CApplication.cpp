@@ -108,6 +108,18 @@
 #ifdef MODULE_KMAR
    #include "CKMAR.h"
 #endif // MODULE_KMAR
+#ifdef MODULE_TelemetryServer
+   #include "CTelemetryServer.h"
+#endif // MODULE_TelemetryServer
+#ifdef MODULE_TelemetryClient
+   #include "CTelemetryClient.h"
+#endif // MODULE_TelemetryClient
+#ifdef MODULE_ValiseExpanderServer
+   #include "CValiseExpanderServer.h"
+#endif // MODULE_ValiseExpanderServer
+#ifdef MODULE_ValiseExpanderClient
+   #include "CValiseExpanderClient.h"
+#endif // MODULE_ValiseExpanderClient
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -417,6 +429,30 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_KMAR);
   m_list_modules.append(m_KMAR);
 #endif // MODULE_KMAR
+
+#ifdef MODULE_TelemetryServer
+  m_TelemetryServer     = new CTelemetryServer("TelemetryServer");
+  m_list_plugin_modules.append(m_TelemetryServer);
+  m_list_modules.append(m_TelemetryServer);
+#endif // MODULE_TelemetryServer
+
+#ifdef MODULE_TelemetryClient
+  m_TelemetryClient     = new CTelemetryClient("TelemetryClient");
+  m_list_plugin_modules.append(m_TelemetryClient);
+  m_list_modules.append(m_TelemetryClient);
+#endif // MODULE_TelemetryClient
+
+#ifdef MODULE_ValiseExpanderServer
+  m_ValiseExpanderServer     = new CValiseExpanderServer("ValiseExpanderServer");
+  m_list_plugin_modules.append(m_ValiseExpanderServer);
+  m_list_modules.append(m_ValiseExpanderServer);
+#endif // MODULE_ValiseExpanderServer
+
+#ifdef MODULE_ValiseExpanderClient
+  m_ValiseExpanderClient     = new CValiseExpanderClient("ValiseExpanderClient");
+  m_list_plugin_modules.append(m_ValiseExpanderClient);
+  m_list_modules.append(m_ValiseExpanderClient);
+#endif // MODULE_ValiseExpanderClient
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

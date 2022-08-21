@@ -49,6 +49,10 @@ class CPowerElectrobot;
 class CSimulia;
 class CLidarBot;
 class CKMAR;
+class CTelemetryServer;
+class CTelemetryClient;
+class CValiseExpanderServer;
+class CValiseExpanderClient;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -178,6 +182,18 @@ public:
 #ifdef MODULE_KMAR
    CKMAR     *m_KMAR;
 #endif // MODULE_KMAR
+#ifdef MODULE_TelemetryServer
+   CTelemetryServer     *m_TelemetryServer;
+#endif // MODULE_TelemetryServer
+#ifdef MODULE_TelemetryClient
+   CTelemetryClient     *m_TelemetryClient;
+#endif // MODULE_TelemetryClient
+#ifdef MODULE_ValiseExpanderServer
+   CValiseExpanderServer     *m_ValiseExpanderServer;
+#endif // MODULE_ValiseExpanderServer
+#ifdef MODULE_ValiseExpanderClient
+   CValiseExpanderClient     *m_ValiseExpanderClient;
+#endif // MODULE_ValiseExpanderClient
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
