@@ -1,14 +1,14 @@
 #ifndef TELEMETRY_CLIENT_H
 #define TELEMETRY_CLIENT_H
 
-#include <QTcpSocket>
+#include "exchangerclient.h"
 #include "exchanger_telemetry.h"
 
-class TelemetryClient : public QTcpSocket
+class TelemetryClient : public ExchangerClient
 {
     Q_OBJECT
 public:
-    explicit TelemetryClient(QTcpSocket *parent = nullptr);
+    explicit TelemetryClient(ExchangerClient *parent = nullptr);
 
     CExchangerTelemetry m_exchanger;
 };

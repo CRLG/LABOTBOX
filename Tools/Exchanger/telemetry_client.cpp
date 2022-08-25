@@ -1,7 +1,7 @@
 #include "telemetry_client.h"
 
-TelemetryClient::TelemetryClient(QTcpSocket *parent)
-    : QTcpSocket(parent)
+TelemetryClient::TelemetryClient(ExchangerClient *parent)
+    : ExchangerClient(parent)
 {
     m_exchanger.setSocket(this);
 }
