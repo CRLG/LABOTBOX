@@ -11,7 +11,7 @@ public:
     explicit ExchangerClient(QTcpSocket *parent = nullptr);
 
     virtual void connectToHost(const QString &hostName, quint16 port, bool autoconnect=false);
-    virtual void disconnectFromHost();
+    virtual void disconnection();
 
 private :
     static const unsigned int AUTORECONNECT_PERIOD = 1000; // [msec]

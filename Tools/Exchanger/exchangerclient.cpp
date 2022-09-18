@@ -22,7 +22,7 @@ void ExchangerClient::connectToHost(const QString &hostName, quint16 port, bool 
 }
 
 // _________________________________________________________
-void ExchangerClient::disconnectFromHost()
+void ExchangerClient::disconnection()
 {
     QTcpSocket::disconnectFromHost();
     m_enable_autoreconnect = false;
@@ -37,11 +37,13 @@ void ExchangerClient::on_connect()
 // _________________________________________________________
 void ExchangerClient::on_disconnect()
 {
+    qDebug() << "ExchangerClient::on_disconnect : autoreconnect" << m_enable_autoreconnect;
     if (m_enable_autoreconnect) m_timer_autoreconnect.start(AUTORECONNECT_PERIOD);
 }
 
 // _________________________________________________________
 void ExchangerClient::on_tick_timer_autoreconnect()
 {
+    qDebug() << "Tick";
     QTcpSocket::connectToHost(m_hostname, m_port);
 }
