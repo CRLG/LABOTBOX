@@ -91,6 +91,15 @@ void CExchanger::onSocketDataReady(QTcpSocket *socket)
 }
 
 //______________________________________________________
+// Point d'entrée lorsqu'un buffer (message complet ou partiel) arrive
+// Le buffer peut contenir :
+//      - Un message complet
+//      - Plusieurs messages complets
+//      - Un morceau de message
+//      - Un message complet et le début d'un autre
+//      - La fin d'un message et le début d'un autre
+// La machine d'état reconstitue le buffer reçu pour former un message cohérent
+// Le message sera à son tour décodé pour en récupérer la donnée utilisateur qu'il véhiculait (QString, QVariant, int, double, ...)
 void CExchanger::decode(const QByteArray &rcv_buff)
 {
     foreach (quint8 data, rcv_buff) {
@@ -224,59 +233,60 @@ void CExchanger::receive_complete_message(const QByteArray &buff_data)
     QString strval;
     QByteArray baval;
 
-    while (!stream.atEnd()) {
-        stream >> msg_type;
-        switch(msg_type)
-        {
-        case DATA_STRING :
-            stream >> strval;
-            emit receive_string(strval);
-            break;
-        case DATA_UINT8 :
-            stream >> ui8val;
-            emit receive_uint8(ui8val);
-            break;
-        case DATA_UINT16 :
-            stream >> ui16val;
-            emit receive_uint16(ui16val);
-            break;
-        case DATA_UINT32 :
-            stream >> ui32val;
-            emit receive_uint32(ui32val);
-            break;
-        case DATA_UINT64 :
-            stream >> ui64val;
-            emit receive_uint64(ui64val);
-            break;
-        case DATA_INT8 :
-            stream >> i8val;
-            emit receive_int8(i8val);
-            break;
-        case DATA_INT16 :
-            stream >> i16val;
-            emit receive_int16(i16val);
-            break;
-        case DATA_INT32 :
-            stream >> i32val;
-            emit receive_int32(i32val);
-            break;
-        case DATA_INT64 :
-            stream >> i64val;
-            emit receive_int64(i64val);
-            break;
-        case DATA_DOUBLE :
-            stream >> dval;
-            emit receive_double(dval);
-            break;
-        case DATA_VARIANT :
-            stream >> varval;
-            emit receive_variant(varval);
-            break;
-        case DATA_RAW_DATA :
-            stream >> baval;
-            emit receive_raw_buffer(baval);
-            break;
-        }
+    stream >> msg_type;
+    switch(msg_type)
+    {
+    case DATA_STRING :
+        stream >> strval;
+        emit receive_string(strval);
+        break;
+    case DATA_UINT8 :
+        stream >> ui8val;
+        emit receive_uint8(ui8val);
+        break;
+    case DATA_UINT16 :
+        stream >> ui16val;
+        emit receive_uint16(ui16val);
+        break;
+    case DATA_UINT32 :
+        stream >> ui32val;
+        emit receive_uint32(ui32val);
+        break;
+    case DATA_UINT64 :
+        stream >> ui64val;
+        emit receive_uint64(ui64val);
+        break;
+    case DATA_INT8 :
+        stream >> i8val;
+        emit receive_int8(i8val);
+        break;
+    case DATA_INT16 :
+        stream >> i16val;
+        emit receive_int16(i16val);
+        break;
+    case DATA_INT32 :
+        stream >> i32val;
+        emit receive_int32(i32val);
+        break;
+    case DATA_INT64 :
+        stream >> i64val;
+        emit receive_int64(i64val);
+        break;
+    case DATA_DOUBLE :
+        stream >> dval;
+        emit receive_double(dval);
+        break;
+    case DATA_VARIANT :
+        stream >> varval;
+        emit receive_variant(varval);
+        break;
+    case DATA_RAW_DATA :
+        stream >> baval;
+        emit receive_raw_buffer(baval);
+        break;
+    default :
+        // ne rien faire
+        break;
     }
 }
 
