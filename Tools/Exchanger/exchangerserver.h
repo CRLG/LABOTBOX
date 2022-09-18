@@ -26,6 +26,8 @@ protected :
 signals :
     void connectionToSocket(QTcpSocket *sender);
     void started();
+    void connected();
+    void disconnected();
 };
 
 #endif // _EXCHANGERSERVER_H_

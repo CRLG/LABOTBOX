@@ -37,6 +37,7 @@ void CExchangerServer::new_connection()
     connect(new_client, SIGNAL(disconnected()), this, SLOT(client_disconnected()));
     emit connectionToSocket(new_client);
     if (m_p_exchanger) m_p_exchanger->setSocket(new_client);
+    emit connected();
 }
 
 // ----------------------------------------------------
@@ -50,4 +51,5 @@ void CExchangerServer::client_disconnected()
     m_clients.removeOne(socket);
     socket->deleteLater();
     if (m_p_exchanger) m_p_exchanger->setSocket(Q_NULLPTR);
+    emit disconnected();
 }
