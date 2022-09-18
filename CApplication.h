@@ -20,6 +20,7 @@ class CPrintView;
 class CEEPROM;
 class CDataView;
 class CDataPlayer;
+class CDataExchanger;
 class CRS232;
 class CJoystick;
 class CEcran;
@@ -49,8 +50,6 @@ class CPowerElectrobot;
 class CSimulia;
 class CLidarBot;
 class CKMAR;
-class CTelemetryServer;
-class CTelemetryClient;
 class CValiseExpanderServer;
 class CValiseExpanderClient;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
@@ -99,6 +98,9 @@ public:
 #ifdef MODULE_DataPlayer
    CDataPlayer     *m_DataPlayer;
 #endif // MODULE_DataPlayer
+#ifdef MODULE_DataExchanger
+   CDataExchanger     *m_DataExchanger;
+#endif // MODULE_DataExchanger
 #ifdef MODULE_RS232
    CRS232     *m_RS232_robot;
 #endif // MODULE_RS232
@@ -182,12 +184,6 @@ public:
 #ifdef MODULE_KMAR
    CKMAR     *m_KMAR;
 #endif // MODULE_KMAR
-#ifdef MODULE_TelemetryServer
-   CTelemetryServer     *m_TelemetryServer;
-#endif // MODULE_TelemetryServer
-#ifdef MODULE_TelemetryClient
-   CTelemetryClient     *m_TelemetryClient;
-#endif // MODULE_TelemetryClient
 #ifdef MODULE_ValiseExpanderServer
    CValiseExpanderServer     *m_ValiseExpanderServer;
 #endif // MODULE_ValiseExpanderServer

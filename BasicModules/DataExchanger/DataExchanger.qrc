@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/user_guide">
-        <file>TelemetryServer.html</file>
+        <file>DataExchanger.html</file>
     </qresource>
 
 </RCC>
