@@ -103,7 +103,7 @@ QVariant CDataManager::read(QString varname)
 
 // _____________________________________________________________________
 /*!
-*  Crée une Data et l'ajoute au DataManager
+*  Crée une Data et l'ajoute au DataManager si elle n'existe pas déjà
 *
 *  \param [in] varname nom de la variable
 *  \param [in] init_val : la valeur d'init
@@ -112,7 +112,12 @@ QVariant CDataManager::read(QString varname)
 */
 CData *CDataManager::createData(QString varname, QVariant init_val)
 {
-    CData *data = new CData(varname, init_val);
+    // Pas de doublon si la data existe déjà
+    CData *data = getData(varname, false);
+    if (data) return data;
+
+    // La donnée n'existe pas, la créé
+    data = new CData(varname, init_val);
     m_mutex.lock();
     m_map_data.insert(varname, data);
     m_mutex.unlock();
