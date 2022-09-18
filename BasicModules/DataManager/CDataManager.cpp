@@ -179,6 +179,21 @@ QString CDataManager::getDataValues(void)
 
 // _____________________________________________________________________
 /*!
+ * \brief Renvoie la liste des datas contenues dans le DataManager
+ * \param data_list la liste de sortie
+ */
+void CDataManager::getDataList(QVector<CData *> &data_list)
+{
+    t_map_data::const_iterator it;
+
+    for (it=m_map_data.constBegin();  it!=m_map_data.constEnd(); it++) {
+        data_list.append(it.value());
+    }
+}
+
+
+// _____________________________________________________________________
+/*!
 *  Vérifie l'existance d'une data dans la liste
 *
 *  \param [in] varname nom de la variable à tester

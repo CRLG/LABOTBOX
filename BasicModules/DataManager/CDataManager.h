@@ -42,6 +42,7 @@ public:
     CData           *getData(QString varname, bool force_creation=false);
     void            debug(void);
     QString         getDataValues(void);
+    void            getDataList(QVector<CData *> &data_list);
     bool            isExist(QString varname);
     void            remove(QString varname);
     unsigned long   size(void);
