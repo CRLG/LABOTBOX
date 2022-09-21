@@ -88,6 +88,8 @@ void CDataExchanger::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "exchanger_port", 2468);
     int port = val.toInt();
 
+    enableDisabelGuiOnConnectionDeconnection(false);
+
     // Restore le type de d'Exchanger (client ou serveur) et l'initialise
     val = m_application->m_eeprom->read(getName(), "exchanger_type", "");
     QString exchanger_type = val.toString().trimmed().toLower();
@@ -111,12 +113,15 @@ void CDataExchanger::init(CApplication *application)
         connect(m_exchanger, SIGNAL(receive_raw_buffer(QByteArray)), this, SLOT(onReceiveRawData(QByteArray)));
         connect(m_exchanger, SIGNAL(receive_data(QString,QVariant)), this, SLOT(onReceiveData(QString,QVariant)));
         connect(m_exchanger, SIGNAL(receive_datas(QHash<QString,QVariant>)), this, SLOT(onReceiveDatas(QHash<QString,QVariant>)));
+        connect(m_exchanger, SIGNAL(receive_start_stop_request(bool)), this, SLOT(onReceiveStartStopTransmissionRequest(bool)));
+        connect(m_exchanger, SIGNAL(receive_add_data_request(QString)), this, SLOT(onReceiveAddDataRequest(QString)));
+        connect(m_exchanger, SIGNAL(receive_remove_data_request(QString)), this, SLOT(onReceiveRemoveDataRequest(QString)));
     }
 
-    connect(m_ihm.ui.pb_test1, SIGNAL(clicked(bool)), this, SLOT(onPbTest1()));
-    connect(m_ihm.ui.pb_test2, SIGNAL(clicked(bool)), this, SLOT(onPbTest2()));
     connect(m_ihm.ui.pb_send_all_data_manager, SIGNAL(clicked(bool)), this, SLOT(sendAllDataManager()));
     connect(m_ihm.ui.pb_send_selection, SIGNAL(clicked(bool)), this, SLOT(sendSelectedData()));
+    connect(m_ihm.ui.pb_start_request, SIGNAL(clicked(bool)), this, SLOT(onStartRequest()));
+    connect(m_ihm.ui.pb_stop_request, SIGNAL(clicked(bool)), this, SLOT(onStopRequest()));
 
     connect(m_application->m_data_center, SIGNAL(dataCreated(CData*)), this, SLOT(refreshListeVariables()));
 
@@ -136,6 +141,8 @@ void CDataExchanger::gateway_is_connected()
     m_application->m_print_view->print_info(this, msg);
     m_ihm.ui.statusbar->showMessage(msg);
     m_ihm.ui.led_exchanger_connected->setValue(true);
+    enableDisabelGuiOnConnectionDeconnection(true);
+
     activeGateway(true);
 }
 
@@ -146,7 +153,19 @@ void CDataExchanger::gateway_is_disconnected()
     m_application->m_print_view->print_info(this, msg);
     m_ihm.ui.statusbar->showMessage(msg);
     m_ihm.ui.led_exchanger_connected->setValue(false);
+    enableDisabelGuiOnConnectionDeconnection(false);
     activeGateway(false);
+}
+
+// _____________________________________________________________________
+void CDataExchanger::enableDisabelGuiOnConnectionDeconnection(bool state)
+{
+    m_ihm.ui.active_gateway->setEnabled(state);
+    m_ihm.ui.pb_send_all_data_manager->setEnabled(state);
+    m_ihm.ui.pb_send_selection->setEnabled(state);
+    m_ihm.ui.pb_start_request->setEnabled(state);
+    m_ihm.ui.pb_stop_request->setEnabled(state);
+
 }
 
 // _____________________________________________________________________
@@ -225,6 +244,7 @@ void CDataExchanger::init_gateway_as_server(int port)
         m_application->m_print_view->print_error(this, msg);
     }
 }
+
 
 
 // _____________________________________________________________________
@@ -323,7 +343,7 @@ void CDataExchanger::cocheToutesVariables()
 */
 void CDataExchanger::activeGateway(bool state)
 {
-    connectDisconnectData(state);
+    connectDisconnectDatas(state);
 
     // vérouille les objets pendant l'enregistrement
     m_ihm.ui.liste_variables->setEnabled(!state);
@@ -370,36 +390,49 @@ void CDataExchanger::sendSelectedData()
 
 // _____________________________________________________________________
 /*!
-*  Actions à effecter lors de l'activation de l'enregistrement des data en mode "Temporel"
+*  Connecte ou déconnecte toutes les data sélectionnées en vue du transfert
 *
-*  Crée une connexion entre toutes les variables à surveiller et l'affichage de la valeur
+*  Crée une connexion entre toutes les variables cochées
 *  choix : 0=deconnexion / 1=connexion
 *  only_diff : n'affiche que si la variable a changé de valeur
 */
-void CDataExchanger::connectDisconnectData(bool choix)
+void CDataExchanger::connectDisconnectDatas(bool choix)
 {
-    // Recopie toutes les variables à surveiller
     for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
         if (m_ihm.ui.liste_variables->item(i)->checkState() == Qt::Checked) {
             CData *_data = m_application->m_data_center->getData(m_ihm.ui.liste_variables->item(i)->text());
             if (!_data) continue; // la data existe dans la liste mais n'existe pas dans le DataManager
-            if (choix) {
-                connect(_data,
-                        SIGNAL(valueUpdated(QVariant, quint64)),
-                        this,
-                        SLOT(variableChangedUpdated(QVariant, quint64))
-                        );
-            }
-            else {
-                disconnect(_data,
-                           SIGNAL(valueUpdated(QVariant, quint64)),
-                           this,
-                           SLOT(variableChangedUpdated(QVariant, quint64))
-                           );
-            }
+            connectDisconnectData(_data, choix);
         }
     }
 }
+
+// _____________________________________________________________________
+/*!
+ * \brief Crée une connexion ou deconnexion de la data
+ * \param data la data à connecter/déconnecter
+ * \param choix : 0=deconnexion / 1=connexion
+ */
+void CDataExchanger::connectDisconnectData(CData *data, bool choix)
+{
+    if (!data) return; // la data existe dans la liste mais n'existe pas dans le DataManager
+    if (choix) {
+        connect(data,
+                SIGNAL(valueUpdated(QVariant, quint64)),
+                this,
+                SLOT(variableChangedUpdated(QVariant, quint64))
+                );
+    }
+    else {
+        disconnect(data,
+                   SIGNAL(valueUpdated(QVariant, quint64)),
+                   this,
+                   SLOT(variableChangedUpdated(QVariant, quint64))
+                   );
+    }
+}
+
+
 
 // _____________________________________________________________________
 /*!
@@ -477,12 +510,6 @@ void CDataExchanger::variableChangedUpdated(QVariant val, quint64 update_time)
     if (data && m_exchanger) m_exchanger->send_data(data->getName(), val);
 }
 
-
-void CDataExchanger::onReceiveDocDesigner(QString doc)
-{
-    qDebug() << "CDataExchanger::onReceiveDocDesigner" << doc;
-}
-
 void CDataExchanger::onReceiveDouble(double val)
 {
     qDebug() << "CDataExchanger::onReceiveDouble" << val;
@@ -505,7 +532,6 @@ void CDataExchanger::onReceiveVariant(const QVariant &val)
 
 void CDataExchanger::onReceiveRawData(const QByteArray &raw_data)
 {
-    //qDebug() << "CDataExchanger::onReceiveRawData" << raw_data;
     qDebug() << "CDataExchanger::onReceiveRawData / Size : " << raw_data.size();
 }
 
@@ -527,7 +553,6 @@ void CDataExchanger::onReceiveData(QString name, QVariant val)
  */
 void CDataExchanger::onReceiveDatas(QHash<QString, QVariant> datas)
 {
-    qDebug() << "Reception de plusieurs datas" << datas.size();
     QHashIterator<QString, QVariant> i(datas);
     while (i.hasNext()) {
         i.next();
@@ -535,41 +560,64 @@ void CDataExchanger::onReceiveDatas(QHash<QString, QVariant> datas)
     }
 }
 
-void CDataExchanger::onPbTest1()
+// ------------------------------------------------------------
+/*!
+ * \brief Une demande d'ajout de donnée à la liste des data à publier à été reçue
+ * \param name le nom de la data à ajouter à la liste des data à publier
+ */
+void CDataExchanger::onReceiveAddDataRequest(QString name)
 {
-    double ullval = 123.456;
-    m_exchanger->send_variant(ullval);
-
-    QHash<QString, QVariant> datas;
-
-    CData * data_posX = m_application->m_data_center->getData("PosX_robot");
-    //if (data_posX) m_exchanger->send_data(data_posX->getName(), data_posX->read());
-
-    CData * data_posY = m_application->m_data_center->getData("PosY_robot");
-    //if (data_posY) m_exchanger->send_data(data_posY->getName(), data_posY->read());
-
-    datas.insert(data_posX->getName(), data_posX->read());
-    datas.insert(data_posY->getName(), data_posY->read());
-    m_exchanger->send_datas(datas);
+    if (getListeVariablesObservees().contains(name)) return;    // Si la donnée existe déjà et déjà cochée, ne fait rien
+    bool isGatewayActive = m_ihm.ui.active_gateway->isChecked();
+    if (isGatewayActive) activeGateway(false);  // Désactive temporairement la passerelle le temps d'ajouter la donnée
+    addVariablesObserver(QStringList(name));
+    if (isGatewayActive) activeGateway(true);   // Réactive la passerelle si elle était active juste avant
 }
 
-void CDataExchanger::onPbTest2()
+// ------------------------------------------------------------
+/*!
+ * \brief Une demande d'arrêt de transfert de donnée de la liste des data à publier à été reçue
+ * \param name le nom de la data à arrêter de transférer
+ */
+void CDataExchanger::onReceiveRemoveDataRequest(QString name)
 {
-    DocDesigner doc;
-
-    for (int i=0; i<80; i++)
-    {
-        doc.appendCRLF();
-        doc.appendChapterTitle(1, "Nom du chapitre 5");
-        doc.appendText("Une liste à puces");
-        QStringList lst;
-        lst << "Bulle1" << "Bulle2" << "Bulle3";
-        doc.appendBulletList(lst);
-        doc.appendText("Du texte normal juste en dessous de la liste à puces", true);
-        doc.appendText("La même liste à puce mais en plus gros et en couleur !", true);
-        doc.setFont(DocFont(doc.getDefaultFamilyFont(), 24, true, true, true, Qt::darkBlue));
-        doc.appendBulletList(lst);
+    if (!getListeVariablesObservees().contains(name))   return;     // Si la donnée n'est pas cochée, ne fait rien
+    if (!m_application->m_data_center->getData(name))   return;     // Si la donnée n'existe pas dans le DataManager, ne rien faire
+    bool isGatewayActive = m_ihm.ui.active_gateway->isChecked();
+    if (isGatewayActive) activeGateway(false);  // Désactive temporairement la passerelle le temps d'ajouter la donnée
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {  // Décoche l'élément
+        if (m_ihm.ui.liste_variables->item(i)->text() == name) {
+            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+        }
     }
-    m_exchanger->send_string(doc.toRawText());
+    if (isGatewayActive) activeGateway(true);   // Réactive la passerelle si elle était active juste avant
+}
+
+// ------------------------------------------------------------
+/*!
+ * \brief Demande de commencement ou d'arrêt de transmission des données
+ * \param start_stop 0=stop / 1=start
+ */
+void CDataExchanger::onReceiveStartStopTransmissionRequest(bool start_stop)
+{
+    activeGateway(start_stop);
+}
+
+// ------------------------------------------------------------
+/*!
+ * \brief Demande au distant de démarrer le transfert
+ */
+void CDataExchanger::onStartRequest()
+{
+    m_exchanger->send_start_stop_transmission_request(true);
+}
+
+// ------------------------------------------------------------
+/*!
+ * \brief Demande au distant d'arrêter le transfert
+ */
+void CDataExchanger::onStopRequest()
+{
+    m_exchanger->send_start_stop_transmission_request(false);
 }
 

@@ -32,6 +32,7 @@ public:
    */
 
 
+class CData;
 /*! @brief class CDataExchanger
  */
 class CDataExchanger : public CBasicModule
@@ -62,9 +63,11 @@ private:
     void init_gateway_as_client(QString ip_add, int port);
     void init_gateway_as_server(int port);
 
-    void connectDisconnectData(bool choix);
+    void connectDisconnectDatas(bool choix);
+    void connectDisconnectData(CData *data, bool choix);
     void addVariablesObserver(QStringList liste_variables);
     QStringList getListeVariablesObservees();
+    void enableDisabelGuiOnConnectionDeconnection(bool state);
 
 public slots :
     void variableChangedUpdated(QVariant val, quint64 update_time);
@@ -88,13 +91,15 @@ private slots :
     void onReceiveUInt8(quint8 val);
     void onReceiveInt32(int val);
     void onReceiveVariant(const QVariant &val);
-    void onReceiveDocDesigner(QString doc);
     void onReceiveRawData(const QByteArray &raw_data);
     void onReceiveData(QString name, QVariant val);
     void onReceiveDatas(QHash<QString, QVariant> datas);
+    void onReceiveAddDataRequest(QString name);
+    void onReceiveRemoveDataRequest(QString name);
+    void onReceiveStartStopTransmissionRequest(bool start_stop);
 
-    void onPbTest1();
-    void onPbTest2();
+    void onStartRequest();
+    void onStopRequest();
 };
 
 #endif // _CBASIC_MODULE_DataExchanger_H_
