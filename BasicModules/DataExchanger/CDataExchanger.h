@@ -60,7 +60,7 @@ private:
     DataClient *m_client;
     CExchangerData *m_exchanger;
 
-    void init_gateway_as_client(QString ip_add, int port);
+    void init_gateway_as_client(QString ip_add, int port, bool autoreconect);
     void init_gateway_as_server(int port);
 
     void connectDisconnectDatas(bool choix);
@@ -100,6 +100,8 @@ private slots :
 
     void onStartRequest();
     void onStopRequest();
+    void onAddDataRequest();
+    void onRemoveDataRequest();
 };
 
 #endif // _CBASIC_MODULE_DataExchanger_H_

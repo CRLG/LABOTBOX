@@ -81,10 +81,7 @@ void CDataExchanger::init(CApplication *application)
     QStringList datalist_memo = val.toStringList();
     addVariablesObserver(datalist_memo);
 
-    // Restore l'adresse IP et le port
-    val = m_application->m_eeprom->read(getName(), "exchanger_ip", "127.0.0.1");
-    QString ip = val.toString().trimmed();
-
+    // Restore le port de communication (utilisé pour le client ou le serveur)
     val = m_application->m_eeprom->read(getName(), "exchanger_port", 2468);
     int port = val.toInt();
 
@@ -98,7 +95,10 @@ void CDataExchanger::init(CApplication *application)
         m_ihm.setWindowTitle(getName() + "<SERVER>"); // indique dans le titre de la fenêtre si le module est un client ou un serveur
     }
     else if (exchanger_type.contains("client")) {
-        init_gateway_as_client(ip, port);
+        QString ip = m_application->m_eeprom->read(getName(), "exchanger_ip", "127.0.0.1").toString().trimmed();
+        bool autoreconnect = m_application->m_eeprom->read(getName(), "autoreconnect", true).toBool();
+
+        init_gateway_as_client(ip, port, autoreconnect);
         m_ihm.setWindowTitle(getName() + "<CLIENT>");
     }
     else { // ne rien faire (on ne sait pas si ça doit être un client ou un serveur -> laisse le module off)
@@ -122,6 +122,8 @@ void CDataExchanger::init(CApplication *application)
     connect(m_ihm.ui.pb_send_selection, SIGNAL(clicked(bool)), this, SLOT(sendSelectedData()));
     connect(m_ihm.ui.pb_start_request, SIGNAL(clicked(bool)), this, SLOT(onStartRequest()));
     connect(m_ihm.ui.pb_stop_request, SIGNAL(clicked(bool)), this, SLOT(onStopRequest()));
+    connect(m_ihm.ui.pb_add_data_request, SIGNAL(clicked(bool)), this, SLOT(onAddDataRequest()));
+    connect(m_ihm.ui.pb_remove_data_request, SIGNAL(clicked(bool)), this, SLOT(onRemoveDataRequest()));
 
     connect(m_application->m_data_center, SIGNAL(dataCreated(CData*)), this, SLOT(refreshListeVariables()));
 
@@ -165,7 +167,8 @@ void CDataExchanger::enableDisabelGuiOnConnectionDeconnection(bool state)
     m_ihm.ui.pb_send_selection->setEnabled(state);
     m_ihm.ui.pb_start_request->setEnabled(state);
     m_ihm.ui.pb_stop_request->setEnabled(state);
-
+    m_ihm.ui.pb_add_data_request->setEnabled(state);
+    m_ihm.ui.pb_remove_data_request->setEnabled(state);
 }
 
 // _____________________________________________________________________
@@ -191,8 +194,9 @@ void CDataExchanger::close(void)
  *        Le module étant un client, il doit se connecter à un serveur
  * \param ip_add Adresse du serveur sur lequel le client doit se connecter
  * \param port Numéro de port du serveur
+ * \param autoreconect active ou non les tentatives de reconnexion automatique en cas de déconnexion
  */
-void CDataExchanger::init_gateway_as_client(QString ip_add, int port)
+void CDataExchanger::init_gateway_as_client(QString ip_add, int port, bool autoreconect)
 {
     if (m_ihm.ui.active_gateway->isChecked()) activeGateway(false);
     if (m_server) delete m_server;
@@ -205,7 +209,7 @@ void CDataExchanger::init_gateway_as_client(QString ip_add, int port)
         m_application->m_print_view->print_error(this, "Impossible de créer un DataClient()");
         return;
     }
-    m_client->connectToHost(ip_add, port, true);
+    m_client->connectToHost(ip_add, port, autoreconect);
     m_exchanger = &m_client->m_exchanger;
     connect(m_client, SIGNAL(connected()), this, SLOT(gateway_is_connected()));
     connect(m_client, SIGNAL(disconnected()), this, SLOT(gateway_is_disconnected()));
@@ -621,3 +625,22 @@ void CDataExchanger::onStopRequest()
     m_exchanger->send_start_stop_transmission_request(false);
 }
 
+// ------------------------------------------------------------
+/*!
+ * \brief Demande au distant d'ajouter une data au transfert
+ */
+void CDataExchanger::onAddDataRequest()
+{
+    QString data_name = m_ihm.ui.distant_data_name->text();
+    m_exchanger->send_add_data_request(data_name);
+}
+
+// ------------------------------------------------------------
+/*!
+ * \brief Demande au distant de supprimer une une data au transfert
+ */
+void CDataExchanger::onRemoveDataRequest()
+{
+    QString data_name = m_ihm.ui.distant_data_name->text();
+    m_exchanger->send_remove_data_request(data_name);
+}

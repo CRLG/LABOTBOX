@@ -6,141 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>357</height>
+    <width>421</width>
+    <height>427</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="toolTip">
-   <string>Envoie toutes les données contenues dans le DataManager</string>
+   <string/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="3">
-     <widget class="QPushButton" name="PB_refresh_liste">
-      <property name="toolTip">
-       <string>Mise à jour de la liste des variables disponibles</string>
-      </property>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="2">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/refresh.png</normaloff>:/icons/refresh.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
+       <string>Connexion</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="3">
-     <widget class="QLineEdit" name="filtre_noms_variables">
-      <property name="placeholderText">
-       <string>Filtre sur le nom</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QPushButton" name="pb_decoche_tout">
-      <property name="toolTip">
-       <string>Décoche tout</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="3">
-     <widget class="QPushButton" name="pb_open_variables_liste">
-      <property name="toolTip">
-       <string>Charge une liste de data</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="4">
-     <widget class="QPushButton" name="pb_save_variables_liste">
-      <property name="toolTip">
-       <string>Savegarde la liste des data</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="pb_coche_tout">
-      <property name="toolTip">
-       <string>Sélectionne tout</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../../icons.qrc">
-        <normaloff>:/icons/select_all.png</normaloff>:/icons/select_all.png</iconset>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="9">
-     <widget class="QListWidget" name="liste_variables">
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="viewMode">
-       <enum>QListView::ListMode</enum>
-      </property>
-      <property name="uniformItemSizes">
-       <bool>false</bool>
-      </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
-      <item>
-       <property name="text">
-        <string>Nouvel élément</string>
-       </property>
-       <property name="checkState">
-        <enum>Unchecked</enum>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="0" column="7">
+    <item row="0" column="1">
      <widget class="QLed" name="led_exchanger_connected">
       <property name="minimumSize">
        <size>
@@ -174,71 +59,262 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="6">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+    <item row="1" column="0" colspan="3">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
+       <bool>true</bool>
       </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-     </spacer>
-    </item>
-    <item row="3" column="0" colspan="4">
-     <widget class="QPushButton" name="pb_send_all_data_manager">
-      <property name="toolTip">
-       <string>Envoie toutes les données du DataManager une fois</string>
-      </property>
-      <property name="text">
-       <string>Send All DataManager</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QCheckBox" name="active_gateway">
-      <property name="text">
-       <string>On/Off</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="2">
-     <widget class="QPushButton" name="pb_start_request">
-      <property name="toolTip">
-       <string>Demande au distant de commencer le transfert</string>
-      </property>
-      <property name="text">
-       <string>Start Request</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="8">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4" colspan="4">
-     <widget class="QPushButton" name="pb_send_selection">
-      <property name="toolTip">
-       <string>Envoie les données sélectionnées une fois</string>
-      </property>
-      <property name="text">
-       <string>Send Selection</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="6" colspan="2">
-     <widget class="QPushButton" name="pb_stop_request">
-      <property name="toolTip">
-       <string>Demande au distant d'arêter le transfert</string>
-      </property>
-      <property name="text">
-       <string>Stop Request</string>
-      </property>
+      <widget class="QWidget" name="tab_local">
+       <attribute name="title">
+        <string>Local</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="active_gateway">
+          <property name="toolTip">
+           <string>Active le transfert vers le distant</string>
+          </property>
+          <property name="text">
+           <string>On/Off</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="PB_refresh_liste">
+          <property name="toolTip">
+           <string>Mise à jour de la liste des variables disponibles</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/refresh.png</normaloff>:/icons/refresh.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pb_decoche_tout">
+          <property name="toolTip">
+           <string>Décoche tout</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="pb_coche_tout">
+          <property name="toolTip">
+           <string>Sélectionne tout</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/select_all.png</normaloff>:/icons/select_all.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>125</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="filtre_noms_variables">
+          <property name="placeholderText">
+           <string>Filtre sur le nom</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pb_open_variables_liste">
+          <property name="toolTip">
+           <string>Charge une liste de data</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pb_save_variables_liste">
+          <property name="toolTip">
+           <string>Savegarde la liste des data</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="5">
+         <widget class="QListWidget" name="liste_variables">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="viewMode">
+           <enum>QListView::ListMode</enum>
+          </property>
+          <property name="uniformItemSizes">
+           <bool>false</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>Nouvel élément</string>
+           </property>
+           <property name="checkState">
+            <enum>Unchecked</enum>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QPushButton" name="pb_send_all_data_manager">
+          <property name="toolTip">
+           <string>Envoie toutes les données du DataManager une fois</string>
+          </property>
+          <property name="text">
+           <string>Send All DataManager</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="3">
+         <widget class="QPushButton" name="pb_send_selection">
+          <property name="toolTip">
+           <string>Envoie les données sélectionnées une fois</string>
+          </property>
+          <property name="text">
+           <string>Send Selection</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_distant">
+       <attribute name="title">
+        <string>Distant</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="3" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>194</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pb_start_request">
+          <property name="toolTip">
+           <string>Demande au distant de commencer le transfert</string>
+          </property>
+          <property name="text">
+           <string>Start Request</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pb_stop_request">
+          <property name="toolTip">
+           <string>Demande au distant d'arêter le transfert</string>
+          </property>
+          <property name="text">
+           <string>Stop Request</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>164</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pb_add_data_request">
+          <property name="toolTip">
+           <string>Demande d'ajout d'une data au transfert</string>
+          </property>
+          <property name="text">
+           <string>Add Data Request</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pb_remove_data_request">
+          <property name="toolTip">
+           <string>Demande de suppression d'une data au transfert</string>
+          </property>
+          <property name="text">
+           <string>Remove Data Request</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="2" colspan="2">
+         <widget class="QLineEdit" name="distant_data_name"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -248,7 +324,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>382</width>
+     <width>421</width>
      <height>22</height>
     </rect>
    </property>
