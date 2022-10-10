@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QMessageBox>
 #include "CDataPlayer.h"
 #include "CApplication.h"
 #include "CPrintView.h"
@@ -13,7 +14,7 @@
 #include "CEEPROM.h"
 #include "CDataManager.h"
 #include "CSignalGenerator.h"
-
+#include "csvParser.h"
 
 /*! \addtogroup Module_Test2
    * 
@@ -39,7 +40,7 @@ CDataPlayer::CDataPlayer(const char *plugin_name)
 CDataPlayer::~CDataPlayer()
 {
  // Efface la liste des générateurs de signaux
- for (tListeVariables::iterator i=m_liste_generateurs.begin(); i!=m_liste_generateurs.end(); i++) {
+ for (tListeGenerateurs::iterator i=m_liste_generateurs.begin(); i!=m_liste_generateurs.end(); i++) {
         delete i.value();
  }
 
@@ -82,12 +83,18 @@ void CDataPlayer::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "default_signal_path", QVariant("./"));
   m_default_signal_path = val.toString();
 
-  connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(on_PB_refresh_liste_clicked()));
+  connect(m_application->m_data_center, SIGNAL(dataCreated(CData*)), this, SLOT(refreshListeVariables()));
+  connect(m_ihm.ui.PB_refresh_liste, SIGNAL(clicked()), this, SLOT(refreshListeVariables()));
   connect(m_ihm.ui.PB_choixSignal, SIGNAL(clicked()), this, SLOT(on_PB_choixSignal_clicked()));
   connect(m_ihm.ui.PB_StartGeneration, SIGNAL(clicked()), this, SLOT(on_PB_StartGeneration_clicked()));
   connect(m_ihm.ui.PB_StopGeneration, SIGNAL(clicked()), this, SLOT(on_PB_StopGeneration_clicked()));
   connect(m_ihm.ui.dureeEchantillon, SIGNAL(editingFinished()), this, SLOT(on_dureeEchantillon_editingFinished()));
   connect(m_ihm.ui.nombreCycles, SIGNAL(editingFinished()), this, SLOT(on_nombreCycles_editingFinished()));
+
+  connect(m_ihm.ui.filtre_noms_variables, SIGNAL(textChanged(QString)), this, SLOT(onDataFilterChanged(QString)));
+  connect(m_ihm.ui.pb_open_variables_liste, SIGNAL(clicked(bool)), this, SLOT(loadListeVariablesAvecGenerateur()));
+  connect(m_ihm.ui.pb_save_variables_liste, SIGNAL(clicked(bool)), this, SLOT(saveListeVariablesAvecGenerateur()));
+  connect(m_ihm.ui.pb_decoche_tout, SIGNAL(clicked(bool)), this, SLOT(decocheToutesVariables()));
 
   connect(m_ihm.ui.liste_variables, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(on_checkVariable(QListWidgetItem*)));
   connect(m_ihm.ui.liste_variables, SIGNAL(itemSelectionChanged()), this, SLOT(on_selectVariable()));
@@ -106,9 +113,11 @@ void CDataPlayer::init(CApplication *application)
   connect(m_ihm.ui.PB_StartAllTraces_Synchro, SIGNAL(clicked()), this, SLOT(on_PB_StartAllTraces_Synchro_clicked()));
   connect(m_ihm.ui.PB_StopAllTraces_Synchro, SIGNAL(clicked()), this, SLOT(on_PB_StopAllTraces_Synchro_clicked()));
   connect(m_ihm.ui.sliderStepNumTrace, SIGNAL(sliderMoved(int)), this, SLOT(on_sliderStepNumTrace_moved(int)));
- 
 
   m_ihm.ui.groupBox_ConfigGenerator->setEnabled(false);
+
+  // Restitue la liste des variables associés à des générateurs
+  loadListeVariablesAvecGenerateur(getName().simplified() + "generator_autosave.csv");
 
   // Crée un player par défaut pour qu'il y en ai au moins 1 de base
   newPlayer("Player1");
@@ -132,6 +141,10 @@ void CDataPlayer::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "default_signal_path", QVariant(m_default_signal_path));
+
+  // Sauvegarde la liste des générateurs de fonctions sur les variables
+  QString pathfilename = getName().simplified() + "generator_autosave.csv";
+  saveListeVariablesAvecGenerateur(pathfilename);
 }
 
 // _____________________________________________________________________
@@ -190,6 +203,142 @@ void CDataPlayer::refreshListeVariables(void)
  connect(m_ihm.ui.liste_variables, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(on_checkVariable(QListWidgetItem*)));
 }
 
+// _____________________________________________________________________
+/*!
+*  Filtre les variables sur le nom
+*/
+void CDataPlayer::onDataFilterChanged(QString filter_name)
+{
+    QStringList items_to_match;
+    items_to_match = filter_name.toLower().simplified().split(" ");
+
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        m_ihm.ui.liste_variables->item(i)->setHidden(true);
+        bool found = true;
+        foreach (QString item_to_match, items_to_match) {
+            if (!m_ihm.ui.liste_variables->item(i)->text().toLower().contains(item_to_match)) {
+                found = false; // si tous les mots clés du filtre ne sont pas présents dans le nom du script, le script est rejeté
+            }
+        }
+        m_ihm.ui.liste_variables->item(i)->setHidden(!found);
+    }
+}
+
+// _____________________________________________________________________
+/*!
+*  Décoche toutes les variables
+*/
+void CDataPlayer::decocheToutesVariables()
+{
+    for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
+        m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+    }
+}
+
+// _____________________________________________________________________
+/*!
+*  Charge une liste de variables à observer
+*/
+void CDataPlayer::loadListeVariablesAvecGenerateur(void)
+{
+    QString pathfileName = QFileDialog::getOpenFileName(&m_ihm, tr("Open File"), ".csv");
+    if (pathfileName.isEmpty()) return;
+
+    loadListeVariablesAvecGenerateur(pathfileName);
+}
+
+// _____________________________________________________________________
+void CDataPlayer::loadListeVariablesAvecGenerateur(QString pathfilename)
+{
+    csvData csv_data;
+    csvParser parser;
+    QStringList error_msg, warn_msg;
+
+    // Lit et analyse le fichier d'entrée
+    parser.enableEmptyCells(false);
+    parser.setNumberOfExpectedColums(4); // Nom de la data ; chemin du fichier générateur ; durée d'un échantillon ; nombre de cycles
+    bool status = parser.parse(pathfilename, csv_data, &error_msg, &warn_msg);
+    if (!status) {
+        m_application->m_print_view->print_error(this, QString("Fichier csv non conforme: %1").arg(pathfilename));
+        foreach(QString msg, error_msg) m_application->m_print_view->print_error(this, msg);
+        return; // pas la peine d'aller plus loin, le fichier n'est pas conforme
+    }
+    if (!warn_msg.isEmpty()) foreach(QString msg, warn_msg) m_application->m_print_view->print_warning(this, msg);
+
+    for (int line=0; line<csv_data.m_datas.size(); line++) {
+        QStringList data_line = csv_data.m_datas.at(line);
+        QString varname = data_line.at(0);
+        QString generator_filename = data_line.at(1);
+        int sample_duration = data_line.at(2).toInt();
+        int cycle_count = data_line.at(3).toInt();
+
+        // La data n'existe pas encore dans le DataManager -> la créé
+        if (!m_application->m_data_center->isExist(varname)) m_application->m_data_center->createData(varname);
+        if (!QFileInfo(generator_filename).exists()) { // vérifie si le fichier de signal existe bien
+            m_application->m_print_view->print_warning(this, QString("Le fichier %1 associé à la data %2 n'existe pas").arg(generator_filename).arg(varname));
+            continue;
+        }
+        // crée le générateur associé et lui affecte le fichier contenant le signal
+        CSignalGenerator* generator = createGenerator(varname);
+        if (generator) {
+            generator->setSignalFilename(generator_filename);
+            generator->setCommonSampleDuration(sample_duration);
+            generator->setCycleNumber(cycle_count);
+        }
+    }
+    // une fois les données et générateurs créés, met en cohérence l'IHM avec la liste des générateurs
+    miseEnCoherenceListeVariables();
+}
+
+// _____________________________________________________________________
+/*!
+*  Sauvegarde la liste des variables observées
+*/
+void CDataPlayer::saveListeVariablesAvecGenerateur(void)
+{
+    if (m_liste_generateurs.size() == 0) { // la liste est vide, pas la peine de sauvegarder un fichier vide
+        QMessageBox::information(getGUI(), tr(""), tr("La liste des générateurs est vide"));
+        return;
+    }
+
+    QStringList list_variables;
+    QStringList list_fichiers_generateurs;
+    for (tListeGenerateurs::iterator it=m_liste_generateurs.begin(); it!=m_liste_generateurs.end(); it++) {
+        list_variables << it.key();
+        list_fichiers_generateurs << it.value()->getSignalFilename();
+    }
+
+    QString pathfilename = QFileDialog::getSaveFileName(&m_ihm, tr("Save File"), ".");
+    if (pathfilename.isEmpty()) return;
+
+    saveListeVariablesAvecGenerateur(pathfilename);
+}
+
+// _____________________________________________________________________
+void CDataPlayer::saveListeVariablesAvecGenerateur(QString pathfilename)
+{
+    QFile file(pathfilename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        m_application->m_print_view->print_error(this, "Impossible d'ouvrir en écriture le fichier " + pathfilename);
+        return;
+    }
+    // Ecrit le fichier de type csv
+    QTextStream out(&file);
+    const QString CSV_SEPARATOR = ";";
+    out << "Name" << CSV_SEPARATOR
+        << "Generator pathfilename" << CSV_SEPARATOR
+        << "Sample duration [msec]" << CSV_SEPARATOR
+        << "Cycle count";
+    endl(out);
+    for (tListeGenerateurs::iterator it=m_liste_generateurs.begin(); it!=m_liste_generateurs.end(); it++) {
+        out << it.key() << CSV_SEPARATOR                            // Nom de la data
+            << it.value()->getSignalFilename() << CSV_SEPARATOR
+            << it.value()->getCommonSampleDuration() << CSV_SEPARATOR
+            << it.value()->getCycleNumber();
+        endl(out);
+    }
+    file.close();
+}
 
 // _____________________________________________________________________
 /*!
@@ -201,7 +350,7 @@ void CDataPlayer::miseEnCoherenceListeVariables(void)
  // Balaye toutes les variables affichées dans la liste
  for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
     QString ihm_varname = m_ihm.ui.liste_variables->item(i)->text();
-    tListeVariables::const_iterator it = m_liste_generateurs.find(ihm_varname);
+    tListeGenerateurs::const_iterator it = m_liste_generateurs.find(ihm_varname);
     if (it != m_liste_generateurs.end()) {
         if (it.value() != NULL) {
             m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
@@ -216,16 +365,6 @@ void CDataPlayer::miseEnCoherenceListeVariables(void)
 void CDataPlayer::signalGenerationFinished(QString var_name)
 {
   m_application->m_print_view->print_info(this, "Génération terminée pour signal: " + var_name);
-}
-
-// _____________________________________________________________________
-/*!
-*
-*
-*/
-void CDataPlayer::on_PB_refresh_liste_clicked(void)
-{
-  refreshListeVariables();
 }
 
 // _____________________________________________________________________
@@ -320,8 +459,6 @@ void CDataPlayer::on_nombreCycles_editingFinished(void)
 */
 void CDataPlayer::on_selectVariable(void)
 {
- m_application->m_print_view->print_info(this, QString(__FUNCTION__));
-
  CSignalGenerator *generator = selectedVariableToSignalGenerator();
 
  if (generator != NULL) {
@@ -352,19 +489,11 @@ void CDataPlayer::on_checkVariable(QListWidgetItem* item)
  m_application->m_print_view->print_info(this, QString(__FUNCTION__));
 
  QString variable_name = item->text();
- tListeVariables::const_iterator it = m_liste_generateurs.find(variable_name);
- CSignalGenerator *generator = NULL;
- if (it != m_liste_generateurs.end()) {
-     generator = m_liste_generateurs.find(variable_name).value();
- }
+ CSignalGenerator *generator = getGenerator(variable_name);
 
  if (item->checkState()) {  // L'utilisateur vient de cocher la case
   if (generator == NULL) {  // aucun générateur n'est associé à cette variable
-    generator = new CSignalGenerator(m_application->m_data_center,
-                                     variable_name);
-    m_liste_generateurs.insert(variable_name, generator);
-    connect(generator, SIGNAL(signalStarted(QString)), this, SLOT(refreshGeneratorProperties()));
-    connect(generator, SIGNAL(signalFinished(QString)), this, SLOT(refreshGeneratorProperties()));
+    generator = createGenerator(variable_name);
   }
   // else : si un générateur était déjà affecté, n'en crée pas (situation qui ne devrait pas arriver)
  }
@@ -382,7 +511,41 @@ void CDataPlayer::on_checkVariable(QListWidgetItem* item)
  on_selectVariable();
 }
 
+// _____________________________________________________________________
+/*!
+ * \brief Créé un générateur pour la variable
+ * \param varname la variable pour laquelle créer le générateur
+ * \return un pointeur sur le générateur créé ou le générateur existant
+ */
+CSignalGenerator *CDataPlayer::createGenerator(QString varname)
+{
+    // Pas de création si la data est déjà associée à un générateur
+    CSignalGenerator *generator = getGenerator(varname);
+    if (generator) return generator;
 
+    generator = new CSignalGenerator(m_application->m_data_center,
+                                     varname);
+    m_liste_generateurs.insert(varname, generator);
+    connect(generator, SIGNAL(signalStarted(QString)), this, SLOT(refreshGeneratorProperties()));
+    connect(generator, SIGNAL(signalFinished(QString)), this, SLOT(refreshGeneratorProperties()));
+    return generator;
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Récupère le générateur associé à une data
+ * \param varname le nom de la data
+ * \return pointeur sur le générateur ou NULL si aucun générateur n'est associé à la data
+ */
+CSignalGenerator *CDataPlayer::getGenerator(QString varname)
+{
+    tListeGenerateurs::const_iterator it = m_liste_generateurs.find(varname);
+    CSignalGenerator *generator = NULL;
+    if (it != m_liste_generateurs.end()) {
+        generator = it.value();
+    }
+    return generator;
+}
 
 // _____________________________________________________________________
 /*!
@@ -392,7 +555,6 @@ void CDataPlayer::on_checkVariable(QListWidgetItem* item)
 CSignalGenerator *CDataPlayer::selectedVariableToSignalGenerator(void)
 {
   QString varname = "";
-  CSignalGenerator *generator = NULL;
 
   // recherche la variable sélectionnée
   for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
@@ -401,13 +563,9 @@ CSignalGenerator *CDataPlayer::selectedVariableToSignalGenerator(void)
           break;
       }
   }
-
-  tListeVariables::iterator it = m_liste_generateurs.find(varname);
-  if (it != m_liste_generateurs.end()) {
-        generator = it.value();
-  }
-  return(generator);
+  return getGenerator(varname);
 }
+
 
 
 

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>312</height>
+    <width>429</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
         <string>Génération de signal</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" rowspan="2">
+        <item row="1" column="0" rowspan="2">
          <widget class="QListWidget" name="liste_variables">
           <property name="minimumSize">
            <size>
@@ -49,6 +49,23 @@
            <bool>false</bool>
           </property>
           <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pb_decoche_tout">
+          <property name="toolTip">
+           <string>Décoche tout</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/cancel.png</normaloff>:/icons/cancel.png</iconset>
+          </property>
+          <property name="flat">
            <bool>true</bool>
           </property>
          </widget>
@@ -76,7 +93,48 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="filtre_noms_variables">
+          <property name="placeholderText">
+           <string>Filtre sur le nom</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="pb_open_variables_liste">
+          <property name="toolTip">
+           <string>Charge une liste de variables à observer</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QPushButton" name="pb_save_variables_liste">
+          <property name="toolTip">
+           <string>Savegarde la liste des variables observées</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -89,7 +147,7 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="1" colspan="2">
+        <item row="1" column="1" rowspan="2" colspan="5">
          <widget class="QGroupBox" name="groupBox_ConfigGenerator">
           <property name="enabled">
            <bool>true</bool>
@@ -614,8 +672,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>377</width>
-     <height>21</height>
+     <width>429</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

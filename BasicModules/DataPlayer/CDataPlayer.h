@@ -30,7 +30,7 @@ public:
 
 
 
-typedef QMap<QString, CSignalGenerator*>tListeVariables;    // Pour les générateurs de signaux
+typedef QMap<QString, CSignalGenerator*>tListeGenerateurs;  // Pour les générateurs de signaux
 typedef QMap<QString, CTracePlayer*>tListePlayers;          // Pour les players
 
  /*! \addtogroup DataPlayer
@@ -63,18 +63,19 @@ public:
 
 private slots :
     void onRightClicGUI(QPoint pos);
+    void onDataFilterChanged(QString filter_name);
 
 private:
     Cihm_DataPlayer m_ihm;
-    tListeVariables m_liste_generateurs;
+    tListeGenerateurs m_liste_generateurs;
     QString m_default_signal_path;  // répertoire par défaut des des signaux
 
     tListePlayers   m_liste_players;
 
-
-    void refreshListeVariables(void);
     void miseEnCoherenceListeVariables(void);
     CSignalGenerator *selectedVariableToSignalGenerator(void);
+    CSignalGenerator *createGenerator(QString varname);
+    CSignalGenerator *getGenerator(QString varname);
 
     // Gestion des traces
     void newPlayer(QString player_name);
@@ -85,8 +86,14 @@ private:
 
 public slots :
     // Générateur de signaux
+    void loadListeVariablesAvecGenerateur(void);
+    void loadListeVariablesAvecGenerateur(QString pathfilename);
+    void saveListeVariablesAvecGenerateur(void);
+    void saveListeVariablesAvecGenerateur(QString pathfilename);
+    void decocheToutesVariables();
+
     void signalGenerationFinished(QString var_name);
-    void on_PB_refresh_liste_clicked(void);
+    void refreshListeVariables(void);
     void on_PB_choixSignal_clicked(void);
     void on_PB_StartGeneration_clicked(void);
     void on_PB_StopGeneration_clicked(void);
