@@ -647,20 +647,26 @@ void CDataPlayer::refreshIHMGenerateur(void)
   if (current_step<0) {
       //m_ihm.ui.sliderStepNumTrace->setStyleSheet(QString::fromUtf8("#sliderStepNumTrace {\n	background-color: rgb(195, 195, 195);\n \n \n }"));
       m_ihm.ui.sliderStepNumTrace->setVisible(false);
+      m_ihm.ui.valStepNumTrace->setVisible(false);
+      m_ihm.ui.lbl_valStepNumTrace->setVisible(false);
 
       m_ihm.ui.sliderStepNumTrace->setValue(0);
+      m_ihm.ui.valStepNumTrace->setText("");
   }
   else {
     //m_ihm.ui.sliderStepNumTrace->setStyleSheet(QString::fromUtf8("#sliderStepNumTrace {\n \n \n \n }"));
     m_ihm.ui.sliderStepNumTrace->setVisible(true);
-    m_ihm.ui.sliderStepNumTrace->setValue(player->getCurrentStepIndex());
+    m_ihm.ui.valStepNumTrace->setVisible(true);
+    m_ihm.ui.lbl_valStepNumTrace->setVisible(true);
+    m_ihm.ui.sliderStepNumTrace->setValue(current_step);
+    m_ihm.ui.valStepNumTrace->setText(QString::number(current_step+1));
   }
 
   // grise ou dégrise les boutons en fonction de l'état du player
-  tPlayerState player_state = player->getState();
+  CTracePlayer::tPlayerState player_state = player->getState();
   switch (player_state) {
     // ________________________________
-    case C_PLAYER_IDLE_NO_DATA : 
+    case CTracePlayer::C_PLAYER_IDLE_NO_DATA :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(false);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(false);
         m_ihm.ui.PB_StartTrace->setEnabled(false);
@@ -668,7 +674,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.sliderStepNumTrace->setEnabled(false);
     break;
     // ________________________________
-    case C_PLAYER_STOP : 
+    case CTracePlayer::C_PLAYER_STOP :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(false);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(true);
         m_ihm.ui.PB_StartTrace->setEnabled(true);
@@ -677,7 +683,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.sliderStepNumTrace->setEnabled(false);
     break;
     // ________________________________
-    case C_PLAYER_RUN : 
+    case CTracePlayer::C_PLAYER_RUN :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(false);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(false);
         m_ihm.ui.PB_StartTrace->setEnabled(true);
@@ -686,7 +692,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.sliderStepNumTrace->setEnabled(false);
     break;
     // ________________________________
-    case C_PLAYER_PAUSE : 
+    case CTracePlayer::C_PLAYER_PAUSE :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(true);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(true);
         m_ihm.ui.PB_StartTrace->setEnabled(true);
@@ -695,7 +701,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.sliderStepNumTrace->setEnabled(true);
     break;
     // ________________________________
-    case C_PLAYER_PAUSE_FIRST_STEP_INDEX : 
+    case CTracePlayer::C_PLAYER_PAUSE_FIRST_STEP_INDEX :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(false);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(true);
         m_ihm.ui.PB_StartTrace->setEnabled(true);
@@ -704,7 +710,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
         m_ihm.ui.sliderStepNumTrace->setEnabled(true);
     break;
     // ________________________________
-    case C_PLAYER_PAUSE_LAST_STEP_INDEX : 
+    case CTracePlayer::C_PLAYER_PAUSE_LAST_STEP_INDEX :
         m_ihm.ui.PB_StepBackwardTrace->setEnabled(true);
         m_ihm.ui.PB_StepForwardTrace->setEnabled(false);
         m_ihm.ui.PB_StartTrace->setEnabled(true);
@@ -732,7 +738,7 @@ void CDataPlayer::refreshIHMGenerateur(void)
 void CDataPlayer::on_PB_choixTrace_clicked(void)
 {
   QString fileName = QFileDialog::getOpenFileName(NULL,
-      tr("Signal"), m_default_signal_path, tr("Signal Files (*.trc)"));
+      tr("Signal"), m_default_signal_path, tr("CSV Files (*.csv);;Signal Files (*.trc)"));
 
   QFileInfo file_info(fileName);
   QString trace_name = file_info.baseName();
@@ -870,7 +876,7 @@ void CDataPlayer::on_PB_StartTrace_clicked(void)
  CTracePlayer *player = selectedPlayerNameToPlayer();
  if (player == NULL) { return; }
 
- if (player->getState() == C_PLAYER_RUN) {
+ if (player->getState() == CTracePlayer::C_PLAYER_RUN) {
     player->pausePlayer();
  }
  else {

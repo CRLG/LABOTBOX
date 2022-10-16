@@ -20,25 +20,6 @@
 
 class CDataManager;
 
-typedef QMap<QString, QVariant>tVariableValue;  // QString=nom de la variable - QVariant=valeur de la variable
-
-typedef struct {
-    tVariableValue  variables_values;
-    long int duration; //[msec]
-    double timestamp_sec;
-}tStep;
-
-typedef QVector<tStep *>tSteps;
-
-typedef enum {
-    C_PLAYER_IDLE_NO_DATA = 0,          // player en veille car la liste des steps est vide
-    C_PLAYER_STOP,                      // player au repos prêt à être démarré
-    C_PLAYER_RUN,                       // le player joue la trace
-    C_PLAYER_PAUSE,                     // le player est en pause et le dernier step joué est un step qui n'est ni le premier, ni le dernier
-    C_PLAYER_PAUSE_FIRST_STEP_INDEX,    // le player est en pause et le dernier step joué est le premier step de la liste
-    C_PLAYER_PAUSE_LAST_STEP_INDEX      // le player est en pause et le dernier step joué est le dernier step de la liste
-}tPlayerState;
-
 /*! @brief class CTracePlayer
  */	   
 class CTracePlayer : public QThread
@@ -50,13 +31,39 @@ class CTracePlayer : public QThread
 #define C_ALL_STEPS                 (-1)
 #define C_STEP_DURATION_IN_FILE     (-1)
 
+    typedef QMap<QString, QVariant>tVariableValue;  // QString=nom de la variable - QVariant=valeur de la variable
+
+    typedef struct {
+        tVariableValue  variables_values;
+        long int duration; //[msec]
+        double timestamp_sec;
+    }tStep;
+
+    typedef QVector<tStep *>tSteps;
 
 public:
+    typedef enum {
+        C_PLAYER_IDLE_NO_DATA = 0,          // player en veille car la liste des steps est vide
+        C_PLAYER_STOP,                      // player au repos prêt à être démarré
+        C_PLAYER_RUN,                       // le player joue la trace
+        C_PLAYER_PAUSE,                     // le player est en pause et le dernier step joué est un step qui n'est ni le premier, ni le dernier
+        C_PLAYER_PAUSE_FIRST_STEP_INDEX,    // le player est en pause et le dernier step joué est le premier step de la liste
+        C_PLAYER_PAUSE_LAST_STEP_INDEX      // le player est en pause et le dernier step joué est le dernier step de la liste
+    }tPlayerState;
+
+    typedef enum {
+        C_UNKNOWN_FILEFORMAT = -1,          // Format inconnu
+        C_AUTOTECT_FORMAT,                  // Laisse l'outil détecter automatiquement
+        C_TRACE_FORMAT,                     // Format enregistré par le DataView (3 colonnes)
+        C_CSV_DURATION_TIME_FORMAT,         // Format .csv : 1 ligne par step / 1ère colonne : durée du step / puis autant de colonnes que de data
+        C_CSV_ABSOLUTE_TIME_FORMAT          // Format .csv : 1 ligne par step / 1ère colonne : timestamp [msec] / puis autant de colonnes que de data
+    }tFileFormat;
+
     CTracePlayer(CDataManager *data_manager, QString player_name="");
     ~CTracePlayer();
 
     // Accesseurs
-    void setTraceFilename(QString trace_filename);
+    void setTraceFilename(QString trace_filename, tFileFormat fileformat=C_AUTOTECT_FORMAT);
     QString getTraceFilename(void)                  { return(m_trace_filename); }
 
     void setCommonStepDuration(int duration_msec)   { m_common_step_duration = duration_msec; }
@@ -87,6 +94,12 @@ private :
     void clearSteps(void);
     void playStep(int step_index);
     void changePlayerState(tPlayerState new_state, bool enable_emit=true);
+
+    void setInputFile_TraceFormat(QString trace_filename);
+    void setInputFile_csvTimeFormat(QString trace_filename, bool time_is_timestamp);
+    tFileFormat getFormatFromFile(QString trace_filename);
+    long int time_second_to_msec(double time_sec);
+
 signals :
     void oneStepFinished(QString player_name);
     void playerStarted(QString player_name);

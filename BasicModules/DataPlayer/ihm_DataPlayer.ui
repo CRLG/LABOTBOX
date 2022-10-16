@@ -380,6 +380,32 @@
           </property>
          </spacer>
         </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="PB_StartAllTraces_Synchro">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Commence la trace de manière sychronisée sur tous les players</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../icons.qrc">
+            <normaloff>:/icons/player_play.png</normaloff>:/icons/player_play.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0" rowspan="2" colspan="3">
          <widget class="QGroupBox" name="groupBox">
           <property name="enabled">
@@ -593,33 +619,30 @@
              </property>
             </widget>
            </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="lbl_valStepNumTrace">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>N° step:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1" colspan="4">
+            <widget class="QLabel" name="valStepNumTrace">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
           </layout>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="PB_StartAllTraces_Synchro">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Commence la trace de manière sychronisée sur tous les players</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../../icons.qrc">
-            <normaloff>:/icons/player_play.png</normaloff>:/icons/player_play.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
         <item row="1" column="4">
