@@ -33,6 +33,7 @@
  * QStringList error_msg, warn_msg;
  *
  * parser.enableEmptyCells(true);
+ * parser.setMinimumNumberOfExpectedColums(4);
  * parser.setMaxLinesToParse(300);
  * parser.setSeparator(",");
  * bool status = parser.parse(pathfileName,data, &error_msg, &warn_msg);
@@ -72,6 +73,8 @@ public:
     void setNumberOfFirstLinesToIgnore(long num);
     void setMaxLinesToParse(long max);
     void setNumberOfExpectedColums(long num);
+    void setMinimumNumberOfExpectedColums(long num);
+    void setMaximumNumberOfExpectedColums(long num);
     void enableEmptyCells(bool state);
     void setSeparator(QString sep);
     void firstLineIsHeader(bool state);
@@ -82,6 +85,8 @@ protected:
     long m_ignore_first_n_lines;    //! Ignore first "n" lines
     long m_max_lines_to_parse;       //! Limit the number of line parsed (special value "-1" : do not limit)
     long m_num_of_columns_expected; //! The number of columns can be known by advance and checked during parsing(special value -1 = unknow)
+    long m_min_of_columns_expected; //! The minimum number of columns expected and checked during parsing(special value -1 = unknow)
+    long m_max_of_columns_expected; //! The maximum number of columns expected and checked during parsing(special value -1 = unknow)
     bool m_enable_empty_cells;      //! Indicate if a cell is allowed to be empty
     QString m_separator;            //! csv separator string
     bool m_first_line_is_header;    //! Indicate the first line is columns description

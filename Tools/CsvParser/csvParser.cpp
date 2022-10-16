@@ -7,6 +7,8 @@ csvParser::csvParser() :
     m_ignore_first_n_lines(0),
     m_max_lines_to_parse(-1),
     m_num_of_columns_expected(-1),
+    m_min_of_columns_expected(-1),
+    m_max_of_columns_expected(-1),
     m_enable_empty_cells(false),
     m_separator(";"),
     m_first_line_is_header(true),
@@ -32,6 +34,16 @@ void csvParser::setMaxLinesToParse(long max)
 void csvParser::setNumberOfExpectedColums(long num)
 {
     m_num_of_columns_expected = num;
+}
+
+void csvParser::setMinimumNumberOfExpectedColums(long num)
+{
+    m_min_of_columns_expected = num;
+}
+
+void csvParser::setMaximumNumberOfExpectedColums(long num)
+{
+    m_max_of_columns_expected = num;
 }
 
 void csvParser::enableEmptyCells(bool state)
@@ -83,7 +95,7 @@ bool csvParser::parse(const QString& pathfilename, csvData& out_data, QStringLis
     int line_num = 0;
     QString line;
     //int found_columns_on_first_line;
-    int num_of_columns_expected = 0;
+    long num_of_columns_expected = 0;
     while ((line = in.readLine()) != NULL) {
       line_num++;
       QStringList split_line = line.split(m_separator);
@@ -94,6 +106,7 @@ bool csvParser::parse(const QString& pathfilename, csvData& out_data, QStringLis
          else num_of_columns_expected = m_num_of_columns_expected;
       }
 
+      // Check the exact number of columns expected
       if (found_columns != num_of_columns_expected) {
           if (out_error_msg) {
               out_error_msg->append(QObject::tr("Line %1 : expected %2 columns / observed %3").arg(line_num).arg(num_of_columns_expected).arg(found_columns));
@@ -101,6 +114,28 @@ bool csvParser::parse(const QString& pathfilename, csvData& out_data, QStringLis
           if (m_stop_on_first_error) return false;
           ok = false;
           continue;
+      }
+      // Check the minimum number of columns expected
+      if (m_min_of_columns_expected != -1) {
+          if (found_columns < m_min_of_columns_expected) {
+              if (out_error_msg) {
+                  out_error_msg->append(QObject::tr("Line %1 : expected %2 minimum columns / observed %3").arg(line_num).arg(m_min_of_columns_expected).arg(found_columns));
+              }
+              if (m_stop_on_first_error) return false;
+              ok = false;
+              continue;
+          }
+      }
+      // Check the maximum number of columns expected
+      if (m_max_of_columns_expected != -1) {
+          if (found_columns > m_max_of_columns_expected) {
+              if (out_error_msg) {
+                  out_error_msg->append(QObject::tr("Line %1 : expected %2 maximum columns / observed %3").arg(line_num).arg(m_max_of_columns_expected).arg(found_columns));
+              }
+              if (m_stop_on_first_error) return false;
+              ok = false;
+              continue;
+          }
       }
 
       for (int i=0; i< found_columns; i++) {
