@@ -44,7 +44,7 @@ typedef QMap<QString, CTracePlayer*>tListePlayers;          // Pour les players
 class CDataPlayer : public CBasicModule
 {
     Q_OBJECT
-#define     VERSION_DataPlayer   "1.0"
+#define     VERSION_DataPlayer   "2.0"
 #define     AUTEUR_DataPlayer    "Nico"
 #define     INFO_DataPlayer      "Générateur de signaux pour data"
 

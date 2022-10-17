@@ -61,6 +61,7 @@ void CTracePlayer::clearSteps(void)
         delete m_steps[i];
   }
   m_steps.clear();
+  m_trace_filename.clear();
   changePlayerState(C_PLAYER_IDLE_NO_DATA);
 }
 
@@ -74,7 +75,7 @@ void CTracePlayer::clearSteps(void)
 *   si elles ont le même timestamp
 *  
 */
-void CTracePlayer::setTraceFilename(QString trace_filename, tFileFormat fileformat)
+bool CTracePlayer::setTraceFilename(QString trace_filename, tFileFormat fileformat)
 {
   QFileInfo fileInfo(trace_filename);
   if (fileInfo.exists() == false) {
@@ -82,27 +83,30 @@ void CTracePlayer::setTraceFilename(QString trace_filename, tFileFormat fileform
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText("Fichier introuvable" + trace_filename);
     msgBox.exec();
-    return; // pas la peine d'aller plus loin
+    return false; // pas la peine d'aller plus loin
   }
 
-  m_trace_filename = trace_filename;
   stopPlayer();
   clearSteps();
 
   if (fileformat == C_AUTOTECT_FORMAT) fileformat = getFormatFromFile(trace_filename);
 
+  bool status=false;
   // Aiguillage en fonction du format d'entrée attendu
   switch(fileformat) {
-    case C_TRACE_FORMAT :               setInputFile_TraceFormat(trace_filename);               break;
-    case C_CSV_DURATION_TIME_FORMAT :   setInputFile_csvTimeFormat(trace_filename, false/*time_is_timestamp=false*/);      break;
-    case C_CSV_ABSOLUTE_TIME_FORMAT :   setInputFile_csvTimeFormat(trace_filename, true/*time_is_timestamp=true*/);       break;
-    default : break;
+    case C_TRACE_FORMAT :               status = setInputFile_TraceFormat(trace_filename);               break;
+    case C_CSV_DURATION_TIME_FORMAT :   status = setInputFile_csvTimeFormat(trace_filename, false/*time_is_timestamp=false*/);      break;
+    case C_CSV_ABSOLUTE_TIME_FORMAT :   status = setInputFile_csvTimeFormat(trace_filename, true/*time_is_timestamp=true*/);       break;
+    default :                           status = false; break;
   }
+
+  if (status) m_trace_filename = trace_filename; // ne conserve le nom du fichier d'entrée que si le format est valide
 
   // le player est prêt à jouer s'il contient quelquechose à jouer
   if (m_steps.size() != 0) {
     changePlayerState(C_PLAYER_STOP);
   }
+  return status;
 }
 
 
@@ -114,7 +118,7 @@ void CTracePlayer::setTraceFilename(QString trace_filename, tFileFormat fileform
 *
 *  Le step peut être modifié depuis
 */
-void CTracePlayer::setInputFile_TraceFormat(QString trace_filename)
+bool CTracePlayer::setInputFile_TraceFormat(QString trace_filename)
 {
     // Analyse le fichier (fichier au format .csv avec séparateur ";"
     QFile data(trace_filename);
@@ -130,7 +134,7 @@ void CTracePlayer::setInputFile_TraceFormat(QString trace_filename)
               msgBox.setIcon(QMessageBox::Warning);
               msgBox.setText("Ligne invalide: " + line);
               msgBox.exec();
-              return; // pas la peine d'aller plus loin le fichier n'est pas conforme
+              return false; // pas la peine d'aller plus loin le fichier n'est pas conforme
           } // if le fichier n'est pas conforme
 
           double timestamp_sec = split_line.at(0).toDouble();
@@ -161,6 +165,8 @@ void CTracePlayer::setInputFile_TraceFormat(QString trace_filename)
           pstep->variables_values.insert(var_name, var_value);
         } // pour toutes les lignes du fichier
     }
+
+    return true;
 }
 
 
@@ -186,7 +192,7 @@ void CTracePlayer::setInputFile_TraceFormat(QString trace_filename)
  * La première ligne contient le nom des données
  * \param trace_filename le nom du fichier d'entrée (avec chemin complet)
  */
-void CTracePlayer::setInputFile_csvTimeFormat(QString trace_filename, bool time_is_timestamp)
+bool CTracePlayer::setInputFile_csvTimeFormat(QString trace_filename, bool time_is_timestamp)
 {
     csvData data;
     csvParser parser;
@@ -202,7 +208,7 @@ void CTracePlayer::setInputFile_csvTimeFormat(QString trace_filename, bool time_
             foreach (QString msg, error_msg_lst) global_err_msg += "\n" + msg; // regroupe tous les messages en une seule chaine à afficher
             QMessageBox::critical(0, QFileInfo(trace_filename).fileName(), global_err_msg);
         }
-        return; // pas la peine d'aller plus loin, le fichier d'entrée n'est pas valide
+        return false; // pas la peine d'aller plus loin, le fichier d'entrée n'est pas valide
     }
 
     // Il y a des warnings dans le parsing du fichier d'entrée
@@ -251,6 +257,8 @@ void CTracePlayer::setInputFile_csvTimeFormat(QString trace_filename, bool time_
         }
         m_steps.append(pstep);
     }
+
+    return true;
 }
 
 // _____________________________________________________________________

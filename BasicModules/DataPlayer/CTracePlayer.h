@@ -63,7 +63,7 @@ public:
     ~CTracePlayer();
 
     // Accesseurs
-    void setTraceFilename(QString trace_filename, tFileFormat fileformat=C_AUTOTECT_FORMAT);
+    bool setTraceFilename(QString trace_filename, tFileFormat fileformat=C_AUTOTECT_FORMAT);
     QString getTraceFilename(void)                  { return(m_trace_filename); }
 
     void setCommonStepDuration(int duration_msec)   { m_common_step_duration = duration_msec; }
@@ -95,8 +95,8 @@ private :
     void playStep(int step_index);
     void changePlayerState(tPlayerState new_state, bool enable_emit=true);
 
-    void setInputFile_TraceFormat(QString trace_filename);
-    void setInputFile_csvTimeFormat(QString trace_filename, bool time_is_timestamp);
+    bool setInputFile_TraceFormat(QString trace_filename);
+    bool setInputFile_csvTimeFormat(QString trace_filename, bool time_is_timestamp);
     tFileFormat getFormatFromFile(QString trace_filename);
     long int time_second_to_msec(double time_sec);
 

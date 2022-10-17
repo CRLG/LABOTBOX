@@ -747,7 +747,12 @@ void CDataPlayer::on_PB_choixTrace_clicked(void)
   m_default_signal_path = file_info.path();
 
   // Met à jour le fichier dans le player
-  selectedPlayerNameToPlayer()->setTraceFilename(fileName);
+  bool success = selectedPlayerNameToPlayer()->setTraceFilename(fileName);
+  if (!success) {
+      QString msg = QString("Fichier d'entrée invalide : %1").arg(fileName);
+      m_application->m_print_view->print_error(this, msg);
+      QMessageBox::warning(&m_ihm, "Analyse du fichier", msg);
+  }
 
   // si la liste contient plus d'un player, autorise le start et le stop 
   // synchronisé sur tous les players en même temps
