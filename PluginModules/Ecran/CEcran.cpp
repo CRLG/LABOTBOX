@@ -157,7 +157,6 @@ void CEcran::initDataLogger()
     data_list.append(m_application->m_data_center->getData("teta_pos"));
 
     m_data_logger.setDataList(data_list);
-    m_data_logger.activeDatation(true);
     m_data_logger.setRefreshPeriod(200);
     QString pathfilename = getLogFilename();
     m_data_logger.start(pathfilename);
