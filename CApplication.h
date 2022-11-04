@@ -26,6 +26,7 @@ class CJoystick;
 class CEcran;
 class CExternalControler;
 class CRaspiGPIO;
+class CcsvDataLogger;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -122,7 +123,10 @@ public:
 #ifdef MODULE_ExternalControler
    CExternalControler     *m_ExternalControler;
 #endif // MODULE_ExternalControler
-   //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
+   #ifdef MODULE_csvDataLogger
+   CcsvDataLogger     *m_csvDataLogger;
+#endif // MODULE_csvDataLogger
+//##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 #ifdef MODULE_RaspiGPIO
    CRaspiGPIO     *m_RaspiGPIO;
 #endif // MODULE_RaspiGPIO

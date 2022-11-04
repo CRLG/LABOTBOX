@@ -52,6 +52,9 @@
 #ifdef MODULE_RaspiGPIO
     #include "CRaspiGPIO.h"
 #endif  // RASPBERRY_PI
+#ifdef MODULE_csvDataLogger
+   #include "CcsvDataLogger.h"
+#endif // MODULE_csvDataLogger
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 #ifdef MODULE_TestUnitaire
@@ -266,6 +269,12 @@ void CApplication::createBasicModules(void)
   m_list_basic_modules.append(m_RaspiGPIO);
   m_list_modules.append(m_RaspiGPIO);
 #endif // MODULE_RaspiGPIO
+
+#ifdef MODULE_csvDataLogger
+  m_csvDataLogger     = new CcsvDataLogger("csvDataLogger");
+  m_list_basic_modules.append(m_csvDataLogger);
+  m_list_modules.append(m_csvDataLogger);
+#endif // MODULE_csvDataLogger
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }
