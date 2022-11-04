@@ -86,6 +86,8 @@ private slots :
     void onRPI_Shutdown();
     void onRPI_Reboot();
     void onStrategyChoice_changed(int val);
+    void onSelectTeamColor();
+    void onSelectTeamName();
 };
 
 #endif // _CBASIC_MODULE_Ecran_H_

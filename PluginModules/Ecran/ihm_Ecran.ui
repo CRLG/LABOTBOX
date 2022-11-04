@@ -51,102 +51,8 @@
               <height>110</height>
              </size>
             </property>
-            <property name="palette">
-             <palette>
-              <active>
-               <colorrole role="Button">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Window">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </active>
-              <inactive>
-               <colorrole role="Button">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Window">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </inactive>
-              <disabled>
-               <colorrole role="Button">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-               <colorrole role="Window">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>52</red>
-                  <green>101</green>
-                  <blue>164</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </disabled>
-             </palette>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(52, 101, 164);</string>
-            </property>
             <property name="text">
-             <string>BLEU</string>
+             <string>EQUIPE1</string>
             </property>
             <property name="flat">
              <bool>false</bool>
@@ -154,7 +60,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLed" name="qLed_green" native="true">
+           <widget class="QLed" name="qLed_green">
             <property name="minimumSize">
              <size>
               <width>50</width>
@@ -173,7 +79,7 @@
             <property name="whatsThis">
              <string>Led widget</string>
             </property>
-            <property name="value" stdset="0">
+            <property name="value">
              <bool>true</bool>
             </property>
            </widget>
@@ -192,11 +98,8 @@
               <height>110</height>
              </size>
             </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(252, 233, 79);</string>
-            </property>
             <property name="text">
-             <string>JAUNE</string>
+             <string>EQUIPE2</string>
             </property>
             <property name="flat">
              <bool>false</bool>
@@ -204,7 +107,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLed" name="qLed_orange" native="true">
+           <widget class="QLed" name="qLed_orange">
             <property name="minimumSize">
              <size>
               <width>50</width>
@@ -223,7 +126,7 @@
             <property name="whatsThis">
              <string>Led widget</string>
             </property>
-            <property name="value" stdset="0">
+            <property name="value">
              <bool>true</bool>
             </property>
            </widget>
@@ -453,7 +356,7 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QLed" name="qLed_Obstacle" native="true">
+           <widget class="QLed" name="qLed_Obstacle">
             <property name="minimumSize">
              <size>
               <width>20</width>
@@ -472,7 +375,7 @@
             <property name="whatsThis">
              <string>Led widget</string>
             </property>
-            <property name="value" stdset="0">
+            <property name="value">
              <bool>true</bool>
             </property>
            </widget>
@@ -582,7 +485,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLed" name="qLed_conv" native="true">
+         <widget class="QLed" name="qLed_conv">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -601,7 +504,7 @@
           <property name="whatsThis">
            <string>Led widget</string>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <bool>false</bool>
           </property>
          </widget>
@@ -633,7 +536,7 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLed" name="qLed_obst" native="true">
+         <widget class="QLed" name="qLed_obst">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -652,7 +555,7 @@
           <property name="whatsThis">
            <string>Led widget</string>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <bool>false</bool>
           </property>
          </widget>
@@ -684,7 +587,7 @@
          </widget>
         </item>
         <item row="2" column="3">
-         <widget class="QLed" name="qLed_bloc" native="true">
+         <widget class="QLed" name="qLed_bloc">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -703,7 +606,7 @@
           <property name="whatsThis">
            <string>Led widget</string>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <bool>false</bool>
           </property>
          </widget>
@@ -742,7 +645,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="Q7seg" name="tps_dix" native="true">
+         <widget class="Q7seg" name="tps_dix">
           <property name="toolTip">
            <string>7 segment display</string>
           </property>
@@ -755,7 +658,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="Q7seg" name="tps_unit" native="true">
+         <widget class="Q7seg" name="tps_unit">
           <property name="toolTip">
            <string>7 segment display</string>
           </property>
@@ -772,7 +675,7 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="Q7seg" name="score_cent" native="true">
+         <widget class="Q7seg" name="score_cent">
           <property name="toolTip">
            <string>7 segment display</string>
           </property>
@@ -782,7 +685,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Q7seg" name="score_dix" native="true">
+         <widget class="Q7seg" name="score_dix">
           <property name="toolTip">
            <string>7 segment display</string>
           </property>
@@ -792,7 +695,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Q7seg" name="score_unit" native="true">
+         <widget class="Q7seg" name="score_unit">
           <property name="toolTip">
            <string>7 segment display</string>
           </property>
@@ -855,7 +758,7 @@
          <string>CLOSE</string>
         </property>
        </widget>
-       <widget class="QLed" name="isOpen" native="true">
+       <widget class="QLed" name="isOpen">
         <property name="geometry">
          <rect>
           <x>360</x>
@@ -870,11 +773,11 @@
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QLed" name="isClose" native="true">
+       <widget class="QLed" name="isClose">
         <property name="geometry">
          <rect>
           <x>360</x>
@@ -889,7 +792,7 @@
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>true</bool>
         </property>
        </widget>
