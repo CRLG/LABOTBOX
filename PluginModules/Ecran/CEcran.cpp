@@ -200,7 +200,6 @@ QString CEcran::getLogFilename()
     return pathfilename;
 }
 
-
 // _____________________________________________________________________
 /*!
 *  Création des menus sur clic droit sur la fenêtre du module
@@ -211,9 +210,13 @@ void CEcran::onRightClicGUI(QPoint pos)
   QMenu *menu = new QMenu();
   QString object_name = m_ihm.childAt(pos)->objectName();
   // cas particulier pour les 2 boutons de choix de la couleur de l'équipe
-  if (object_name == "pB_Couleur1" || object_name == "pB_Couleur2") {
-      menu->addAction("Select team color", this, SLOT(onSelectTeamColor()));
-      menu->addAction("Set team name", this, SLOT(onSelectTeamName()));
+  if (object_name == "pB_Couleur1") {
+      menu->addAction(tr("Select team color"), [this](){selectColorOnButton(m_ihm.ui.pB_Couleur1);});
+      menu->addAction(tr("Set team name"), [this](){selectTextOnButton(m_ihm.ui.pB_Couleur1);});
+  }
+  else if (object_name == "pB_Couleur2") {
+      menu->addAction(tr("Select team color"), [this](){selectColorOnButton(m_ihm.ui.pB_Couleur2);});
+      menu->addAction(tr("Set team name"), [this](){selectTextOnButton(m_ihm.ui.pB_Couleur2);});
   }
   // couleur de fond de la fenêtre
   else {
@@ -223,41 +226,36 @@ void CEcran::onRightClicGUI(QPoint pos)
 }
 
 /*!
- * \brief Sélectionne la couleur de bouton d'une équipe
+ * \brief Sélectionne la couleur sur un bouton et la mémorise en EEPROM
+ * \param button le bouton
  */
-void CEcran::onSelectTeamColor()
+void CEcran::selectColorOnButton(QPushButton *button)
 {
-    QPoint pos = m_ihm.mapFromGlobal( QCursor::pos() );
+    if (!button) return;
     QColorDialog colordlg;
     QColor color = colordlg.getColor();
     if (color.isValid()) {
-        QWidget *wdgt = m_ihm.childAt(pos);  // récupère le widget pointé par la souris
-        if (!wdgt) return;
-        QString button_name = wdgt->objectName();
-        wdgt->setStyleSheet(QStringLiteral("background-color: %1;").arg(color.name()));  // change la couleur de l'objet pointé
+        button->setStyleSheet(QStringLiteral("background-color: %1;").arg(color.name()));  // change la couleur de l'objet pointé
         // sauvegarde en EEPROM la couleur
-        m_application->m_eeprom->write(getName(), QString("%1_color").arg(button_name), color.name());
+        m_application->m_eeprom->write(getName(), QString("%1_color").arg(button->objectName()), color.name());
     }
 }
 
 /*!
- * \brief Sélectionne lae texte sur le bouton d'une équipe
+ * \brief Change le texte affiché sur un bouton
+ * \param button le bouton
  */
-void CEcran::onSelectTeamName()
+void CEcran::selectTextOnButton(QPushButton *button)
 {
-    QPoint pos = m_ihm.mapFromGlobal( QCursor::pos() );  // récupère immédiatement la position du curseur avant qu'elle ne change
+    if (!button) return;
     bool ok;
     QString text = QInputDialog::getText(&m_ihm, "",
                                          tr("Nom de l'équipe"), QLineEdit::Normal,
                                          "", &ok);
     if (ok && !text.isEmpty()) {
-        QWidget *wdgt = m_ihm.childAt(pos);
-        if (!wdgt) return;
-        QString button_name = wdgt->objectName();
-        QPushButton *pb = (QPushButton*)wdgt;
-        if (pb) pb->setText(text);
-        // sauvegarde en EEPROM le nom du bouton
-        m_application->m_eeprom->write(getName(), QString("%1_text").arg(button_name), text);
+        button->setText(text);
+        // sauvegarde en EEPROM le texte sur le bouton
+        m_application->m_eeprom->write(getName(), QString("%1_text").arg(button->objectName()), text);
     }
 }
 
