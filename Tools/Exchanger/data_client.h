@@ -8,7 +8,7 @@ class DataClient : public ExchangerClient
 {
     Q_OBJECT
 public:
-    explicit DataClient(ExchangerClient *parent = nullptr);
+    explicit DataClient(QObject *parent = nullptr);
 
     CExchangerData m_exchanger;
 };

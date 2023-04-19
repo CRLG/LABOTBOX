@@ -1,7 +1,7 @@
 #include "exchangerclient.h"
 
 
-ExchangerClient::ExchangerClient(QTcpSocket *parent)
+ExchangerClient::ExchangerClient(QObject *parent)
     : QTcpSocket(parent),
       m_enable_autoreconnect(false)
 {

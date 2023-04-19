@@ -8,7 +8,7 @@ class DataServer : public CExchangerServer
 {
     Q_OBJECT
 public:
-    explicit DataServer(CExchangerServer *parent = nullptr);
+    explicit DataServer(QObject *parent = nullptr);
 
     CExchangerData m_exchanger;
 };

@@ -8,7 +8,7 @@ class ExchangerClient : public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit ExchangerClient(QTcpSocket *parent = nullptr);
+    explicit ExchangerClient(QObject *parent = nullptr);
 
     virtual void connectToHost(const QString &hostName, quint16 port, bool autoconnect=false);
     virtual void disconnection();

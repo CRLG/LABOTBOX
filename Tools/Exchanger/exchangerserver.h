@@ -8,7 +8,7 @@ class CExchangerServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit CExchangerServer(QTcpServer *parent = nullptr);
+    explicit CExchangerServer(QObject *parent = nullptr);
 
     bool start(int port);
 

@@ -1,6 +1,6 @@
 #include "data_server.h"
 
-DataServer::DataServer(CExchangerServer *parent)
+DataServer::DataServer(QObject *parent)
     : CExchangerServer(parent)
 {
     setExchanger(&m_exchanger);

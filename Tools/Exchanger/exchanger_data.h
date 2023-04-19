@@ -7,7 +7,7 @@ class CExchangerData : public CExchanger
 {
     Q_OBJECT
 public:
-    explicit CExchangerData(CExchanger *parent=nullptr);
+    explicit CExchangerData(QObject *parent=nullptr);
     void send_data(QString name, QVariant val);
     void send_datas(QHash<QString, QVariant> datas);
     void send_add_data_request(QString name);

@@ -2,7 +2,7 @@
 #include <QHash>
 #include "exchanger_data.h"
 
-CExchangerData::CExchangerData(CExchanger *parent)
+CExchangerData::CExchangerData(QObject *parent)
     : CExchanger(parent)
 {
 }

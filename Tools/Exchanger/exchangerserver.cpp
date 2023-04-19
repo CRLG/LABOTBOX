@@ -1,7 +1,7 @@
 #include <QDataStream>
 #include "exchangerserver.h"
 
-CExchangerServer::CExchangerServer(QTcpServer *parent)
+CExchangerServer::CExchangerServer(QObject *parent)
     : QTcpServer(parent),
       m_p_exchanger(Q_NULLPTR)
 {
