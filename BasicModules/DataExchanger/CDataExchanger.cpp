@@ -326,7 +326,9 @@ QStringList CDataExchanger::getListeVariablesObservees()
 void CDataExchanger::decocheToutesVariables()
 {
     for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-        m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+        if (!m_ihm.ui.liste_variables->item(i)->isHidden()) {
+            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+        }
     }
 }
 
@@ -337,7 +339,9 @@ void CDataExchanger::decocheToutesVariables()
 void CDataExchanger::cocheToutesVariables()
 {
     for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-        m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
+        if (!m_ihm.ui.liste_variables->item(i)->isHidden()) {
+            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Checked);
+        }
     }
 }
 

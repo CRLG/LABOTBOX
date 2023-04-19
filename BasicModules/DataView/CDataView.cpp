@@ -233,7 +233,9 @@ QStringList CDataView::getListeVariablesObservees()
 void CDataView::decocheToutesVariables()
 {
     for (int i=0; i<m_ihm.ui.liste_variables->count(); i++) {
-        m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+        if (!m_ihm.ui.liste_variables->item(i)->isHidden()) {
+            m_ihm.ui.liste_variables->item(i)->setCheckState(Qt::Unchecked);
+        }
     }
 }
 
