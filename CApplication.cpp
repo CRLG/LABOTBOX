@@ -55,6 +55,9 @@
 #ifdef MODULE_csvDataLogger
    #include "CcsvDataLogger.h"
 #endif // MODULE_csvDataLogger
+#ifdef MODULE_DataConverter
+   #include "CDataConverter.h"
+#endif // MODULE_DataConverter
 //_##NEW_INCLUDE_BASIC_MODULE_HERE_##
 
 #ifdef MODULE_TestUnitaire
@@ -275,6 +278,12 @@ void CApplication::createBasicModules(void)
   m_list_basic_modules.append(m_csvDataLogger);
   m_list_modules.append(m_csvDataLogger);
 #endif // MODULE_csvDataLogger
+
+#ifdef MODULE_DataConverter
+  m_DataConverter     = new CDataConverter("DataConverter");
+  m_list_basic_modules.append(m_DataConverter);
+  m_list_modules.append(m_DataConverter);
+#endif // MODULE_DataConverter
 
 // ##_NEW_BASIC_MODULE_INSTANCIATION_HERE_##
 }

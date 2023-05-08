@@ -27,6 +27,7 @@ class CEcran;
 class CExternalControler;
 class CRaspiGPIO;
 class CcsvDataLogger;
+class CDataConverter;
 //##_NEW_CLASS_BASIC_MODULE_HERE_##
 
 
@@ -126,6 +127,9 @@ public:
    #ifdef MODULE_csvDataLogger
    CcsvDataLogger     *m_csvDataLogger;
 #endif // MODULE_csvDataLogger
+#ifdef MODULE_DataConverter
+   CDataConverter     *m_DataConverter;
+#endif // MODULE_DataConverter
 //##_NEW_BASIC_MODULE_CLASS_POINTER_DEFINITION_##
 #ifdef MODULE_RaspiGPIO
    CRaspiGPIO     *m_RaspiGPIO;

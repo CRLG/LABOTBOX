@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ihm_DataConverter</class>
+ <widget class="QMainWindow" name="ihm_DataConverter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>492</width>
+    <height>394</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Bilan</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pb_delete_transformer">
+          <property name="text">
+           <string>Delete transformer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pb_delete_all_tranformers">
+          <property name="text">
+           <string>Delete All Transformers</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QTextEdit" name="description_transformer">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
+         <widget class="QComboBox" name="transformer_list"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Assistant</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="2" colspan="2">
+         <widget class="QLineEdit" name="input_datanames">
+          <property name="toolTip">
+           <string>Liste des données d'entrées (séparé par une &quot;,&quot;)</string>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Liste des données d'entrées</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="2">
+         <widget class="QComboBox" name="select_algo">
+          <property name="toolTip">
+           <string>Algorithme utilisé par le Transformer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QRadioButton" name="updated_method">
+          <property name="toolTip">
+           <string>Calcul de la sortie sur mise à jour de la (des) entrée(s)</string>
+          </property>
+          <property name="text">
+           <string>Updated</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
+         <widget class="QRadioButton" name="changed_method">
+          <property name="toolTip">
+           <string>Calcul de la sortie sur changement de valeur de la (des) entrée(s)</string>
+          </property>
+          <property name="text">
+           <string>Changed</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2" colspan="2">
+         <widget class="QLineEdit" name="params">
+          <property name="toolTip">
+           <string>Paramètres du transformer</string>
+          </property>
+          <property name="placeholderText">
+           <string>Paramètres</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2" colspan="2">
+         <widget class="QLineEdit" name="description">
+          <property name="toolTip">
+           <string>Description brève du transformer</string>
+          </property>
+          <property name="placeholderText">
+           <string>Description</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QPushButton" name="pb_add_input">
+          <property name="toolTip">
+           <string>Ajoute la donnée sélectionnée aux entrées</string>
+          </property>
+          <property name="text">
+           <string>Add to input</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" colspan="2">
+         <widget class="QLineEdit" name="output_dataname">
+          <property name="toolTip">
+           <string>Donnée de sortie</string>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Donnée de sortie</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QPushButton" name="pb_add_outuput">
+          <property name="toolTip">
+           <string>Fixe la donnée de sortie</string>
+          </property>
+          <property name="text">
+           <string>Add to Output</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="3">
+         <widget class="QPushButton" name="pb_apply">
+          <property name="toolTip">
+           <string>Créer le transformer</string>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QLineEdit" name="filtre_noms_variables">
+          <property name="placeholderText">
+           <string>Filtre sur le nom</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" colspan="2">
+         <widget class="QLineEdit" name="formula">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="font">
+           <font>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Formule du Transformer</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="7" colspan="2">
+         <widget class="QListWidget" name="liste_variables">
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>Nouvel élément</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>492</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="actionsave"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionsave">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
