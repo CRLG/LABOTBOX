@@ -16,7 +16,10 @@
 CPhysicalEngine::CPhysicalEngine()
     :m_application(nullptr)
 {
-
+    m_bot1=0;
+    m_bot2=0;
+    for(int i=0;i<12;i++)
+        elementsJeu[i]=0;
 }
 
 //___________________________________________________________________________
@@ -154,19 +157,19 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     }
 
     //éléments de jeux
-    elementsJeu[0]=setElement(90.0f,144.5f);
-    elementsJeu[1]=setElement(83.0f,132.5f);
-    elementsJeu[2]=setElement(90.0f,120.5f);
-    elementsJeu[3]=setElement(210.0f,144.5f);
-    elementsJeu[4]=setElement(217.0f,132.5f);
-    elementsJeu[5]=setElement(210.0f,120.5f);
+    elementsJeu[0]=setElement(51.5f,28.5f);
+    elementsJeu[1]=setElement(71.5f,28.5f);
+    elementsJeu[2]=setElement(218.5f,28.5f);
+    elementsJeu[3]=setElement(238.5f,28.5f);
+    elementsJeu[4]=setElement(106.5f,78.5f);
+    elementsJeu[5]=setElement(181.5f,78.5f);
 
-    elementsJeu[6]=setElement(87.5f,70.0f);
-    elementsJeu[7]=setElement(92.5f,53.0f);
-    elementsJeu[8]=setElement(106.0f,70.0f);
-    elementsJeu[9]=setElement(192.5f,70.0f);
-    elementsJeu[10]=setElement(197.5f,53.0f);
-    elementsJeu[11]=setElement(211.0f,70.0f);
+    elementsJeu[6]=setElement(106.5f,133.5f);
+    elementsJeu[7]=setElement(181.5f,133.5f);
+    elementsJeu[8]=setElement(51.5f,182.5f);
+    elementsJeu[9]=setElement(71.5f,182.5f);
+    elementsJeu[10]=setElement(218.5f,182.5f);
+    elementsJeu[11]=setElement(238.5f,182.5f);
 
 
     //comme pour l'asservissement on centre le repère de notre monde sur le centre de notre robot

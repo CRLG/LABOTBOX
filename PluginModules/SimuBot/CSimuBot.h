@@ -114,7 +114,7 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
-    QGraphicsPolygonItem * elementsJeu[12];
+    QGraphicsEllipseItem * elementsJeu[12];
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -155,7 +155,7 @@ private:
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
-    QGraphicsPolygonItem *setElementJeu(float x, float y, int Color);
+    QGraphicsEllipseItem *setElementJeu(float x, float y, int Color);
     //design robot
     QGraphicsScene * scene_design;
 

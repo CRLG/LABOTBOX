@@ -164,26 +164,26 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2022_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2023_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-    elementsJeu[0]=setElementJeu(90.0f,144.5f,Qt::cyan);
-    elementsJeu[1]=setElementJeu(83.0f,132.5f,Qt::cyan);
-    elementsJeu[2]=setElementJeu(90.0f,120.5f,Qt::cyan);
-    elementsJeu[3]=setElementJeu(210.0f,144.5f,Qt::cyan);
-    elementsJeu[4]=setElementJeu(217.0f,132.5f,Qt::cyan);
-    elementsJeu[5]=setElementJeu(210.0f,120.5f,Qt::cyan);
+    elementsJeu[0]=setElementJeu(51.5f,28.5f,Qt::cyan);
+    elementsJeu[1]=setElementJeu(71.5f,28.5f,Qt::yellow);
+    elementsJeu[2]=setElementJeu(218.5f,28.5f,Qt::yellow);
+    elementsJeu[3]=setElementJeu(238.5f,28.5f,Qt::cyan);
+    elementsJeu[4]=setElementJeu(106.5f,78.5f,Qt::red);
+    elementsJeu[5]=setElementJeu(181.5f,78.5f,Qt::red);
 
-    elementsJeu[6]=setElementJeu(87.5f,70.0f,Qt::red);
-    elementsJeu[7]=setElementJeu(92.5f,53.0f,Qt::blue);
-    elementsJeu[8]=setElementJeu(106.0f,70.0f,Qt::green);
-    elementsJeu[9]=setElementJeu(192.5f,70.0f,Qt::red);
-    elementsJeu[10]=setElementJeu(197.5f,53.0f,Qt::blue);
-    elementsJeu[11]=setElementJeu(211.0f,70.0f,Qt::green);
+    elementsJeu[6]=setElementJeu(106.5f,133.5f,Qt::red);
+    elementsJeu[7]=setElementJeu(181.5f,133.5f,Qt::red);
+    elementsJeu[8]=setElementJeu(51.5f,182.5f,Qt::cyan);
+    elementsJeu[9]=setElementJeu(71.5f,182.5f,Qt::yellow);
+    elementsJeu[10]=setElementJeu(218.5f,182.5f,Qt::yellow);
+    elementsJeu[11]=setElementJeu(238.5f,182.5f,Qt::cyan);
 
     //ajout des tasseaux 2022
     QGraphicsLineItem * Tasseau01;
@@ -628,8 +628,9 @@ void CSimuBot::initView(void){
         //placement des élements de jeu dans le monde simulé
         for(int i=0;i<12;i++)
         {
-            elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
-            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),12.0,12.0));
+            /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
         }
 
         //init data manager 1er Robot
@@ -1533,24 +1534,26 @@ void CSimuBot::on_active_external_robot2(bool state)
  * \return
  * Fonction de positionnement des éléments de jeu
  */
-QGraphicsPolygonItem * CSimuBot::setElementJeu(float x, float y, int Color)
+QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
 {
-    //QGraphicsEllipseItem* element=new QGraphicsEllipseItem(QRect(x,-y,7.2,7.2));
-    QPolygonF element_shape;
-    element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
+    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x,-y,12.0,12.0);
+    //QPolygonF element_shape;
+    /*element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
     element_shape << QPointF(7.5*cos(5*M_PI/6),7.5*sin(5*M_PI/6)) << QPointF(7.5*cos(-5*M_PI/6),7.5*sin(-5*M_PI/6));
     element_shape << QPointF(0,-7.5) << QPointF(7.5*cos(-M_PI/6),7.5*sin(-M_PI/6));
     element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6));
-    QGraphicsPolygonItem* element=new QGraphicsPolygonItem(element_shape);
-    element->setPos(x,-y);
+    QGraphicsPolygonItem* element=new QGraphicsPolygonItem(element_shape);*/
+    //element->setPos(x,-y);//
     if(Color==Qt::cyan)
-        element->setBrush(QBrush(QColor(139,69,19, 255)));
+        element->setBrush(QBrush(QColor(255,0,255, 255)));
     if(Color==Qt::blue)
         element->setBrush(QBrush(QColor(0,0,255, 255)));
     if(Color==Qt::green)
         element->setBrush(QBrush(QColor(0,255,0, 255)));
     if(Color==Qt::red)
-        element->setBrush(QBrush(QColor(255,0,0, 255)));
+        element->setBrush(QBrush(QColor(139,69,19, 255)));
+    if(Color==Qt::yellow)
+        element->setBrush(QBrush(QColor(255,255,0, 255)));
 
     terrain->addItem(element);
 
