@@ -2,12 +2,12 @@
 #include "usb_raw_hid.h"
 
 CUSBRawHID::CUSBRawHID(QObject *parent)
-    : QObject(parent),
-      m_usb(nullptr),
+    : QThread(parent),
+      m_usb(Q_NULLPTR),
       m_open(false),
-      m_auto_reconnect_on_error(true)
+      m_auto_reconnect_on_error(true),
+      m_enable_read(false)
 {
-    connect(&m_autoread_timer, SIGNAL(timeout()), this, SLOT(read()));
 }
 
 CUSBRawHID::~CUSBRawHID()
@@ -146,6 +146,12 @@ bool CUSBRawHID::close()
 {
     if (!isOpen()) return false;
 
+    // fin du thread
+    m_enable_read = false;
+    exit(0);
+    wait(500);
+
+    // libere lq connexion usb
     usb_release_interface(m_usb, m_iface);
     usb_close(m_usb);
     m_usb = NULL;
@@ -214,19 +220,6 @@ int CUSBRawHID::read(char *buf, int len, int timeout)
 }
 
 // ___________________________________________________
-int CUSBRawHID::read()
-{
-    char buff[64];
-    int n;
-    n = read(buff, sizeof(buff), 0);
-    if (n>0) {
-        QByteArray array(QByteArray::fromRawData(buff, n));
-        emit received(array, n);
-    }
-    return n;
-}
-
-// ___________________________________________________
 /*!
 * send a packet to device
 * \param num = device to transmit to (zero based)
@@ -257,6 +250,29 @@ int CUSBRawHID::write(char *buf, int len, int timeout)
     return r;
 }
 
+// ___________________________________________________
+/*!
+ * \brief Thread de lecture
+ */
+void CUSBRawHID::run()
+{
+   while(m_enable_read) {
+       char buff[64];
+       int n;
+       n = read(buff, sizeof(buff), 0);
+       if (n>0) {
+           QByteArray array = QByteArray::fromRawData(buff, n);
+           /*
+           for (int i=0; i<n; i++) {
+               printf("a[%d]=0x%x / 0x%x\n", i, buff[i], array.at(i));
+           }
+            */
+           emit received(array);
+       }
+       msleep(5);
+   }
+}
+
 // =============================================================
 //                  GESTION DE LA LECTURE PERIODIQUE
 // =============================================================
@@ -265,16 +281,17 @@ int CUSBRawHID::write(char *buf, int len, int timeout)
  * \brief Commence la lecture périodique automatique
  * \param period = période de lecture [msec]
  */
-void CUSBRawHID::start_auto_read(int period)
+void CUSBRawHID::start_read()
 {
-    m_autoread_timer.start(period);
+    m_enable_read = true;
+    start();  // start the thread
 }
 
 // ___________________________________________________
 /*!
  * \brief Arrêt de la lecture périodique
  */
-void CUSBRawHID::stop_auto_read()
+void CUSBRawHID::stop_read()
 {
-    m_autoread_timer.stop();
+    m_enable_read = false;
 }

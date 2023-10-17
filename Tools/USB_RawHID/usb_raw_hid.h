@@ -2,15 +2,15 @@
 #define USB_RAW_HID_H
 
 #include <QObject>
-#include <QTimer>
+#include <QThread>
 
 #include <usb.h>
 
-class CUSBRawHID : public QObject
+class CUSBRawHID : public QThread
 {
     Q_OBJECT
 public:
-    explicit CUSBRawHID(QObject *parent = nullptr);
+    explicit CUSBRawHID(QObject *parent = Q_NULLPTR);
     ~CUSBRawHID();
 
     bool open(int vid, int pid, int serial=-1);
@@ -22,6 +22,8 @@ public:
 
     int read(char *buf, int len, int timeout=0);
     int write(char *buf, int len, int timeout=50);
+
+    /*virtual*/ void run(void); // Hériatage de QThread
 
 private :
     int m_vid;
@@ -36,17 +38,16 @@ private :
 
     bool m_auto_reconnect_on_error;
 
-    QTimer m_autoread_timer;
+    bool m_enable_read;
 
 signals:
     void connected(int vid, int pid, int serial);
     void disconnected();
-    void received(QByteArray array, int n);
+    void received(const QByteArray& array);
 
 public slots:
-    int read();
-    void start_auto_read(int period);
-    void stop_auto_read();
+    void start_read();
+    void stop_read();
 };
 
 #endif // USB_RAW_HID_H
