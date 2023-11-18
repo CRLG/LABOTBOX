@@ -29,7 +29,7 @@ LIST_BASIC_MODULES+= \
         PrintView \
         EEPROM \
         DataView \ 
-        DataGraph \
+        #DataGraph \
         DataPlayer \
         DataExchanger \
         RS232 \ 
