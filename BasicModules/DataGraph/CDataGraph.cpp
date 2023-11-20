@@ -142,6 +142,10 @@ void CDataGraph::init(CApplication *application)
     cursor1->setPen(QPen(Qt::green));
     cursor2 = new QCPItemLine(customPlot);
     cursor2->setPen(QPen(Qt::red));
+    cursor1->setVisible(false);
+    cursor2->setVisible(false);
+    cursor1->setSelectable(false);
+    cursor2->setSelectable(false);
 
     // à  inclure pour supprimer l'antialiasing pour de meilleures perfos
     /*
@@ -153,10 +157,10 @@ void CDataGraph::init(CApplication *application)
     customPlot->legend->setFont(font);
     */
     //formattage des axes
-    customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-    customPlot->xAxis->setDateTimeFormat("hh:mm:ss");
-    customPlot->xAxis->setAutoTickStep(false);
-    customPlot->xAxis->setTickStep(2);
+    QSharedPointer<QCPAxisTickerDateTime> timeTicker(new QCPAxisTickerDateTime);
+    timeTicker->setDateTimeFormat("hh:mm:ss");
+    timeTicker->setTickCount(2);
+    customPlot->xAxis->setTicker(timeTicker);
     customPlot->axisRect()->setupFullAxesBox();
     //range du premier axe
     customPlot->yAxis->setRange(-300,300);
@@ -166,7 +170,7 @@ void CDataGraph::init(CApplication *application)
     customPlot->yAxis2->setRange(-3.5,3.5);
     val = m_application->m_eeprom->read(getName(), "initLowRange", QVariant());
     customPlot->yAxis2->setRange(-fabs(val.toDouble()),fabs(val.toDouble()));
-    customPlot->yAxis2->setAutoTickLabels(true);
+    //customPlot->yAxis2->setAutoTickLabels(true);
     customPlot->yAxis2->setTickLabels(true);
     customPlot->yAxis2->setVisible(true);
 
@@ -599,7 +603,8 @@ void CDataGraph::refreshValeursVariables(void)
             //ajout des données à  la courbe "ligne"
             customPlot->graph(indexGraph)->addData(key, var_value.toDouble());
             //positionnement du point
-            customPlot->graph(indexGraph+1)->clearData();
+            //customPlot->graph(indexGraph+1)->clearData();
+            customPlot->graph(indexGraph+1)->data()->clear();
             customPlot->graph(indexGraph+1)->addData(key, var_value.toDouble());
             //if(backupEnabled)
 				
@@ -607,7 +612,8 @@ void CDataGraph::refreshValeursVariables(void)
             //suppression des données qui sont en dehors du range visible (positionné à  "dureeObservee" secondes):
             //avec un tampon de 30 sec
             if(key> (dureeObservee+30))
-            customPlot->graph(indexGraph)->removeDataBefore(key-(dureeObservee+30));
+            //customPlot->graph(indexGraph)->removeDataBefore(key-(dureeObservee+30));
+            customPlot->graph(indexGraph)->data()->removeBefore(key-(dureeObservee+30));
 
             //adaptation du range de l'axe vertical pour correspondre au range des nouvelles données:
             //customPlot->graph(0)->rescaleValueAxis();
@@ -928,7 +934,8 @@ void CDataGraph::ManageCursor(QCPItemLine *cursor, double xPosition, int columTa
         //on identifie le graph grace à  son nom
         indexGraph=m_liste_graph[var_name];
         //on prend la valeur de la courbe
-        var_value=customPlot->graph(indexGraph)->data()->lowerBound(xPosition).value().value;
+        //var_value=customPlot->graph(indexGraph)->data()->lowerBound(xPosition).value().value;
+        var_value=customPlot->graph(indexGraph)->data()->at(xPosition)->value;
         m_ihm.ui.table_variables_valeurs->item(index, columTableWidget)->setText(var_valueFormated.number(var_value,'f',2));
     }
 
@@ -941,14 +948,12 @@ void CDataGraph::ManageCursor(QCPItemLine *cursor, double xPosition, int columTa
  */
 void CDataGraph::ResetCursor(void)
 {
-    //On retire les curseurs
-    if((customPlot->hasItem(cursor1))) customPlot->removeItem(cursor1);
-    if((customPlot->hasItem(cursor2))) customPlot->removeItem(cursor2);
-    //on réinitialise les curseurs
-    cursor1 = new QCPItemLine(customPlot);
-    cursor1->setPen(QPen(Qt::green));
-    cursor2 = new QCPItemLine(customPlot);
-    cursor2->setPen(QPen(Qt::red));
+    //On retire les curseurs de la visualisation
+    cursor1->setVisible(false);
+    cursor2->setVisible(false);
+    cursor1->setSelectable(false);
+    cursor2->setSelectable(false);
+
     //On efface les valeurs relatives à  la position du curseur gauche
     for(int index=0;index<m_ihm.ui.table_variables_valeurs->rowCount();index++)
     {
@@ -1028,10 +1033,9 @@ void CDataGraph::enableCursor(bool varToggle)
 
         customPlot->axisRect()->setRangeDrag(0); //désactive temporairement le drag and drop des courbes
 
-        //On ajoute les curseurs au graphique
-        customPlot->addItem(cursor1);
-        customPlot->addItem(cursor2);
-        //qDebug() << customPlot->itemCount() << "créés";
+        //on rend visible les curseurs
+        cursor1->setVisible(true);
+        cursor2->setVisible(true);
 
         //on les rend sélectionnables
         cursor1->setSelectable(true);
