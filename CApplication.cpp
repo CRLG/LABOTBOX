@@ -111,18 +111,12 @@
 #ifdef MODULE_Simulia
    #include "CSimulia.h"
 #endif // MODULE_Simulia
-#ifdef MODULE_LidarBot
-   #include "CLidarBot.h"
-#endif // MODULE_LidarBot
+#ifdef MODULE_Lidar
+   #include "CLidar.h"
+#endif // MODULE_Lidar
 #ifdef MODULE_KMAR
    #include "CKMAR.h"
 #endif // MODULE_KMAR
-#ifdef MODULE_ValiseExpanderServer
-   #include "CValiseExpanderServer.h"
-#endif // MODULE_ValiseExpanderServer
-#ifdef MODULE_ValiseExpanderClient
-   #include "CValiseExpanderClient.h"
-#endif // MODULE_ValiseExpanderClient
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -439,29 +433,17 @@ void CApplication::createPluginModules(void)
   m_list_modules.append(m_Simulia);
 #endif // MODULE_Simulia
 
-#ifdef MODULE_LidarBot
-  m_LidarBot     = new CLidarBot("LidarBot");
-  m_list_plugin_modules.append(m_LidarBot);
-  m_list_modules.append(m_LidarBot);
-#endif // MODULE_LidarBot
+#ifdef MODULE_Lidar
+  m_Lidar     = new CLidar("Lidar");
+  m_list_plugin_modules.append(m_Lidar);
+  m_list_modules.append(m_Lidar);
+#endif // MODULE_Lidar
 
 #ifdef MODULE_KMAR
   m_KMAR     = new CKMAR("KMAR");
   m_list_plugin_modules.append(m_KMAR);
   m_list_modules.append(m_KMAR);
 #endif // MODULE_KMAR
-
-#ifdef MODULE_ValiseExpanderServer
-  m_ValiseExpanderServer     = new CValiseExpanderServer("ValiseExpanderServer");
-  m_list_plugin_modules.append(m_ValiseExpanderServer);
-  m_list_modules.append(m_ValiseExpanderServer);
-#endif // MODULE_ValiseExpanderServer
-
-#ifdef MODULE_ValiseExpanderClient
-  m_ValiseExpanderClient     = new CValiseExpanderClient("ValiseExpanderClient");
-  m_list_plugin_modules.append(m_ValiseExpanderClient);
-  m_list_modules.append(m_ValiseExpanderClient);
-#endif // MODULE_ValiseExpanderClient
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

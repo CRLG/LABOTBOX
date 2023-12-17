@@ -29,7 +29,7 @@ LIST_BASIC_MODULES+= \
         PrintView \
         EEPROM \
         DataView \ 
-        #DataGraph \
+        DataGraph \
         DataPlayer \
         DataExchanger \
         RS232 \ 
@@ -58,7 +58,7 @@ LIST_PLUGIN_MODULES+= \
         XbeeNetworkMessenger \ 
         #Balise \ 
         PowerElectrobot \ 
-        #LidarBot \
+        Lidar \
         KMAR \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
