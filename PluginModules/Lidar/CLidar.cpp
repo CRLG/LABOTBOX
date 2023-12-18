@@ -299,7 +299,7 @@ void CLidar::init_polar_qcustomplot()
       m_angular_axis->setRange(-180, 180);
       m_angular_axis->setAngle(180);
       m_angular_axis->setRangeReversed(true);
-      m_angular_axis->radialAxis()->setRange(0, 3500);  // échelle de valeur
+      m_angular_axis->radialAxis()->setRange(0, 4000);  // échelle de valeur
 
       m_polar_graph = new QCPPolarGraph(m_angular_axis, m_angular_axis->radialAxis());
       m_polar_graph->setScatterStyle(QCPScatterStyle::ssDisc);
@@ -314,11 +314,11 @@ void CLidar::init_linear_qcustomplot()
     // create graph and assign data to it:
     m_ihm.ui.customPlot->addGraph();
     // give the axes some labels:
-    m_ihm.ui.customPlot->xAxis->setLabel("x");
-    m_ihm.ui.customPlot->yAxis->setLabel("y");
+    m_ihm.ui.customPlot->xAxis->setLabel("angle [deg]");
+    m_ihm.ui.customPlot->yAxis->setLabel("distance [mm]");
     // set axes ranges, so we see all data:
     m_ihm.ui.customPlot->xAxis->setRange(-180, 180);
-    m_ihm.ui.customPlot->yAxis->setRange(0, 3000);
+    m_ihm.ui.customPlot->yAxis->setRange(0, 4000);
     m_ihm.ui.customPlot->graph()->setScatterStyle(QCPScatterStyle::ssDisc);
     m_ihm.ui.customPlot->graph()->setLineStyle(QCPGraph::lsNone);
 }
