@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include "CLidar.h"
+#include "lidar_data_filter.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
@@ -24,7 +25,9 @@
 *
 */
 CLidar::CLidar(const char *plugin_name)
-    :CPluginModule(plugin_name, VERSION_Lidar, AUTEUR_Lidar, INFO_Lidar)
+    :CPluginModule(plugin_name, VERSION_Lidar, AUTEUR_Lidar, INFO_Lidar),
+      m_polar_graph(Q_NULLPTR),
+      m_angular_axis(Q_NULLPTR)
 {
 }
 
@@ -91,6 +94,10 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_changed_read_period(int)));
     connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_changed_zoom_distance(int)));
 
+    connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changed_graph_type(int)));
+
+
+    // Sick TIM561
     connect(m_ihm.ui.tim5xx_openport, SIGNAL(clicked(bool)), this, SLOT(open_sick()));
     connect(m_ihm.ui.tim5xx_closeport, SIGNAL(clicked(bool)), &m_lidar, SLOT(close()));
 
@@ -100,7 +107,12 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.PB_stop_logger, SIGNAL(clicked(bool)), this, SLOT(logger_stop()));
 
     // Simulateur / rejoueur de trace
-    connect(m_ihm.ui.PB_choixTrace, SIGNAL(clicked()), this, SLOT(on_PB_choixTrace_clicked()));
+    connect(m_ihm.ui.PB_choixTrace, SIGNAL(clicked()), this, SLOT(on_PB_player_choix_trace_clicked()));
+
+    //connect(&m_data_player, SIGNAL(data_pending(int)), this, SLOT(on_dataplayer_new_data_available(int)));
+    connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
+
+    connect(m_ihm.ui.test_spin, SIGNAL(valueChanged(int)), this, SLOT(on_change_spin_test(int)));
 
 
     int sick_autoreconnect = m_application->m_eeprom->read(getName(), "sick_autoreconnect", false).toBool();
@@ -109,7 +121,7 @@ void CLidar::init(CApplication *application)
 
     logger_stop();
 
-    init_polar_qcustomplot();
+    on_changed_graph_type(m_ihm.ui.type_affichage_graph->currentIndex());
 }
 
 // _____________________________________________________________________
@@ -195,11 +207,8 @@ void CLidar::read_sick()
 {
     CLidarData data;
     bool status = m_lidar.poll_one_telegram(&data);
-    if (status) {
-        if (m_ihm.ui.cb_active_graph->isChecked()) refresh_graph(data);
-        if (m_logger_active) log_data(data);
-    }
-/*
+    if (status) new_data(data);
+    /*
     if (status) {
         qDebug() << "Timestamp" << data.m_timestamp;
         qDebug() << "Nbre de mesures" << data.m_measures_count;
@@ -217,30 +226,64 @@ void CLidar::read_sick()
 }
 
 // _____________________________________________________________
+// Une nouvelle donnée est arrichée (en provenant du LIDAR ou du simulateur)
+void CLidar::new_data(const CLidarData &data)
+{
+    if (m_ihm.ui.cb_active_graph->isChecked()) {
+        if (m_ihm.ui.data_affichees->currentIndex()==1) { // affiche les données filtrées
+            CLidarData filtered_data;
+            CLidarDataFilter filter;
+            filter.filter(&data, &filtered_data); // Filtre les données
+            refresh_graph(filtered_data);
+        }
+        else {  // affiche les données brutes
+            refresh_graph(data);
+        }
+        if (m_logger_active) log_data(data);
+    }
+}
+
+// _____________________________________________________________
+// Test d'orientation du graph polaire
+// (juste pour les tests : à supprimer)
+void CLidar::on_change_spin_test(int val)
+{
+    if (!m_angular_axis) return;
+    //m_angular_axis->radialAxis()->setAngle(val);
+    m_angular_axis->setAngle(val);
+    m_ihm.ui.customPlot->replot();
+}
+
+// _____________________________________________________________
 void CLidar::on_changed_read_period(int period)
 {
     m_read_timer.setInterval(period);
 }
 
+// _____________________________________________________________
 void CLidar::on_changed_zoom_distance(int zoom_mm)
 {
-    m_angular_axis->radialAxis()->setRange(0, zoom_mm);
+    if (m_angular_axis) m_angular_axis->radialAxis()->setRange(0, zoom_mm);
+    else                m_ihm.ui.customPlot->yAxis->setRange(0, zoom_mm);
+    m_ihm.ui.customPlot->replot();
+}
+
+// _____________________________________________________________
+void CLidar::on_changed_graph_type(int choice)
+{
+    if (choice==0)  init_polar_qcustomplot();
+    else            init_linear_qcustomplot();
+    on_changed_zoom_distance(m_ihm.ui.zoom_distance->value()); // met à jour l'echelle
 }
 
 // _____________________________________________________________
 void CLidar::init_polar_qcustomplot()
 {
-     //Test avec nouvelle version QCustomPlot Graphe polaire
-      // Warning: Polar plots are a still a tech preview
-      m_ihm.ui.customPlot->plotLayout()->clear();
+    delete_current_graph();
+    m_ihm.ui.customPlot->plotLayout()->clear();
+
       m_angular_axis = new QCPPolarAxisAngular(m_ihm.ui.customPlot);
       m_ihm.ui.customPlot->plotLayout()->addElement(0, 0, m_angular_axis);
-      /* This is how we could set the angular axis to show pi symbols instead of degree numbers:
-      QSharedPointer<QCPAxisTickerPi> ticker(new QCPAxisTickerPi);
-      ticker->setPiValue(180);
-      ticker->setTickCount(8);
-      polarAxis->setTicker(ticker);
-      */
 
       m_ihm.ui.customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
       m_angular_axis->setRangeDrag(false);
@@ -248,13 +291,13 @@ void CLidar::init_polar_qcustomplot()
 
       m_angular_axis->radialAxis()->setTickLabelMode(QCPPolarAxisRadial::lmUpright);
       m_angular_axis->radialAxis()->setTickLabelRotation(0);
-      m_angular_axis->radialAxis()->setAngle(-135);
+      m_angular_axis->radialAxis()->setAngle(-45);
 
       m_angular_axis->grid()->setAngularPen(QPen(QColor(200, 200, 200), 0, Qt::SolidLine));
       m_angular_axis->grid()->setSubGridType(QCPPolarGrid::gtAll);
 
       m_angular_axis->setRange(-180, 180);
-      m_angular_axis->setAngle(-135);
+      m_angular_axis->setAngle(180);
       m_angular_axis->setRangeReversed(true);
       m_angular_axis->radialAxis()->setRange(0, 3500);  // échelle de valeur
 
@@ -266,18 +309,76 @@ void CLidar::init_polar_qcustomplot()
 // _____________________________________________________________________
 void CLidar::init_linear_qcustomplot()
 {
-
+    //m_ihm.ui.customPlot->plotLayout()->clear();
+    delete_current_graph();
+    // create graph and assign data to it:
+    m_ihm.ui.customPlot->addGraph();
+    // give the axes some labels:
+    m_ihm.ui.customPlot->xAxis->setLabel("x");
+    m_ihm.ui.customPlot->yAxis->setLabel("y");
+    // set axes ranges, so we see all data:
+    m_ihm.ui.customPlot->xAxis->setRange(-180, 180);
+    m_ihm.ui.customPlot->yAxis->setRange(0, 3000);
+    m_ihm.ui.customPlot->graph()->setScatterStyle(QCPScatterStyle::ssDisc);
+    m_ihm.ui.customPlot->graph()->setLineStyle(QCPGraph::lsNone);
 }
 
 // _____________________________________________________________________
-void CLidar::refresh_graph(CLidarData &data)
+void CLidar::delete_current_graph()
 {
-    //qDebug() << "Réception data lidar" << data.m_measures_count;
+    if (m_polar_graph) {
+        delete m_polar_graph;
+        m_polar_graph = Q_NULLPTR;
+    }
+    if (m_angular_axis) {
+        delete m_angular_axis;
+        m_angular_axis = Q_NULLPTR;
+    }
+
+    if (m_ihm.ui.customPlot) delete m_ihm.ui.customPlot;
+    m_ihm.ui.customPlot = new QCustomPlot(m_ihm.ui.tab);
+    m_ihm.ui.customPlot->setObjectName(QStringLiteral("customPlot"));
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(m_ihm.ui.customPlot->sizePolicy().hasHeightForWidth());
+    m_ihm.ui.customPlot->setSizePolicy(sizePolicy);
+    m_ihm.ui.gridLayout->addWidget(m_ihm.ui.customPlot, 2, 0, 3, 5);
+}
+
+// _____________________________________________________________________
+void CLidar::refresh_graph(const CLidarData &data)
+{
+    if (m_polar_graph)  refresh_polar_graph(data);
+    else                refresh_linear_graph(data);
+}
+
+// _____________________________________________________________________
+void CLidar::refresh_polar_graph(const CLidarData &data)
+{
     m_polar_graph->data().data()->clear();
     for (int i=0; i<data.m_measures_count; i++) {
         int angle = data.m_start_angle + i * data.m_angle_step_resolution;
         if (data.m_dist_measures[i] < m_ihm.ui.filtrage_distance->value()) m_polar_graph->addData(angle, data.m_dist_measures[i]);
+
     }
+    m_ihm.ui.customPlot->replot();
+}
+
+// _____________________________________________________________________
+void CLidar::refresh_linear_graph(const CLidarData &data)
+{
+    m_ihm.ui.customPlot->graph(0)->data().clear();
+    QVector<double> x, y;
+    for (int i=0; i<data.m_measures_count; i++) {
+        double angle = data.m_start_angle + i * data.m_angle_step_resolution;
+        double distance = data.m_dist_measures[i];
+        if (distance < m_ihm.ui.filtrage_distance->value()) {
+            x.append(angle);
+            y.append(distance);
+        }
+    }
+    m_ihm.ui.customPlot->graph(0)->setData(x, y);
     m_ihm.ui.customPlot->replot();
 }
 
@@ -350,7 +451,7 @@ void CLidar::logger_select_file()
 // On suppose que le la configuration du Lidar n'a pas changé dans une session de log
 //      - Angle de début
 //      - Résolution
-void CLidar::log_data(CLidarData &data)
+void CLidar::log_data(const CLidarData &data)
 {
     if (!m_logger_file.isOpen()) return;
 
@@ -390,7 +491,7 @@ void CLidar::log_data(CLidarData &data)
 * Choix du fichier de trace à rejouer
 *
 */
-void CLidar::on_PB_choixTrace_clicked(void)
+void CLidar::on_PB_player_choix_trace_clicked(void)
 {
   QString fileName = QFileDialog::getOpenFileName(NULL,
       tr("Signal"), "./", tr("CSV Files (*.csv);;Signal Files (*.trc)"));
@@ -398,4 +499,18 @@ void CLidar::on_PB_choixTrace_clicked(void)
   QFileInfo file_info(fileName);
   QString trace_name = file_info.baseName();
   m_ihm.ui.trace_name->setText(trace_name);
+
+  if (m_data_player.parse(fileName)) {
+      m_ihm.ui.tabWidget->setCurrentIndex(0); // bascule sur l'onglet de visualisation des données (graph)
+      m_data_player.start();
+  }
+}
+
+// _____________________________________________________________________
+// Récupère la data du player et la traite
+void CLidar::on_dataplayer_new_data_available(int step)
+{
+    CLidarData data;
+    m_data_player.get_step(step, &data);
+    new_data(data);
 }

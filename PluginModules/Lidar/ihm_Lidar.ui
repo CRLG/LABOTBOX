@@ -25,7 +25,7 @@
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>PolarCustomPlot</string>
+        <string>Graph</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="1">
@@ -126,6 +126,58 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Données affichées</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QComboBox" name="type_affichage_graph">
+          <item>
+           <property name="text">
+            <string>Polaire</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Linéaire</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Type d'affichage</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QComboBox" name="data_affichees">
+          <item>
+           <property name="text">
+            <string>Brutes</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Filtrées</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="7" column="4">
+         <widget class="QSpinBox" name="test_spin">
+          <property name="minimum">
+           <number>-1000</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -418,7 +470,7 @@
            <item row="1" column="0" colspan="2">
             <widget class="QLabel" name="dureeStepTrace_label">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Durée du step</string>
@@ -428,7 +480,7 @@
            <item row="1" column="2" colspan="4">
             <widget class="QSpinBox" name="dureeStepTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="toolTip">
               <string>Vitesse de l'animation. Valeur spéciale &quot;-1&quot; pour indiquer que la durée du step est prise du fichier de trace</string>
@@ -452,6 +504,9 @@
            </item>
            <item row="2" column="0" colspan="2">
             <widget class="QLabel" name="nombreCycles_label_2">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Nombre de cycles</string>
              </property>
@@ -459,6 +514,9 @@
            </item>
            <item row="2" column="2" colspan="4">
             <widget class="QSpinBox" name="nombreCyclesTrace">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="toolTip">
               <string>Valeur spéciale &quot;-1&quot; pour indiquer que le signal est joué en boucle</string>
              </property>
@@ -482,7 +540,7 @@
            <item row="3" column="0">
             <widget class="QPushButton" name="PB_StepBackwardTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="toolTip">
               <string>Joue le pas précédent</string>
@@ -508,7 +566,7 @@
            <item row="3" column="1" colspan="2">
             <widget class="QPushButton" name="PB_StartTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="toolTip">
               <string>Commence la trace</string>
@@ -534,7 +592,7 @@
            <item row="3" column="3">
             <widget class="QPushButton" name="PB_StopTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="toolTip">
               <string>Arrêt de jouer la trace</string>
@@ -560,7 +618,7 @@
            <item row="3" column="4" colspan="2">
             <widget class="QPushButton" name="PB_StepForwardTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="toolTip">
               <string>Joue le pas suivant</string>
@@ -586,7 +644,7 @@
            <item row="4" column="0" colspan="6">
             <widget class="QSlider" name="sliderStepNumTrace">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="maximum">
               <number>1000000</number>

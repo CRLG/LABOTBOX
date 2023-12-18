@@ -13,7 +13,7 @@
 
 #include "sick_tim561.h"
 #include "lidar_data.h"
-
+#include "lidar_data_player.h"
 
  class Cihm_Lidar : public QMainWindow
 {
@@ -65,6 +65,7 @@ private:
 
     void init_polar_qcustomplot();
     void init_linear_qcustomplot();
+    void delete_current_graph();
 
     QCPPolarGraph *m_polar_graph;
     QCPPolarAxisAngular *m_angular_axis;
@@ -75,7 +76,12 @@ private:
     const QString CSV_SEPARATOR = ";";
 
 
-    void log_data(CLidarData &data);
+    void log_data(const CLidarData &data);
+
+
+    CLidarDataPlayer m_data_player;
+    void player_parse();
+
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -86,12 +92,20 @@ private slots :
     void on_changed_read_period(int period);
 
     void on_changed_zoom_distance(int zoom_mm);
+
+    void on_changed_graph_type(int choice);
+
+    void new_data(const CLidarData &data);
+
+    void on_change_spin_test(int val);
 signals :
     //void signal_data(CLidarData data);
     void test();
 
 public slots :
-    void refresh_graph(CLidarData &data);
+    void refresh_graph(const CLidarData &data);
+    void refresh_polar_graph(const CLidarData &data);
+    void refresh_linear_graph(const CLidarData &data);
 
     void open_sick();
 
@@ -100,9 +114,10 @@ public slots :
     void logger_stop();
     void logger_select_file();
 
-    // Gestion du rejeu de trace
-    void on_PB_choixTrace_clicked(void);
+    // Gestion du rejeu de trace DataPlayer
+    void on_PB_player_choix_trace_clicked(void);
 
+    void on_dataplayer_new_data_available(int step);
 };
 
 #endif // _CPLUGIN_MODULE_Lidar_H_
