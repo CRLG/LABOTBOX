@@ -275,7 +275,8 @@ void CLidar::refresh_graph(CLidarData &data)
     //qDebug() << "Réception data lidar" << data.m_measures_count;
     m_polar_graph->data().data()->clear();
     for (int i=0; i<data.m_measures_count; i++) {
-        if (data.m_dist_measures[i] < m_ihm.ui.filtrage_distance->value()) m_polar_graph->addData(i, data.m_dist_measures[i]);
+        int angle = data.m_start_angle + i * data.m_angle_step_resolution;
+        if (data.m_dist_measures[i] < m_ihm.ui.filtrage_distance->value()) m_polar_graph->addData(angle, data.m_dist_measures[i]);
     }
     m_ihm.ui.customPlot->replot();
 }
