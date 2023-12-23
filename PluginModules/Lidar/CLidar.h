@@ -14,6 +14,7 @@
 #include "sick_tim561.h"
 #include "lidar_data.h"
 #include "lidar_data_player.h"
+#include "lidar_data_filter_base.h"
 
  class Cihm_Lidar : public QMainWindow
 {
@@ -63,9 +64,22 @@ private:
     QTimer m_read_timer;
     QTimer m_timer_test;
 
+    enum {
+        GRAPH_TYPE_POLAR,
+        GRAPH_TYPE_LINEAR
+    };
+
+    enum {
+        GRAPH_RAW_DATA,
+        GRAPH_FILTERED_DATA
+    };
+
     void init_polar_qcustomplot();
     void init_linear_qcustomplot();
     void delete_current_graph();
+
+    CLidarDataFilterBase *m_lidar_data_filter;
+    void init_data_filter();
 
     QCPPolarGraph *m_polar_graph;
     QCPPolarAxisAngular *m_angular_axis;
@@ -74,14 +88,10 @@ private:
     bool m_first_log;
     QFile m_logger_file;
     const QString CSV_SEPARATOR = ";";
-
-
     void log_data(const CLidarData &data);
-
 
     CLidarDataPlayer m_data_player;
     void player_parse();
-
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -89,26 +99,21 @@ private slots :
     void lidar_connected();
     void lidar_disconnected();
     void read_sick();
-    void on_changed_read_period(int period);
-
-    void on_changed_zoom_distance(int zoom_mm);
-
-    void on_changed_graph_type(int choice);
-
     void new_data(const CLidarData &data);
-
+    void on_change_read_period(int period);
+    void on_change_zoom_distance(int zoom_mm);
+    void on_change_graph_type(int choice);
+    void on_change_data_displayed(int choice);
     void on_change_spin_test(int val);
+    void on_change_data_filter(QString filter_name);
 signals :
-    //void signal_data(CLidarData data);
     void test();
 
 public slots :
     void refresh_graph(const CLidarData &data);
     void refresh_polar_graph(const CLidarData &data);
     void refresh_linear_graph(const CLidarData &data);
-
     void open_sick();
-
     void logger_start(QString pathfilename);
     void logger_start();
     void logger_stop();
@@ -116,7 +121,6 @@ public slots :
 
     // Gestion du rejeu de trace DataPlayer
     void on_PB_player_choix_trace_clicked(void);
-
     void on_dataplayer_new_data_available(int step);
 };
 

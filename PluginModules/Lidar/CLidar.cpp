@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include "CLidar.h"
-#include "lidar_data_filter.h"
+#include "lidar_data_filter_factory.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
@@ -26,6 +26,7 @@
 */
 CLidar::CLidar(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_Lidar, AUTEUR_Lidar, INFO_Lidar),
+      m_lidar_data_filter(Q_NULLPTR),
       m_polar_graph(Q_NULLPTR),
       m_angular_axis(Q_NULLPTR)
 {
@@ -87,15 +88,28 @@ void CLidar::init(CApplication *application)
     int logger_refresh_period = m_application->m_eeprom->read(getName(), "logger_refresh_period", 0).toInt();
     m_ihm.ui.logger_sample_period->setValue(logger_refresh_period);
 
+    int graph_type = m_application->m_eeprom->read(getName(), "graph_type", GRAPH_TYPE_POLAR).toInt();
+    m_ihm.ui.type_affichage_graph->setCurrentIndex(graph_type);
+    on_change_graph_type(m_ihm.ui.type_affichage_graph->currentIndex());  // met en cohérence le type de grapha affiché avec le choix de la liste
+
+    int data_diplayed = m_application->m_eeprom->read(getName(), "data_diplayed", GRAPH_RAW_DATA).toInt();
+    m_ihm.ui.data_affichees->setCurrentIndex(data_diplayed);
+    on_change_data_displayed(m_ihm.ui.data_affichees->currentIndex());
+
+    init_data_filter(); // ajoute à la liste déroulante tous les filtres existants
+    int index_data_filter = m_application->m_eeprom->read(getName(), "index_data_filter", 0).toInt();
+    m_ihm.ui.filter_data_choice->setCurrentIndex(index_data_filter);
+    on_change_data_filter(m_ihm.ui.filter_data_choice->currentText());
+
     connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
     connect(&m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
     connect(&m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
-    //connect(&m_lidar, SIGNAL(newData(CLidarData)), this, SLOT(data_received(CLidarData)));
-    connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_changed_read_period(int)));
-    connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_changed_zoom_distance(int)));
-
-    connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changed_graph_type(int)));
-
+    connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_change_read_period(int)));
+    connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_change_zoom_distance(int)));
+    connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_graph_type(int)));
+    connect(m_ihm.ui.test_spin, SIGNAL(valueChanged(int)), this, SLOT(on_change_spin_test(int)));
+    connect(m_ihm.ui.filter_data_choice, SIGNAL(currentIndexChanged(QString)), this, SLOT(on_change_data_filter(QString)));
+    connect(m_ihm.ui.data_affichees, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_data_displayed(int)));
 
     // Sick TIM561
     connect(m_ihm.ui.tim5xx_openport, SIGNAL(clicked(bool)), this, SLOT(open_sick()));
@@ -108,20 +122,13 @@ void CLidar::init(CApplication *application)
 
     // Simulateur / rejoueur de trace
     connect(m_ihm.ui.PB_choixTrace, SIGNAL(clicked()), this, SLOT(on_PB_player_choix_trace_clicked()));
-
-    //connect(&m_data_player, SIGNAL(data_pending(int)), this, SLOT(on_dataplayer_new_data_available(int)));
     connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
-
-    connect(m_ihm.ui.test_spin, SIGNAL(valueChanged(int)), this, SLOT(on_change_spin_test(int)));
-
 
     int sick_autoreconnect = m_application->m_eeprom->read(getName(), "sick_autoreconnect", false).toBool();
     m_ihm.ui.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
     open_sick();
 
     logger_stop();
-
-    on_changed_graph_type(m_ihm.ui.type_affichage_graph->currentIndex());
 }
 
 // _____________________________________________________________________
@@ -142,6 +149,9 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "active_graph",  m_ihm.ui.cb_active_graph->isChecked());
     m_application->m_eeprom->write(getName(), "logger_refresh_period",  m_ihm.ui.logger_sample_period->value());
     m_application->m_eeprom->write(getName(), "lidar_sample_period",  m_ihm.ui.lidar_sample_period->value());
+    m_application->m_eeprom->write(getName(), "graph_type",  m_ihm.ui.type_affichage_graph->currentIndex());
+    m_application->m_eeprom->write(getName(), "data_diplayed",  m_ihm.ui.data_affichees->currentIndex());
+    m_application->m_eeprom->write(getName(), "index_data_filter", m_ihm.ui.filter_data_choice->currentIndex());
 }
 
 // _____________________________________________________________________
@@ -229,11 +239,12 @@ void CLidar::read_sick()
 // Une nouvelle donnée est arrichée (en provenant du LIDAR ou du simulateur)
 void CLidar::new_data(const CLidarData &data)
 {
+    // filtre les données
+    CLidarData filtered_data = data;
+    if (m_lidar_data_filter) m_lidar_data_filter->filter(&data, &filtered_data);
+
     if (m_ihm.ui.cb_active_graph->isChecked()) {
         if (m_ihm.ui.data_affichees->currentIndex()==1) { // affiche les données filtrées
-            CLidarData filtered_data;
-            CLidarDataFilter filter;
-            filter.filter(&data, &filtered_data); // Filtre les données
             refresh_graph(filtered_data);
         }
         else {  // affiche les données brutes
@@ -255,13 +266,13 @@ void CLidar::on_change_spin_test(int val)
 }
 
 // _____________________________________________________________
-void CLidar::on_changed_read_period(int period)
+void CLidar::on_change_read_period(int period)
 {
     m_read_timer.setInterval(period);
 }
 
 // _____________________________________________________________
-void CLidar::on_changed_zoom_distance(int zoom_mm)
+void CLidar::on_change_zoom_distance(int zoom_mm)
 {
     if (m_angular_axis) m_angular_axis->radialAxis()->setRange(0, zoom_mm);
     else                m_ihm.ui.customPlot->yAxis->setRange(0, zoom_mm);
@@ -269,11 +280,17 @@ void CLidar::on_changed_zoom_distance(int zoom_mm)
 }
 
 // _____________________________________________________________
-void CLidar::on_changed_graph_type(int choice)
+void CLidar::on_change_graph_type(int choice)
 {
-    if (choice==0)  init_polar_qcustomplot();
-    else            init_linear_qcustomplot();
-    on_changed_zoom_distance(m_ihm.ui.zoom_distance->value()); // met à jour l'echelle
+    if (choice==GRAPH_TYPE_POLAR)   init_polar_qcustomplot();
+    else                            init_linear_qcustomplot();
+    on_change_zoom_distance(m_ihm.ui.zoom_distance->value()); // met à jour l'echelle
+}
+
+// _____________________________________________________________
+void CLidar::on_change_data_displayed(int choice)
+{
+    m_ihm.ui.filter_data_choice->setEnabled(choice==GRAPH_FILTERED_DATA);
 }
 
 // _____________________________________________________________
@@ -347,6 +364,14 @@ void CLidar::delete_current_graph()
 }
 
 // _____________________________________________________________________
+// Initialise la liste déroulante des filtres avec la liste existante
+void CLidar::init_data_filter()
+{
+    QStringList filter_lst = CLidarDataFilterFactory::getExisting();
+    m_ihm.ui.filter_data_choice->addItems(filter_lst);
+}
+
+// _____________________________________________________________________
 void CLidar::refresh_graph(const CLidarData &data)
 {
     if (m_polar_graph)  refresh_polar_graph(data);
@@ -380,6 +405,14 @@ void CLidar::refresh_linear_graph(const CLidarData &data)
     }
     m_ihm.ui.customPlot->graph(0)->setData(x, y);
     m_ihm.ui.customPlot->replot();
+}
+
+
+// _____________________________________________________________________
+void CLidar::on_change_data_filter(QString filter_name)
+{
+    if (m_lidar_data_filter) delete m_lidar_data_filter;
+    m_lidar_data_filter = CLidarDataFilterFactory::createInstance(filter_name);
 }
 
 
