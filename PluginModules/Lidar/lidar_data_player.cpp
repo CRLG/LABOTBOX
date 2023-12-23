@@ -210,7 +210,6 @@ void CLidarDataPlayer::clear()
 void CLidarDataPlayer::timer_tick()
 {
     int step_to_play = next_step();  // si dernier step, le player est arrêté
-    qDebug() << "Timer tick" << step_to_play;
     if (m_state == PLAYER_IN_PROGRESS) {
        play(step_to_play);
        m_timer.start(50);
