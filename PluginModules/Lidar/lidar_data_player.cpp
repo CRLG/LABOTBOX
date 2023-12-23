@@ -73,7 +73,7 @@ bool CLidarDataPlayer::parse(QString pathfilename)
     // Exemple :
     //      Nom de la 2ème colonne : "Dist -45 deg [mm]"
     //      Nom de la 3ème colonne : "Dist -44 deg [mm]"
-    //      => Résolution = |45 - 44| = 1 degre
+    //      => Résolution = |(-45) - (-44)| = 1 degre
     QString name_col2 = data.m_header.at(1);
     QString name_col3 = data.m_header.at(2);
 
@@ -84,12 +84,12 @@ bool CLidarDataPlayer::parse(QString pathfilename)
     bool ok;
     double col2_val = name2_value.toDouble(&ok);
     if (!ok) {
-        QMessageBox::critical(0, name_col2, QString("Impossible d'extraire la valeur numérique"));
+        QMessageBox::critical(0, name_col2, QString("Impossible d'extraire la valeur numérique pour %1").arg(name2_value));
         return false;
     }
     double col3_val = name3_value.toDouble(&ok);
     if (!ok) {
-        QMessageBox::critical(0, name_col3, QString("Impossible d'extraire la valeur numérique"));
+        QMessageBox::critical(0, name_col3, QString("Impossible d'extraire la valeur numérique pour %1").arg(name3_value));
         return false;
     }
 
