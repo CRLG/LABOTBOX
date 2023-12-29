@@ -12,8 +12,8 @@ public:
     /*virtual*/const char *get_name();
     /*virtual*/const char *get_description();
 
-    int m_seuil_distance_suppression;
-    int m_seuil_distance_bruit_suppression;
+    CData *m_data_seuil_distance_suppression;
+    CData *m_data_seuil_distance_bruit_suppression;
 };
 
 #endif // _LIDARDATA_FILTER_EXAMPLE_H_

@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include "CLidar.h"
 #include "lidar_data_filter_factory.h"
+#include "lidar_filter_params.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
@@ -27,6 +28,7 @@
 CLidar::CLidar(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_Lidar, AUTEUR_Lidar, INFO_Lidar),
       m_lidar_data_filter(Q_NULLPTR),
+      m_lidar_filter_params(Q_NULLPTR),
       m_polar_graph(Q_NULLPTR),
       m_angular_axis(Q_NULLPTR)
 {
@@ -40,7 +42,7 @@ CLidar::CLidar(const char *plugin_name)
 */
 CLidar::~CLidar()
 {
-
+    on_filter_params_close();
 }
 
 
@@ -109,6 +111,7 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_graph_type(int)));
     connect(m_ihm.ui.test_spin, SIGNAL(valueChanged(int)), this, SLOT(on_change_spin_test(int)));
     connect(m_ihm.ui.filter_data_choice, SIGNAL(currentIndexChanged(QString)), this, SLOT(on_change_data_filter(QString)));
+    connect(m_ihm.ui.filter_param, SIGNAL(clicked(bool)), this, SLOT(on_filter_params_show()));
     connect(m_ihm.ui.data_affichees, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_data_displayed(int)));
 
     // Sick TIM561
@@ -290,7 +293,10 @@ void CLidar::on_change_graph_type(int choice)
 // _____________________________________________________________
 void CLidar::on_change_data_displayed(int choice)
 {
-    m_ihm.ui.filter_data_choice->setEnabled(choice==GRAPH_FILTERED_DATA);
+    bool enabled = choice==GRAPH_FILTERED_DATA;
+    m_ihm.ui.filter_data_choice->setEnabled(enabled);
+    m_ihm.ui.filter_param->setEnabled(enabled);
+    on_filter_params_close(); // ferme la fenetre de reglage des parametres du filtre (si elle etait ouverte)
 }
 
 // _____________________________________________________________
@@ -413,8 +419,28 @@ void CLidar::on_change_data_filter(QString filter_name)
 {
     if (m_lidar_data_filter) delete m_lidar_data_filter;
     m_lidar_data_filter = CLidarDataFilterFactory::createInstance(filter_name);
+    QStringList var_lst;
+    m_lidar_data_filter->m_data_manager.getListeVariablesName(var_lst);
+    if(m_lidar_filter_params) on_filter_params_show();  // si la fenetre des parametres du filtre etait affichee, il faut l'afficher pour le nouveau filtre selectionne
 }
 
+// _____________________________________________________________________
+void CLidar::on_filter_params_show()
+{
+    if(m_lidar_filter_params) delete m_lidar_filter_params;
+    m_lidar_filter_params = new CLidarFilterParams(m_lidar_data_filter);
+    m_lidar_filter_params->show();
+    connect(m_lidar_filter_params, SIGNAL(closed()), this, SLOT(on_filter_params_close()));
+}
+
+// _____________________________________________________________________
+void CLidar::on_filter_params_close()
+{
+    if(m_lidar_filter_params) {
+        delete m_lidar_filter_params;
+        m_lidar_filter_params = Q_NULLPTR;
+    }
+}
 
 // ==============================================================
 //                          LOGGER

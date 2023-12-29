@@ -3,8 +3,8 @@
 
 CLidarDataFilterExample::CLidarDataFilterExample()
 {
-    m_seuil_distance_suppression = 500;         //[mm]
-    m_seuil_distance_bruit_suppression = 10;    // [mm]
+    m_data_seuil_distance_suppression = m_data_manager.createData("seuil_distance_suppression", 500);
+    m_data_seuil_distance_bruit_suppression = m_data_manager.createData("seuil_distance_bruit_suppression", 10);
 }
 
 // _______________________________________________________________
@@ -32,12 +32,12 @@ void CLidarDataFilterExample::filter(const CLidarData *data_in, CLidarData *data
     for (int i=0; i<data_in->m_measures_count; i++) {
 
         // 1. Elimine tous les points supérieurs à une certaine distance
-        if (data_in->m_dist_measures[i] > m_seuil_distance_suppression) {
+        if (data_in->m_dist_measures[i] > m_data_seuil_distance_suppression->read().toInt()) {
             data_out->m_dist_measures[i] = POINT_IGNORED;
         }
 
         // 2. Elimine tous les points très très proche (bruit)
-        if (data_in->m_dist_measures[i] < m_seuil_distance_bruit_suppression) {
+        if (data_in->m_dist_measures[i] < m_data_seuil_distance_bruit_suppression->read().toInt()) {
             data_out->m_dist_measures[i] = POINT_IGNORED;
         }
     }

@@ -6,19 +6,19 @@
 
 CLidarDataFilterTracker::CLidarDataFilterTracker()
 {
-    m_dot_size=20;
 
     //Paramétrage
-    m_d_dist_offset=40.;
-    m_i_MAX_BLANK=3;
-    m_i_MIN_COUNT=2;
-    m_i_MAX_COUNT=60;
-    m_d_MAX_dist=3600.;
-    m_d_MIN_dist=150.;
-    m_d_seuil_filtrage_dist=150.;
-    m_i_seuil_filtrage_angle=3;
-    m_d_seuil_gradient=300.;
-    m_d_seuil_facteur_forme=400.;
+    m_dot_size = m_data_manager.createData("dot_size", 20);
+    m_d_dist_offset = m_data_manager.createData("d_dist_offset", 40.);
+    m_i_MAX_BLANK = m_data_manager.createData("i_MAX_BLANK", 3);
+    m_i_MIN_COUNT = m_data_manager.createData("i_MIN_COUNT", 2);
+    m_i_MAX_COUNT = m_data_manager.createData("i_MAX_COUNT", 60);
+    m_d_MAX_dist = m_data_manager.createData("d_MAX_dist", 3600.);
+    m_d_MIN_dist = m_data_manager.createData("d_MIN_dist", 150.);
+    m_d_seuil_filtrage_dist = m_data_manager.createData("d_seuil_filtrage_dist", 150.);
+    m_i_seuil_filtrage_angle = m_data_manager.createData("i_seuil_filtrage_angle", 3);
+    m_d_seuil_gradient = m_data_manager.createData("d_seuil_gradient", 300.);
+    m_d_seuil_facteur_forme = m_data_manager.createData("d_seuil_facteur_forme", 400.);
 }
 
 // _______________________________________________________________
@@ -45,8 +45,8 @@ const char *CLidarDataFilterTracker::get_description()
   * vue à l'infini: naturellement on fixe un horizon de détection (vision à l'infini: on ne distingue plus ce qui est trop loin).
   C'est le cas idéal=rien n'est détecté autour de l'objet détecté et une zone "blanche" se forme autour de lui.
   réglages à faire:
-  m_d_MAX_dist qui est l'horizon de l'infini, toute mesure au dealà ne sera pas prise en compte
-  m_i_MAX_BLANK qui une sorte de contraste angulaire, la largeur de la zone "blanche" qui permet de distinguer chaque objet
+  m_d_MAX_dist->read().toDouble() qui est l'horizon de l'infini, toute mesure au dealà ne sera pas prise en compte
+  m_i_MAX_BLANK->read().toInt() qui une sorte de contraste angulaire, la largeur de la zone "blanche" qui permet de distinguer chaque objet
 
   * problème de masquage:
   Rien ne ressemble plus à une mesure qu'une autre mesure, cependant on peut considérer quand l'écart de mesure
@@ -108,7 +108,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
         else
         {
             //Données enregistrables
-            if((data_in->m_dist_measures[i]>m_d_MIN_dist)&&(data_in->m_dist_measures[i]<m_d_MAX_dist))
+            if((data_in->m_dist_measures[i]>m_d_MIN_dist->read().toDouble())&&(data_in->m_dist_measures[i]<m_d_MAX_dist->read().toDouble()))
             {
                 //ENREGISTREMENT PENDANT CREC
                 if (b_CREC)
@@ -153,7 +153,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
                         d_Samples_Threshold[j]=d_Samples_Threshold[j+1];
 
                     //DETECTION FIN CREC: pb de masquage
-                    if (buffer_std_deviation > m_d_seuil_gradient)
+                    if (buffer_std_deviation > m_d_seuil_gradient->read().toDouble())
                     {
                         b_RESET=true;
                         b_THRESHOLD=true;
@@ -164,7 +164,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
             {
                 //DETECTION FIN CREC: vue à l'infini
                 i_COUNT_BLANK++;
-                if(i_COUNT_BLANK>=m_i_MAX_BLANK)
+                if(i_COUNT_BLANK>=m_i_MAX_BLANK->read().toInt())
                     b_RESET=true;
             }
 
@@ -176,7 +176,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
                 //MOYENNE DU CREC
                 //Moyenne des données enregistrées lors d'un CREC
                 //On ne fait la moyenne que s'il y a assez de points, et on ne la fait pas quand il y en a trop
-                if((i_COUNT>=m_i_MIN_COUNT) && (i_COUNT<=m_i_MAX_COUNT))
+                if((i_COUNT>=m_i_MIN_COUNT->read().toInt()) && (i_COUNT<=m_i_MAX_COUNT->read().toInt()))
                 {
                     //on a détecté un fort gradient, on peut enlever au moins la dernière mesure
                     if(b_THRESHOLD)
@@ -188,15 +188,15 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
                     int i_moyenne = i_max_CREC - ((i_max_CREC-i_min_CREC)/2);
 
                     //enregistrement des données filtrées
-                    if((fabs(i_moyenne-old_angle)>m_i_seuil_filtrage_angle)&&(abs(d_moyenne-old_dist)>m_d_seuil_filtrage_dist))
+                    if((fabs(i_moyenne-old_angle)>m_i_seuil_filtrage_angle->read().toInt())&&(abs(d_moyenne-old_dist)>m_d_seuil_filtrage_dist->read().toDouble()))
                     {
                         //vérification du facteur de forme
                         //f(x)=0.642905433457839*x*x-50.9818722727577*x+1085.44732653302
                         double facteur_forme=0.642905433457839*i_COUNT*i_COUNT-50.9818722727577*i_COUNT+1085.44732653302;
 
-                        if(fabs(d_moyenne-facteur_forme)<m_d_seuil_facteur_forme)
+                        if(fabs(d_moyenne-facteur_forme)<m_d_seuil_facteur_forme->read().toDouble())
                         {
-                            data_out->m_dist_measures[i_moyenne]=d_moyenne-m_d_dist_offset;
+                            data_out->m_dist_measures[i_moyenne]=d_moyenne-m_d_dist_offset->read().toDouble();
                             //mémorisation pour filtrage
                             old_angle=i_moyenne;
                             old_dist=d_moyenne;

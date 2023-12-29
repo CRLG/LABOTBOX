@@ -28,7 +28,7 @@ public:
     CApplication *m_application;
  };
 
-
+class CLidarFilterParams;
 
  /*! \addtogroup Lidar
    * 
@@ -79,6 +79,7 @@ private:
     void delete_current_graph();
 
     CLidarDataFilterBase *m_lidar_data_filter;
+    CLidarFilterParams *m_lidar_filter_params;
     void init_data_filter();
 
     QCPPolarGraph *m_polar_graph;
@@ -106,6 +107,8 @@ private slots :
     void on_change_data_displayed(int choice);
     void on_change_spin_test(int val);
     void on_change_data_filter(QString filter_name);
+    void on_filter_params_show();
+    void on_filter_params_close();
 signals :
     void test();
 
