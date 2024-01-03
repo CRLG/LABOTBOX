@@ -253,8 +253,9 @@ void CLidar::new_data(const CLidarData &data)
         else {  // affiche les données brutes
             refresh_graph(data);
         }
-        if (m_logger_active) log_data(data);
     }
+
+    if (m_logger_active) log_data(data);
 }
 
 // _____________________________________________________________
