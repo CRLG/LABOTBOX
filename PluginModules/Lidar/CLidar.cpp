@@ -386,6 +386,8 @@ void CLidar::refresh_graph(const CLidarData &data)
 }
 
 // _____________________________________________________________________
+// TODO ; voir pour utiliser setData sur des vecteurs X, Y deja tous faits et
+// utiliser le 3eme parametre de setData a true pour indiquer que les donnees sont deja triees
 void CLidar::refresh_polar_graph(const CLidarData &data)
 {
     m_polar_graph->data().data()->clear();
@@ -410,6 +412,7 @@ void CLidar::refresh_linear_graph(const CLidarData &data)
             y.append(distance);
         }
     }
+    // TODO : utiliser le 3eme parametre de setData a true pour indiquer que les donnees sont deja triees
     m_ihm.ui.customPlot->graph(0)->setData(x, y);
     m_ihm.ui.customPlot->replot();
 }
@@ -426,10 +429,18 @@ void CLidar::on_change_data_filter(QString filter_name)
 }
 
 // _____________________________________________________________________
+// les parametres des differents filtres sont memorises dans un fichier eeprom separe et commun a tous les filtres (1 section par filtre dans le fichier)
+// le nom du fichier eeprom specifique aux parametres des filtres lidar doit etre passe au filtre qui n'a pas connaissance de l'application complete
 void CLidar::on_filter_params_show()
 {
+    // soit le nom complet du fichier eeprom pour les parametres des filtres est donne dans le fichier de config general, soit il est recalcule
+    QString eeprom_lidar_filter_params_file = m_application->m_eeprom->read(getName(), "lidar_params_eeprom_filename", "").toString();
+    if (eeprom_lidar_filter_params_file.simplified() == "") {
+        eeprom_lidar_filter_params_file = QString("%1/lidar_filter_params.ini").arg(m_application->m_pathname_config_file);
+    }
+
     if(m_lidar_filter_params) delete m_lidar_filter_params;
-    m_lidar_filter_params = new CLidarFilterParams(m_lidar_data_filter);
+    m_lidar_filter_params = new CLidarFilterParams(m_lidar_data_filter, eeprom_lidar_filter_params_file);
     m_lidar_filter_params->show();
     connect(m_lidar_filter_params, SIGNAL(closed()), this, SLOT(on_filter_params_close()));
 }

@@ -9,12 +9,18 @@ class CLidarFilterParams : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CLidarFilterParams(CLidarDataFilterBase *filter, QWidget *parent = nullptr);
+    explicit CLidarFilterParams(CLidarDataFilterBase *filter, QString eeprom_pathfilename, QWidget *parent = nullptr);
+
+    void fromFile(QString pathfilename);
+    void toFile(QString pathfilename);
 
     Ui::ihm_lidar_filter_params m_ihm;
 
 private :
     CLidarDataFilterBase *m_filter;
+    QString m_eeprom_pathfilename;
+
+    QString getEEPROMFileSection();
 
     /*virtual*/void closeEvent(QCloseEvent *event);
 
@@ -24,6 +30,7 @@ signals:
 private slots:
     void apply_value();
     void selected_param_change(QString param_name);
+    void save();
 };
 
 #endif // FILTER_PARAMS_H
