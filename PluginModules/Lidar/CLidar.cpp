@@ -488,10 +488,10 @@ void CLidar::logger_stop()
 
     // Grise ou dégrise les éléments de l'onglet Logger
     m_ihm.ui.PB_start_logger->setEnabled(true);
-    m_ihm.ui.logger_sample_period->setEnabled(true);
+    //m_ihm.ui.logger_sample_period->setEnabled(true);
     m_ihm.ui.logger_pathfilename->setEnabled(true);
     m_ihm.ui.PB_logger_select_file->setEnabled(true);
-    m_ihm.ui.logger_sample_period_label->setEnabled(true);
+    //m_ihm.ui.logger_sample_period_label->setEnabled(true);
     m_ihm.ui.PB_stop_logger->setEnabled(false);
 }
 
