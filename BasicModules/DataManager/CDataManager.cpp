@@ -261,7 +261,9 @@ void CDataManager::loadDataProperties(void)
 {
  QString pathfilename;
  QSettings *settings;
- pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
+ if (m_application) pathfilename = m_application->m_pathname_config_file;
+ else pathfilename = ".";
+ pathfilename+= "/" + getName() + ".ini";
  settings = new QSettings(pathfilename, QSettings::IniFormat);
  settings->setIniCodec("UTF-8");
 
@@ -269,8 +271,8 @@ void CDataManager::loadDataProperties(void)
  //qDebug() << keys;
  for (int i=0; i<keys.size(); i++) {
      QString var_name = keys.at(i);
-     if (m_application->m_data_center->isExist(var_name) == false) {
-        m_application->m_data_center->write(var_name, ""); // crée la variable si elle n'existe pas
+     if (/*m_application->m_data_center->*/isExist(var_name) == false) {
+        /*m_application->m_data_center->*/write(var_name, ""); // crée la variable si elle n'existe pas
      }
      // récupère la liste des propriétés de cette variable
      settings->beginGroup(var_name);
@@ -293,7 +295,9 @@ void CDataManager::saveDataProperties(void)
 {
  QString pathfilename;
  QSettings *settings;
- pathfilename = m_application->m_pathname_config_file + "/" + getName() + ".ini";
+ if (m_application) pathfilename = m_application->m_pathname_config_file;
+ else pathfilename = ".";
+ pathfilename+= "/" + getName() + ".ini";
  settings = new QSettings(pathfilename, QSettings::IniFormat);
  settings->setIniCodec("UTF-8");
 
