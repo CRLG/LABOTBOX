@@ -47,8 +47,6 @@ class CDataView : public CBasicModule
 #define     AUTEUR_DataView    "Nico"
 #define     INFO_DataView      "Visualise l'évolution d'une ou plusieurs données du DataCenter"
 
-#define     PERIODE_ECHANTILLONNAGE_VARIABLES   30 // msec
-
 public:
     CDataView(const char *plugin_name);
     ~CDataView();
@@ -63,6 +61,8 @@ public:
     virtual void setVisible(void);
 
 private :
+    const int PERIODE_ECHANTILLONNAGE_VARIABLES = 30; // msec
+
     void activeInspectorTemporel(void);
     void activeInspectorInstantane(void);
     void finInspectorTemporel(void);

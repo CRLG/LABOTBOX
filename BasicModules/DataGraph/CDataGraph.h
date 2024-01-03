@@ -39,8 +39,6 @@ class CDataGraph : public CBasicModule
 #define     AUTEUR_DataGraph    "Laguiche"
 #define     INFO_DataGraph      "Trace les variables du datacenter"
 
-#define     PERIODE_ECHANTILLONNAGE_VARIABLES   30 // msec
-
 public:
     CDataGraph(const char *plugin_name);
     ~CDataGraph();
@@ -55,6 +53,8 @@ public:
     virtual void setVisible(void);
 
 private :
+    const int PERIODE_ECHANTILLONNAGE_VARIABLES = 30; // msec
+
     //void activeInspectorTemporel(void);
     void playGraph(void);
     //void finInspectorTemporel(void);

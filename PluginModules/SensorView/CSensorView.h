@@ -76,8 +76,6 @@ class CSensorView : public CPluginModule
 #define     AUTEUR_SensorView    "Laguiche"
 #define     INFO_SensorView      "Visualise l'état des capteurs"
 
-#define     PERIODE_ECHANTILLONNAGE_VARIABLES   100 // msec
-
 public:
     CSensorView(const char *plugin_name);
     ~CSensorView();
@@ -94,6 +92,8 @@ private slots :
     void onRightClicGUI(QPoint pos);
 
 private:
+    const int PERIODE_ECHANTILLONNAGE_VARIABLES = 100; // msec
+
     QList<QPoint> listePointsSignalsAdded;
     QStringList listeStringSignalsAdded;
     QList<viewWidget*> listeAddedSignals;
