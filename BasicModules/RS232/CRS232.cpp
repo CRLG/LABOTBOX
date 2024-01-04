@@ -382,15 +382,6 @@ int value = 0;
    }
 
    value = config.baudrate;
-   switch (value) {
-   case QSerialPort::Baud9600:
-   case QSerialPort::Baud19200:
-   case QSerialPort::Baud38400:
-   case QSerialPort::Baud57600:
-   case QSerialPort::Baud115200:
-       break;
-   default: value = QSerialPort::UnknownBaud;
-   }
    count = m_ihm.ui.baudBox->count();
    for (int i = 0; i < count; ++i) {
        bool ok;
