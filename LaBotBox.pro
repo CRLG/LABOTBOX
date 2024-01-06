@@ -78,6 +78,7 @@ LIST_TOOLS+= CustomPlot\
 # Ajouter ici les modules externes CppRobLib
 LIST_EXT_CPPROBLIB+= \
         ServosAX \
+        Lidar \
         Communication/Messenger \
         Communication/Messenger/MessagesGeneric \
         Communication/Messenger/DatabaseXbeeNetwork2019 \

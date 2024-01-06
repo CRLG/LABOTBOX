@@ -110,6 +110,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_CONFIG_PERIODE_TRAME(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_KMAR(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ETAT_LIDAR(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -3219,6 +3220,79 @@ void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }
+
+// ========================================================
+//             TRAME ETAT_LIDAR
+// ========================================================
+CTrame_ETAT_LIDAR::CTrame_ETAT_LIDAR(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_LIDAR";
+ m_id = ID_ETAT_LIDAR;
+ m_dlc = DLC_ETAT_LIDAR;
+
+ // Initialise les données de la messagerie
+ m_status = LidarUtils::LIDAR_DISCONNECTED;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+  data_manager->write("ETAT_LIDAR_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("ETAT_LIDAR_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ETAT_LIDAR::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ETAT_LIDAR::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ETAT_LIDAR;
+  trame.DLC = DLC_ETAT_LIDAR;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+
+ CDataEncoderDecoder::encode_int8(trame.Data,  0, m_status);
+
+ // 24 bits pour vehiculer angle (non signe [0;360deg] sur 12 bits) et distance (sur 12 bits)
+ // 12 bits MSB : angle / 12 bits LSB : distance
+ //   octet 1 |  octet2  |  octet3 |       octet4 |  octet5  |  octet6     ...
+ //  xxxx xxxx xxxx  xxxx xxxx xxxx       xxxx xxxx xxxx  xxxx xxxx xxxx    ...
+ // <     ANGLE1   ><   DISTANCE1  >     <     ANGLE2   ><   DISTANCE2  >   ...
+
+ int _byte_num = 1;
+ for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
+     unsigned short angle_0_360 = 180 + m_obstacles[i].angle;  // ramene l'angle dans la plage [0;360]
+     unsigned long ulval_24bits = ( (angle_0_360 & 0xFFF) << 12) |
+                                 (m_obstacles[i].distance & 0xFFF);
+
+     CDataEncoderDecoder::encode_uint24(trame.Data,  _byte_num, ulval_24bits);
+     _byte_num+=3;
+ }
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
 // ========================================================
 //             TRAME FREE_STRING
 // ========================================================

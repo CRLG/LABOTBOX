@@ -13,6 +13,7 @@
 #include <QVector>
 #include <QVariant>
 #include "CTrameBot.h"
+#include "Lidar_utils.h"
 
 /*! \addtogroup TrameFactory
    *  Additional documentation for group TrameFactory
@@ -1269,6 +1270,29 @@ public :
     unsigned short axis4_position;
 
 private slots :
+};
+
+
+// ========================================================
+//             TRAME ETAT_LIDAR
+// ========================================================
+#define ID_ETAT_LIDAR 0x99
+#define DLC_ETAT_LIDAR 32
+class CTrame_ETAT_LIDAR : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_LIDAR(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_LIDAR() { }
+    /*virtual*/ void Encode(void);
+
+    unsigned char m_status;         // voir enum "eLidarStatus"
+    LidarUtils::tLidarObstacles m_obstacles;  // tableaux
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
 };
 
 // ========================================================
