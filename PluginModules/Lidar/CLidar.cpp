@@ -12,6 +12,9 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include "CMessagerieBot.h"
+#include "CTrameFactory.h"
+#include "Lidar_utils.h"
 
 
 
@@ -256,6 +259,10 @@ void CLidar::new_data(const CLidarData &data)
     }
 
     if (m_logger_active) log_data(data);
+
+    // envoie les infos vers le MBED
+    // todo : a voir si c'est bien ca qu'on veut faire
+    send_ETAT_LIDAR(data);
 }
 
 // _____________________________________________________________
@@ -551,6 +558,31 @@ void CLidar::log_data(const CLidarData &data)
     qDebug() << "Réception data lidar" << data.m_measures_count;
 }
 
+// _____________________________________________________________________
+/*!
+ * \brief Envoie des donnees mises en forme du Lidar vers le MBED
+ * \param data les donnees filtrees
+ */
+void CLidar::send_ETAT_LIDAR(const CLidarData &data)
+{
+    LidarUtils::tLidarObstacles obstacles;
+    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
+        obstacles[i].angle = 0;
+        obstacles[i].distance = 0;
+    }
+
+    // juste pour l'exemple, renseigne une valeur pipo pour le premier obstacle
+    int index=45+60;
+    int angle = data.m_start_angle + index*data.m_angle_step_resolution;
+    int distance = data.m_dist_measures[index];
+    obstacles[0].angle = angle;
+    obstacles[0].distance = distance;
+
+    CTrameBot *trame = m_application->m_MessagerieBot->getTrameFactory()->getTrameFromID(ID_ETAT_LIDAR);
+    CTrame_ETAT_LIDAR *trame_lidar = (CTrame_ETAT_LIDAR *)trame;
+    LidarUtils::copy_tab_obstacles(obstacles, trame_lidar->m_obstacles);
+    trame_lidar->Encode();
+}
 
 
 // ================================================================================

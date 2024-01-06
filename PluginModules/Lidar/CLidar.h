@@ -94,6 +94,8 @@ private:
     CLidarDataPlayer m_data_player;
     void player_parse();
 
+    void send_ETAT_LIDAR(const CLidarData &data);
+
 private slots :
     void onRightClicGUI(QPoint pos);
 
