@@ -77,6 +77,7 @@ public :
     QString TrameBruteToString(tStructTrameBrute *trame);
     //! Associe le module de messagerie à une RS232
     void setRS232(CRS232 *serial);
+    CTrameFactory *getTrameFactory();
 
 private :
     CRS232          *m_rs232;

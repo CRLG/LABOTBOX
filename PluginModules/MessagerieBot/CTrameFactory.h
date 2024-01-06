@@ -56,6 +56,8 @@ public:
     tListeTrames getListeTrames() const;
     unsigned int name2ID(QString name);
     QString ID2Name(unsigned int id);
+    CTrameBot *getTrameFromName(QString name);
+    CTrameBot *getTrameFromID(unsigned int id);
 
 private :
     CMessagerieBot *m_messagerie_bot;

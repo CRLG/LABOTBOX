@@ -155,6 +155,21 @@ QString CTrameFactory::ID2Name(unsigned int id)
     return "";
 }
 
+CTrameBot *CTrameFactory::getTrameFromName(QString name)
+{
+    return getTrameFromID(name2ID(name));
+}
+
+CTrameBot *CTrameFactory::getTrameFromID(unsigned int id)
+{
+    for (int i=0; i<m_liste_trames.count(); i++)
+    {
+        if (id == m_liste_trames[i]->m_id) return m_liste_trames[i];
+    }
+    return nullptr;
+
+}
+
 
 // ========================================================
 //             TRAME ELECTROBOT_CDE_SERVOS_SD20

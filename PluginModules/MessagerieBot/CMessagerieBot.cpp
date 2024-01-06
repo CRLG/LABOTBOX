@@ -418,7 +418,17 @@ QString CMessagerieBot::TrameBruteToString(tStructTrameBrute *trame)
 */
 void CMessagerieBot::setRS232(CRS232 *serial)
 {
-  m_rs232 = serial;
+    m_rs232 = serial;
+}
+
+//___________________________________________________________________________
+/*!
+ * \brief Renvoie le pool de trames
+ * \return la factory
+ */
+CTrameFactory *CMessagerieBot::getTrameFactory()
+{
+    return m_trame_factory;
 }
 
 
