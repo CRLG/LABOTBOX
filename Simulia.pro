@@ -60,6 +60,7 @@ LIST_EXT_CPPROBLIB+= \
         ServosAX \
         PowerElectrobot \
         mcp23017 \
+        Lidar \
         common-rob \
         Communication/Messenger \
         Communication/Messenger/MessagesGeneric \
