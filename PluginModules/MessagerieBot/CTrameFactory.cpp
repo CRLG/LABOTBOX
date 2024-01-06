@@ -89,6 +89,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_SERVO_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_KMAR_GENERAL(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_FREE_STRING(m_messagerie_bot, m_data_manager));
  // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -3215,6 +3216,38 @@ void CTrame_ETAT_KMAR_GENERAL::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write(QString("Kmar%1.axis3.position").arg(num_kmar), axis3_position);
    m_data_manager->write(QString("Kmar%1.axis4.position").arg(num_kmar), axis4_position);
 
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+// ========================================================
+//             TRAME FREE_STRING
+// ========================================================
+CTrame_FREE_STRING::CTrame_FREE_STRING(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "FREE_STRING";
+ m_id = ID_FREE_STRING;
+ m_dlc = DLC_FREE_STRING;
+
+ m_liste_noms_signaux.append("FREE_STRING");
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("FREE_STRING",  "");
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_FREE_STRING::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+   for (int i=0; i<64; i++) {
+        m_str[i] = trameRecue->Data[i];
+   }
+
+   // Envoie les données au data manager
+   m_data_manager->write("FREE_STRING", m_str);
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

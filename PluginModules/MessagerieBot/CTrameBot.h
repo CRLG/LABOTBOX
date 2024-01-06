@@ -10,7 +10,7 @@
 #include <QStringList>
 
 
-#define C_NOMBRE_DATA_TRAMES_ROBOT    16
+#define C_NOMBRE_DATA_TRAMES_ROBOT    64
 
 typedef struct {
 	unsigned int ID;		//!< L'identifiant de la trame

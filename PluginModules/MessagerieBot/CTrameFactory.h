@@ -1271,6 +1271,25 @@ public :
 private slots :
 };
 
+// ========================================================
+//             TRAME FREE_STRING
+// ========================================================
+#define ID_FREE_STRING 0x10A
+#define DLC_FREE_STRING 64
+class CTrame_FREE_STRING : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_FREE_STRING(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_FREE_STRING() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+    char m_str[64];
+private :
+
+private slots :
+};
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
