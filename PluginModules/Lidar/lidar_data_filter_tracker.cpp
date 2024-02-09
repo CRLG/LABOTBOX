@@ -17,8 +17,8 @@ CLidarDataFilterTracker::CLidarDataFilterTracker()
     m_d_MIN_dist = m_data_manager.createData("d_MIN_dist", 150.);
     m_d_seuil_filtrage_dist = m_data_manager.createData("d_seuil_filtrage_dist", 150.);
     m_i_seuil_filtrage_angle = m_data_manager.createData("i_seuil_filtrage_angle", 3);
-    m_d_seuil_gradient = m_data_manager.createData("d_seuil_gradient", 300.);
-    m_d_seuil_facteur_forme = m_data_manager.createData("d_seuil_facteur_forme", 400.);
+    m_d_seuil_gradient = m_data_manager.createData("d_seuil_gradient", 150.);
+    m_d_seuil_facteur_forme = m_data_manager.createData("d_seuil_facteur_forme", 1400.);
 }
 
 // _______________________________________________________________
@@ -88,6 +88,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
     //pour fusionner les blobs trop proches
     double old_dist=0.;
     int old_angle=0;
+    bool toMerge=false;
     //pour gérer les forts gradients
     bool b_THRESHOLD=false;
     double d_Samples_Threshold[m_i_MAX_SAMPLES_THRESHOLD];
@@ -187,20 +188,52 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
                     double d_moyenne = d_somme/i_COUNT;
                     int i_moyenne = i_max_CREC - ((i_max_CREC-i_min_CREC)/2);
 
-                    //enregistrement des données filtrées
-                    if((fabs(i_moyenne-old_angle)>m_i_seuil_filtrage_angle->read().toInt())&&(abs(d_moyenne-old_dist)>m_d_seuil_filtrage_dist->read().toDouble()))
-                    {
-                        //vérification du facteur de forme
-                        //f(x)=0.642905433457839*x*x-50.9818722727577*x+1085.44732653302
-                        double facteur_forme=0.642905433457839*i_COUNT*i_COUNT-50.9818722727577*i_COUNT+1085.44732653302;
 
-                        if(fabs(d_moyenne-facteur_forme)<m_d_seuil_facteur_forme->read().toDouble())
+                    if((old_angle>0.) && (old_dist>0.))
+                    {
+                        //les deux points sont très proches en angle
+                        if((fabs(i_moyenne-old_angle)<m_i_seuil_filtrage_angle->read().toInt()))
                         {
-                            data_out->m_dist_measures[i_moyenne]=d_moyenne-m_d_dist_offset->read().toDouble();
-                            //mémorisation pour filtrage
-                            old_angle=i_moyenne;
-                            old_dist=d_moyenne;
+                            //si ils sont également très proche en distance on fusionne
+                            if(fabs(d_moyenne-old_dist)<m_d_seuil_filtrage_dist->read().toDouble())
+                                toMerge=true;
+                            else
+                                toMerge=false;
+
                         }
+                        else
+                            toMerge=false;
+                    }
+
+
+                    //vérification du facteur de forme
+                    //f(x)=0.642905433457839*x*x-50.9818722727577*x+1085.44732653302
+                    double facteur_forme=0.642905433457839*i_COUNT*i_COUNT-50.9818722727577*i_COUNT+1085.44732653302;
+
+                    if(fabs(d_moyenne-facteur_forme)<m_d_seuil_facteur_forme->read().toDouble())
+                    {
+
+                        int i_recorded=0;
+                        double dist_recorded=0.;
+                        //qDebug() << "à fusionner "<<toMerge;
+                        if(toMerge)
+                        {
+                            i_recorded=abs((i_moyenne+old_angle)/2);
+                            dist_recorded=fabs((d_moyenne+old_dist)/2);
+                            qDebug() <<"("<<old_angle<<","<<old_dist<<") et ("<<i_moyenne<<","<<d_moyenne<<") donne ("<<i_recorded<<","<<dist_recorded<<")";
+                        }
+                        else
+                        {
+                            i_recorded=i_moyenne;
+                            dist_recorded=d_moyenne;
+                        }
+
+                        data_out->m_dist_measures[i_recorded]=dist_recorded-m_d_dist_offset->read().toDouble();
+
+                       // data_out->m_dist_measures[i_moyenne]=d_moyenne-m_d_dist_offset->read().toDouble();
+                        //mémorisation pour filtrage
+                        old_angle=i_moyenne;
+                        old_dist=d_moyenne;
                     }
                 }
 
