@@ -164,13 +164,14 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2023_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2024_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
+
     elementsJeu[0]=setElementJeu(51.5f,28.5f,Qt::cyan);
     elementsJeu[1]=setElementJeu(71.5f,28.5f,Qt::yellow);
     elementsJeu[2]=setElementJeu(218.5f,28.5f,Qt::yellow);
@@ -185,7 +186,9 @@ void CSimuBot::init(CApplication *application)
     elementsJeu[10]=setElementJeu(218.5f,182.5f,Qt::yellow);
     elementsJeu[11]=setElementJeu(238.5f,182.5f,Qt::cyan);
 
+
     //ajout des tasseaux 2022
+
     QGraphicsLineItem * Tasseau01;
     Tasseau01=new QGraphicsLineItem(0,-51,51,0);
     Tasseau01->setPen(QPen(Qt::yellow,1));
@@ -198,6 +201,7 @@ void CSimuBot::init(CApplication *application)
     Tasseau03=new QGraphicsLineItem(150,-200,150,-170);
     Tasseau03->setPen(QPen(Qt::gray,2));
     terrain->addItem(Tasseau03);
+
 
 
     //ajout du robot

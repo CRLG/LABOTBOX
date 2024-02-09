@@ -66,5 +66,6 @@
         <file>icons/terrain_2020_simubot.png</file>
         <file>icons/terrain_2022_simubot.png</file>
         <file>icons/terrain_2023_simubot.png</file>
+        <file>icons/terrain_2024_simubot.png</file>
     </qresource>
 </RCC>
