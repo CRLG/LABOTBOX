@@ -135,6 +135,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.pB_Delete, SIGNAL(clicked(bool)), this, SLOT(Slot_Delete()));
   connect(m_ihm.ui.pB_Clone, SIGNAL(clicked(bool)), this, SLOT(Slot_Clone()));
   connect(m_ihm.ui.pB_Generate, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate_CPP()));
+  connect(m_ihm.ui.pB_Generate_SCXML, SIGNAL(clicked(bool)),this,SLOT(Slot_Generate_SCXML()));
   connect(m_ihm.ui.pB_Strategies_combine,SIGNAL(clicked(bool)),this,SLOT(Slot_combineStrategies()));
   //connect(m_ihm.ui.pB_Strategy_up,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
   //connect(m_ihm.ui.pB_Strategy_down,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
@@ -2424,6 +2425,555 @@ void CActuatorSequencer::playStep(void)
 
     Slot_Play(true,indexPlay);
 }
+
+void CActuatorSequencer::Slot_Generate_SCXML()
+{
+    int indexItem=0;
+    int tabIndex=m_ihm.ui.tW_TabSequences->currentIndex();
+    QTableWidget * table_sequence=listSequence.at(tabIndex);
+
+    //utile
+    QString UnamedState="STATE_%1";
+    QString N1T="\n\t";
+    QString N2T="\n\t\t";
+    QString N3T="\n\t\t\t";
+    QString stateFormat=N1T+"<state id=\"%1\">"+
+            N2T+"<qt:editorinfo %2 scenegeometry=\"%3;%4;%5;%6;120;100\" geometry=\"%3;%4;-60;-50;120;100\"/>"+
+            N2T+"<onentry>";
+    QString closePreviousState=N2T+"<onexit>"+
+            N3T+"%1"+
+            N2T+"</onexit>"+
+            N1T+"</state>";
+    QString strProto="<!-- For prototyping only: ";
+    QString transitionFormat=N2T+"<transition event=\"%1\" target=\"%2\" />";
+    QString actionFormat=N3T+"<log expr=\"%1 /* %2 */\" />";
+
+    //Nom de la strategie
+    QString nomStrategie;
+    if(m_ihm.ui.strategyName->text().isEmpty())
+            nomStrategie="myStrategie";
+    else
+            nomStrategie=m_ihm.ui.strategyName->text();
+    //on en déduit le nom de la stratégie pour le nom de fichier
+    QString strStrategyName=nomStrategie.trimmed();
+    QString fileName_SCXML;
+
+    /*
+    * Variables temporaires pour construire la chaîne complète
+    */
+    QString strWholeFile_SCXML;
+    QString strComments;
+    QString strStep;
+    QString strFirstStepName;
+
+    //construction du commentaire
+    QString strTime=QTime::currentTime().toString("hh_mm");
+    QString strDate=QDate::currentDate().toString("dd_MM_yyyy");
+    strComments="\n <!-- Generated "+strStrategyName+" the "+strDate+" at "+strTime+" -->\n\n";
+
+    //construction du step() - A COMPLETER PENDANT LA SEQUENCE
+    strStep="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" binding=\"early\" xmlns:qt=\"http://www.qt.io/2015/02/scxml-ext\" name=\"tempSCXML\" qt:editorversion=\"4.6.2\" initial=\"%1\">\n"+
+            N1T+"<qt:editorinfo initialGeometry=\"0;0;-20;-20;40;40\"/>"+
+            strComments+"%2\n"+
+            N1T+"<final id=\"FIN_MISSION\">"+
+            N2T+"%3"+
+            N2T+"<onentry>"+
+            N3T+"<content expr=\"m_succes=true;m_score=m_max_score;stop();\"/>"+
+            N2T+"</onentry>"+
+            N1T+"</final>\n</scxml>\n";
+
+    QString champStrategie;
+
+    bool isInState=false;
+    int numState=0;
+    int currentY=0;
+    int holdYmin=0;
+    int holdYmax=0;
+    int offsetX=0;
+    bool isInTransition=false;
+    int numTransition=0;
+    QList<int> transitionsList;
+    QString warningOnExit="";
+    bool isNode=false;
+    bool isNodeTransition=false;
+    bool isForked=false;
+    QStringList namesOfForkes;
+    QString oldState="";
+    bool isFirstStep=true;
+
+    for (indexItem=0;indexItem<table_sequence->rowCount();indexItem++)
+    {
+        QString sActuator=getTypeText(table_sequence,indexItem);
+        QString sId=getIdText(table_sequence,indexItem);
+        QString sValue=getValueText(table_sequence,indexItem);
+        QString sState=getSateNameText(table_sequence,indexItem);
+        QString sComments=getCommentsText(table_sequence,indexItem);
+        QString sColor="";
+        bool isSym=getSymChecked(table_sequence,indexItem);
+        bool isProto=getProtoChecked(table_sequence,indexItem);
+        QString sConverted;
+        bool bState=false;
+        bool bTransition=false;
+
+        //est-ce une transition ou un etat
+        bTransition=isTransition(sActuator);
+        bState=!bTransition;
+
+        //pour récupérer des infos de la ligne juste après et gérer les transitions multiples
+        QString sNextActuator="";
+        if((indexItem+1)<table_sequence->rowCount())
+            sNextActuator=getTypeText(table_sequence,indexItem+1);
+
+        //numéro de l'état suivant
+        QString strNumNextState;
+        QString strNextSate;
+
+        //recherche du prochain état si on est dans une transition afin d'en récupérer le nom
+        //si le nom est vide il sera automatiquement nommé
+        QString strFoundState;
+        bool foundedState=false;
+        for(int i=indexItem+1;i<table_sequence->rowCount();i++)
+        {
+            QString sType=getTypeText(table_sequence,i);
+            if(!foundedState)
+            {
+                QString strNameState=getSateNameText(table_sequence,i);
+                if(!isTransition(sType))
+                {
+                    strFoundState=strNameState;
+                    foundedState=true;
+                }
+            }
+        }
+        if(strFoundState.isEmpty())
+        {
+            strNumNextState.setNum(numState+1);
+            strNextSate="STATE_"+strNumNextState;
+        }
+        else
+            strNextSate=strFoundState;
+
+        //On parcoure la dernière ligne de la séquence, le prochain état est la FIN DE MISSION
+        if(indexItem==(table_sequence->rowCount())-1)
+            strNextSate="FIN_MISSION";
+        if(bTransition&&(!sState.isEmpty()))
+            strNextSate=sState;
+
+        QString strConsigne;
+        QStringList args;
+        QString sTemp;
+        int nb_args=0;
+
+        //Génération de la ligne de code en fonction du type
+        switch(getType(sActuator))
+        {
+            case SD20:
+                sTemp=(isProto?"Proto: ":"")+QString("SD20 n°%1 position %2)").arg(sId).arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                break;
+
+            case AX_POSITION:
+                sTemp=(isProto?"Proto: ":"")+QString("AX n°%1 position %2)").arg(sId).arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                break;
+
+            case AX_SPEED:
+                sTemp=(isProto?"Proto: ":"")+QString("AX n°%1 vitesse %2)").arg(sId).arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                break;
+
+            case MOTOR:
+                sTemp=(isProto?"Proto: ":"")+QString("Moteur n°%1 vitesse %2)").arg(sId).arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                break;
+
+            case POWER:
+                strConsigne = (sValue.compare("1")==0) ? "OUVERT" : "FERME";
+                sTemp=(isProto?"Proto: ":"")+QString("POWER n°%1 position %2)").arg(strConsigne).arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                break;
+
+            case ASSER:
+                args=sValue.split(",",QString::SkipEmptyParts);
+                nb_args=args.count();
+
+                if((sId.compare("XY")==0)&&(nb_args>=2))
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Asser XY%1 ( %2 , %3 )").arg((isSym?" Symétrique":"")).arg(args.at(0)).arg(args.at(1));
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                if((sId.compare("XYTheta")==0)&&(nb_args>=3))
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Asser XY_Teta%1 ( %2 , %3 , %4 )").arg((isSym?" Symétrique":"")).arg(args.at(0)).arg(args.at(1)).arg(args.at(2));
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                if((sId.compare("DistAng")==0)&&(nb_args>=2))
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Asser DistAng%1 ( %2 , %3 )").arg((isSym?" Symétrique":"")).arg(args.at(0)).arg(args.at(1));
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                if((sId.compare("Manuel")==0)&&(nb_args>=2))
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Asser Manuel%1 ( %2 , %3 )").arg((isSym?" Symétrique":"")).arg(args.at(0)).arg(args.at(1));
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                if((sId.compare("Init_asser")==0)&&(nb_args>=3))
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Asser Init_XY_Teta%1 ( %2 , %3 , %4 )").arg((isSym?" Symétrique":"")).arg(args.at(0)).arg(args.at(1)).arg(args.at(2));
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+
+                if(sId.compare("Init_rack")==0)
+                {
+                    sTemp=(isProto?"Proto: Recalage Chariot":"Recalage Chariot");
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                if(sId.compare("Rack")==0)
+                {
+                    sTemp=(isProto?"Proto: ":"")+QString("Chariot position %1").arg(sValue);
+                    sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                }
+                break;
+
+            case WAIT:
+                if(isProto)
+                {
+                    sConverted=sConverted+strProto+"dummy transition -->"+N2T+transitionFormat.arg("dummy_wait(20)").arg(strNextSate);
+                }
+                sTemp=QString(" %1wait(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                break;
+
+            case EVENT:
+                if(isProto)
+                {
+                    sConverted=sConverted+strProto+"dummy transition -->"+N2T+transitionFormat.arg("dummy_wait(20)").arg(strNextSate);
+                }
+                if(sId.compare("convAsserv")==0)
+                {
+                    sTemp=QString(" %1Convergence(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                if(sId.compare("convRack")==0)
+                {
+                    sTemp=QString(" %1ConvergenceRack(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                if(sId.compare("convArm")==0)
+                {
+                    sTemp=QString(" %1ConvergenceKmar(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                if(sId.compare("objetPris")==0)
+                {
+                    sTemp=QString(" %1ObjetPris(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                break;
+
+            case SENSOR:
+                if(isProto)
+                {
+                    sConverted=sConverted+strProto+"dummy transition -->"+N2T+transitionFormat.arg("dummy_wait(20)").arg(strNextSate);
+                }
+                if(sActuator.compare("Sensor_sup")==0)
+                {
+                    sTemp=QString(" %1(%2>%3) ").arg((isProto?"Proto":"")).arg(sId).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                if(sActuator.compare("Sensor_egal")==0)
+                {
+                    sTemp=QString(" %1(%2=%3) ").arg((isProto?"Proto":"")).arg(sId).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                if(sActuator.compare("Sensor_inf")==0)
+                {
+                    sTemp=QString(" %1(%2<%3) ").arg((isProto?"Proto":"")).arg(sId).arg(sValue);
+                    sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+                }
+                break;
+
+            case FREE_EVENT:
+                if(isProto)
+                {
+                    sConverted=sConverted+strProto+"dummy transition -->"+N2T+transitionFormat.arg("dummy_wait(20)").arg(strNextSate);
+                }
+                sTemp=QString(" %1If(%2) ").arg((isProto?"Proto_":"")).arg(sValue);
+                sConverted=sConverted+transitionFormat.arg(sTemp).arg(strNextSate);
+            break;
+
+            case FREE_ACTION:
+                sTemp=(isProto?"Proto: ":"")+QString("Action libre: %1 ").arg(sValue);
+                sConverted=sConverted+actionFormat.arg(sTemp).arg(sComments);
+                //strFreeAction=sValue.replace("\n",N3T);
+                //sConverted=sConverted+N3T+(isProto?(strProto+N3T+"/*"+N3T):"")+QString("%1\n").arg(strFreeAction)+(isProto?(N3T+"*/"):"");
+            break;
+
+            case NODE:
+                isNode=true;
+                isNodeTransition=true;
+                offsetX=0;
+                isForked=!isForked;
+                if(isForked)
+                {
+                    holdYmax=holdYmin;
+                    holdYmin=currentY+1;
+                }
+                else
+                {
+                    //namesOfForkes.clear();
+                    holdYmin=currentY+2;
+                    if(currentY<=holdYmax)
+                        currentY=holdYmax;
+                }
+                sColor="stateColor=\"#ffe11a\"";
+                sConverted=sConverted+QString("<!-- Ne rien mettre ici (cf doc Modélia) -->");
+            break;
+
+            case ARM:
+                    if(sId.compare("MVT")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.start(%1);/*%2*/").arg(sValue).arg(sComments);
+                    if(sId.compare("STOP")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.stop();/*%1*/").arg(sComments);
+                    if(sId.compare("FIX")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.arm();/*%1*/").arg(sComments);
+                    if(sId.compare("UNFIX")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.disarm();/*%1*/").arg(sComments);
+                    if(sId.compare("CATCH")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.catchObject();/*%1*/").arg(sComments);
+                    if(sId.compare("RELEASE")==0)
+                        sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_kmar.releaseObject();/*%1*/").arg(sComments);
+            break;
+
+            default: break;
+        }
+
+        //Ajout de la l'action ou la transition
+        QString strNumState;
+        QString strThisState;
+        /*-----------------------------------------
+        |   TRAITEMENT DES ETATS
+        -------------------------------------------*/
+        if(bState) //ça fait partie d'un état
+        {
+
+            if(!isInState) //on initialise et on ajoute l'action
+            {
+                //numéro de l'état qu'on incrémente quoiqu'il arrive
+                numState++;
+                currentY++;
+
+                //on récupère le nom de l'état s'il existe, sinon nommage automatique
+                if(sState.isEmpty())
+                {
+                    strNumState.setNum(numState);
+                    QString strUnamedState=UnamedState.arg(strNumState);
+                    strThisState=strUnamedState;
+                }
+                else
+                {
+                    strThisState=sState;
+                }
+
+                if (isFirstStep)
+                {
+                    strFirstStepName=strThisState;
+                    isFirstStep=false;
+                }
+
+                //est-ce qu'il y avait une transition auparavant
+                QList<int> previousTransitions=findTransitionsIn(table_sequence,strThisState);
+                if(isInTransition) //oui on la ferme avant de passer à l'action suivante
+                {
+                    //si l'état actuel est un noeud on conserve l'enregistrement des transitions
+                    isNodeTransition=(isNode?true:false);
+                    if(isNode && previousTransitions.count()<=1)
+                        warningOnExit=" <!-- Un seul lien vers un noeud: Ne rien mettre ici  (cf doc Modélia) --> ";
+                    champStrategie=champStrategie+"\n"+closePreviousState.arg(warningOnExit);
+                    warningOnExit="";
+                    isInTransition=false;
+                    qDebug() << "fin du noeud, on n'enregistre plus les transitions";
+                }
+
+                //Si c'est un noeud on modifie les actions de Sortie
+                if(isNode)
+                {
+                    if(isNode && previousTransitions.count()<=1)
+                        warningOnExit=" <!-- Mettre ici le code du onExit de létat "+oldState+" car un seul lien avant le noeud (cf doc Modélia) --> ";
+                    else
+                        warningOnExit=" <!-- Ne rien mettre ici  (cf doc Modélia) --> ";
+                    isNode=false;
+                }
+                previousTransitions.clear();
+                //ajout de l'action
+                QString Y1,Y2, X1, X2;
+                if(!namesOfForkes.isEmpty())
+                {
+                    int i=0;
+                    while(i<namesOfForkes.size())
+                    {
+                        if(namesOfForkes.at(i).compare(strThisState)==0)
+                        {
+                            if(currentY>holdYmax)
+                                holdYmax=currentY;
+                            currentY=holdYmin+1;
+                            offsetX++;
+                            namesOfForkes.removeAt(i);
+                            break;
+                        }
+                        i++;
+                    }
+                }
+                else if ((isForked) && (currentY>holdYmax))
+                         holdYmax=currentY;
+                Y1.setNum((currentY*150));
+                Y2.setNum((currentY*150)-50);
+                X1.setNum((offsetX*300));
+                X2.setNum((offsetX*300)-60);
+                champStrategie=champStrategie+stateFormat.arg(strThisState).arg(sColor).arg(X1).arg(Y1).arg(X2).arg(Y2)+N3T+sConverted;
+
+                oldState=strThisState;
+
+                isInState=true;
+            }
+            else //l'état est déjà initialisé, on ajoute l'action
+                champStrategie=champStrategie+N3T+sConverted;
+        }
+
+        /*-----------------------------------------
+        |   TRAITEMENT DES TRANSITIONS
+        -------------------------------------------*/
+        if(bTransition)
+        {
+            transitionsList << getType(sActuator);
+            if (isNodeTransition)
+            {
+                namesOfForkes << strNextSate;
+            }
+
+            if(!isInTransition) //On initialise et on ajoute la transition
+            {
+                numTransition++;
+
+                if(numState<=0) //on commence la stratégie par une transition: ajout d'un état vide
+                {
+                    //numéro de l'état
+                    numState++;
+                    currentY++;
+                    strNumState.setNum(numState);
+
+                    if (isFirstStep)
+                    {
+                        strFirstStepName=strNumState;
+                        isFirstStep=false;
+                    }
+
+                    //ajout de l'action
+                    QString Y1,Y2,X1,X2;
+                    Y1.setNum(currentY*150);
+                    Y2.setNum((currentY*150)-50);
+                    X1.setNum((offsetX*300));
+                    X2.setNum((offsetX*300)-60);
+                    champStrategie=champStrategie+stateFormat.arg(strThisState).arg(sColor).arg(X1).arg(Y1).arg(X2).arg(Y2)+N3T+"<!-- AUCUNE ACTION -->";
+
+                    isInState=true;
+                }
+
+                //est-ce qu'il y avait une(des) action(s) auparavant
+                if(isInState) //oui on le ferme avant de passer à la transition
+                {
+                    champStrategie=champStrategie+N2T+"</onentry>";
+                    isInState=false;
+                }
+
+                //ajout de la transition
+                champStrategie=champStrategie+N3T+sConverted;
+
+                isInTransition=true;
+
+            }
+            else //la transition est initialisée, on l'ajoute
+            {
+                //Vérifier si il y a uniquement 2 transitions et si cela se termine par un wait
+                //qDebug() <<transitionsList.count()<<!isTransition(sNextActuator)<<transitionsList.at(1)<<transitionsList.at(0);
+                if((transitionsList.count()==2)&&(!isTransition(sNextActuator))&&(transitionsList.at(1)==WAIT)&&(transitionsList.at(0)==SENSOR))
+                {
+                    int iInsert=champStrategie.lastIndexOf(");");
+                    QString strInsert=","+sValue;
+                    champStrategie.insert(iInsert,strInsert);
+                }
+                else
+                    champStrategie=champStrategie+N3T+sConverted;
+            }
+        }
+    }
+
+    //Finalisation du dernier état
+    if(isInState)
+    {
+        champStrategie=champStrategie+N2T+"</onentry>"+
+                N3T+"<transition event=\"wait(4000)\" target=\"FIN_MISSION\" />"+
+
+                closePreviousState.arg(warningOnExit);
+        warningOnExit="";
+        isInState=false;
+    }
+
+    //Si on termine avec une transition, ajout d'un état vide
+    if(isInTransition)
+    {
+        //on ferme l'action précédente avant l'état vide
+        champStrategie=champStrategie+closePreviousState.arg(warningOnExit);
+        warningOnExit="";
+        isInTransition=false;
+    }
+
+    //assemblage du SCXML
+    QString Y1,Y2;
+    Y1.setNum((currentY+1)*150);
+    Y2.setNum(((currentY+1)*150)-50);
+    QString finalPosition="<qt:editorinfo geometry=\"0;%1;-60;-50;120;100\" scenegeometry=\"0;%1;-60;%2;120;100\"/>";
+    QString xmlfinalPosition=finalPosition.arg(Y1).arg(Y2);
+    strWholeFile_SCXML= strStep.arg(strFirstStepName).arg(champStrategie).arg(xmlfinalPosition);
+
+    QString temps2=QTime::currentTime().toString("hh_mm");
+    QString temps1 = QDate::currentDate().toString("_yyyy_MM_dd_at_");
+    fileName_SCXML.append(strStrategyName);
+    fileName_SCXML.append(temps1);
+    fileName_SCXML.append(temps2);
+    fileName_SCXML.append(".scxml");
+
+    if(!fileName_SCXML.isEmpty())
+    {
+        QFile file_scxml(fileName_SCXML);
+        if(file_scxml.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
+        {
+            QTextStream stream(&file_scxml);
+            stream << strWholeFile_SCXML;
+            file_scxml.close();
+        }
+        else
+        {
+            file_scxml.close();
+        }
+    }
+
+    /*
+
+    // Creation d'un objet XML : sauvegarde_auto
+    QString xmlExtension;
+    QString temps2=QTime::currentTime().toString("hh_mm");
+    QString temps1 = QDate::currentDate().toString("yyyy_MM_dd_at_");
+    xmlExtension.append(temps1);
+    xmlExtension.append(temps2);
+    xmlExtension.append(".xml");
+    QString fileName_xml=fileName_h.replace(".h",xmlExtension);
+    //qDebug() << fileName_xml;
+    Slot_Generate_XML(fileName_xml);
+*/
+
+}
+
 
 void CActuatorSequencer::Slot_Generate_CPP()
 {

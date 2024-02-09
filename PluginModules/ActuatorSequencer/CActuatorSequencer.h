@@ -181,6 +181,7 @@ private slots :
     //void Slot_formatStrategy(QColor newColor);
     void Slot_Play_only_arm();
     void Slot_Stop_only_arm();
+    void Slot_Generate_SCXML();
 };
 
 #endif // _CPLUGIN_MODULE_ActuatorSequencer_H_
