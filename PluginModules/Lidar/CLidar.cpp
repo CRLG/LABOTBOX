@@ -430,15 +430,22 @@ void CLidar::on_change_data_filter(QString filter_name)
 {
     if (m_lidar_data_filter) delete m_lidar_data_filter;
     m_lidar_data_filter = CLidarDataFilterFactory::createInstance(filter_name);
-    QStringList var_lst;
-    m_lidar_data_filter->m_data_manager.getListeVariablesName(var_lst);
-    if(m_lidar_filter_params) on_filter_params_show();  // si la fenetre des parametres du filtre etait affichee, il faut l'afficher pour le nouveau filtre selectionne
+    bool visible = m_lidar_filter_params && m_lidar_filter_params->isVisible(); // memorise si la fenetre de reglage des parametres etait ouverte pour la rouvrir apres changement de filtre
+    filter_params_load();
+    if(visible) on_filter_params_show();  // si la fenetre des parametres du filtre etait affichee, il faut l'afficher pour le nouveau filtre selectionne
 }
 
 // _____________________________________________________________________
 // les parametres des differents filtres sont memorises dans un fichier eeprom separe et commun a tous les filtres (1 section par filtre dans le fichier)
 // le nom du fichier eeprom specifique aux parametres des filtres lidar doit etre passe au filtre qui n'a pas connaissance de l'application complete
 void CLidar::on_filter_params_show()
+{
+    filter_params_load();
+    m_lidar_filter_params->show();
+}
+
+// _____________________________________________________________________
+void CLidar::filter_params_load()
 {
     // soit le nom complet du fichier eeprom pour les parametres des filtres est donne dans le fichier de config general, soit il est recalcule
     QString eeprom_lidar_filter_params_file = m_application->m_eeprom->read(getName(), "lidar_params_eeprom_filename", "").toString();
@@ -448,7 +455,6 @@ void CLidar::on_filter_params_show()
 
     if(m_lidar_filter_params) delete m_lidar_filter_params;
     m_lidar_filter_params = new CLidarFilterParams(m_lidar_data_filter, eeprom_lidar_filter_params_file);
-    m_lidar_filter_params->show();
     connect(m_lidar_filter_params, SIGNAL(closed()), this, SLOT(on_filter_params_close()));
 }
 

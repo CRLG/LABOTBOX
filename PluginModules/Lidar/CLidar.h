@@ -110,6 +110,7 @@ private slots :
     void on_change_spin_test(int val);
     void on_change_data_filter(QString filter_name);
     void on_filter_params_show();
+    void filter_params_load();
     void on_filter_params_close();
 signals :
     void test();
