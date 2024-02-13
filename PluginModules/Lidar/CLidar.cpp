@@ -14,7 +14,6 @@
 #include "CDataManager.h"
 #include "CMessagerieBot.h"
 #include "CTrameFactory.h"
-#include "Lidar_utils.h"
 
 
 
@@ -119,7 +118,7 @@ void CLidar::init(CApplication *application)
 
     // Sick TIM561
     connect(m_ihm.ui.tim5xx_openport, SIGNAL(clicked(bool)), this, SLOT(open_sick()));
-    connect(m_ihm.ui.tim5xx_closeport, SIGNAL(clicked(bool)), &m_lidar, SLOT(close()));
+    connect(m_ihm.ui.tim5xx_closeport, SIGNAL(clicked(bool)), this, SLOT(close_sick()));
 
     // Logger
     connect(m_ihm.ui.PB_logger_select_file, SIGNAL(clicked(bool)), this, SLOT(logger_select_file()));
@@ -188,6 +187,15 @@ void CLidar::open_sick()
     }
 }
 
+// ______________________________________________
+/*!
+ * \brief Ferme le port de communication avec le SICK
+ */
+void CLidar::close_sick()
+{
+    m_lidar.close();
+}
+
 // _____________________________________________________________________
 /*!
  *
@@ -213,6 +221,9 @@ void CLidar::lidar_disconnected()
     m_ihm.statusBar()->showMessage("Lidar Disconnected", 3000);
     m_ihm.ui.tim5xx_openport->setEnabled(true);
     m_ihm.ui.tim5xx_closeport->setEnabled(false);
+
+    LidarUtils::tLidarObstacles dummy_obstacles;
+    send_ETAT_LIDAR(dummy_obstacles, LidarUtils::LIDAR_DISCONNECTED);
 }
 
 // _____________________________________________________________________
@@ -224,6 +235,10 @@ void CLidar::read_sick()
     CLidarData data;
     bool status = m_lidar.poll_one_telegram(&data);
     if (status) new_data(data);
+    else {
+        LidarUtils::tLidarObstacles dummy_obstacles;
+        send_ETAT_LIDAR(dummy_obstacles, LidarUtils::LIDAR_ERROR);
+    }
     /*
     if (status) {
         qDebug() << "Timestamp" << data.m_timestamp;
@@ -242,7 +257,7 @@ void CLidar::read_sick()
 }
 
 // _____________________________________________________________
-// Une nouvelle donnée est arrichée (en provenant du LIDAR ou du simulateur)
+// Une nouvelle donnée est arrivée (en provenant du LIDAR ou du rejoueur)
 void CLidar::new_data(const CLidarData &data)
 {
     // filtre les données
@@ -260,9 +275,11 @@ void CLidar::new_data(const CLidarData &data)
 
     if (m_logger_active) log_data(data);
 
-    // envoie les infos vers le MBED
-    // todo : a voir si c'est bien ca qu'on veut faire
-    send_ETAT_LIDAR(data);
+    // Met en forme la structure obstacles a partir des donnees filtrees
+    // Envoie les infos vers le MBED
+    LidarUtils::tLidarObstacles obstacles;
+    lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
+    send_ETAT_LIDAR(obstacles, LidarUtils::LIDAR_OK);
 }
 
 // _____________________________________________________________
@@ -569,25 +586,35 @@ void CLidar::log_data(const CLidarData &data)
  * \brief Envoie des donnees mises en forme du Lidar vers le MBED
  * \param data les donnees filtrees
  */
-void CLidar::send_ETAT_LIDAR(const CLidarData &data)
+void CLidar::send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned char lidar_status)
 {
-    LidarUtils::tLidarObstacles obstacles;
-    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
-        obstacles[i].angle = 0;
-        obstacles[i].distance = 0;
-    }
-
-    // juste pour l'exemple, renseigne une valeur pipo pour le premier obstacle
-    int index=45+60;
-    int angle = data.m_start_angle + index*data.m_angle_step_resolution;
-    int distance = data.m_dist_measures[index];
-    obstacles[0].angle = angle;
-    obstacles[0].distance = distance;
-
     CTrameBot *trame = m_application->m_MessagerieBot->getTrameFactory()->getTrameFromID(ID_ETAT_LIDAR);
     CTrame_ETAT_LIDAR *trame_lidar = (CTrame_ETAT_LIDAR *)trame;
+    trame_lidar->m_status = lidar_status;
     LidarUtils::copy_tab_obstacles(obstacles, trame_lidar->m_obstacles);
     trame_lidar->Encode();
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Met en forme la structure de donnes d'obstacles a partir des donnees LIDAR
+ * \param data les donnees filtrees
+ * |return la structure de donnees d'obstacle
+ */
+void CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles)
+{
+    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
+        out_obstacles[i].angle = 0;
+        out_obstacles[i].distance = 0;
+    }
+
+    // juste pour l'exemple, renseigne une valeur pipo pour le premier obstacle (juste pour tester la communication)
+    // TODO: faire le lien avec le post-traitement des donnees du LIDAR
+    int index=45+60;
+    int angle = in_data.m_start_angle + index*in_data.m_angle_step_resolution;
+    int distance = in_data.m_dist_measures[index];
+    out_obstacles[0].angle = angle;
+    out_obstacles[0].distance = distance;
 }
 
 

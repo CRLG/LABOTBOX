@@ -15,6 +15,7 @@
 #include "lidar_data.h"
 #include "lidar_data_player.h"
 #include "lidar_data_filter_base.h"
+#include "Lidar_utils.h"
 
  class Cihm_Lidar : public QMainWindow
 {
@@ -94,7 +95,9 @@ private:
     CLidarDataPlayer m_data_player;
     void player_parse();
 
-    void send_ETAT_LIDAR(const CLidarData &data);
+    void send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned char lidar_status);
+    void lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles);
+
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -120,6 +123,7 @@ public slots :
     void refresh_polar_graph(const CLidarData &data);
     void refresh_linear_graph(const CLidarData &data);
     void open_sick();
+    void close_sick();
     void logger_start(QString pathfilename);
     void logger_start();
     void logger_stop();
