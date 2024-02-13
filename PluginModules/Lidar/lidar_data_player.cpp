@@ -8,8 +8,9 @@
 
 CLidarDataPlayer::CLidarDataPlayer(QObject *parent)
     : QObject(parent),
+      m_current_step(-1),
       m_state(PLAYER_STOP),
-      m_current_step(-1)
+      m_step_duration(STEP_DURATION_FROM_FILE)
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timer_tick()));
 }
@@ -129,11 +130,11 @@ bool CLidarDataPlayer::parse(QString pathfilename)
 void CLidarDataPlayer::play(int step)
 {
     if (step >=m_datas.size()) return;
-    emit data_pending(step);
 
     CLidarData data;
     get_step(m_current_step, &data);
     emit new_data(m_datas.at(step));
+    emit played(step);
 }
 
 // _________________________________________________
@@ -156,7 +157,7 @@ void CLidarDataPlayer::start()
     if (m_state == PLAYER_IN_PROGRESS) return;
     m_current_step = -1;
     m_state = PLAYER_IN_PROGRESS;
-    m_timer.start(50);
+    m_timer.start(50);  // 50 = valeur arbitraire
 }
 
 // _________________________________________________
@@ -207,11 +208,34 @@ void CLidarDataPlayer::clear()
 }
 
 // _________________________________________________
+void CLidarDataPlayer::set_steps_duration(int rate_msec)
+{
+    m_step_duration = rate_msec;
+}
+
+// _________________________________________________
 void CLidarDataPlayer::timer_tick()
 {
-    int step_to_play = next_step();  // si dernier step, le player est arrêté
+    int step_to_play = next_step();  // si dernier step, le player sera arrêté (mise a jour de m_state)
     if (m_state == PLAYER_IN_PROGRESS) {
        play(step_to_play);
-       m_timer.start(50);
+       if (m_step_duration == STEP_DURATION_FROM_FILE) {
+            // la duree entre 2 echantillons est calculee a partir du fichier d'entree
+           int _current_step = current_step();
+           if (_current_step >= m_datas.size()-1) {  // traite le cas ou l'echantillon est le dernier -> il n'existe pas de timestamp suivant -> duree forfaitaire
+               m_timer.start(50);  // 50 = valeur arbitraire
+           }
+           else {
+               int current_timestamp = m_datas.at(_current_step).m_timestamp;
+               int next_timestamp = m_datas.at(_current_step+1).m_timestamp;
+               int _duration_msec = (next_timestamp - current_timestamp)/1000;
+               m_timer.start(_duration_msec);
+           }
+       }
+       else {
+           // la duree entre 2 echantillons est fixee
+           m_timer.start(m_step_duration);
+       }
+
     }
 }

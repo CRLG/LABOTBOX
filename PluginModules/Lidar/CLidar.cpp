@@ -111,7 +111,6 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_change_read_period(int)));
     connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_change_zoom_distance(int)));
     connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_graph_type(int)));
-    connect(m_ihm.ui.test_spin, SIGNAL(valueChanged(int)), this, SLOT(on_change_spin_test(int)));
     connect(m_ihm.ui.filter_data_choice, SIGNAL(currentIndexChanged(QString)), this, SLOT(on_change_data_filter(QString)));
     connect(m_ihm.ui.filter_param, SIGNAL(clicked(bool)), this, SLOT(on_filter_params_show()));
     connect(m_ihm.ui.data_affichees, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_data_displayed(int)));
@@ -127,7 +126,10 @@ void CLidar::init(CApplication *application)
 
     // Simulateur / rejoueur de trace
     connect(m_ihm.ui.PB_choixTrace, SIGNAL(clicked()), this, SLOT(on_PB_player_choix_trace_clicked()));
+    connect(m_ihm.ui.dureeStepReplay, SIGNAL(editingFinished()), this, SLOT(on_PlayerStepDurationChanged()));
     connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
+    connect(&m_data_player, SIGNAL(played(int)), this, SLOT(on_PlayedStep(int)));
+
 
     int sick_autoreconnect = m_application->m_eeprom->read(getName(), "sick_autoreconnect", false).toBool();
     m_ihm.ui.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
@@ -280,17 +282,6 @@ void CLidar::new_data(const CLidarData &data)
     LidarUtils::tLidarObstacles obstacles;
     lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
     send_ETAT_LIDAR(obstacles, LidarUtils::LIDAR_OK);
-}
-
-// _____________________________________________________________
-// Test d'orientation du graph polaire
-// (juste pour les tests : à supprimer)
-void CLidar::on_change_spin_test(int val)
-{
-    if (!m_angular_axis) return;
-    //m_angular_axis->radialAxis()->setAngle(val);
-    m_angular_axis->setAngle(val);
-    m_ihm.ui.customPlot->replot();
 }
 
 // _____________________________________________________________
@@ -638,15 +629,22 @@ void CLidar::on_PB_player_choix_trace_clicked(void)
 
   if (m_data_player.parse(fileName)) {
       m_ihm.ui.tabWidget->setCurrentIndex(0); // bascule sur l'onglet de visualisation des données (graph)
+      m_ihm.ui.sliderStepNumTrace->setMaximum(m_data_player.get_step_count()-1);
+      m_data_player.set_steps_duration(m_ihm.ui.dureeStepReplay->value());
       m_data_player.start();
   }
 }
 
 // _____________________________________________________________________
-// Récupère la data du player et la traite
-void CLidar::on_dataplayer_new_data_available(int step)
+// Affiche le numero du step joue et le nombre total de step
+void CLidar::on_PlayedStep(int step_num)
 {
-    CLidarData data;
-    m_data_player.get_step(step, &data);
-    new_data(data);
+    m_ihm.ui.statusbar->showMessage(QString("Play step %1/%2").arg(step_num).arg(m_data_player.get_step_count()-1), 1000);
+    m_ihm.ui.sliderStepNumTrace->setValue(step_num);
+}
+
+// _____________________________________________________________________
+void CLidar::on_PlayerStepDurationChanged()
+{
+    m_data_player.set_steps_duration(m_ihm.ui.dureeStepReplay->value());
 }

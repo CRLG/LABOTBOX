@@ -175,19 +175,6 @@
           </item>
          </widget>
         </item>
-        <item row="7" column="4">
-         <widget class="QSpinBox" name="test_spin">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <number>-1000</number>
-          </property>
-          <property name="maximum">
-           <number>1000</number>
-          </property>
-         </widget>
-        </item>
         <item row="8" column="3" colspan="2">
          <widget class="QComboBox" name="filter_data_choice">
           <property name="toolTip">
@@ -509,7 +496,7 @@
            <item row="1" column="0" colspan="2">
             <widget class="QLabel" name="dureeStepTrace_label">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Durée du step</string>
@@ -517,9 +504,9 @@
             </widget>
            </item>
            <item row="1" column="2" colspan="4">
-            <widget class="QSpinBox" name="dureeStepTrace">
+            <widget class="QSpinBox" name="dureeStepReplay">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="toolTip">
               <string>Vitesse de l'animation. Valeur spéciale &quot;-1&quot; pour indiquer que la durée du step est prise du fichier de trace</string>
@@ -715,6 +702,19 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
+           </item>
+           <item row="6" column="0">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>

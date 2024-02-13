@@ -23,11 +23,14 @@ public:
 
     int get_step_count();
 
+    const int STEP_DURATION_FROM_FILE = -1;
+
 private :
     QVector<CLidarData> m_datas;
     QTimer  m_timer;
     int m_current_step;
     int m_state;
+    int m_step_duration;
 
 public slots :
     bool parse(QString pathfilename);
@@ -41,12 +44,12 @@ public slots :
     int current_step();
     void get_step(int step, CLidarData *out_data);
     void clear();
+    void set_steps_duration(int rate_msec);
 
 private slots :
     void timer_tick();
 
 signals :
-    void data_pending(int step);
     void new_data(const CLidarData &);
     void started();
     void played(int step);

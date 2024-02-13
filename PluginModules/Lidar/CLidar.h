@@ -110,7 +110,6 @@ private slots :
     void on_change_zoom_distance(int zoom_mm);
     void on_change_graph_type(int choice);
     void on_change_data_displayed(int choice);
-    void on_change_spin_test(int val);
     void on_change_data_filter(QString filter_name);
     void on_filter_params_show();
     void filter_params_load();
@@ -131,7 +130,8 @@ public slots :
 
     // Gestion du rejeu de trace DataPlayer
     void on_PB_player_choix_trace_clicked(void);
-    void on_dataplayer_new_data_available(int step);
+    void on_PlayedStep(int step_num);
+    void on_PlayerStepDurationChanged();
 };
 
 #endif // _CPLUGIN_MODULE_Lidar_H_
