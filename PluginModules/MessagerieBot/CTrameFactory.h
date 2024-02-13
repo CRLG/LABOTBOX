@@ -1279,7 +1279,7 @@ private slots :
 //             TRAME ETAT_LIDAR
 // ========================================================
 #define ID_ETAT_LIDAR 0x99
-#define DLC_ETAT_LIDAR 32
+#define DLC_ETAT_LIDAR 64
 class CTrame_ETAT_LIDAR : public CTrameBot
 {
    Q_OBJECT
