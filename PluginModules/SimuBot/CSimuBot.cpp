@@ -171,25 +171,55 @@ void CSimuBot::init(CApplication *application)
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-
-    elementsJeu[0]=setElementJeu(51.5f,28.5f,Qt::cyan);
-    elementsJeu[1]=setElementJeu(71.5f,28.5f,Qt::yellow);
-    elementsJeu[2]=setElementJeu(218.5f,28.5f,Qt::yellow);
-    elementsJeu[3]=setElementJeu(238.5f,28.5f,Qt::cyan);
-    elementsJeu[4]=setElementJeu(106.5f,78.5f,Qt::red);
-    elementsJeu[5]=setElementJeu(181.5f,78.5f,Qt::red);
-
-    elementsJeu[6]=setElementJeu(106.5f,133.5f,Qt::red);
-    elementsJeu[7]=setElementJeu(181.5f,133.5f,Qt::red);
-    elementsJeu[8]=setElementJeu(51.5f,182.5f,Qt::cyan);
-    elementsJeu[9]=setElementJeu(71.5f,182.5f,Qt::yellow);
-    elementsJeu[10]=setElementJeu(218.5f,182.5f,Qt::yellow);
-    elementsJeu[11]=setElementJeu(238.5f,182.5f,Qt::cyan);
+    //plantes
+    float x_elJeu[]={100.0f,100.0f,150.0f,150.0f,200.0f,200.0f};
+    float y_elJeu[]={70.0f,130.0f,50.0f,150.0f,70.0f,130.0f};
+    for(int k=0;k<36;k=k+6)
+    {
+        int p=qCeil(k/6);
+        elementsJeu[k]=setElementJeu(x_elJeu[p]+6.5f,y_elJeu[p]+4.0f,Qt::green);
+        elementsJeu[k+1]=setElementJeu(x_elJeu[p],y_elJeu[p]+6.5f,Qt::green);
+        elementsJeu[k+2]=setElementJeu(x_elJeu[p]-6.5f,y_elJeu[p]+4.0f,Qt::green);
+        elementsJeu[k+3]=setElementJeu(x_elJeu[p]-6.5f,y_elJeu[p]-4.0f,Qt::green);
+        elementsJeu[k+4]=setElementJeu(x_elJeu[p],y_elJeu[p]-6.5f,Qt::green);
+        elementsJeu[k+5]=setElementJeu(x_elJeu[p]+6.5f,y_elJeu[p]-4.0f,Qt::green);
+    }
+    //pots
+    float x_elJeu_2[]={296.5f,296.5f,200.0f,100.0f,3.5f,3.5f};
+    float y_elJeu_2[]={61.0f,139.0f,3.5f,3.5f,139.0f,61.0f};
+    for(int k=36;k<66;k=k+5)
+    {
+        int p=(k+5) % 6;
+        if((p==0)||(p==1))
+        {
+            elementsJeu[k]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]+5.5f,Qt::gray);
+            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
+            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]-5.5f,Qt::gray);
+            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p]+3.0f,Qt::gray);
+            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p]-3.0f,Qt::gray);
+        }
+        else if((p==2)||(p==3))
+        {
+            elementsJeu[k]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p],Qt::gray);
+            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
+            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p],Qt::gray);
+            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]+3.0f,y_elJeu_2[p]+5.5f,Qt::gray);
+            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]-3.0f,y_elJeu_2[p]+5.5f,Qt::gray);
+        }
+        else
+        {
+            elementsJeu[k]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]+5.5f,Qt::gray);
+            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
+            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]-5.5f,Qt::gray);
+            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p]+3.0f,Qt::gray);
+            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p]-3.0f,Qt::gray);
+        }
+    }
 
 
     //ajout des tasseaux 2022
 
-    QGraphicsLineItem * Tasseau01;
+    /*QGraphicsLineItem * Tasseau01;
     Tasseau01=new QGraphicsLineItem(0,-51,51,0);
     Tasseau01->setPen(QPen(Qt::yellow,1));
     terrain->addItem(Tasseau01);
@@ -200,7 +230,7 @@ void CSimuBot::init(CApplication *application)
     QGraphicsLineItem * Tasseau03;
     Tasseau03=new QGraphicsLineItem(150,-200,150,-170);
     Tasseau03->setPen(QPen(Qt::gray,2));
-    terrain->addItem(Tasseau03);
+    terrain->addItem(Tasseau03);*/
 
 
 
@@ -630,9 +660,9 @@ void CSimuBot::initView(void){
         }
 
         //placement des élements de jeu dans le monde simulé
-        for(int i=0;i<12;i++)
+        for(int i=0;i<66;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),12.0,12.0));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5,5.0,5.0));
             /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
             elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
         }
@@ -1540,7 +1570,7 @@ void CSimuBot::on_active_external_robot2(bool state)
  */
 QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
 {
-    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x,-y,12.0,12.0);
+    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x-2.5,-(y+2.5),5.0,5.0);
     //QPolygonF element_shape;
     /*element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
     element_shape << QPointF(7.5*cos(5*M_PI/6),7.5*sin(5*M_PI/6)) << QPointF(7.5*cos(-5*M_PI/6),7.5*sin(-5*M_PI/6));
@@ -1558,6 +1588,8 @@ QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
         element->setBrush(QBrush(QColor(139,69,19, 255)));
     if(Color==Qt::yellow)
         element->setBrush(QBrush(QColor(255,255,0, 255)));
+    if(Color==Qt::gray)
+        element->setBrush(QBrush(QColor(128,128,128, 255)));
 
     terrain->addItem(element);
 
@@ -1643,10 +1675,11 @@ void CSimuBot::updateStepFromSimulia()
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2);
 
         //récupération des données simulées pour les éléments de jeu
-        for(int i=0;i<12;i++)
+        for(int i=0;i<66;i++)
         {
-            elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
-            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5,5.0,5.0));
+            /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5);
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
         }
 
         //environnement physique mis à jour, on l'affiche dans SimuBot

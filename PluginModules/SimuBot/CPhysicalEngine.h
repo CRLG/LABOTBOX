@@ -46,7 +46,7 @@ private :
     CApplication *m_application;
     b2World *realWorld;
 
-    b2Body* elementsJeu[12];
+    b2Body* elementsJeu[66];
 
     b2Body* m_bot1;
     b2Vec2 m_old_bot1_pos_G;

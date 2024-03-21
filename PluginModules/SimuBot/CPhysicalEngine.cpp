@@ -18,7 +18,7 @@ CPhysicalEngine::CPhysicalEngine()
 {
     m_bot1=0;
     m_bot2=0;
-    for(int i=0;i<12;i++)
+    for(int i=0;i<66;i++)
         elementsJeu[i]=0;
 }
 
@@ -111,7 +111,7 @@ void CPhysicalEngine::createPhysicalWorld(CApplication *application, QPolygonF b
     Corps_Bordure_basse->CreateFixture(&Fixture_Bordure_basse);
     
     //comportement de la bordure dans le monde simulé
-    b2BodyDef Definition_Chantier_jaune;
+    /*b2BodyDef Definition_Chantier_jaune;
     Definition_Chantier_jaune.position.Set(0.0f,0.0f);
     //ajout de la bordure au monde simulé
     b2Body* Corps_Chantier_jaune = realWorld->CreateBody(&Definition_Chantier_jaune);
@@ -122,7 +122,7 @@ void CPhysicalEngine::createPhysicalWorld(CApplication *application, QPolygonF b
     Fixture_Chantier_jaune.shape = &Forme_Chantier_jaune;
     Fixture_Chantier_jaune.density = 1.0f;
     Fixture_Chantier_jaune.friction = 1.0f;
-    Corps_Chantier_jaune->CreateFixture(&Fixture_Chantier_jaune);
+    Corps_Chantier_jaune->CreateFixture(&Fixture_Chantier_jaune);*/
 
     m_old_bot1_pos_G.x=0.0f;
     m_old_bot1_pos_G.y=0.0f;
@@ -157,20 +157,50 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     }
 
     //éléments de jeux
-    elementsJeu[0]=setElement(51.5f,28.5f);
-    elementsJeu[1]=setElement(71.5f,28.5f);
-    elementsJeu[2]=setElement(218.5f,28.5f);
-    elementsJeu[3]=setElement(238.5f,28.5f);
-    elementsJeu[4]=setElement(106.5f,78.5f);
-    elementsJeu[5]=setElement(181.5f,78.5f);
-
-    elementsJeu[6]=setElement(106.5f,133.5f);
-    elementsJeu[7]=setElement(181.5f,133.5f);
-    elementsJeu[8]=setElement(51.5f,182.5f);
-    elementsJeu[9]=setElement(71.5f,182.5f);
-    elementsJeu[10]=setElement(218.5f,182.5f);
-    elementsJeu[11]=setElement(238.5f,182.5f);
-
+    //plantes
+    float x_elJeu[]={100.0f,100.0f,150.0f,150.0f,200.0f,200.0f};
+    float y_elJeu[]={70.0f,130.0f,50.0f,150.0f,70.0f,130.0f};
+    for(int k=0;k<36;k=k+6)
+    {
+        int p=(int)(ceil(k/6));
+        elementsJeu[k]=setElement(x_elJeu[p]+6.5f,y_elJeu[p]+4.0f);
+        elementsJeu[k+1]=setElement(x_elJeu[p],y_elJeu[p]+6.5f);
+        elementsJeu[k+2]=setElement(x_elJeu[p]-6.5f,y_elJeu[p]+4.0f);
+        elementsJeu[k+3]=setElement(x_elJeu[p]-6.5f,y_elJeu[p]-4.0f);
+        elementsJeu[k+4]=setElement(x_elJeu[p],y_elJeu[p]-6.5f);
+        elementsJeu[k+5]=setElement(x_elJeu[p]+6.5f,y_elJeu[p]-4.0f);
+    }
+    //pots
+    float x_elJeu_2[]={296.5f,296.5f,200.0f,100.0f,3.5f,3.5f};
+    float y_elJeu_2[]={61.0f,139.0f,3.5f,3.5f,139.0f,61.0f};
+    for(int k=36;k<66;k=k+5)
+    {
+        int p=(k+5) % 6;
+        if((p==0)||(p==1))
+        {
+            elementsJeu[k]=setElement(x_elJeu_2[p],y_elJeu_2[p]+5.5f);
+            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
+            elementsJeu[k+2]=setElement(x_elJeu_2[p],y_elJeu_2[p]-5.5f);
+            elementsJeu[k+3]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]+3.0f);
+            elementsJeu[k+4]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]-3.0f);
+        }
+        else if((p==2)||(p==3))
+        {
+            elementsJeu[k]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]);
+            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
+            elementsJeu[k+2]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]);
+            elementsJeu[k+3]=setElement(x_elJeu_2[p]+3.0f,y_elJeu_2[p]+5.5f);
+            elementsJeu[k+4]=setElement(x_elJeu_2[p]-3.0f,y_elJeu_2[p]+5.5f);
+        }
+        else
+        {
+            elementsJeu[k]=setElement(x_elJeu_2[p],y_elJeu_2[p]+5.5f);
+            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
+            elementsJeu[k+2]=setElement(x_elJeu_2[p],y_elJeu_2[p]-5.5f);
+            elementsJeu[k+3]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]+3.0f);
+            elementsJeu[k+4]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]-3.0f);
+        }
+    }
 
     //comme pour l'asservissement on centre le repère de notre monde sur le centre de notre robot
     //on utilisera donc les offset d'init x et y en paramètres
@@ -470,8 +500,8 @@ b2Body* CPhysicalEngine::setElement(float x, float y)
     nouveauElement = realWorld->CreateBody(&Definition_ElJeu);
     //caractéristiques physiques de l'élément
     //caractéristiques physiques du robot
-    b2PolygonShape Forme_ElJeu;
-
+    //Pour créer un polygone
+    /*b2PolygonShape Forme_ElJeu;
     b2Vec2 polygonShape[6];
     polygonShape[0].x=7.5*cos(M_PI/6);polygonShape[0].y=7.5*sin(M_PI/6);
     polygonShape[1].x=0;polygonShape[1].y=7.5;
@@ -480,9 +510,13 @@ b2Body* CPhysicalEngine::setElement(float x, float y)
     polygonShape[4].x=0;polygonShape[4].y=-7.5;
     polygonShape[5].x=7.5*cos(-M_PI/6);polygonShape[5].y=7.5*sin(-M_PI/6);
     //polygonShape[6].x=7.5*cos(M_PI/6);polygonShape[6].y=7.5*sin(M_PI/6);
-    Forme_ElJeu.Set(polygonShape,6);
+    Forme_ElJeu.Set(polygonShape,6);*/
+    //pour créer un cercle
+    b2CircleShape* Forme_ElJeu=new b2CircleShape();
+    Forme_ElJeu->m_p.Set(0.0f,0.0f);
+    Forme_ElJeu->m_radius=2.5f;
     b2FixtureDef Fixture_ElJeu;
-    Fixture_ElJeu.shape = &Forme_ElJeu;
+    Fixture_ElJeu.shape = Forme_ElJeu;
     Fixture_ElJeu.density = 1.0f;
     Fixture_ElJeu.friction = 0.3f;
     nouveauElement->CreateFixture(&Fixture_ElJeu);
