@@ -14,6 +14,7 @@
 #include "MessengerXbeeNetwork_simu.h"
 #include "CAsservissementChariot_simu.h"
 #include "CTelemetres_simu.h"
+#include "CLidar_simu.h"
 #include "CDetectionObstacles_simu.h"
 #include "CCapteurs_simu.h"
 #include "kmar.h"
@@ -34,6 +35,7 @@ public :
     MessengerXbeeNetworkSimu    m_messenger_xbee_ntw;
     CAsservissementChariotSimu  m_asservissement_chariot;
     CTelemetresSimu             m_telemetres;
+    CLidarSimu                  m_lidar;
     CDetectionObstaclesSimu     m_detection_obstacles;
     CKmar                       m_kmar;
     IA                          m_modelia;

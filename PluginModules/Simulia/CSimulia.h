@@ -60,6 +60,8 @@ private:
     Cihm_Simulia m_ihm;
     void simu_task_sequencer();
 
+    void init_lidar();
+
 private slots :
     void onRightClicGUI(QPoint pos);
 
@@ -76,6 +78,10 @@ private slots :
     void on_telemetres_gui_changed();
     void on_origine_detect_obstacle_changed();
     void on_detect_obstacle_gui_changed();
+
+    void on_lidar_gui_changed();
+    void on_origine_lidar_changed();
+    void on_raz_lidar_values();
 
     void on_select_couleur_equipe(int val);
     void on_select_strategie_match(int val);

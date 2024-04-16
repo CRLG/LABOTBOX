@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>537</width>
-    <height>626</height>
+    <width>550</width>
+    <height>546</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="QLed" name="power_electrobot_sw_2">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>380</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -45,7 +45,7 @@
    <widget class="QLed" name="power_electrobot_sw_8">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>500</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -73,10 +73,10 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>340</x>
       <y>70</y>
       <width>16</width>
-      <height>301</height>
+      <height>411</height>
      </rect>
     </property>
     <property name="orientation">
@@ -112,9 +112,9 @@
    <widget class="QDoubleSpinBox" name="TempsMatch">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>450</x>
       <y>310</y>
-      <width>91</width>
+      <width>81</width>
       <height>26</height>
      </rect>
     </property>
@@ -154,7 +154,7 @@
    <widget class="QLed" name="power_electrobot_sw_4">
     <property name="geometry">
      <rect>
-      <x>410</x>
+      <x>420</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -182,7 +182,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>130</y>
       <width>151</width>
       <height>17</height>
@@ -195,7 +195,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>310</y>
       <width>101</width>
       <height>17</height>
@@ -221,7 +221,7 @@
    <widget class="QLed" name="power_electrobot_sw_7">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -249,7 +249,7 @@
    <widget class="QLed" name="power_electrobot_sw_1">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -277,7 +277,7 @@
    <widget class="QLed" name="power_electrobot_sw_6">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>460</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -334,7 +334,7 @@
    <widget class="QLed" name="power_electrobot_sw_5">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>440</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -362,7 +362,7 @@
    <widget class="QLed" name="power_electrobot_sw_3">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>400</x>
       <y>150</y>
       <width>20</width>
       <height>20</height>
@@ -416,7 +416,7 @@
    <widget class="QLed" name="led_mbed_1">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -444,7 +444,7 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>200</y>
       <width>151</width>
       <height>17</height>
@@ -457,7 +457,7 @@
    <widget class="QLed" name="led_mbed_2">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>390</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -485,7 +485,7 @@
    <widget class="QLed" name="led_mbed_3">
     <property name="geometry">
      <rect>
-      <x>410</x>
+      <x>420</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -513,7 +513,7 @@
    <widget class="QLed" name="led_mbed_4">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>450</x>
       <y>220</y>
       <width>20</width>
       <height>20</height>
@@ -541,8 +541,8 @@
    <widget class="QPushButton" name="StepSimu">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>430</y>
+      <x>360</x>
+      <y>400</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -554,8 +554,8 @@
    <widget class="QPushButton" name="PauseSimu">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>400</y>
+      <x>360</x>
+      <y>370</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -567,8 +567,8 @@
    <widget class="QPushButton" name="PlaySimu">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>370</y>
+      <x>360</x>
+      <y>340</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -582,12 +582,12 @@
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>321</width>
-      <height>171</height>
+      <width>331</width>
+      <height>356</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_detectionObstacles">
      <attribute name="title">
@@ -806,6 +806,95 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_lidar">
+     <attribute name="title">
+      <string>Lidar</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="OrigineLidar">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Origine des données LIDAR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>307</width>
+           <height>274</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="3" column="1">
+           <widget class="QPushButton" name="lidar_RAZ_obstacles">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;RAZ des donnees obstacle et satus&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>RAZ Lidar</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="lidar_status"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_lidar_status">
+            <property name="text">
+             <string>Lidar Status</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QTableWidget" name="lidar_table_obstacles">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>25</number>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Angle [deg]</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Distance [mm]</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
     <widget class="QWidget" name="tab_kmar">
      <attribute name="title">
       <string>Kmar</string>
@@ -925,7 +1014,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>537</width>
+     <width>550</width>
      <height>22</height>
     </rect>
    </property>
