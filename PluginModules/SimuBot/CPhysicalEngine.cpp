@@ -349,13 +349,19 @@ float CPhysicalEngine::_x2(float x) {return (x-m_x_init2);}
 //ramène la coordonnée y dans le repère Terrain (orthogonal direct)
 float CPhysicalEngine::_y2(float y) {return (y-m_y_init2);}
 
-void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float vect_deplacement_D, float vect_deplacement_G_2, float vect_deplacement_D_2)
+void CPhysicalEngine::step(float schedule_lap, float vect_deplacement_G, float vect_deplacement_D, float vect_deplacement_G_2, float vect_deplacement_D_2, float x_recal, float y_recal)
 {
     //reset des pas codeurs
     m_deltaRoue_G_bot1=0;
     m_deltaRoue_D_bot1=0;
     m_deltaRoue_G_bot2=0;
     m_deltaRoue_D_bot2=0;
+
+    if((x_recal<500.)||(y_recal<500.))
+    {
+        float angle_recal=m_bot1->GetAngle();
+        m_bot1->SetTransform(b2Vec2(x_recal+m_x_init1,y_recal+m_y_init1),angle_recal);
+    }
 
     //sauvegarde de la position actuelle des codeurs pour calculer les deltas de distance
     m_old_bot1_pos_G.x=m_bot1->GetWorldPoint(b2Vec2(0.0f,(VOIE_BOT/2))).x;

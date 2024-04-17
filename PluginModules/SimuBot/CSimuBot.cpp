@@ -1671,8 +1671,12 @@ void CSimuBot::updateStepFromSimulia()
         //déplacement du robot adverse
         nextStepOther();
 
+        //recal avec l'asser
+        float x_recal=m_application->m_data_center->read("Simulia.x_pos").toFloat();
+        float y_recal=m_application->m_data_center->read("Simulia.y_pos").toFloat();
+
         //simulation des déplacements du robot avec le moteur box2d
-        m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2);
+        m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2,x_recal,y_recal);
 
         //récupération des données simulées pour les éléments de jeu
         for(int i=0;i<66;i++)

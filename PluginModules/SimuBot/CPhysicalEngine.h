@@ -27,7 +27,7 @@ public :
 
     void createPhysicalWorld(CApplication *application, QPolygonF bot1, QPolygonF bot2);
     void Init(float x_init1, float y_init1, float teta_init1, float x_init2, float y_init2, float teta_init2, bool enable2);
-    void step(float schedule_lap, float vect_deplacement_G, float vect_deplacement_D,float vect_deplacement_G_2, float vect_deplacement_D_2);
+    void step(float schedule_lap, float vect_deplacement_G, float vect_deplacement_D,float vect_deplacement_G_2, float vect_deplacement_D_2, float x_recal=500., float y_recal=500.);
     float x_pos;
     float y_pos;
     float teta_pos;

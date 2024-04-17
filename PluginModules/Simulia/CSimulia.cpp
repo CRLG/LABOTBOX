@@ -330,6 +330,8 @@ void CSimulia::step_sequencer()
     {
         m_application->m_data_center->write("Simulia.vect_G", Application.m_roues.m_vect_deplacement_G);
         m_application->m_data_center->write("Simulia.vect_D", Application.m_roues.m_vect_deplacement_D);
+        m_application->m_data_center->write("Simulia.x_pos", Application.m_asservissement.X_robot);
+        m_application->m_data_center->write("Simulia.y_pos", Application.m_asservissement.Y_robot);
         m_application->m_data_center->write("Simulia.step", m_step);
     }
 
