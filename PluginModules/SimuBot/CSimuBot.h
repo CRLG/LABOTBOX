@@ -154,7 +154,7 @@ private:
 
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);
-    void getUSDistance(Coord bot, Coord obstacle, float capteurs[]);
+    void getUSDistance(Coord bot, Coord obstacle, float capteurs[], float lidar[]);
     QGraphicsEllipseItem *setElementJeu(float x, float y, int Color);
     //design robot
     QGraphicsScene * scene_design;

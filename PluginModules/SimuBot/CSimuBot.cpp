@@ -1097,17 +1097,44 @@ void CSimuBot::estimate_Environment_Interactions()
     //détection GrosBot
     //de l'adversaire
     float capteurs1[4];
-    getUSDistance(cGrosBot,cOtherBot,capteurs1);
+	float lidar1[2];
+	for(int i=0;i<2;i++)
+            lidar1[i]=0.;
+    getUSDistance(cGrosBot,cOtherBot,capteurs1,lidar1);
     //de minibot
     float capteurs2[4];
+	float lidar2[2];
+	for(int i=0;i<2;i++)
+            lidar2[i]=0.;
     if(twoBotsEnabled)
-        getUSDistance(cGrosBot,cMiniBot,capteurs2);
+	{
+        getUSDistance(cGrosBot,cMiniBot,capteurs2,lidar2);
+	}
     else
     {
         for(int i=0;i<4;i++)
             capteurs2[i]=99;
     }
     //synthèse
+	if(lidar1[0]>0.)
+	{
+		m_application->m_data_center->write("Lidar.Obstacle1.Distance", lidar1[0]);
+		m_application->m_data_center->write("Lidar.Obstacle1.Angle", lidar1[1]);
+	}
+		if(lidar2[0]>0.)
+	{
+		m_application->m_data_center->write("Lidar.Obstacle2.Distance", lidar2[0]);
+		m_application->m_data_center->write("Lidar.Obstacle2.Angle", lidar2[1]);
+	}
+	//TODO ajouter la possibilité de déconnecter le lidar (simulation panne)
+	/*
+	typedef enum {
+        LIDAR_OK    = 0,
+        LIDAR_DISCONNECTED,
+        LIDAR_ERROR
+    }eLidarStatus;
+	*/
+	m_application->m_data_center->write("Lidar.Status", 0);
     float capteurs3[4];
     for(int i=0;i<4;i++)
     {
@@ -1123,10 +1150,15 @@ void CSimuBot::estimate_Environment_Interactions()
     m_application->m_data_center->write("Simubot.Telemetres.ARD", capteurs3[ARD]);
 
     //détection MiniBot
+    for(int i=0;i<2;i++)
+    {
+            lidar1[i]=0.;
+            lidar2[i]=0.;
+    }
     //de l'adversaire
-    getUSDistance(cMiniBot,cOtherBot,capteurs1);
+    getUSDistance(cMiniBot,cOtherBot,capteurs1,lidar1);
     //de grosbot
-    getUSDistance(cMiniBot,cGrosBot,capteurs2);
+    getUSDistance(cMiniBot,cGrosBot,capteurs2,lidar2);
     //synthèse
     for(int i=0;i<4;i++)
     {
@@ -1135,7 +1167,7 @@ void CSimuBot::estimate_Environment_Interactions()
         else
             capteurs3[i]=capteurs2[i];
     }
-
+    //pour l'instant pas de mise à jour du lidar pour MiniBot bien que l'info soit calculée
     m_application->m_data_center->write("Simubot.Telemetres.AVG2", capteurs3[AVG]);
     m_application->m_data_center->write("Simubot.Telemetres.AVD2", capteurs3[AVD]);
     m_application->m_data_center->write("Simubot.Telemetres.ARG2", capteurs3[ARG]);
@@ -1433,7 +1465,7 @@ void CSimuBot::enableTwoBots(int state)
     }
 }
 
-void CSimuBot::getUSDistance(Coord bot, Coord obstacle, float capteurs[])
+void CSimuBot::getUSDistance(Coord bot, Coord obstacle, float capteurs[], float lidar[])
 {
     //estimation de l'environnement US
     //récupération des différentes coordonnées (graphique et réelles) de l'adversaire
@@ -1478,11 +1510,20 @@ void CSimuBot::getUSDistance(Coord bot, Coord obstacle, float capteurs[])
     if(!sensOrtho_bot)
         arad=arad+Pi;
     double adeg= arad*180/Pi; //angle en degré
+	double adeg2=adeg;
     //modulo 360
     while (adeg < 0)
         adeg += 360;
     while (adeg > 360)
         adeg -= 360;
+	//modulo 360 entre -180 et 180
+    while (adeg2 < -180)
+        adeg2 += 360;
+    while (adeg2 > 180)
+        adeg2 -= 360;
+	//mise à jour lidar
+    lidar[0]=distanceAdversaire*10.;
+	lidar[1]=adeg2;
     /*
     //Affichage des nouvelles valeurs position, angle du robot
     qDebug() << "coord graphique: G(" <<x_prim_graphic <<","<<y_prim_graphic<<")\tAd("<<x_graphic<<","<<y_graphic<<")";
