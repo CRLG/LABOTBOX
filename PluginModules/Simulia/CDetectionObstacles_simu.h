@@ -44,6 +44,8 @@ private :
     bool m_gui_detect_avd;
     bool m_gui_detect_arg;
     bool m_gui_detect_ard;
+    bool m_gui_detect_arg_centre;
+    bool m_gui_detect_ard_centre;
 
     void updateDataManager(QString dataname, QVariant val);
 };

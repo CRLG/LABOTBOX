@@ -19,6 +19,8 @@ void CTelemetresSimu::Init()
     updateDataManager("Telemetres.AVD", DEFAULT_DISTANCE);
     updateDataManager("Telemetres.ARG", DEFAULT_DISTANCE);
     updateDataManager("Telemetres.ARD", DEFAULT_DISTANCE);
+    updateDataManager("Telemetres.ARGCentre", DEFAULT_DISTANCE);
+    updateDataManager("Telemetres.ARDCentre", DEFAULT_DISTANCE);
 }
 
 //___________________________________________________________________________
@@ -68,6 +70,27 @@ float CTelemetresSimu::getDistanceARD()
     }
 }
 
+float CTelemetresSimu::getDistanceARGCentre()
+{
+    if (!m_application) return DEFAULT_DISTANCE;
+    switch(m_origine_telemetres) {
+        case TELEMETRES_FROM_GUI :      return m_gui_distance_arg_centre;
+        case TELEMETRES_FROM_SIMUBOT :  return m_application->m_data_center->read("Simubot.Telemetres.ARGCentre").toFloat();
+        default :
+        case TELEMETRES_FROM_SIMU :     return m_application->m_data_center->read("Telemetres.ARGCentre").toFloat();
+    }
+}
+
+float CTelemetresSimu::getDistanceARDCentre()
+{
+    if (!m_application) return DEFAULT_DISTANCE;
+    switch(m_origine_telemetres) {
+        case TELEMETRES_FROM_GUI :      return m_gui_distance_ard_centre;
+        case TELEMETRES_FROM_SIMUBOT :  return m_application->m_data_center->read("Simubot.Telemetres.ARDCentre").toFloat();
+        default :
+        case TELEMETRES_FROM_SIMU :     return m_application->m_data_center->read("Telemetres.ARDCentre").toFloat();
+    }
+}
 
 // ============================================================
 //                          SIMULATION
@@ -83,12 +106,14 @@ void CTelemetresSimu::setOrigineTelemetre(int origine)
     m_origine_telemetres = origine;
 }
 
-void CTelemetresSimu::setDistancesFromGui(float avg, float avd, float arg, float ard)
+void CTelemetresSimu::setDistancesFromGui(float avg, float avd, float arg, float ard, float arg_centre, float ard_centre)
 {
     m_gui_distance_avg = avg;
     m_gui_distance_avd = avd;
     m_gui_distance_arg = arg;
     m_gui_distance_ard = ard;
+    m_gui_distance_arg_centre = arg_centre;
+    m_gui_distance_ard_centre = ard_centre;
 }
 
 // ___________________________________________________

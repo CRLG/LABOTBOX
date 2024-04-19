@@ -158,6 +158,8 @@ void CSimulia::init(CApplication *application)
     connect(m_ihm.ui.Telemetre_AVD, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
     connect(m_ihm.ui.Telemetre_ARG, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
     connect(m_ihm.ui.Telemetre_ARD, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
+    connect(m_ihm.ui.Telemetre_ARG_Centre, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
+    connect(m_ihm.ui.Telemetre_ARD_Centre, SIGNAL(editingFinished()), this, SLOT(on_telemetres_gui_changed()));
 
     connect(m_ihm.ui.OrigineDetectionObstacles, SIGNAL(currentIndexChanged(int)), this, SLOT(on_origine_detect_obstacle_changed()));
     connect(m_ihm.ui.detectionObstacle_AVG, SIGNAL(clicked(bool)), this, SLOT(on_detect_obstacle_gui_changed()));
@@ -301,6 +303,8 @@ void CSimulia::step_sequencer()
         m_ihm.ui.Telemetre_AVD->setValue(Application.m_modelia.m_inputs_interface.Telemetre_AVD);
         m_ihm.ui.Telemetre_ARG->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARG);
         m_ihm.ui.Telemetre_ARD->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARD);
+        m_ihm.ui.Telemetre_ARG_Centre->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARGCentre);
+        m_ihm.ui.Telemetre_ARD_Centre->setValue(Application.m_modelia.m_inputs_interface.Telemetre_ARDCentre);
     }
 
     // Met a jour les donnees LIDAR Modelia
@@ -436,7 +440,9 @@ void CSimulia::on_telemetres_gui_changed()
                 m_ihm.ui.Telemetre_AVG->value(),
                 m_ihm.ui.Telemetre_AVD->value(),
                 m_ihm.ui.Telemetre_ARG->value(),
-                m_ihm.ui.Telemetre_ARD->value());
+                m_ihm.ui.Telemetre_ARD->value(),
+                m_ihm.ui.Telemetre_ARG_Centre->value(),
+                m_ihm.ui.Telemetre_ARD_Centre->value());
 }
 
 //
@@ -451,12 +457,16 @@ void CSimulia::on_origine_telemetre_changed()
         m_ihm.ui.Telemetre_AVD->setValue(val_neutre);
         m_ihm.ui.Telemetre_ARG->setValue(val_neutre);
         m_ihm.ui.Telemetre_ARD->setValue(val_neutre);
+        m_ihm.ui.Telemetre_ARG_Centre->setValue(val_neutre);
+        m_ihm.ui.Telemetre_ARD_Centre->setValue(val_neutre);
         on_telemetres_gui_changed();
     }
     m_ihm.ui.Telemetre_AVG->setReadOnly(read_only);
     m_ihm.ui.Telemetre_AVD->setReadOnly(read_only);
     m_ihm.ui.Telemetre_ARG->setReadOnly(read_only);
     m_ihm.ui.Telemetre_ARD->setReadOnly(read_only);
+    m_ihm.ui.Telemetre_ARG_Centre->setReadOnly(read_only);
+    m_ihm.ui.Telemetre_ARD_Centre->setReadOnly(read_only);
     Application.m_telemetres.setOrigineTelemetre(m_ihm.ui.OrigineTelemetres->currentIndex());
 }
 

@@ -19,11 +19,15 @@ void CDetectionObstaclesSimu::Init()
     updateDataManager("DetectionObstacle.AVD", false);
     updateDataManager("DetectionObstacle.ARG", false);
     updateDataManager("DetectionObstacle.ARD", false);
+    updateDataManager("DetectionObstacle.ARGCentre", false);
+    updateDataManager("DetectionObstacle.ARDCentre", false);
     updateDataManager("DetectionObstacle.isObstacle", false);
     m_gui_detect_avg = false;
     m_gui_detect_avd = false;
     m_gui_detect_arg = false;
     m_gui_detect_ard = false;
+    m_gui_detect_arg_centre = false;
+    m_gui_detect_ard_centre = false;
 }
 
 // ============================================================

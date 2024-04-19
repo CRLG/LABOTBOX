@@ -25,6 +25,8 @@ public :
     /*virtual*/ float getDistanceAVD();
     /*virtual*/ float getDistanceARG();
     /*virtual*/ float getDistanceARD();
+    /*virtual*/ float getDistanceARGCentre();
+    /*virtual*/ float getDistanceARDCentre();
 
     typedef enum {
         TELEMETRES_FROM_SIMU = 0,
@@ -32,7 +34,7 @@ public :
         TELEMETRES_FROM_SIMUBOT,
     }tOrigineTelemetre;
     void setOrigineTelemetre(int origine);
-    void setDistancesFromGui(float avg, float avd, float arg, float ard);
+    void setDistancesFromGui(float avg, float avd, float arg, float ard, float arg_centre, float ard_centre);
 
 private :
     CApplication *m_application;
@@ -43,6 +45,8 @@ private :
     float m_gui_distance_avd;
     float m_gui_distance_arg;
     float m_gui_distance_ard;
+    float m_gui_distance_arg_centre;
+    float m_gui_distance_ard_centre;
 
 
     void updateDataManager(QString dataname, QVariant val);

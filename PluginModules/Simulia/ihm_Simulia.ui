@@ -609,7 +609,7 @@
      <widget class="QCheckBox" name="detectionObstacle_AVG">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>10</x>
         <y>50</y>
         <width>51</width>
         <height>23</height>
@@ -625,7 +625,7 @@
      <widget class="QCheckBox" name="detectionObstacle_AVD">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>190</x>
         <y>50</y>
         <width>51</width>
         <height>23</height>
@@ -641,7 +641,7 @@
      <widget class="QCheckBox" name="detectionObstacle_ARG">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>10</x>
         <y>80</y>
         <width>51</width>
         <height>23</height>
@@ -657,7 +657,7 @@
      <widget class="QCheckBox" name="detectionObstacle_ARD">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>190</x>
         <y>80</y>
         <width>51</width>
         <height>23</height>
@@ -673,7 +673,7 @@
      <widget class="QLed" name="led_isObstacle">
       <property name="geometry">
        <rect>
-        <x>190</x>
+        <x>260</x>
         <y>50</y>
         <width>50</width>
         <height>50</height>
@@ -698,6 +698,38 @@
        <enum>QLed::Circle</enum>
       </property>
      </widget>
+     <widget class="QCheckBox" name="detectionObstacle_ARG_Centre">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>100</y>
+        <width>61</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Force détection d'obstacle ARG Centre</string>
+      </property>
+      <property name="text">
+       <string>ARGC</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="detectionObstacle_ARD_Centre">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>100</y>
+        <width>61</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Force détection d'obstacle ARD Centre</string>
+      </property>
+      <property name="text">
+       <string>ARDC</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -706,7 +738,7 @@
      <widget class="QDoubleSpinBox" name="Telemetre_ARG">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>10</x>
         <y>100</y>
         <width>81</width>
         <height>26</height>
@@ -725,7 +757,7 @@
      <widget class="QDoubleSpinBox" name="Telemetre_ARD">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>240</x>
         <y>100</y>
         <width>81</width>
         <height>26</height>
@@ -770,7 +802,7 @@
      <widget class="QDoubleSpinBox" name="Telemetre_AVD">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>240</x>
         <y>60</y>
         <width>81</width>
         <height>26</height>
@@ -789,7 +821,7 @@
      <widget class="QDoubleSpinBox" name="Telemetre_AVG">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>10</x>
         <y>60</y>
         <width>81</width>
         <height>26</height>
@@ -797,6 +829,44 @@
       </property>
       <property name="toolTip">
        <string>Télémètre AVG</string>
+      </property>
+      <property name="maximum">
+       <double>999999999999999.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>100.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="Telemetre_ARG_Centre">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>130</y>
+        <width>81</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre ARG Centre</string>
+      </property>
+      <property name="maximum">
+       <double>999999999999999.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>100.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="Telemetre_ARD_Centre">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>130</y>
+        <width>81</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Télémètre ARD Centre</string>
       </property>
       <property name="maximum">
        <double>999999999999999.000000000000000</double>
