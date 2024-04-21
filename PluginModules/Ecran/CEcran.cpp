@@ -97,6 +97,8 @@ void CEcran::init(CApplication *application)
   m_application->m_data_center->write("CouleurEquipe",  -1);
   m_application->m_data_center->write("NumStrategie",  -1);
   m_application->m_data_center->write("ModeFonctionnement",  -1);
+  m_application->m_data_center->write("Telemetre6",  -1);
+  m_application->m_data_center->write("Telemetre5",  -1);
   m_application->m_data_center->write("Telemetre4",  -1);
   m_application->m_data_center->write("Telemetre3",  -1);
   m_application->m_data_center->write("Telemetre2",  -1);
@@ -126,6 +128,8 @@ void CEcran::init(CApplication *application)
   connect(m_application->m_data_center->getData("Telemetre2"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre2_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre3"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre3_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre4"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre4_changed(QVariant)));
+  connect(m_application->m_data_center->getData("Telemetre5"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre5_changed(QVariant)));
+  connect(m_application->m_data_center->getData("Telemetre6"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre6_changed(QVariant)));
   connect(m_application->m_data_center->getData("Score"), SIGNAL(valueChanged(QVariant)), this, SLOT(Score_changed(QVariant)));
   connect(m_application->m_data_center->getData("ObstacleDetecte"), SIGNAL(valueChanged(QVariant)), this, SLOT(ObstacleDetecte_changed(QVariant)));
   connect(m_application->m_data_center->getData("DiagBlocage"), SIGNAL(valueChanged(QVariant)), this, SLOT(DiagBlocage_changed(QVariant)));
@@ -322,10 +326,12 @@ void CEcran::ModeFonctionnement_changed(QVariant val)
 }
 
 void CEcran::Vbat_changed(QVariant val){ m_ihm.ui.VBatt->setValue(val.toDouble());}
-void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.sb_AVD->setValue(val.toInt());}
-void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.sb_ARD->setValue(val.toInt());}
-void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.sb_AVG->setValue(val.toInt());}
-void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_ARG->setValue(val.toInt());}
+void CEcran::Telemetre1_changed(QVariant val){ m_ihm.ui.sb_AVG->setValue(val.toInt());}
+void CEcran::Telemetre2_changed(QVariant val){ m_ihm.ui.sb_AVD->setValue(val.toInt());}
+void CEcran::Telemetre3_changed(QVariant val){ m_ihm.ui.sb_ARG->setValue(val.toInt());}
+void CEcran::Telemetre4_changed(QVariant val){ m_ihm.ui.sb_ARD->setValue(val.toInt());}
+void CEcran::Telemetre5_changed(QVariant val){ m_ihm.ui.sb_ARGCentre->setValue(val.toInt());}
+void CEcran::Telemetre6_changed(QVariant val){ m_ihm.ui.sb_ARDCentre->setValue(val.toInt());}
 
 void CEcran::TpsMatch_changed(QVariant val)
 {

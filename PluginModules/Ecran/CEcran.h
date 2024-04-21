@@ -80,6 +80,8 @@ private slots :
     void Telemetre2_changed(QVariant val);
     void Telemetre3_changed(QVariant val);
     void Telemetre4_changed(QVariant val);
+    void Telemetre5_changed(QVariant val);
+    void Telemetre6_changed(QVariant val);
     void Score_changed(QVariant val);
     void NumStrategie_changed(QVariant val);
     void ObstacleDetecte_changed(QVariant val);

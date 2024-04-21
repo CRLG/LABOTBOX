@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
+    <width>528</width>
     <height>356</height>
    </rect>
   </property>
@@ -31,6 +31,344 @@
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
+        </item>
+        <item row="0" column="2">
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="1" column="0" colspan="4">
+           <widget class="QComboBox" name="combo_ChoixStrategie">
+            <property name="font">
+             <font>
+              <pointsize>15</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>Choix d'une stratégie</string>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QSpinBox" name="sb_AVG">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>AVG</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QSpinBox" name="sb_ARDCentre">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>ARDCentre</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="4">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLed" name="qLed_Obstacle">
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Binary Led</string>
+            </property>
+            <property name="whatsThis">
+             <string>Led widget</string>
+            </property>
+            <property name="value">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Vbatt</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QSpinBox" name="sb_ARG">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>ARG</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="sb_ARGCentre">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>ARGCentre</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" rowspan="2" colspan="4">
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="3">
+           <widget class="QSpinBox" name="sb_ARD">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>ARD</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="4">
+           <widget class="QLabel" name="lbl_ModeFct">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>No Mode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="3">
+           <widget class="QLabel" name="label_6">
+            <property name="font">
+             <font>
+              <pointsize>23</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>V</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <widget class="QLabel" name="label_5">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Telemetres</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="4">
+           <widget class="QLabel" name="lbl_RetourStrategie">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>Retour d'état du robot</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(239, 41, 41);</string>
+            </property>
+            <property name="text">
+             <string>Strategy not selected</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QSpinBox" name="sb_AVD">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>AVD</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <number>999999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1" colspan="2">
+           <widget class="QDoubleSpinBox" name="VBatt">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="maximum">
+             <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_3">
@@ -128,269 +466,6 @@
             </property>
             <property name="value">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="2">
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="9" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Vbatt</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <widget class="QComboBox" name="combo_ChoixStrategie">
-            <property name="font">
-             <font>
-              <pointsize>15</pointsize>
-             </font>
-            </property>
-            <property name="toolTip">
-             <string>Choix d'une stratégie</string>
-            </property>
-            <property name="currentText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QSpinBox" name="sb_ARD">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="maximum">
-             <number>999999</number>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QSpinBox" name="sb_ARG">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="maximum">
-             <number>999999</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QSpinBox" name="sb_AVG">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="maximum">
-             <number>999999</number>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="2">
-           <widget class="QLabel" name="label_6">
-            <property name="font">
-             <font>
-              <pointsize>23</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>V</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0" colspan="3">
-           <widget class="QLabel" name="lbl_ModeFct">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>No Mode</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0" rowspan="2" colspan="3">
-           <widget class="Line" name="line_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QDoubleSpinBox" name="VBatt">
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="maximum">
-             <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QSpinBox" name="sb_AVD">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="maximum">
-             <number>999999</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="3">
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="3">
-           <widget class="QLabel" name="lbl_RetourStrategie">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="toolTip">
-             <string>Retour d'état du robot</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: rgb(239, 41, 41);</string>
-            </property>
-            <property name="text">
-             <string>Strategy not selected</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLed" name="qLed_Obstacle">
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Binary Led</string>
-            </property>
-            <property name="whatsThis">
-             <string>Led widget</string>
-            </property>
-            <property name="value">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_5">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Telemetres</string>
             </property>
            </widget>
           </item>
@@ -873,7 +948,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>482</width>
+     <width>528</width>
      <height>22</height>
     </rect>
    </property>
