@@ -778,7 +778,11 @@ private slots :
 //             TRAME ELECTROBOT_ETAT_TELEMETRES
 // ========================================================
 #define ID_ELECTROBOT_ETAT_TELEMETRES 0x40
-#define DLC_ELECTROBOT_ETAT_TELEMETRES 4
+#define DLC_ELECTROBOT_ETAT_TELEMETRES 6
+#define BRUTE2PHYS_Telemetre5(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre5(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_Telemetre6(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_Telemetre6(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_Telemetre4(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_Telemetre4(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_Telemetre3(val) ( ((float)val * (1.000000)) + (0.000000) )
@@ -796,6 +800,8 @@ public :
     /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
 
  private :
+    unsigned char Telemetre6;
+    unsigned char Telemetre5;
     unsigned char Telemetre4;
     unsigned char Telemetre3;
     unsigned char Telemetre2;

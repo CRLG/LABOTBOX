@@ -2170,12 +2170,16 @@ CTrame_ELECTROBOT_ETAT_TELEMETRES::CTrame_ELECTROBOT_ETAT_TELEMETRES(CMessagerie
  m_name = "ELECTROBOT_ETAT_TELEMETRES";
  m_id = ID_ELECTROBOT_ETAT_TELEMETRES;
  m_dlc = DLC_ELECTROBOT_ETAT_TELEMETRES;
+ m_liste_noms_signaux.append("Telemetre6");
+ m_liste_noms_signaux.append("Telemetre5");
  m_liste_noms_signaux.append("Telemetre4");
  m_liste_noms_signaux.append("Telemetre3");
  m_liste_noms_signaux.append("Telemetre2");
  m_liste_noms_signaux.append("Telemetre1");
 
  // S'assure que les données existent dans le DataManager
+ data_manager->write("Telemetre4",  Telemetre6);
+ data_manager->write("Telemetre4",  Telemetre5);
  data_manager->write("Telemetre4",  Telemetre4);
  data_manager->write("Telemetre3",  Telemetre3);
  data_manager->write("Telemetre2",  Telemetre2);
@@ -2190,6 +2194,10 @@ CTrame_ELECTROBOT_ETAT_TELEMETRES::CTrame_ELECTROBOT_ETAT_TELEMETRES(CMessagerie
 void CTrame_ELECTROBOT_ETAT_TELEMETRES::Decode(tStructTrameBrute *trameRecue)
 {
    // Decode les signaux de la trame
+   Telemetre6 = ( ( ((unsigned char)(trameRecue->Data[5])) & 0xFF) );
+
+   Telemetre5 = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
+
    Telemetre4 = ( ( ((unsigned char)(trameRecue->Data[3])) & 0xFF) );
 
    Telemetre3 = ( ( ((unsigned char)(trameRecue->Data[2])) & 0xFF) );
@@ -2200,6 +2208,8 @@ void CTrame_ELECTROBOT_ETAT_TELEMETRES::Decode(tStructTrameBrute *trameRecue)
 
 
    // Envoie les données au data manager
+   m_data_manager->write("Telemetre6", Telemetre6);
+   m_data_manager->write("Telemetre5", Telemetre5);
    m_data_manager->write("Telemetre4", Telemetre4);
    m_data_manager->write("Telemetre3", Telemetre3);
    m_data_manager->write("Telemetre2", Telemetre2);
