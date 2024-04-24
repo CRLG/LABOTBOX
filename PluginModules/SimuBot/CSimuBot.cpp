@@ -1134,7 +1134,11 @@ void CSimuBot::estimate_Environment_Interactions()
         LIDAR_ERROR
     }eLidarStatus;
 	*/
-	m_application->m_data_center->write("Lidar.Status", 0);
+    if(m_ihm.ui.checkBox_DisconnectLidar->isChecked())
+        m_application->m_data_center->write("Lidar.Status", 1);
+    else
+         m_application->m_data_center->write("Lidar.Status", 0);
+
     float capteurs3[4];
     for(int i=0;i<4;i++)
     {

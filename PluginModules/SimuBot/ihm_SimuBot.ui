@@ -437,7 +437,7 @@
     <item row="2" column="10" rowspan="5" colspan="3">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tb_Placement">
        <attribute name="title">
@@ -1527,6 +1527,19 @@
         </property>
         <property name="text">
          <string>Enable Simulia</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="checkBox_DisconnectLidar">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>190</y>
+          <width>181</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Disconnect Lidar</string>
         </property>
        </widget>
       </widget>
