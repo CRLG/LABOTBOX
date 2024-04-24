@@ -23,9 +23,10 @@ typedef struct {
     QSerialPort::StopBits           stopbits;       //! Nombre de bits de stop
     QSerialPort::DataErrorPolicy    dataerrorpolicy;
     bool                            echo_enabled;   //! Echo RX -> TX
+    int                             thread_read_write_timeout; //! timeout pour waitForReadyRead et waitForBytesWritten dans le thread
 }tConfigRS232;
 
-const tConfigRS232 DEFAULT_RS232_CONFIG = { QSerialPort::Baud115200, QSerialPort::Data8, QSerialPort::NoFlowControl, QSerialPort::NoParity, QSerialPort::OneStop, QSerialPort::IgnorePolicy, false };
+const tConfigRS232 DEFAULT_RS232_CONFIG = { QSerialPort::Baud115200, QSerialPort::Data8, QSerialPort::NoFlowControl, QSerialPort::NoParity, QSerialPort::OneStop, QSerialPort::IgnorePolicy, false, 0 };
 
  /*! @brief class CRS232Listener
   * Thread d'écoute des données en provenance de la ligne physique RX RS232

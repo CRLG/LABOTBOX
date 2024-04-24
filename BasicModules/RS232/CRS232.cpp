@@ -94,6 +94,8 @@ void CRS232::init(CApplication *application)
   config.stopbits = (QSerialPort::StopBits)val.toInt();
   val = m_application->m_eeprom->read(getName(), "echo_enabled", 0);
   config.echo_enabled = val.toInt();
+  val = m_application->m_eeprom->read(getName(), "thread_read_write_timeout", 0);
+  config.thread_read_write_timeout = val.toInt();
 
   procFillingOptions(); // Remplit toutes les valeurs possibles de l'IHM
   serialConfigToIHM(portname, config); // Met en cohérence l'IHM avec la configuration du port

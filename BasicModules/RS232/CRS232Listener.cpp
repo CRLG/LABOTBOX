@@ -190,7 +190,7 @@ void CRS232Listener::run()
   if (rs_opened == false) { return; }
 
   while (!m_stop_thread_request) {
-    msleep(50);
+    msleep(m_serial_conf.thread_read_write_timeout);
     // Traite les données en émission
     m_mutex_data_to_send.lock();
     if (m_data_to_send.size()) {
@@ -199,7 +199,7 @@ void CRS232Listener::run()
     }
     m_mutex_data_to_send.unlock();
 
-    serial->waitForReadyRead(50);
+    serial->waitForReadyRead(m_serial_conf.thread_read_write_timeout);
     readData = serial->readAll();
     if (readData.size()) {
         emit readyBytes(readData);
@@ -208,10 +208,10 @@ void CRS232Listener::run()
         //qDebug() << "read = " << size_read;
         //qDebug() << readData;
     }
-    serial->waitForBytesWritten(50);
+    serial->waitForBytesWritten(m_serial_conf.thread_read_write_timeout);
   }
 
-  // Termine proprement la ocnnexion et émet le signal de déconnexion
+  // Termine proprement la connexion et émet le signal de déconnexion
   closeRS232(serial);
   delete serial;
 }
