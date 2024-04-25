@@ -50,6 +50,7 @@ LIST_PLUGIN_MODULES+= \
         XbeeNetworkMessenger \ 
         PowerElectrobot \ 
         KMAR \ 
+        Lidar \
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -66,6 +67,7 @@ LIST_TOOLS+= CustomPlot\
 # Ajouter ici les modules externes CppRobLib
 LIST_EXT_CPPROBLIB+= \
         ServosAX \
+        Lidar \
         Communication/Messenger \
         Communication/Messenger/MessagesGeneric \
         Communication/Messenger/DatabaseXbeeNetwork2019 \
