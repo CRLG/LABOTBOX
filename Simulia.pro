@@ -29,6 +29,7 @@ LIST_BASIC_MODULES+= \
         DataView \ 
         DataGraph \
         DataPlayer \
+        csvDataLogger \
         #RS232 \
         Joystick \
         ModuleDesigner \

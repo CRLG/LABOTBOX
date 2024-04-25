@@ -31,6 +31,7 @@ LIST_BASIC_MODULES+= \
         DataView \ 
         DataGraph \
         DataPlayer \
+        csvDataLogger \
         DataExchanger \
         RS232 \ 
         Joystick \
@@ -52,7 +53,7 @@ LIST_PLUGIN_MODULES+= \
         Asserv \ 
         ActuatorSequencer \
         #BotCam \
-        #Ecran \
+        Ecran \
         ImageProcessing \ 
         XBEE \ 
         XbeeNetworkMessenger \ 
