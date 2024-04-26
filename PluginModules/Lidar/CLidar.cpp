@@ -285,10 +285,11 @@ void CLidar::new_data(const CLidarData &data)
     if (m_logger_active) log_data(data);
 
     // Met en forme la structure obstacles a partir des donnees filtrees
+    // la recopie dans la structure obstacle a la capacite de dire qu'il y a un probleme (trop de points detectes par ex)
     // Envoie les infos vers le MBED
     LidarUtils::tLidarObstacles obstacles;
-    lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
-    int status = LidarUtils::LIDAR_OK;
+    int status = lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
+
     send_ETAT_LIDAR(obstacles, status);
     if (m_ihm.ui.enable_datamanager_update->isChecked())  {
         obstacles_to_datamanager(obstacles);
@@ -602,13 +603,14 @@ void CLidar::send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned cha
 /*!
  * \brief Met en forme la structure de donnes d'obstacles a partir des donnees LIDAR
  * \param data les donnees filtrees
- * |return la structure de donnees d'obstacle
+ * \return la structure de donnees d'obstacle
+*  \return le statut du LIDAR
  */
-void CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles)
+int CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles)
 {
     for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
         out_obstacles[i].angle = 0;
-        out_obstacles[i].distance = 0;
+        out_obstacles[i].distance = LidarUtils::NO_OBSTACLE;
     }
 
     // juste pour l'exemple, renseigne une valeur pipo pour le premier obstacle (juste pour tester la communication)
@@ -618,6 +620,8 @@ void CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLid
     int distance = in_data.m_dist_measures[index];
     out_obstacles[0].angle = angle;
     out_obstacles[0].distance = distance;
+
+    return LidarUtils::LIDAR_OK; // pour le moment, toujours OK
 }
 
 // _____________________________________________________________________
