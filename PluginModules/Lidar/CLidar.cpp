@@ -111,6 +111,7 @@ void CLidar::init(CApplication *application)
     connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
     connect(&m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
     connect(&m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
+    connect(&m_lidar, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(lidar_disconnected()));
     connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_change_read_period(int)));
     connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_change_zoom_distance(int)));
     connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_graph_type(int)));
@@ -189,7 +190,7 @@ void CLidar::open_sick()
     if (!status) {
         m_ihm.ui.tim5xx_closeport->setEnabled(false);
         m_ihm.statusBar()->showMessage("Failed to connect to Lidar", 3000);
-        if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(LidarUtils::LIDAR_ERROR);
+        status_to_datamanager(LidarUtils::LIDAR_ERROR);
     }
 }
 
