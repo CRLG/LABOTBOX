@@ -107,6 +107,8 @@ void CEcran::init(CApplication *application)
   m_application->m_data_center->write("TempsMatch", -1);
   m_application->m_data_center->write("Score", 0);
 
+  initLidar();
+
   m_ihm.ui.tps_dix->setNumber(0);
   m_ihm.ui.tps_unit->setNumber(0);
   m_ihm.ui.tabWidget->setCurrentIndex(0);
@@ -475,4 +477,81 @@ void CEcran::checkStrategyMatch()
     else  {
         m_ihm.ui.lbl_RetourStrategie->setStyleSheet(QStringLiteral("color: rgb(239, 41, 41);")); // rouge
     }
+}
+
+
+// =====================================================================
+//                              LIDAR
+// =====================================================================
+
+// _____________________________________________________________________
+void CEcran::initLidar()
+{
+    //  remplit la liste deroulante : ordre identique a eLidarStatus
+    m_ihm.ui.lidar_status->addItem("LIDAR_OK");
+    m_ihm.ui.lidar_status->addItem("LIDAR_DISCONNECTED");
+    m_ihm.ui.lidar_status->addItem("LIDAR_ERROR");
+    m_ihm.ui.lidar_status->setCurrentText("LIDAR_DISCONNECTED"); // valeur par defaut pour etre certain de ne pas avoir un LIDAR_OK sur l'IHM alors qu'il n'est pas connecte
+
+
+    // cree les elements de la table
+    m_ihm.ui.lidar_table_obstacles->setRowCount(LidarUtils::NBRE_MAX_OBSTACLES);
+    for (int row=0; row<LidarUtils::NBRE_MAX_OBSTACLES; row++) {
+        QTableWidgetItem *newItem = new QTableWidgetItem();
+        m_ihm.ui.lidar_table_obstacles->setItem(row, 0, newItem);
+
+        newItem = new QTableWidgetItem();
+        m_ihm.ui.lidar_table_obstacles->setItem(row, 1, newItem);
+    }
+
+    // connexion des data du data manager de chaque obstacle et du statut
+    connect_data_lidar();
+}
+
+// _____________________________________________________________________
+void CEcran::connect_data_lidar()
+{
+    QString dataname;
+    CData *data;
+    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
+        dataname = QString("Lidar.Obstacle%1.Angle").arg(i+1);
+        data = m_application->m_data_center->getData(dataname, true);
+        connect(data, SIGNAL(valueChanged(QVariant)), this, SLOT(Lidar_changed()));
+
+        dataname = QString("Lidar.Obstacle%1.Distance").arg(i+1);
+        data = m_application->m_data_center->getData(dataname, true);
+        connect(data, SIGNAL(valueChanged(QVariant)), this, SLOT(Lidar_changed()));
+    }
+
+    dataname = QString("Lidar.Status");
+    data = m_application->m_data_center->getData(dataname, true);
+    connect(data, SIGNAL(valueChanged(QVariant)), this, SLOT(Lidar_changed()));
+}
+
+
+// _____________________________________________________________________
+void CEcran::Lidar_changed()
+{
+    QString dataname;
+    CData *data;
+
+    for (int i=0; i<m_ihm.ui.lidar_table_obstacles->rowCount(); i++) {
+        dataname= QString("Lidar.Obstacle%1.Angle").arg(i+1);
+        data = m_application->m_data_center->getData(dataname);
+        if (data) {
+            QTableWidgetItem *item = m_ihm.ui.lidar_table_obstacles->item(i, 0);
+            if (item) item->setText(QString("%1").arg(data->read().toString()));
+        }
+
+        dataname= QString("Lidar.Obstacle%1.Distance").arg(i+1);
+        data = m_application->m_data_center->getData(dataname);
+        if (data) {
+            QTableWidgetItem *item = m_ihm.ui.lidar_table_obstacles->item(i, 1);
+            if (item) item->setText(QString("%1").arg(data->read().toString()));
+        }
+    }
+
+    dataname= QString("Lidar.Status");
+    data = m_application->m_data_center->getData(dataname);
+    if(data) m_ihm.ui.lidar_status->setCurrentIndex(data->read().toInt());
 }

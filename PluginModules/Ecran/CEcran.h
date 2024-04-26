@@ -65,6 +65,8 @@ private:
     void checkStrategyMatch();
     void initDataLogger();
     QString getLogFilename();
+    void initLidar();
+    void connect_data_lidar();
 
     void selectColorOnButton(QPushButton *button);
     void selectTextOnButton(QPushButton *button);
@@ -87,6 +89,7 @@ private slots :
     void ObstacleDetecte_changed(QVariant val);
     void DiagBlocage_changed(QVariant val);
     void ConvergenceAsserv_changed(QVariant val);
+    void Lidar_changed();
     void onRPI_Shutdown();
     void onRPI_Reboot();
     void onStrategyChoice_changed(int val);
