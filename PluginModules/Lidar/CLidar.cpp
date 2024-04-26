@@ -105,6 +105,9 @@ void CLidar::init(CApplication *application)
     m_ihm.ui.filter_data_choice->setCurrentIndex(index_data_filter);
     on_change_data_filter(m_ihm.ui.filter_data_choice->currentText());
 
+    bool enable_update_datamanager = m_application->m_eeprom->read(getName(), "enable_update_datamanager", 1).toBool();
+    m_ihm.ui.enable_datamanager_update->setChecked(enable_update_datamanager);
+
     connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
     connect(&m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
     connect(&m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
@@ -129,7 +132,6 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.dureeStepReplay, SIGNAL(editingFinished()), this, SLOT(on_PlayerStepDurationChanged()));
     connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
     connect(&m_data_player, SIGNAL(played(int)), this, SLOT(on_PlayedStep(int)));
-
 
     int sick_autoreconnect = m_application->m_eeprom->read(getName(), "sick_autoreconnect", false).toBool();
     m_ihm.ui.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
@@ -159,6 +161,7 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "graph_type",  m_ihm.ui.type_affichage_graph->currentIndex());
     m_application->m_eeprom->write(getName(), "data_diplayed",  m_ihm.ui.data_affichees->currentIndex());
     m_application->m_eeprom->write(getName(), "index_data_filter", m_ihm.ui.filter_data_choice->currentIndex());
+    m_application->m_eeprom->write(getName(), "enable_update_datamanager", m_ihm.ui.enable_datamanager_update->isChecked());
 }
 
 // _____________________________________________________________________
@@ -186,6 +189,7 @@ void CLidar::open_sick()
     if (!status) {
         m_ihm.ui.tim5xx_closeport->setEnabled(false);
         m_ihm.statusBar()->showMessage("Failed to connect to Lidar", 3000);
+        if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(LidarUtils::LIDAR_ERROR);
     }
 }
 
@@ -225,7 +229,9 @@ void CLidar::lidar_disconnected()
     m_ihm.ui.tim5xx_closeport->setEnabled(false);
 
     LidarUtils::tLidarObstacles dummy_obstacles;
-    send_ETAT_LIDAR(dummy_obstacles, LidarUtils::LIDAR_DISCONNECTED);
+    int status = LidarUtils::LIDAR_DISCONNECTED;
+    send_ETAT_LIDAR(dummy_obstacles, status);
+    if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(status);
 }
 
 // _____________________________________________________________________
@@ -240,6 +246,7 @@ void CLidar::read_sick()
     else {
         LidarUtils::tLidarObstacles dummy_obstacles;
         send_ETAT_LIDAR(dummy_obstacles, LidarUtils::LIDAR_ERROR);
+        if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(status);
     }
     /*
     if (status) {
@@ -281,7 +288,12 @@ void CLidar::new_data(const CLidarData &data)
     // Envoie les infos vers le MBED
     LidarUtils::tLidarObstacles obstacles;
     lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
-    send_ETAT_LIDAR(obstacles, LidarUtils::LIDAR_OK);
+    int status = LidarUtils::LIDAR_OK;
+    send_ETAT_LIDAR(obstacles, status);
+    if (m_ihm.ui.enable_datamanager_update->isChecked())  {
+        obstacles_to_datamanager(obstacles);
+        status_to_datamanager(status);
+    }
 }
 
 // _____________________________________________________________
@@ -608,6 +620,33 @@ void CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLid
     out_obstacles[0].distance = distance;
 }
 
+// _____________________________________________________________________
+/*!
+ * \brief Publie les obstacles dans le DataManager
+ * \param obstacles la structure contenant les obstales
+ */
+void CLidar::obstacles_to_datamanager(LidarUtils::tLidarObstacles obstacles)
+{
+    QString dataname;
+    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
+        dataname= QString("Lidar.Obstacle%1.Angle").arg(i+1);
+        m_application->m_data_center->write(dataname, obstacles[i].angle);
+
+        dataname= QString("Lidar.Obstacle%1.Distance").arg(i+1);
+        m_application->m_data_center->write(dataname, obstacles[i].angle);
+    }
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief CLidar::status_to_datamanager
+ * \param lidar_status
+ */
+void CLidar::status_to_datamanager(unsigned char lidar_status)
+{
+    QString dataname= QString("Lidar.Status");
+    m_application->m_data_center->write(dataname, lidar_status);
+}
 
 // ================================================================================
 //                      SIMULATEUR / REJOUEUR DE TRACE CSV

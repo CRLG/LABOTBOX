@@ -98,6 +98,8 @@ private:
     void send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned char lidar_status);
     void lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles);
 
+    void obstacles_to_datamanager(LidarUtils::tLidarObstacles obstacles);
+    void status_to_datamanager(unsigned char lidar_status);
 
 private slots :
     void onRightClicGUI(QPoint pos);
