@@ -90,6 +90,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ETAT_SERVO_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_KMAR_GENERAL(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_FREE_STRING(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_CHARGE_CPU(m_messagerie_bot, m_data_manager));
  // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -3347,6 +3348,42 @@ void CTrame_FREE_STRING::Decode(tStructTrameBrute *trameRecue)
 
    // Envoie les données au data manager
    m_data_manager->write("FREE_STRING", m_str);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME ETAT_CHARGE_CPU
+// ========================================================
+CTrame_ETAT_CHARGE_CPU::CTrame_ETAT_CHARGE_CPU(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_CHARGE_CPU";
+ m_id = ID_ETAT_CHARGE_CPU;
+ m_dlc = DLC_ETAT_CHARGE_CPU;
+ m_liste_noms_signaux.append("CPU.IndicateurSurcharge");
+
+ // S'assure que les données existent dans le DataManager
+ cpu_overload_counter = 99999;
+ task_real_period_usec = 99999;
+ data_manager->write("CPU.OverloadCounter",  cpu_overload_counter);
+ data_manager->write("CPU.TaskRealPeriod_us",  task_real_period_usec);
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_CHARGE_CPU::Decode(tStructTrameBrute *trameRecue)
+{
+   // Decode les signaux de la trame
+   cpu_overload_counter = CDataEncoderDecoder::decode_uint32(trameRecue->Data, 0);
+   task_real_period_usec = CDataEncoderDecoder::decode_uint32(trameRecue->Data, 4);
+
+   // Envoie les données au data manager
+   m_data_manager->write("CPU.OverloadCounter", cpu_overload_counter);
+   m_data_manager->write("CPU.TaskRealPeriod_us", task_real_period_usec);
+
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

@@ -1322,6 +1322,23 @@ private :
 private slots :
 };
 
+// ========================================================
+//             TRAME ETAT_CHARGE_CPU
+// ========================================================
+#define ID_ETAT_CHARGE_CPU 0x10B
+#define DLC_ETAT_CHARGE_CPU 8
+class CTrame_ETAT_CHARGE_CPU : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_CHARGE_CPU(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_CHARGE_CPU() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+    unsigned long long cpu_overload_counter;     // un compteur qui indique la derive de la charge CPU
+    unsigned long long task_real_period_usec;        // le delta T entre les 2 derniers appels de la tache surveillee
+};
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */
