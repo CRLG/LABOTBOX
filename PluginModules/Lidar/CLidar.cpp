@@ -638,7 +638,7 @@ void CLidar::obstacles_to_datamanager(LidarUtils::tLidarObstacles obstacles)
         m_application->m_data_center->write(dataname, obstacles[i].angle);
 
         dataname= QString("Lidar.Obstacle%1.Distance").arg(i+1);
-        m_application->m_data_center->write(dataname, obstacles[i].angle);
+        m_application->m_data_center->write(dataname, obstacles[i].distance);
     }
 }
 
