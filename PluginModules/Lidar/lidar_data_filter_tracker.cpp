@@ -3,6 +3,7 @@
 
 #include "lidar_data_filter_tracker.h"
 #include "lidar_data.h"
+#include "Lidar_utils.h"
 
 CLidarDataFilterTracker::CLidarDataFilterTracker()
 {
@@ -248,5 +249,11 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
             }
         }
     }
+
+    //on s'assure que les données à 0 représentent un faux obstacle
+    for(int i=0;i<data_out->m_measures_count;i++)
+        if(data_out->m_dist_measures[i]==0.)
+            data_out->m_dist_measures[i]=LidarUtils::NO_OBSTACLE;
+
 }
 
