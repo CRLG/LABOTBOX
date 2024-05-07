@@ -970,6 +970,8 @@ private slots :
 #define DLC_ECRAN_ETAT_MATCH 6
 #define BRUTE2PHYS_ObstacleDetecte(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_ObstacleDetecte(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_OrigineDetectionObstacle(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_OrigineDetectionObstacle(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_DiagBlocage(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_DiagBlocage(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_ConvergenceAsserv(val) ( ((float)val * (1.000000)) + (0.000000) )
@@ -993,6 +995,7 @@ public :
  private :
     // Encode chacun des signaux de la trame
     unsigned char ObstacleDetecte;
+    unsigned char OrigineDetectionObstacle; // 0=Ultrasons / 1=LIDAR
     unsigned char DiagBlocage;
     unsigned char ConvergenceAsserv;
     unsigned char ModeFonctionnement;

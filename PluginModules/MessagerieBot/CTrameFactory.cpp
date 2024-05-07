@@ -2472,6 +2472,7 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
  m_dlc = DLC_ECRAN_ETAT_MATCH;
  ModeFonctionnement=2;
  m_liste_noms_signaux.append("ObstacleDetecte");
+ m_liste_noms_signaux.append("OrigineDetectionObstacle");
  m_liste_noms_signaux.append("DiagBlocage");
  m_liste_noms_signaux.append("ConvergenceAsserv");
  m_liste_noms_signaux.append("ModeFonctionnement");
@@ -2481,6 +2482,7 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
 
  // S'assure que les données existent dans le DataManager
  data_manager->write("ObstacleDetecte",  ObstacleDetecte);
+ data_manager->write("OrigineDetectionObstacle",  ObstacleDetecte);
  data_manager->write("DiagBlocage",  DiagBlocage);
  data_manager->write("ConvergenceAsserv",  ConvergenceAsserv);
  data_manager->write("ModeFonctionnement",  ModeFonctionnement);
@@ -2501,7 +2503,9 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 
    Score=( ( ((unsigned short)(trameRecue->Data[4])) & 0xFF) )  |  ( ( ((unsigned short)(trameRecue->Data[3])) & 0xFF) << 8 );
 
-   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) >> 6) & 0x3 );
+   OrigineDetectionObstacle = ( ( ((unsigned char)(trameRecue->Data[2])) >> 7) & 0x1 );
+
+   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[2])) >> 6) & 0x1 );
 
    DiagBlocage = ( ( ((unsigned char)(trameRecue->Data[2])) >> 5) & 0x1 );
 
@@ -2514,6 +2518,7 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    TempsMatch = ( ( ((unsigned char)(trameRecue->Data[0])) & 0xFF) );
 
    // Envoie les données au data manager
+   m_data_manager->write("OrigineDetectionObstacle", BRUTE2PHYS_OrigineDetectionObstacle(OrigineDetectionObstacle));
    m_data_manager->write("ObstacleDetecte", BRUTE2PHYS_ObstacleDetecte(ObstacleDetecte));
    m_data_manager->write("DiagBlocage", BRUTE2PHYS_DiagBlocage(DiagBlocage));
    m_data_manager->write("ConvergenceAsserv", BRUTE2PHYS_ConvergenceAsserv(ConvergenceAsserv));
