@@ -112,6 +112,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_COMMANDE_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_KMAR(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ETAT_LIDAR(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_RESET_CPU(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -3391,4 +3392,74 @@ void CTrame_ETAT_CHARGE_CPU::Decode(tStructTrameBrute *trameRecue)
 
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME RESET_CPU
+// ========================================================
+CTrame_RESET_CPU::CTrame_RESET_CPU(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "RESET_CPU";
+ m_id = ID_RESET_CPU;
+ m_dlc = DLC_RESET_CPU;
+ m_liste_noms_signaux.append("SECURITE_RESET_CPU");
+
+ // Initialise les données de la messagerie
+ SECURITE_RESET_CPU = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("SECURITE_RESET_CPU",  SECURITE_RESET_CPU);
+ data_manager->write("RESET_CPU_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("SECURITE_RESET_CPU"), SIGNAL(valueChanged(QVariant)), this, SLOT(SECURITE_RESET_CPU_changed(QVariant)));
+ connect(data_manager->getData("RESET_CPU_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_RESET_CPU::SECURITE_RESET_CPU_changed(QVariant val)
+{
+  SECURITE_RESET_CPU = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_RESET_CPU::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_RESET_CPU::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_RESET_CPU;
+  trame.DLC = DLC_RESET_CPU;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    trame.Data[0] |= (unsigned char)( ( (SECURITE_RESET_CPU) & 0xFF) );
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
 }

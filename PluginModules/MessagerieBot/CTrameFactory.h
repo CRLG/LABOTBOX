@@ -1342,6 +1342,31 @@ public :
     unsigned long long task_real_period_usec;        // le delta T entre les 2 derniers appels de la tache surveillee
 };
 
+
+// ========================================================
+//             TRAME RESET_CPU
+// ========================================================
+#define ID_RESET_CPU 0x10C
+#define DLC_RESET_CPU 1
+class CTrame_RESET_CPU : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_RESET_CPU(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_RESET_CPU() { }
+    /*virtual*/ void Encode(void);
+
+    unsigned char SECURITE_RESET_CPU;         // voir enum "eLidarStatus"
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
+    void SECURITE_RESET_CPU_changed(QVariant val);
+
+};
+
+
 #endif // _CTRAME_FACTORY_H_
 
 /*! @} */

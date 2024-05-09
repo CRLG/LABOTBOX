@@ -93,6 +93,7 @@ private slots :
     void onRPI_Shutdown();
     void onRPI_Reboot();
     void onStrategyChoice_changed(int val);
+    void onCPU_MBED_Reboot();
 };
 
 #endif // _CBASIC_MODULE_Ecran_H_

@@ -118,6 +118,7 @@ void CEcran::init(CApplication *application)
   connect(m_ihm.ui.combo_ChoixStrategie,SIGNAL(activated(int)),this,SLOT(onStrategyChoice_changed(int)));
   connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
   connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
+  connect(m_ihm.ui.CPU_MBED_Reboot,SIGNAL(clicked(bool)),this,SLOT(onCPU_MBED_Reboot()));
 
   //pour le mode visu on se connecte aux changements du datamanager
 
@@ -459,6 +460,20 @@ void CEcran::onStrategyChoice_changed(int val)
     m_application->m_data_center->write("commande_etat_ecran", LBB_CMDE_CHOIX_NUMERO_STRATEGIE);
     m_application->m_data_center->write("ECRAN_ETAT_ECRAN_TxSync", false);
     checkStrategyMatch();
+}
+
+const unsigned int SECURE_CODE_RESET_CPU = 0x69;
+void CEcran::onCPU_MBED_Reboot()
+{
+    int ret = QMessageBox::warning(Q_NULLPTR, tr("Warning"),
+                                   tr("Reboot\n"
+                                      "Are you sure ?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        m_application->m_data_center->write("RESET_CPU_TxSync", true);
+        m_application->m_data_center->write("SECURITE_RESET_CPU", SECURE_CODE_RESET_CPU);
+        m_application->m_data_center->write("RESET_CPU_TxSync", false);
+    }
 }
 
 void CEcran::NumStrategie_changed(QVariant val)
