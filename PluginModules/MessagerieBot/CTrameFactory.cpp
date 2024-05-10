@@ -83,7 +83,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_2(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_1(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ECRAN_ETAT_MATCH(m_messagerie_bot, m_data_manager));
- m_liste_trames_rx.append(new CTrame_ETAT_EVITEMENT_OBSTACLE(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
@@ -2533,70 +2533,124 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
 }
 
 // ========================================================
-//             TRAME ETAT_EVITEMENT_OBSTACLE
+//             TRAME ETAT_DETECTION_EVITEMENT_OBSTACLE
 // ========================================================
-CTrame_ETAT_EVITEMENT_OBSTACLE::CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE::CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
     : CTrameBot(messagerie_bot, data_manager)
 {
- m_name = "ETAT_EVITEMENT_OBSTACLE";
- m_id = ID_ETAT_EVITEMENT_OBSTACLE;
- m_dlc = DLC_ETAT_EVITEMENT_OBSTACLE;
+ m_name = "ETAT_DETECTION_EVITEMENT_OBSTACLE";
+ m_id = ID_ETAT_DETECTION_EVITEMENT_OBSTACLE;
+ m_dlc = DLC_ETAT_DETECTION_EVITEMENT_OBSTACLE;
 
- m_liste_noms_signaux.append("Evit_ChoixStrategieEvitement");
- m_liste_noms_signaux.append("Evit_SensDeplacement");
- m_liste_noms_signaux.append("Evit_ObstacleBitfield");
- m_liste_noms_signaux.append("Evit_NumeroEtape");
- m_liste_noms_signaux.append("Evit_NombreTentatives");
- m_liste_noms_signaux.append("Evit_EvitementEnCours");
- m_liste_noms_signaux.append("Evit_ObstacleDetecte");
- m_liste_noms_signaux.append("Evit_ObstacleInhibe");
- m_liste_noms_signaux.append("Evit_ForcageDetectObstacleSansPosition");
+ m_liste_noms_signaux.append(QString("%1.x_robot").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.y_robot").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.teta_robot").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.SensDeplacement").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleBitfield").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.NombreObstaclesPresents").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.AnglePremierObstacleDetecte").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.DistancePremierObstacleDetecte").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleDetecte").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleAVD").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleAVG").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleARD").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleARG").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ObstacleInhibe").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.ForcageDetectObstacleSansPosition").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.OrigineDetectionObstacle").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.SeuilDetectionObstacleLidar").arg(prefix_detection));
+ m_liste_noms_signaux.append(QString("%1.SeuilDetectionObstacleTelemetre").arg(prefix_detection));
+
+ m_liste_noms_signaux.append(QString("%1.NumeroEtape").arg(prefix_evitement));
+ m_liste_noms_signaux.append(QString("%1.NombreTentatives").arg(prefix_evitement));
+ m_liste_noms_signaux.append(QString("%1.ChoixStrategieEvitement").arg(prefix_evitement));
+ m_liste_noms_signaux.append(QString("%1.EvitementEnCours").arg(prefix_evitement));
+
 
  // S'assure que les données existent dans le DataManager
- data_manager->write("Evit_ChoixStrategieEvitement",  ChoixStrategieEvitement);
- data_manager->write("Evit_SensDeplacement",  SensDeplacement);
- data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
- data_manager->write("Evit_NumeroEtape", NumeroEtape);
- data_manager->write("Evit_NombreTentatives", NombreTentatives);
- data_manager->write("Evit_EvitementEnCours", EvitementEnCours);
- data_manager->write("Evit_ObstacleDetecte", ObstacleDetecte);
- data_manager->write("Evit_ObstacleInhibe", ObstacleInhibe);
- data_manager->write("Evit_ForcageDetectObstacleSansPosition", ForcageDetectObstacleSansPosition);
+ data_manager->write((QString("%1.x_robot").arg(prefix_detection)),  x_robot);
+ data_manager->write((QString("%1.y_robot").arg(prefix_detection)),  y_robot);
+ data_manager->write((QString("%1.teta_robot").arg(prefix_detection)),  teta_robot);
+ data_manager->write((QString("%1.SensDeplacement").arg(prefix_detection)),  SensDeplacement);
+ data_manager->write((QString("%1.ObstacleBitfield").arg(prefix_detection)),  ObstacleBitfield);
+ data_manager->write((QString("%1.NombreObstaclesPresents").arg(prefix_detection)),  NombreObstaclesPresents);
+ data_manager->write((QString("%1.AnglePremierObstacleDetecte").arg(prefix_detection)),  AnglePremierObstacleDetecte);
+ data_manager->write((QString("%1.DistancePremierObstacleDetecte").arg(prefix_detection)),  DistancePremierObstacleDetecte);
+ data_manager->write((QString("%1.ObstacleDetecte").arg(prefix_detection)),  ObstacleDetecte);
+ data_manager->write((QString("%1.ObstacleAVD").arg(prefix_detection)),  ObstacleAVD);
+ data_manager->write((QString("%1.ObstacleAVG").arg(prefix_detection)),  ObstacleAVG);
+ data_manager->write((QString("%1.ObstacleARD").arg(prefix_detection)),  ObstacleARD);
+ data_manager->write((QString("%1.ObstacleARG").arg(prefix_detection)),  ObstacleARG);
+ data_manager->write((QString("%1.ObstacleInhibe").arg(prefix_detection)),  ObstacleInhibe);
+ data_manager->write((QString("%1.ForcageDetectObstacleSansPosition").arg(prefix_detection)),  ForcageDetectObstacleSansPosition);
+ data_manager->write((QString("%1.OrigineDetectionObstacle").arg(prefix_detection)),  ForcageDetectObstacleSansPosition);
+ data_manager->write((QString("%1.SeuilDetectionObstacleLidar").arg(prefix_detection)),  SeuilDetectionObstacleLidar);
+ data_manager->write((QString("%1.SeuilDetectionObstacleTelemetre").arg(prefix_detection)),  SeuilDetectionObstacleTelemetre);
+
+ data_manager->write((QString("%1.NumeroEtape").arg(prefix_evitement)),  NumeroEtape);
+ data_manager->write((QString("%1.NombreTentatives").arg(prefix_evitement)),  NombreTentatives);
+ data_manager->write((QString("%1.ChoixStrategieEvitement").arg(prefix_evitement)),  ChoixStrategieEvitement);
+ data_manager->write((QString("%1.EvitementEnCours").arg(prefix_evitement)),  EvitementEnCours);
+
 }
 //___________________________________________________________________________
 /*!
   \brief Decode les signaux de la trame
   \param trameRecue la trame brute recue a decoder
 */
-void CTrame_ETAT_EVITEMENT_OBSTACLE::Decode(tStructTrameBrute *trameRecue)
+void CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE::Decode(tStructTrameBrute *trameRecue)
 {
    // Decode les signaux de la trame
 
-   ChoixStrategieEvitement = ( ( ((unsigned char)(trameRecue->Data[5])) & 0xFF) );
+    // Encode chacun des signaux de la trame
+    x_robot =                           CDataEncoderDecoder::decode_int16(trameRecue->Data, 0);
+    y_robot =                           CDataEncoderDecoder::decode_int16(trameRecue->Data, 2);
+    teta_robot =                        (float)CDataEncoderDecoder::decode_int16(trameRecue->Data, 4) / 100.;
+    SensDeplacement =                   CDataEncoderDecoder::decode_int8(trameRecue->Data,  6);
+    ObstacleBitfield =                  CDataEncoderDecoder::decode_uint8(trameRecue->Data, 7);
+    NombreObstaclesPresents =           CDataEncoderDecoder::decode_uint8(trameRecue->Data, 8);
+    AnglePremierObstacleDetecte =       (signed short)CDataEncoderDecoder::decode_int16(trameRecue->Data, 9);
+    DistancePremierObstacleDetecte =    CDataEncoderDecoder::decode_uint16(trameRecue->Data, 11);
+    ObstacleDetecte =                   CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 0);
+    ObstacleAVD =                       CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 1);
+    ObstacleAVG =                       CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 2);
+    ObstacleARD =                       CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 3);
+    ObstacleARG =                       CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 4);
+    ObstacleInhibe =                    CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 5);
+    ForcageDetectObstacleSansPosition = CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 6);
+    OrigineDetectionObstacle =          CDataEncoderDecoder::decode_bit(trameRecue->Data,   13, 7);
+    SeuilDetectionObstacleLidar =       CDataEncoderDecoder::decode_uint8(trameRecue->Data, 14);
+    SeuilDetectionObstacleTelemetre =   CDataEncoderDecoder::decode_uint8(trameRecue->Data, 15);
 
-   NombreTentatives = ( ( ((unsigned char)(trameRecue->Data[4])) & 0xFF) );
-
-   NumeroEtape = ( ( ((unsigned char)(trameRecue->Data[3])) & 0xFF) );
-
-   ObstacleBitfield = ( ( ((unsigned char)(trameRecue->Data[2])) & 0xFF) );
-
-   SensDeplacement = ( ( ((unsigned char)(trameRecue->Data[1])) & 0xFF) );
-
-   ForcageDetectObstacleSansPosition = ( ( ((unsigned char)(trameRecue->Data[0])) >> 3) & 0x1 );
-   ObstacleInhibe = ( ( ((unsigned char)(trameRecue->Data[0])) >> 2) & 0x1 );
-   EvitementEnCours = ( ( ((unsigned char)(trameRecue->Data[0])) >> 1) & 0x1 );
-   ObstacleDetecte = ( ( ((unsigned char)(trameRecue->Data[0])) >> 0) & 0x1 );
+    NumeroEtape =                       CDataEncoderDecoder::decode_uint8(trameRecue->Data, 16);
+    NombreTentatives =                  CDataEncoderDecoder::decode_uint8(trameRecue->Data, 17);
+    ChoixStrategieEvitement =           CDataEncoderDecoder::decode_uint8(trameRecue->Data, 18);
+    EvitementEnCours =                  CDataEncoderDecoder::decode_bit(trameRecue->Data,   19, 0);
 
    // Envoie les données au data manager
-   m_data_manager->write("Evit_ChoixStrategieEvitement",  ChoixStrategieEvitement);
-   m_data_manager->write("Evit_SensDeplacement",  SensDeplacement);
-   m_data_manager->write("Evit_ObstacleBitfield", ObstacleBitfield);
-   m_data_manager->write("Evit_NumeroEtape", NumeroEtape);
-   m_data_manager->write("Evit_NombreTentatives", NombreTentatives);
-   m_data_manager->write("Evit_EvitementEnCours", EvitementEnCours);
-   m_data_manager->write("Evit_ObstacleDetecte", ObstacleDetecte);
-   m_data_manager->write("Evit_ObstacleInhibe", ObstacleInhibe);
-   m_data_manager->write("Evit_ForcageDetectObstacleSansPosition", ForcageDetectObstacleSansPosition);
+   // S'assure que les données existent dans le DataManager
+   m_data_manager->write((QString("%1.x_robot").arg(prefix_detection)),  x_robot);
+   m_data_manager->write((QString("%1.y_robot").arg(prefix_detection)),  y_robot);
+   m_data_manager->write((QString("%1.teta_robot").arg(prefix_detection)),  teta_robot);
+   m_data_manager->write((QString("%1.SensDeplacement").arg(prefix_detection)),  SensDeplacement);
+   m_data_manager->write((QString("%1.ObstacleBitfield").arg(prefix_detection)),  ObstacleBitfield);
+   m_data_manager->write((QString("%1.NombreObstaclesPresents").arg(prefix_detection)),  NombreObstaclesPresents);
+   m_data_manager->write((QString("%1.AnglePremierObstacleDetecte").arg(prefix_detection)),  AnglePremierObstacleDetecte);
+   m_data_manager->write((QString("%1.DistancePremierObstacleDetecte").arg(prefix_detection)),  DistancePremierObstacleDetecte);
+   m_data_manager->write((QString("%1.ObstacleDetecte").arg(prefix_detection)),  ObstacleDetecte);
+   m_data_manager->write((QString("%1.ObstacleAVD").arg(prefix_detection)),  ObstacleAVD);
+   m_data_manager->write((QString("%1.ObstacleAVG").arg(prefix_detection)),  ObstacleAVG);
+   m_data_manager->write((QString("%1.ObstacleARD").arg(prefix_detection)),  ObstacleARD);
+   m_data_manager->write((QString("%1.ObstacleARG").arg(prefix_detection)),  ObstacleARG);
+   m_data_manager->write((QString("%1.ObstacleInhibe").arg(prefix_detection)),  ObstacleInhibe);
+   m_data_manager->write((QString("%1.ForcageDetectObstacleSansPosition").arg(prefix_detection)),  ForcageDetectObstacleSansPosition);
+   m_data_manager->write((QString("%1.SeuilDetectionObstacleLidar").arg(prefix_detection)),  SeuilDetectionObstacleLidar);
+   m_data_manager->write((QString("%1.SeuilDetectionObstacleTelemetre").arg(prefix_detection)),  SeuilDetectionObstacleTelemetre);
+
+   m_data_manager->write((QString("%1.NumeroEtape").arg(prefix_evitement)),  NumeroEtape);
+   m_data_manager->write((QString("%1.NombreTentatives").arg(prefix_evitement)),  NombreTentatives);
+   m_data_manager->write((QString("%1.ChoixStrategieEvitement").arg(prefix_evitement)),  ChoixStrategieEvitement);
+   m_data_manager->write((QString("%1.EvitementEnCours").arg(prefix_evitement)),  EvitementEnCours);
 
    // Comptabilise la reception de cette trame
    m_nombre_recue++;

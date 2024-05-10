@@ -1008,28 +1008,50 @@ private slots :
 };
 
 // ========================================================
-//             TRAME ETAT_EVITEMENT_OBSTACLE
+//             TRAME ETAT_DETECTION_EVITEMENT_OBSTACLE
 // ========================================================
-#define ID_ETAT_EVITEMENT_OBSTACLE 0x42
-#define DLC_ETAT_EVITEMENT_OBSTACLE 8
-class CTrame_ETAT_EVITEMENT_OBSTACLE : public CTrameBot
+#define ID_ETAT_DETECTION_EVITEMENT_OBSTACLE 0x42
+#define DLC_ETAT_DETECTION_EVITEMENT_OBSTACLE 20
+class CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE : public CTrameBot
 {
    Q_OBJECT
 public :
-    CTrame_ETAT_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
-    ~CTrame_ETAT_EVITEMENT_OBSTACLE() { }
+    CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE() { }
     /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
 
  private :
+    // --------------------------------------
+    // Detection d'obstacles
+    const QString prefix_detection = "Obstacles.Detection";
+
+    signed short x_robot;
+    signed short y_robot;
+    signed short teta_robot;  // rad
     signed char SensDeplacement;
     unsigned char ObstacleBitfield;
+    unsigned char NombreObstaclesPresents;
+    signed short AnglePremierObstacleDetecte;  // degre
+    unsigned short DistancePremierObstacleDetecte;
+    bool ObstacleDetecte;
+    bool ObstacleAVD;
+    bool ObstacleAVG;
+    bool ObstacleARD;
+    bool ObstacleARG;
+    bool ObstacleInhibe;
+    bool ForcageDetectObstacleSansPosition;
+    unsigned char OrigineDetectionObstacle; // 0=Ultrasons / 1=LIDAR
+    unsigned char SeuilDetectionObstacleLidar;
+    unsigned char SeuilDetectionObstacleTelemetre;
+
+    // --------------------------------------
+    // Evitement d'obstacles
+    const QString prefix_evitement = "Obstacles.Evitement";
+
     unsigned char NumeroEtape;
     unsigned char NombreTentatives;
     unsigned char ChoixStrategieEvitement;
     bool EvitementEnCours;
-    bool ObstacleDetecte;
-    bool ObstacleInhibe;
-    bool ForcageDetectObstacleSansPosition;
 
 private slots :
 };
