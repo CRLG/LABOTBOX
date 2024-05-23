@@ -10,7 +10,7 @@ CLidarDataFilterTracker::CLidarDataFilterTracker()
 
     //Paramétrage
     m_dot_size = m_data_manager.createData("dot_size", 20);
-    m_d_dist_offset = m_data_manager.createData("d_dist_offset", 40.);
+    m_d_dist_offset = m_data_manager.createData("d_dist_offset", 43.6);
     m_i_MAX_BLANK = m_data_manager.createData("i_MAX_BLANK", 3);
     m_i_MIN_COUNT = m_data_manager.createData("i_MIN_COUNT", 2);
     m_i_MAX_COUNT = m_data_manager.createData("i_MAX_COUNT", 60);
@@ -73,7 +73,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
 
     //on s'assure que les données sont rincées
     for(int i=0;i<data_out->m_measures_count;i++)
-        data_out->m_dist_measures[i]=0.;
+        data_out->m_dist_measures[i]=LidarUtils::NO_OBSTACLE;
 
     //Variables internes algo    
     //pour gérer le CREC
@@ -208,10 +208,10 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
 
 
                     //vérification du facteur de forme
-                    //f(x)=0.642905433457839*x*x-50.9818722727577*x+1085.44732653302
-                    double facteur_forme=0.642905433457839*i_COUNT*i_COUNT-50.9818722727577*i_COUNT+1085.44732653302;
+                    //f(x)=70.7106781/tan(0.00872665*x)
+                    double facteur_forme=70.7106781/tan(0.00872665*i_COUNT);
 
-                    if(fabs(d_moyenne-facteur_forme)<m_d_seuil_facteur_forme->read().toDouble())
+                    if((d_moyenne+m_d_dist_offset->read().toDouble())<(facteur_forme+m_d_seuil_facteur_forme->read().toDouble()))
                     {
 
                         int i_recorded=0;
@@ -229,7 +229,7 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
                             dist_recorded=d_moyenne;
                         }
 
-                        data_out->m_dist_measures[i_recorded]=dist_recorded-m_d_dist_offset->read().toDouble();
+                        data_out->m_dist_measures[i_recorded]=dist_recorded+m_d_dist_offset->read().toDouble();
 
                        // data_out->m_dist_measures[i_moyenne]=d_moyenne-m_d_dist_offset->read().toDouble();
                         //mémorisation pour filtrage
@@ -249,11 +249,5 @@ void CLidarDataFilterTracker::filter(const CLidarData *data_in, CLidarData *data
             }
         }
     }
-
-    //on s'assure que les données à 0 représentent un faux obstacle
-    for(int i=0;i<data_out->m_measures_count;i++)
-        if(data_out->m_dist_measures[i]==0.)
-            data_out->m_dist_measures[i]=LidarUtils::NO_OBSTACLE;
-
 }
 
