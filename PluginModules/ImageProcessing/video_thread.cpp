@@ -95,10 +95,10 @@ bool VideoWorker::init(int video_id, QString parameter_file)
     m_dbg_active = true;
     if(capture->isOpened())
     {
-        int FourCC=capture->get(CV_CAP_PROP_FOURCC);
-        int hasToBeConvertedRGB=capture->get(CV_CAP_PROP_CONVERT_RGB);
-        int setHeight=capture->set(CV_CAP_PROP_FRAME_HEIGHT,480);
-        int setWidth=capture->set(CV_CAP_PROP_FRAME_WIDTH,640);
+        int FourCC=capture->get(cv::CAP_PROP_FOURCC);
+        int hasToBeConvertedRGB=capture->get(cv::CAP_PROP_CONVERT_RGB);
+        int setHeight=capture->set(cv::CAP_PROP_FRAME_HEIGHT,480);
+        int setWidth=capture->set(cv::CAP_PROP_FRAME_WIDTH,640);
             qDebug() << "capture opened" << m_dbg_active;
         if(m_dbg_active)
         {
@@ -112,7 +112,7 @@ bool VideoWorker::init(int video_id, QString parameter_file)
             qDebug() << "[CImageProcessing] Image a convertir de BGR à RGB avant traitement:" << ((hasToBeConvertedRGB==1)? "OUI":"NON");
             qDebug() << "[CImageProcessing] Réglage de la hauteur de l'image à 480:\t" << ((setHeight==1) ? "REUSSI" : "ERREUR");
             qDebug() << "[CImageProcessing] Réglage de la longueur de l'image à 640 :\t" << ((setWidth==1) ? "REUSSI" : "ERREUR");
-            //qDebug() << "[CImageProcessing] Mettre l'exposition à 50 :\t" << ((capture->set( CV_CAP_PROP_EXPOSURE, 50)) ? "REUSSI" : "ERREUR") << endl;
+            //qDebug() << "[CImageProcessing] Mettre l'exposition à 50 :\t" << ((capture->set( cv::CAP_PROP_EXPOSURE, 50)) ? "REUSSI" : "ERREUR") << endl;
         }
 
         //calibration de la caméra
@@ -379,7 +379,7 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
             //ATTENTION: pas de copie des donnees -> garbage collector
             //conversion de l'image en RGB
             frame_converted=m_frame.clone();
-            cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
+            cv::cvtColor(m_frameCloned,frame_converted, cv::COLOR_BGR2RGB);
 
             //affichage des droites de reperage
             //centre
@@ -388,7 +388,7 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
             //affichage overlay
             char str[200];
             sprintf(str,"%d fps",fps);
-            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2,  cv::Scalar(255,0,0,0));
+            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255,0,0,0));
 
             const uchar *qImageBuffer = (const uchar*)frame_converted.data;
             //const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
@@ -404,7 +404,7 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
         {
             if (m_dbg_active)
             {
-                cv::cvtColor(frame_converted,frame_record, CV_RGB2BGR);
+                cv::cvtColor(frame_converted,frame_record, cv::COLOR_RGB2BGR);
                 _video_record(frame_record);//on enregistre le flux video
             }
             else
@@ -523,7 +523,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             //ATTENTION: pas de copie des donnees -> garbage collector
             //conversion de l'image en RGB
             frame_converted=m_frame.clone();
-            cv::cvtColor(m_frameCloned,frame_converted, CV_BGR2RGB);
+            cv::cvtColor(m_frameCloned,frame_converted, cv::COLOR_BGR2RGB);
 
             //affichage des droites de reperage
             //centre
@@ -548,7 +548,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
         {
             if (m_dbg_active)
             {
-                cv::cvtColor(frame_converted,frame_record, CV_RGB2BGR);
+                cv::cvtColor(frame_converted,frame_record, cv::COLOR_RGB2BGR);
                 _video_record(frame_record);//on enregistre le flux video
             }
             else
@@ -724,7 +724,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
 //                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
 //                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
 
-//                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+//                cv::rectangle(inputRGB,RectCirconscrit,cv::COLOR_RGB(0,255,0),5,8,0);
 //            }
 //        }
 
@@ -750,7 +750,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
 //                //float centre_y=RectCirconscrit.y+RectCirconscrit.height/2;
 //                //QPoint centre=QPoint((centre_x/m_iL)*100,(centre_y/m_iH)*100);
 
-//                cv::rectangle(inputRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+//                cv::rectangle(inputRGB,RectCirconscrit,cv::COLOR_RGB(0,0,255),5,8,0);
 //            }
 //        }
 
@@ -946,7 +946,7 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
             inputImage=m_frameCloned.clone();
 
             //conversion en RGB pour l'affichage
-            cv::cvtColor(inputImage,inputRGB,CV_BGR2RGB);
+            cv::cvtColor(inputImage,inputRGB,cv::COLOR_BGR2RGB);
 
             //init des images filtrées
             maskedRGB=cv::Mat::zeros(inputImage.rows, inputImage.cols, CV_32F);
@@ -957,7 +957,7 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
             cv::GaussianBlur(inputImage,frameBlur,cv::Size(9,9),10.0,0,cv::BORDER_DEFAULT);
 
             //Conversion de l'image floutée dans l'espace colorimetrique HSV
-            cv::cvtColor(frameBlur,frameHSV,CV_BGR2HSV);
+            cv::cvtColor(frameBlur,frameHSV,cv::COLOR_BGR2HSV);
 
             //Nombre de pixels minimum à détecter
             int nb_pixels_minimum=m_internal_param[IDX_PARAM_PIXEL_MIN];
@@ -986,7 +986,7 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
 
             //séquence qui contiendra les contours des éléments verts trouvés
             std::vector < std::vector<cv::Point> > contoursGreen;
-            cv::findContours(maskGreen,contoursGreen,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+            cv::findContours(maskGreen,contoursGreen,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 
             for (size_t contourIdx = 0; contourIdx < contoursGreen.size(); contourIdx++)
             {
@@ -997,13 +997,13 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
                 {
                     //Rectangle circonscrit de la forme détectée
                     cv::Rect RectCirconscrit=cv::boundingRect( approx );
-                    cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,255,0),5,8,0);
+                    cv::rectangle(maskedRGB,RectCirconscrit,cv::Scalar(0,255,0),5,8,0);
                 }
             }
 
             //séquence qui contiendra les contours des éléments verts trouvés
             std::vector < std::vector<cv::Point> > contoursRed;
-            cv::findContours(maskRed,contoursRed,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE);
+            cv::findContours(maskRed,contoursRed,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 
             for (size_t contourIdx = 0; contourIdx < contoursRed.size(); contourIdx++)
             {
@@ -1014,7 +1014,7 @@ void VideoWorker::_video_process_Calibration(tVideoInput parameter)
                 {
                     //Rectangle circonscrit de la forme détectée
                     cv::Rect RectCirconscrit=cv::boundingRect( approx );
-                    cv::rectangle(maskedRGB,RectCirconscrit,CV_RGB(0,0,255),5,8,0);
+                    cv::rectangle(maskedRGB,RectCirconscrit,cv::Scalar(0,0,255),5,8,0);
                 }
             }
         }
@@ -1077,7 +1077,7 @@ void VideoWorker::_video_record(cv::Mat frametoRecord)
         QString pathfilename = getVideoLogFilename();
 
         //création de l'objet OpenCV qui enregistre des frame
-        record= new cv::VideoWriter(pathfilename.toStdString(),CV_FOURCC('X','V','I','D'),15,cv::Size(m_iL,m_iH),true);
+        record= new cv::VideoWriter(pathfilename.toStdString(),cv::VideoWriter::fourcc('X','V','I','D'),15,cv::Size(m_iL,m_iH),true);
 
         if(record->isOpened())
         {
@@ -1188,7 +1188,7 @@ cv::Mat3b VideoWorker::_charucoProcessing(cv::Mat3b inputFrame)
         cv::aruco::drawDetectedCornersCharuco(imageCopy, currentCharucoCorners, currentCharucoIds);
 
     //on affiche un rond vert pour indiquer que l'image est correcte pour la calibration
-    cv::circle( imageCopy, cv::Point(10, 20), 20, CV_RGB(0,255,0), -1, 8, 0 );
+    cv::circle( imageCopy, cv::Point(10, 20), 20, cv::Scalar(0,255,0), -1, 8, 0 );
 
 
     //si on veut enregistrer l'image

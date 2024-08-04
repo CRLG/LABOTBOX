@@ -177,7 +177,4 @@ win32 {
     LIBS += -LC:/win_progs/OpenCV/opencv_2_4_9/bin -llibopencv_core249 -llibopencv_highgui249 -llibopencv_imgproc249
     INCLUDEPATH += "C:/win_progs/OpenCV/opencv_2_4_9/include"
 }
-
-linux {
-    LIBS +=`pkg-config opencv --libs`  # Ligne de commande qui renvoie toutes les librairies opencv sous la forme "-lopencv... -lopencv..."
-}
+CONFIG += opencv4
