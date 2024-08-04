@@ -132,4 +132,4 @@ LIBS += -L$$[QT_INSTALL_LIBS]
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system
 # __________________________________________________
 # Gestion des webcam et traitements video
-LIBS +=`pkg-config opencv --libs`  # Ligne de commande qui renvoie toutes les librairies opencv sous la forme "-lopencv... -lopencv..."
+CONFIG += opencv4
