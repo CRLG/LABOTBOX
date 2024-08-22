@@ -44,7 +44,7 @@ LIST_PLUGIN_MODULES+= \
         ActuatorElectrobot \ 
         SensorView \ 
         Asserv \ 
-        BotCam \
+        #BotCam \
         Ecran \
         ImageProcessing \ 
         XBEE \ 
