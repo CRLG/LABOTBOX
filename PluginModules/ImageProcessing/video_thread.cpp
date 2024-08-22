@@ -316,7 +316,7 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
                 if(markerIds.at(i)==(int)(parameter.value[IDX_PARAM_ARUCO_TAG1]))
                 {
                     if (m_dbg_active)
-                        cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
+                        cv::drawFrameAxes(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
                    // double l_center = tvecs[i][2]*TAILLE_BALISE*cos()
                     double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     float teta=0;
@@ -342,7 +342,7 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
                 if(markerIds.at(i)==(int)(parameter.value[IDX_PARAM_ARUCO_TAG2]))
                 {
                     if (m_dbg_active)
-                        cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
+                        cv::drawFrameAxes(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], parameter.value[IDX_PARAM_ARUCO_TAILLE] * 0.5f);
                     double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     //result.value[IDX_ROBOT2_DIST] = dist;
                     float teta=0;
@@ -484,7 +484,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
             {
                 if((markerIds.at(i)==91)||(markerIds.at(i)==92))
                 {
-                    cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+                    cv::drawFrameAxes(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
                     double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     result.value[IDX_ROBOT1_DIST] = dist;
                     float teta=0;
@@ -496,7 +496,7 @@ void VideoWorker::_video_process_Balise(tVideoInput parameter)
 
                 if((markerIds.at(i)==93)||(markerIds.at(i)==94))
                 {
-                    cv::aruco::drawAxis(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+                    cv::drawFrameAxes(m_frameCloned, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
                     double dist=sqrt(tvecs[i][0]*tvecs[i][0]+tvecs[i][2]*tvecs[i][2]);
                     result.value[IDX_ROBOT2_DIST] = dist;
                     float teta=0;
