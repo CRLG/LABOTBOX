@@ -76,22 +76,22 @@ public slots :
 
 
 // ========================================================
-//             TRAME ELECTROBOT_CDE_SERVOS_SD20
+//             TRAME ELECTROBOT_CONFIG_SERVOS
 // ========================================================
-#define ID_ELECTROBOT_CDE_SERVOS_SD20 0x53
-#define DLC_ELECTROBOT_CDE_SERVOS_SD20 5
+#define ID_ELECTROBOT_CONFIG_SERVOS 0x53
+#define DLC_ELECTROBOT_CONFIG_SERVOS 5
 #define BRUTE2PHYS_valeur_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_valeur_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_commande_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_commande_sd20(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
 #define BRUTE2PHYS_num_servo_sd20(val) ( ((float)val * (1.000000)) + (0.000000) )
 #define PHYS2BRUTE_num_servo_sd20(val) (unsigned char)( (val - (0.000000)) / (1.000000) )
-class CTrame_ELECTROBOT_CDE_SERVOS_SD20 : public CTrameBot
+class CTrame_ELECTROBOT_CONFIG_SERVOS : public CTrameBot
 {
    Q_OBJECT
 public :
-    CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
-    ~CTrame_ELECTROBOT_CDE_SERVOS_SD20() { }
+    CTrame_ELECTROBOT_CONFIG_SERVOS(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ELECTROBOT_CONFIG_SERVOS() { }
     /*virtual*/ void Encode(void);
 
  private :

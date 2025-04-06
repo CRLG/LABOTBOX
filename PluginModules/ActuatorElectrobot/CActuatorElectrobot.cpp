@@ -92,48 +92,52 @@ void CActuatorElectrobot::init(CApplication *application)
 
   connect(&m_ihm, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
 
+  // _____________________________________________ Servo moteurs (classiques et SD20)
+  m_choix_type_servos = cSERVOS_SD20;
+  choix_type_servo_classique_sd20();
+  connect(m_ihm.ui.choix_servos_classiques, SIGNAL(clicked()), this, SLOT(choix_type_servo_classique_sd20()));
+  connect(m_ihm.ui.choix_servos_sd20, SIGNAL(clicked()), this, SLOT(choix_type_servo_classique_sd20()));
 
-  // _____________________________________________ Servo moteurs
-  connect(m_ihm.ui.Servo_num_20, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_20, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_19, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_19, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_18, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_18, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_17, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_17, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_16, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_16, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_15, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_15, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_14, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_14, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_num_13, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_13, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_1, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_1, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_2, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_2, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_3, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_3, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_4, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_4, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_5, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_5, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_6, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_6, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_7, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_7, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_num_8, SIGNAL(valueChanged(int)), m_ihm.ui.Servo_slide_8, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_slide_20, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_20, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_19, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_19, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_18, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_18, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_17, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_17, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_16, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_16, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_15, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_15, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_14, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_14, SLOT(setValue(int)));
-  connect(m_ihm.ui.Servo_slide_13, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_13, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_1, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_1, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_2, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_2, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_3, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_3, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_4, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_4, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_5, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_5, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_6, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_6, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_7, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_7, SLOT(setValue(int)));
+  connect(m_ihm.ui.Servo_slide_8, SIGNAL(sliderMoved(int)), m_ihm.ui.Servo_num_8, SLOT(setValue(int)));
 
-  connect(m_ihm.ui.Servo_num_20, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur20_changed()));
-  connect(m_ihm.ui.Servo_num_19, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur19_changed()));
-  connect(m_ihm.ui.Servo_num_18, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur18_changed()));
-  connect(m_ihm.ui.Servo_num_17, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur17_changed()));
-  connect(m_ihm.ui.Servo_num_16, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur16_changed()));
-  connect(m_ihm.ui.Servo_num_15, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur15_changed()));
-  connect(m_ihm.ui.Servo_num_14, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur14_changed()));
-  connect(m_ihm.ui.Servo_num_13, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur13_changed()));
+  connect(m_ihm.ui.Servo_num_1, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur1_changed()));
+  connect(m_ihm.ui.Servo_num_2, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur2_changed()));
+  connect(m_ihm.ui.Servo_num_3, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur3_changed()));
+  connect(m_ihm.ui.Servo_num_4, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur4_changed()));
+  connect(m_ihm.ui.Servo_num_5, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur5_changed()));
+  connect(m_ihm.ui.Servo_num_6, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur6_changed()));
+  connect(m_ihm.ui.Servo_num_7, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur7_changed()));
+  connect(m_ihm.ui.Servo_num_8, SIGNAL(editingFinished()), this, SLOT(CdeServoMoteur8_changed()));
 
-  connect(m_ihm.ui.Servo_slide_20, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur20_changed()));
-  connect(m_ihm.ui.Servo_slide_19, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur19_changed()));
-  connect(m_ihm.ui.Servo_slide_18, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur18_changed()));
-  connect(m_ihm.ui.Servo_slide_17, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur17_changed()));
-  connect(m_ihm.ui.Servo_slide_16, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur16_changed()));
-  connect(m_ihm.ui.Servo_slide_15, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur15_changed()));
-  connect(m_ihm.ui.Servo_slide_14, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur14_changed()));
-  connect(m_ihm.ui.Servo_slide_13, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur13_changed()));
+  connect(m_ihm.ui.Servo_slide_1, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur1_changed()));
+  connect(m_ihm.ui.Servo_slide_2, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur2_changed()));
+  connect(m_ihm.ui.Servo_slide_3, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur3_changed()));
+  connect(m_ihm.ui.Servo_slide_4, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur4_changed()));
+  connect(m_ihm.ui.Servo_slide_5, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur5_changed()));
+  connect(m_ihm.ui.Servo_slide_6, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur6_changed()));
+  connect(m_ihm.ui.Servo_slide_7, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur7_changed()));
+  connect(m_ihm.ui.Servo_slide_8, SIGNAL(sliderReleased()), this, SLOT(CdeServoMoteur8_changed()));
 
-  connect(m_ihm.ui.ServosSD20Config_Send, SIGNAL(clicked()), this, SLOT(ServosSD20Config_Send_clicked()));
+  connect(m_ihm.ui.ServosConfig_Send, SIGNAL(clicked()), this, SLOT(ServosConfig_Send_clicked()));
 
   // met à jour la liste des commandes possibles sur les servos SD20
-  initList_ActionsServosSD20();
+  initList_ActionsServos();
 
   // _____________________________________________ Servo moteurs AX
   connect(m_ihm.ui.ServoAX_num_0, SIGNAL(valueChanged(int)), m_ihm.ui.ServoAX_slide_0, SLOT(setValue(int)));
@@ -346,42 +350,148 @@ void CActuatorElectrobot::Moteurs_StopAll_clicked(void)
 
 
 // =============================================================
-//                          SERVOS SD20
+//               SERVOS CLASSIQUES & SERVOS SD20
 // =============================================================
 // _____________________________________________________________
-void CActuatorElectrobot::PosServoMoteur_changed(int id, int position)
+void CActuatorElectrobot::PosServoMoteur_changed(int id, int position, int speed)
 {
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
     m_application->m_data_center->write("NumeroServoMoteur1", id);
     m_application->m_data_center->write("PositionServoMoteur1", position);
-    m_application->m_data_center->write("VitesseServoMoteur1", 0);
+    m_application->m_data_center->write("VitesseServoMoteur1", speed);
     m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
 }
 
 // _____________________________________________________________________
-void CActuatorElectrobot::CdeServoMoteur20_changed()
-{ PosServoMoteur_changed(20, m_ihm.ui.Servo_slide_20->value()); }
+void CActuatorElectrobot::CdeServoMoteur1_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(1), m_ihm.ui.Servo_slide_1->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur19_changed()
-{ PosServoMoteur_changed(19, m_ihm.ui.Servo_slide_19->value()); }
+void CActuatorElectrobot::CdeServoMoteur2_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(2), m_ihm.ui.Servo_slide_2->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur18_changed()
-{ PosServoMoteur_changed(18, m_ihm.ui.Servo_slide_18->value()); }
+void CActuatorElectrobot::CdeServoMoteur3_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(3), m_ihm.ui.Servo_slide_3->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur17_changed()
-{ PosServoMoteur_changed(17, m_ihm.ui.Servo_slide_17->value()); }
+void CActuatorElectrobot::CdeServoMoteur4_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(4), m_ihm.ui.Servo_slide_4->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur16_changed()
-{ PosServoMoteur_changed(16, m_ihm.ui.Servo_slide_16->value()); }
+void CActuatorElectrobot::CdeServoMoteur5_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(5), m_ihm.ui.Servo_slide_5->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur15_changed()
-{ PosServoMoteur_changed(15, m_ihm.ui.Servo_slide_15->value()); }
+void CActuatorElectrobot::CdeServoMoteur6_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(6), m_ihm.ui.Servo_slide_6->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur14_changed()
-{ PosServoMoteur_changed(14, m_ihm.ui.Servo_slide_14->value()); }
+void CActuatorElectrobot::CdeServoMoteur7_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(7), m_ihm.ui.Servo_slide_7->value(), m_ihm.ui.servo_speed->value()); }
 
-void CActuatorElectrobot::CdeServoMoteur13_changed()
-{ PosServoMoteur_changed(13, m_ihm.ui.Servo_slide_13->value()); }
+void CActuatorElectrobot::CdeServoMoteur8_changed()
+{ PosServoMoteur_changed(servo_id_to_servo_num(8), m_ihm.ui.Servo_slide_8->value(), m_ihm.ui.servo_speed->value()); }
+
+
+void CActuatorElectrobot::choix_type_servo_classique_sd20()
+{
+
+    if (m_ihm.ui.choix_servos_classiques->isChecked())  m_choix_type_servos = cSERVOS_CLASSIQUES;
+    else if (m_ihm.ui.choix_servos_sd20->isChecked())   m_choix_type_servos = cSERVOS_SD20;
+    else                                                m_choix_type_servos = cSERVOS_CLASSIQUES;
+
+
+    int min_value, max_value, default_val;
+    switch(m_choix_type_servos)
+    {
+    case cSERVOS_SD20 :
+        min_value = 0;
+        max_value = 255;
+        default_val = 128;
+        m_ihm.ui.servo_label_8->setEnabled(true); // il n'y a que 7 servos sur la carte Electrobot H755
+
+        break;
+
+    case cSERVOS_CLASSIQUES :
+    default :
+        m_ihm.ui.servo_label_1->setText("Servo1");
+        min_value = 300;
+        max_value = 3000;
+        default_val = 1500;
+        m_ihm.ui.servo_label_8->setEnabled(false);
+        break;
+    }
+    // ajuste le nom du label
+    m_ihm.ui.servo_label_1->setText(QString("Servo%1").arg(servo_id_to_servo_num(1)));
+    m_ihm.ui.servo_label_2->setText(QString("Servo%1").arg(servo_id_to_servo_num(2)));
+    m_ihm.ui.servo_label_3->setText(QString("Servo%1").arg(servo_id_to_servo_num(3)));
+    m_ihm.ui.servo_label_4->setText(QString("Servo%1").arg(servo_id_to_servo_num(4)));
+    m_ihm.ui.servo_label_5->setText(QString("Servo%1").arg(servo_id_to_servo_num(5)));
+    m_ihm.ui.servo_label_6->setText(QString("Servo%1").arg(servo_id_to_servo_num(6)));
+    m_ihm.ui.servo_label_7->setText(QString("Servo%1").arg(servo_id_to_servo_num(7)));
+    m_ihm.ui.servo_label_8->setText(QString("Servo%1").arg(servo_id_to_servo_num(8)));
+
+    // Fixe les valeurs min et max des sliders et champs numériques
+    m_ihm.ui.Servo_slide_1->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_1->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_2->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_2->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_3->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_3->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_4->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_4->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_5->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_5->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_6->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_6->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_7->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_7->setMaximum(max_value);
+    m_ihm.ui.Servo_slide_8->setMinimum(min_value);
+    m_ihm.ui.Servo_slide_8->setMaximum(max_value);
+
+    m_ihm.ui.Servo_num_1->setMinimum(min_value);
+    m_ihm.ui.Servo_num_1->setMaximum(max_value);
+    m_ihm.ui.Servo_num_2->setMinimum(min_value);
+    m_ihm.ui.Servo_num_2->setMaximum(max_value);
+    m_ihm.ui.Servo_num_3->setMinimum(min_value);
+    m_ihm.ui.Servo_num_3->setMaximum(max_value);
+    m_ihm.ui.Servo_num_4->setMinimum(min_value);
+    m_ihm.ui.Servo_num_4->setMaximum(max_value);
+    m_ihm.ui.Servo_num_5->setMinimum(min_value);
+    m_ihm.ui.Servo_num_5->setMaximum(max_value);
+    m_ihm.ui.Servo_num_6->setMinimum(min_value);
+    m_ihm.ui.Servo_num_6->setMaximum(max_value);
+    m_ihm.ui.Servo_num_7->setMinimum(min_value);
+    m_ihm.ui.Servo_num_7->setMaximum(max_value);
+    m_ihm.ui.Servo_num_8->setMinimum(min_value);
+    m_ihm.ui.Servo_num_8->setMaximum(max_value);
+
+    // remet les valeurs par défaut au centre
+    m_ihm.ui.Servo_slide_1->setValue(default_val);
+    m_ihm.ui.Servo_slide_2->setValue(default_val);
+    m_ihm.ui.Servo_slide_3->setValue(default_val);
+    m_ihm.ui.Servo_slide_4->setValue(default_val);
+    m_ihm.ui.Servo_slide_5->setValue(default_val);
+    m_ihm.ui.Servo_slide_6->setValue(default_val);
+    m_ihm.ui.Servo_slide_7->setValue(default_val);
+    m_ihm.ui.Servo_slide_8->setValue(default_val);
+
+    m_ihm.ui.Servo_num_1->setValue(default_val);
+    m_ihm.ui.Servo_num_2->setValue(default_val);
+    m_ihm.ui.Servo_num_3->setValue(default_val);
+    m_ihm.ui.Servo_num_4->setValue(default_val);
+    m_ihm.ui.Servo_num_5->setValue(default_val);
+    m_ihm.ui.Servo_num_6->setValue(default_val);
+    m_ihm.ui.Servo_num_7->setValue(default_val);
+    m_ihm.ui.Servo_num_8->setValue(default_val);
+}
+
+unsigned int CActuatorElectrobot::servo_id_to_servo_num(unsigned int servo_id)
+{
+    if (m_choix_type_servos == cSERVOS_CLASSIQUES) {
+        return servo_id;
+    }
+    else if (m_choix_type_servos == cSERVOS_SD20) {
+        return 20-servo_id+1;  // 20, 19, ... 13
+    }
+
+    return servo_id;
+}
 
 
 // =============================================================
@@ -454,25 +564,25 @@ void CActuatorElectrobot::ServosAXConfig_Send_clicked(void)
 
 
 // ____________________________________________________
-void CActuatorElectrobot::initList_ActionsServosSD20(void)
+void CActuatorElectrobot::initList_ActionsServos(void)
 {
   QStringList lst;
-  // à mettre dans le même ordre que l'énuméré "eCOMMANDES_SERVOS_SD20" (commun avec le MBED)
+  // à mettre dans le même ordre que l'énuméré "eCONFIG_SERVOS" (commun avec le MBED)
   lst << "POSITION"
       << "BUTEE_MIN"
       << "BUTEE_MAX"
       << "POSITION_INIT";
-  m_ihm.ui.ServosSD20Config_Action->addItems(lst);
+  m_ihm.ui.ServosConfig_Action->addItems(lst);
 }
 
 // ____________________________________________________
-void CActuatorElectrobot::ServosSD20Config_Send_clicked(void)
+void CActuatorElectrobot::ServosConfig_Send_clicked(void)
 {
-    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync", true);
-    m_application->m_data_center->write("num_servo_sd20", m_ihm.ui.ServosSD20Config_ID->value());
-    m_application->m_data_center->write("commande_sd20", m_ihm.ui.ServosSD20Config_Action->currentIndex());
-    m_application->m_data_center->write("valeur_commande_sd20", m_ihm.ui.ServosSD20Config_Value->value());
-    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync", false);
+    m_application->m_data_center->write("ELECTROBOT_CONFIG_SERVOS_TxSync", true);
+    m_application->m_data_center->write("num_servo_sd20", m_ihm.ui.ServosConfig_ID->value());
+    m_application->m_data_center->write("commande_sd20", m_ihm.ui.ServosConfig_Action->currentIndex());
+    m_application->m_data_center->write("valeur_commande_sd20", m_ihm.ui.ServosConfig_Value->value());
+    m_application->m_data_center->write("ELECTROBOT_CONFIG_SERVOS_TxSync", false);
 }
 
 

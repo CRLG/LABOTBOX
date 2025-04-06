@@ -82,32 +82,41 @@ private slots :
 
     void Moteurs_StopAll_clicked(void);
 
-// ____________________________________________________Servo-moteurs SD20
+// ____________________________________________________Servo-moteurs classiques et SD20
 private :
-    //! La liste des codes possibles dans le champ "commande_sd20" de la trame ELECTROBOT_CDE_SERVOS_SD20
-    // (enum commun MBED<->LaBotBox)
+    //! La liste des codes possibles dans le champ "commande_sd20" de la trame ELECTROBOT_CONFIG_SERVOS
+    // (enum commun CPU<->LaBotBox)
     typedef enum {
-      cSERVO_SD20_POSITION = 0,
-      cSERVO_SD20_BUTEE_MIN,
-      cSERVO_SD20_BUTEE_MAX,
-      cSERVO_SD20_POSITION_INIT
-    }eCOMMANDES_SERVOS_SD20;
+      cCONFIG_SERVO_POSITION = 0,
+      cCONFIG_SERVO_BUTEE_MIN,
+      cCONFIG_SERVO_BUTEE_MAX,
+      cCONFIG_SERVO_POSITION_INIT
+    }eCONFIG_SERVOS;
 
-    void PosServoMoteur_changed(int id, int position);
-    void initList_ActionsServosSD20(void);
+    typedef enum {
+        cSERVOS_CLASSIQUES = 0,
+        cSERVOS_SD20
+    }eTYPE_SERVO;
+    int m_choix_type_servos;
+
+    void PosServoMoteur_changed(int id, int position, int speed=0);
+    void initList_ActionsServos(void);
 
 private slots :
-    //void CdeServoMoteur20_changed(int val);
-    void CdeServoMoteur20_changed();
-    void CdeServoMoteur19_changed();
-    void CdeServoMoteur18_changed();
-    void CdeServoMoteur17_changed();
-    void CdeServoMoteur16_changed();
-    void CdeServoMoteur15_changed();
-    void CdeServoMoteur14_changed();
-    void CdeServoMoteur13_changed();
+    // Servos moteurs
+    void CdeServoMoteur1_changed();
+    void CdeServoMoteur2_changed();
+    void CdeServoMoteur3_changed();
+    void CdeServoMoteur4_changed();
+    void CdeServoMoteur5_changed();
+    void CdeServoMoteur6_changed();
+    void CdeServoMoteur7_changed();
+    void CdeServoMoteur8_changed();
 
-    void ServosSD20Config_Send_clicked(void);
+    void choix_type_servo_classique_sd20();
+    unsigned int servo_id_to_servo_num(unsigned int servo_id);
+
+    void ServosConfig_Send_clicked(void);
 
 // ____________________________________________________Servo-moteurs AX
 private :

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>389</height>
+    <width>321</width>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,63 +28,53 @@
         <string>Moteurs</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="6" column="0" colspan="2">
+         <widget class="QPushButton" name="Send_CdeMoteurs">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;clic gauche : envoie trame / clic droit : lock trame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Send /  Lock</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="Moteur_4">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSpinBox" name="Moteur_5">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_Moteur_6">
+          <property name="text">
+           <string>Moteur 6</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_Moteur_1">
           <property name="text">
            <string>Moteur 1</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="Moteur_1">
-          <property name="suffix">
-           <string>%</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_Moteur_2">
-          <property name="text">
-           <string>Moteur 2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSpinBox" name="Moteur_2">
-          <property name="suffix">
-           <string>%</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_Moteur_3">
-          <property name="text">
-           <string>Moteur 3</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="Moteur_3">
-          <property name="suffix">
-           <string>%</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
           </property>
          </widget>
         </item>
@@ -123,43 +113,10 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QSpinBox" name="Moteur_4">
-          <property name="suffix">
-           <string>%</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_Moteur_5">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_Moteur_3">
           <property name="text">
-           <string>Moteur 5</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QSpinBox" name="Moteur_5">
-          <property name="suffix">
-           <string>%</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_Moteur_6">
-          <property name="text">
-           <string>Moteur 6</string>
+           <string>Moteur 3</string>
           </property>
          </widget>
         </item>
@@ -176,130 +133,93 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0" colspan="2">
-         <widget class="QPushButton" name="Send_CdeMoteurs">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;clic gauche : envoie trame / clic droit : lock trame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Send /  Lock</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="ServosSD20">
-       <attribute name="title">
-        <string>ServosSD20</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="servo_label_1">
-          <property name="text">
-           <string>Servo20</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
-         <widget class="QSlider" name="Servo_slide_20">
+         <widget class="QSpinBox" name="Moteur_1">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
           <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QSpinBox" name="Servo_num_20">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="servo_label_2">
-          <property name="text">
-           <string>Servo19</string>
+           <number>100</number>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSlider" name="Servo_slide_19">
+         <widget class="QSpinBox" name="Moteur_2">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
           <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="Servo_num_19">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="servo_label_3">
-          <property name="text">
-           <string>Servo18</string>
+           <number>100</number>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSlider" name="Servo_slide_18">
-          <property name="maximum">
-           <number>255</number>
+         <widget class="QSpinBox" name="Moteur_3">
+          <property name="suffix">
+           <string>%</string>
           </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QSpinBox" name="Servo_num_18">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="servo_label_4">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_Moteur_2">
           <property name="text">
-           <string>Servo17</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QSlider" name="Servo_slide_17">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QSpinBox" name="Servo_num_17">
-          <property name="maximum">
-           <number>255</number>
+           <string>Moteur 2</string>
           </property>
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="servo_label_5">
+         <widget class="QLabel" name="label_Moteur_5">
           <property name="text">
-           <string>Servo16</string>
+           <string>Moteur 5</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QSlider" name="Servo_slide_16">
+        <item row="7" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="Servos">
+       <attribute name="title">
+        <string>Servos</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="7" column="0">
+         <widget class="QLabel" name="servo_label_8">
+          <property name="text">
+           <string>Servo8</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QSlider" name="Servo_slide_6">
           <property name="maximum">
-           <number>255</number>
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -307,81 +227,165 @@
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QSpinBox" name="Servo_num_16">
+         <widget class="QSpinBox" name="Servo_num_5">
           <property name="maximum">
-           <number>255</number>
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="servo_label_6">
-          <property name="text">
-           <string>Servo15</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QSlider" name="Servo_slide_15">
+        <item row="7" column="1">
+         <widget class="QSlider" name="Servo_slide_8">
           <property name="maximum">
-           <number>255</number>
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QSpinBox" name="Servo_num_15">
-          <property name="maximum">
-           <number>255</number>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="servo_label_7">
           <property name="text">
-           <string>Servo14</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QSlider" name="Servo_slide_14">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
-         <widget class="QSpinBox" name="Servo_num_14">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="servo_label_8">
-          <property name="text">
-           <string>Servo13</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QSlider" name="Servo_slide_13">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <string>Servo7</string>
           </property>
          </widget>
         </item>
         <item row="7" column="2">
-         <widget class="QSpinBox" name="Servo_num_13">
+         <widget class="QSpinBox" name="Servo_num_8">
           <property name="maximum">
-           <number>255</number>
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QSlider" name="Servo_slide_7">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QSpinBox" name="Servo_num_4">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="Servo_num_2">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="servo_label_5">
+          <property name="text">
+           <string>Servo5</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QSpinBox" name="Servo_num_1">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSlider" name="Servo_slide_1">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="servo_label_3">
+          <property name="text">
+           <string>Servo3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="servo_label_6">
+          <property name="text">
+           <string>Servo6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSlider" name="Servo_slide_3">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2">
+         <widget class="QSpinBox" name="servo_speed">
+          <property name="toolTip">
+           <string>65535 -&gt; valeur max</string>
+          </property>
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>15</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="Servo_num_3">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QSpinBox" name="Servo_num_6">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
           </property>
          </widget>
         </item>
@@ -398,6 +402,20 @@
           </property>
          </spacer>
         </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="servo_label_4">
+          <property name="text">
+           <string>Servo4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="servo_label_2">
+          <property name="text">
+           <string>Servo2</string>
+          </property>
+         </widget>
+        </item>
         <item row="8" column="1" colspan="2">
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
@@ -411,11 +429,108 @@
           </property>
          </spacer>
         </item>
+        <item row="3" column="1">
+         <widget class="QSlider" name="Servo_slide_4">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSlider" name="Servo_slide_2">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0" colspan="3">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QRadioButton" name="choix_servos_classiques">
+            <property name="text">
+             <string>Servos classiques</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="choix_servos_sd20">
+            <property name="text">
+             <string>Servos SD20</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="servo_label_1">
+          <property name="text">
+           <string>Servo1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Speed</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSlider" name="Servo_slide_5">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QSpinBox" name="Servo_num_7">
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="value">
+           <number>1500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="3">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="ConfigServosSD20">
+      <widget class="QWidget" name="ConfigServos">
        <attribute name="title">
-        <string>Config ServosSD20</string>
+        <string>Config Servos</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0" colspan="2">
@@ -426,7 +541,7 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QSpinBox" name="ServosSD20Config_ID">
+         <widget class="QSpinBox" name="ServosConfig_ID">
           <property name="toolTip">
            <string>ID [1 ; 20]</string>
           </property>
@@ -459,17 +574,17 @@
          </widget>
         </item>
         <item row="1" column="1" colspan="3">
-         <widget class="QComboBox" name="ServosSD20Config_Action"/>
+         <widget class="QComboBox" name="ServosConfig_Action"/>
         </item>
         <item row="1" column="4">
-         <widget class="QSpinBox" name="ServosSD20Config_Value">
+         <widget class="QSpinBox" name="ServosConfig_Value">
           <property name="maximum">
-           <number>1023</number>
+           <number>65535</number>
           </property>
          </widget>
         </item>
         <item row="2" column="2" colspan="3">
-         <widget class="QPushButton" name="ServosSD20Config_Send">
+         <widget class="QPushButton" name="ServosConfig_Send">
           <property name="text">
            <string>Send</string>
           </property>
@@ -553,6 +668,9 @@
          <widget class="QSpinBox" name="ServoAX_num_0">
           <property name="maximum">
            <number>1023</number>
+          </property>
+          <property name="value">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -879,7 +997,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>296</width>
+     <width>321</width>
      <height>22</height>
     </rect>
    </property>

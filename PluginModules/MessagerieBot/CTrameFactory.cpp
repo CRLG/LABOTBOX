@@ -92,7 +92,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_FREE_STRING(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_CHARGE_CPU(m_messagerie_bot, m_data_manager));
  // Trames en émission
- m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_SD20(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ELECTROBOT_CONFIG_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_POWER_SWITCH(m_messagerie_bot, m_data_manager));
@@ -174,14 +174,14 @@ CTrameBot *CTrameFactory::getTrameFromID(unsigned int id)
 
 
 // ========================================================
-//             TRAME ELECTROBOT_CDE_SERVOS_SD20
+//             TRAME ELECTROBOT_CONFIG_SERVOS
 // ========================================================
-CTrame_ELECTROBOT_CDE_SERVOS_SD20::CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+CTrame_ELECTROBOT_CONFIG_SERVOS::CTrame_ELECTROBOT_CONFIG_SERVOS(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
     : CTrameBot(messagerie_bot, data_manager)
 {
- m_name = "ELECTROBOT_CDE_SERVOS_SD20";
- m_id = ID_ELECTROBOT_CDE_SERVOS_SD20;
- m_dlc = DLC_ELECTROBOT_CDE_SERVOS_SD20;
+ m_name = "ELECTROBOT_CONFIG_SERVOS";
+ m_id = ID_ELECTROBOT_CONFIG_SERVOS;
+ m_dlc = DLC_ELECTROBOT_CONFIG_SERVOS;
  m_liste_noms_signaux.append("valeur_commande_sd20");
  m_liste_noms_signaux.append("commande_sd20");
  m_liste_noms_signaux.append("num_servo_sd20");
@@ -196,13 +196,13 @@ CTrame_ELECTROBOT_CDE_SERVOS_SD20::CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerie
  data_manager->write("valeur_commande_sd20",  valeur_commande_sd20);
  data_manager->write("commande_sd20",  commande_sd20);
  data_manager->write("num_servo_sd20",  num_servo_sd20);
- data_manager->write("ELECTROBOT_CDE_SERVOS_SD20_TxSync",  m_synchro_tx);
+ data_manager->write("ELECTROBOT_CONFIG_SERVOS_TxSync",  m_synchro_tx);
 
  // Connexion avec le DataManager
  connect(data_manager->getData("valeur_commande_sd20"), SIGNAL(valueChanged(QVariant)), this, SLOT(valeur_commande_sd20_changed(QVariant)));
  connect(data_manager->getData("commande_sd20"), SIGNAL(valueChanged(QVariant)), this, SLOT(commande_sd20_changed(QVariant)));
  connect(data_manager->getData("num_servo_sd20"), SIGNAL(valueChanged(QVariant)), this, SLOT(num_servo_sd20_changed(QVariant)));
- connect(data_manager->getData("ELECTROBOT_CDE_SERVOS_SD20_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+ connect(data_manager->getData("ELECTROBOT_CONFIG_SERVOS_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
 
 }
 //___________________________________________________________________________
@@ -210,7 +210,7 @@ CTrame_ELECTROBOT_CDE_SERVOS_SD20::CTrame_ELECTROBOT_CDE_SERVOS_SD20(CMessagerie
   \brief Fonction appelée lorsque la data est modifée
   \param val la nouvelle valeur de la data
 */
-void CTrame_ELECTROBOT_CDE_SERVOS_SD20::valeur_commande_sd20_changed(QVariant val)
+void CTrame_ELECTROBOT_CONFIG_SERVOS::valeur_commande_sd20_changed(QVariant val)
 {
   valeur_commande_sd20 = val.toInt();
   if (m_synchro_tx == 0) { Encode(); }
@@ -220,7 +220,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::valeur_commande_sd20_changed(QVariant va
   \brief Fonction appelée lorsque la data est modifée
   \param val la nouvelle valeur de la data
 */
-void CTrame_ELECTROBOT_CDE_SERVOS_SD20::commande_sd20_changed(QVariant val)
+void CTrame_ELECTROBOT_CONFIG_SERVOS::commande_sd20_changed(QVariant val)
 {
   commande_sd20 = val.toInt();
   if (m_synchro_tx == 0) { Encode(); }
@@ -230,7 +230,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::commande_sd20_changed(QVariant val)
   \brief Fonction appelée lorsque la data est modifée
   \param val la nouvelle valeur de la data
 */
-void CTrame_ELECTROBOT_CDE_SERVOS_SD20::num_servo_sd20_changed(QVariant val)
+void CTrame_ELECTROBOT_CONFIG_SERVOS::num_servo_sd20_changed(QVariant val)
 {
   num_servo_sd20 = val.toInt();
   if (m_synchro_tx == 0) { Encode(); }
@@ -240,7 +240,7 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::num_servo_sd20_changed(QVariant val)
   \brief Fonction appelée lorsque la data est modifée
   \param val la nouvelle valeur de la data
 */
-void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Synchro_changed(QVariant val)
+void CTrame_ELECTROBOT_CONFIG_SERVOS::Synchro_changed(QVariant val)
 {
   m_synchro_tx = val.toBool();
   if (m_synchro_tx == 0) { Encode(); }
@@ -250,13 +250,13 @@ void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Synchro_changed(QVariant val)
 /*!
   \brief Encode et envoie la trame
 */
-void CTrame_ELECTROBOT_CDE_SERVOS_SD20::Encode(void)
+void CTrame_ELECTROBOT_CONFIG_SERVOS::Encode(void)
 {
   tStructTrameBrute trame;
 
   // Informations générales
-  trame.ID = ID_ELECTROBOT_CDE_SERVOS_SD20;
-  trame.DLC = DLC_ELECTROBOT_CDE_SERVOS_SD20;
+  trame.ID = ID_ELECTROBOT_CONFIG_SERVOS;
+  trame.DLC = DLC_ELECTROBOT_CONFIG_SERVOS;
 
  for (unsigned int i=0; i<m_dlc; i++) {
      trame.Data[i] = 0;
