@@ -1378,7 +1378,7 @@ public :
     ~CTrame_RESET_CPU() { }
     /*virtual*/ void Encode(void);
 
-    unsigned char SECURITE_RESET_CPU;         // voir enum "eLidarStatus"
+    unsigned char SECURITE_RESET_CPU;
 
     bool m_synchro_tx;
 
@@ -1388,6 +1388,27 @@ private slots :
 
 };
 
+// ========================================================
+//             TRAME COMMANDE_MODE_FONCTIONNEMENT
+// ========================================================
+#define ID_COMMANDE_MODE_FONCTIONNEMENT_CPU 0x10D
+#define DLC_COMMANDE_MODE_FONCTIONNEMENT_CPU 2
+class CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU() { }
+    /*virtual*/ void Encode(void);
+
+    unsigned short CommandeModeFonctionnementCPU;
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
+    void CommandeModeFonctionnementCPU_changed(QVariant val);
+};
 
 #endif // _CTRAME_FACTORY_H_
 

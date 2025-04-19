@@ -61,6 +61,7 @@ LIST_PLUGIN_MODULES+= \
         PowerElectrobot \ 
         Lidar \
         KMAR \ 
+        ModeFonctionnementCPU \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

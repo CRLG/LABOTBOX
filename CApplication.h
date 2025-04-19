@@ -52,6 +52,7 @@ class CPowerElectrobot;
 class CSimulia;
 class CLidar;
 class CKMAR;
+class CModeFonctionnementCPU;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -190,6 +191,9 @@ public:
 #ifdef MODULE_KMAR
    CKMAR     *m_KMAR;
 #endif // MODULE_KMAR
+#ifdef MODULE_ModeFonctionnementCPU
+   CModeFonctionnementCPU     *m_ModeFonctionnementCPU;
+#endif // MODULE_ModeFonctionnementCPU
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

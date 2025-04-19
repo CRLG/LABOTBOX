@@ -117,6 +117,9 @@
 #ifdef MODULE_KMAR
    #include "CKMAR.h"
 #endif // MODULE_KMAR
+#ifdef MODULE_ModeFonctionnementCPU
+   #include "CModeFonctionnementCPU.h"
+#endif // MODULE_ModeFonctionnementCPU
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -444,6 +447,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_KMAR);
   m_list_modules.append(m_KMAR);
 #endif // MODULE_KMAR
+
+#ifdef MODULE_ModeFonctionnementCPU
+  m_ModeFonctionnementCPU     = new CModeFonctionnementCPU("ModeFonctionnementCPU");
+  m_list_plugin_modules.append(m_ModeFonctionnementCPU);
+  m_list_modules.append(m_ModeFonctionnementCPU);
+#endif // MODULE_ModeFonctionnementCPU
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
