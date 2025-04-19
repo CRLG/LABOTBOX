@@ -446,7 +446,11 @@ void CAsserv::initList_ActionsDiagAsserv(void)
       << "DIAG_WR_KI_DISTANCE"
       << "DIAG_WR_KP_DISTANCE"
       << "DIAG_WR_CDE_MIN"
-      << "DIAG_WR_CDE_MAX";
+      << "DIAG_WR_CDE_MAX"
+      << "DIAG_WR_K_ANGLE"
+      << "DIAG_WR_COMPTEUR_MAX"
+      << "DIAG_WR_ZONE_MORTE_D"
+      << "DIAG_WR_ZONE_MORTE_G";
 
   m_ihm.ui.DiagAsserv_Action->addItems(lst);
 }
@@ -476,6 +480,7 @@ int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
         case cASSERV_DIAG_RACK_K_POSVIT:
         case cASSERV_DIAG_RACK_KP:
         case cASSERV_DIAG_RACK_KI:
+        case cASSERV_DIAG_WR_K_ANGLE :
         //case cASSERV_DIAG_RACK_CONV:
             return (100);
         break;
