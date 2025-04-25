@@ -53,6 +53,7 @@ class CSimulia;
 class CLidar;
 class CKMAR;
 class CModeFonctionnementCPU;
+class CEEPROM_CPU;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -194,6 +195,9 @@ public:
 #ifdef MODULE_ModeFonctionnementCPU
    CModeFonctionnementCPU     *m_ModeFonctionnementCPU;
 #endif // MODULE_ModeFonctionnementCPU
+#ifdef MODULE_EEPROM_CPU
+   CEEPROM_CPU     *m_EEPROM_CPU;
+#endif // MODULE_EEPROM_CPU
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

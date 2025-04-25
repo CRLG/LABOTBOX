@@ -62,6 +62,7 @@ LIST_PLUGIN_MODULES+= \
         Lidar \
         KMAR \ 
         ModeFonctionnementCPU \ 
+        EEPROM_CPU \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

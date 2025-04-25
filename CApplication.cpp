@@ -120,6 +120,9 @@
 #ifdef MODULE_ModeFonctionnementCPU
    #include "CModeFonctionnementCPU.h"
 #endif // MODULE_ModeFonctionnementCPU
+#ifdef MODULE_EEPROM_CPU
+   #include "CEEPROM_CPU.h"
+#endif // MODULE_EEPROM_CPU
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -453,6 +456,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_ModeFonctionnementCPU);
   m_list_modules.append(m_ModeFonctionnementCPU);
 #endif // MODULE_ModeFonctionnementCPU
+
+#ifdef MODULE_EEPROM_CPU
+  m_EEPROM_CPU     = new CEEPROM_CPU("EEPROM_CPU");
+  m_list_plugin_modules.append(m_EEPROM_CPU);
+  m_list_modules.append(m_EEPROM_CPU);
+#endif // MODULE_EEPROM_CPU
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }
