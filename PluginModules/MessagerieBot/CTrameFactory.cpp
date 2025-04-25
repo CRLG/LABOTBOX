@@ -91,6 +91,8 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ETAT_KMAR_GENERAL(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_FREE_STRING(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_CHARGE_CPU(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_EEPROM_VALUE(m_messagerie_bot, m_data_manager));
+
  // Trames en émission
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CONFIG_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
@@ -114,6 +116,8 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_ETAT_LIDAR(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_RESET_CPU(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_READ_EEPROM_REQ(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_WRITE_EEPROM_REQ(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -3587,4 +3591,154 @@ void CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU::Encode(void)
 
   // Comptabilise le nombre de trames émises
   m_nombre_emis++;
+}
+
+
+// ========================================================
+//             TRAME READ_EEPROM_REQ
+// ========================================================
+CTrame_READ_EEPROM_REQ::CTrame_READ_EEPROM_REQ(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "READ_EEPROM_REQ";
+ m_id = ID_READ_EEPROM_REQ;
+ m_dlc = DLC_READ_EEPROM_REQ;
+
+ // Initialise les données de la messagerie
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("READ_EEPROM_REQ_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("READ_EEPROM_REQ_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_READ_EEPROM_REQ::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_READ_EEPROM_REQ::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_READ_EEPROM_REQ;
+  trame.DLC = DLC_READ_EEPROM_REQ;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    CDataEncoderDecoder::encode_uint32(trame.Data,  0, start_address);
+    CDataEncoderDecoder::encode_uint32(trame.Data,  4, count);
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME WRITE_EEPROM_REQ
+// ========================================================
+CTrame_WRITE_EEPROM_REQ::CTrame_WRITE_EEPROM_REQ(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "WRITE_EEPROM_REQ";
+ m_id = ID_WRITE_EEPROM_REQ;
+ m_dlc = DLC_WRITE_EEPROM_REQ;
+
+ // Initialise les données de la messagerie
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("WRITE_EEPROM_REQ_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("WRITE_EEPROM_REQ_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_WRITE_EEPROM_REQ::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_WRITE_EEPROM_REQ::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_WRITE_EEPROM_REQ;
+  trame.DLC = DLC_WRITE_EEPROM_REQ;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    CDataEncoderDecoder::encode_uint32(trame.Data,  0, address);
+    CDataEncoderDecoder::encode_uint32(trame.Data,  4, value);
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
+}
+
+// ========================================================
+//             TRAME EEPROM_VALUE
+// ========================================================
+CTrame_EEPROM_VALUE::CTrame_EEPROM_VALUE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+    m_name = "EEPROM_VALUE";
+    m_id = ID_EEPROM_VALUE;
+    m_dlc = DLC_EEPROM_VALUE;
+    m_liste_noms_signaux.append("EEPROM_CPU.Address");
+    m_liste_noms_signaux.append("EEPROM_CPU.Value");
+
+    // S'assure que les données existent dans le DataManager
+    address = 0;
+    value = 0;
+    data_manager->write("EEPROM_CPU.Address",  (unsigned int)address);
+    data_manager->write("EEPROM_CPU.Value",  (unsigned int)value);
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_EEPROM_VALUE::Decode(tStructTrameBrute *trameRecue)
+{
+    // Decode les signaux de la trame
+    address = CDataEncoderDecoder::decode_uint32(trameRecue->Data, 0);
+    value = CDataEncoderDecoder::decode_uint32(trameRecue->Data, 4);
+
+    // Envoie les données au data manager
+    m_data_manager->write("EEPROM_CPU.Address", (unsigned int)address);
+    m_data_manager->write("EEPROM_CPU.Value", (unsigned int)value);
+
+    // Comptabilise la reception de cette trame
+    m_nombre_recue++;
 }

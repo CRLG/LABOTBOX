@@ -1388,6 +1388,8 @@ private slots :
 
 };
 
+
+
 // ========================================================
 //             TRAME COMMANDE_MODE_FONCTIONNEMENT
 // ========================================================
@@ -1410,7 +1412,67 @@ private slots :
     void CommandeModeFonctionnementCPU_changed(QVariant val);
 };
 
-#endif // _CTRAME_FACTORY_H_
+// ========================================================
+//             TRAME READ_EEPROM_REQ
+// ========================================================
+#define ID_READ_EEPROM_REQ 0x10E
+#define DLC_READ_EEPROM_REQ 8
+class CTrame_READ_EEPROM_REQ : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_READ_EEPROM_REQ(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_READ_EEPROM_REQ() { }
+    /*virtual*/ void Encode(void);
 
+    unsigned long start_address;
+    unsigned long count;
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
+};
+
+// ========================================================
+//             TRAME WRITE_EEPROM_REQ
+// ========================================================
+#define ID_WRITE_EEPROM_REQ 0x10F
+#define DLC_WRITE_EEPROM_REQ 8
+class CTrame_WRITE_EEPROM_REQ : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_WRITE_EEPROM_REQ(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_WRITE_EEPROM_REQ() { }
+    /*virtual*/ void Encode(void);
+
+    unsigned long address;
+    unsigned long value;
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
+};
+
+// ========================================================
+//             TRAME EEPROM_VALUE
+// ========================================================
+#define ID_EEPROM_VALUE 0x110
+#define DLC_EEPROM_VALUE 8
+class CTrame_EEPROM_VALUE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_EEPROM_VALUE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_EEPROM_VALUE() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+    unsigned long address;
+    unsigned long value;
+};
+
+#endif // _CTRAME_FACTORY_H_
 /*! @} */
 
