@@ -1471,6 +1471,8 @@ public :
 
     unsigned long address;
     unsigned long value;
+signals :
+    void receive_value(unsigned long address, unsigned long value);
 };
 
 #endif // _CTRAME_FACTORY_H_

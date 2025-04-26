@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>324</width>
-    <height>185</height>
+    <width>544</width>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,42 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QTableWidget" name="table_eeprom">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>25</number>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>@</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Nom</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Valeur</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Type</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="pb_read_eeprom">
       <property name="text">
-       <string>Test</string>
+       <string>Read EEPROM</string>
       </property>
      </widget>
     </item>
@@ -29,8 +62,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>324</width>
-     <height>18</height>
+     <width>544</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

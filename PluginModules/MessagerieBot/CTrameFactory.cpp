@@ -3741,4 +3741,6 @@ void CTrame_EEPROM_VALUE::Decode(tStructTrameBrute *trameRecue)
 
     // Comptabilise la reception de cette trame
     m_nombre_recue++;
+
+    emit receive_value(address, value);
 }
