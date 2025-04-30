@@ -9,8 +9,24 @@
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QHash>
+#include <QList>
+#include <QMap>
+#include <QPair>
+#include <QRegExp>
 #include "CPluginModule.h"
 #include "ui_ihm_ActuatorSequencer.h"
+
+// Structure pour stocker une valeur d'énumération
+struct EnumValue {
+    QString name;
+    int value;
+};
+
+// Structure pour stocker un enum complet
+struct EnumDefinition {
+    QString enumName;
+    QList<EnumValue> values;
+};
 
 // Etat asserv
 typedef enum {
@@ -29,6 +45,7 @@ cCONVERGE
 // Types connus dans le SEQUENCEUR
 typedef enum {
     SD20 = 0,
+    SERVO,
     AX_POSITION,
     AX_SPEED,
     MOTOR,
@@ -98,11 +115,12 @@ private:
     QString m_defaultPath_Modelia;
     QString m_defaultPath_SoftMbed;
 
-
+    QHash<QString, int> m_hash_const_Servo;
     QHash<QString, int> m_hash_const_SD20;
     QHash<QString, int> m_hash_const_AX;
     QHash<QString, int> m_hash_const_arm;
-    bool getEnum(QString fileName, QString enum_name, QHash<QString, int> * results);
+    //bool getEnum(QString fileName, QString enum_name, QHash<QString, int> * results);
+    QList<EnumDefinition> getEnum(const QString &filePath);
 
     void updateComboBox();
     void update_sequenceButtons();
@@ -151,6 +169,7 @@ private slots :
     void Slot_Save();
     void Slot_Load();
     void Slot_Clear();
+    void Slot_Play_only_Servo();
     void Slot_Play_only_SD20();
     void Slot_Play_only_AX();
     void Slot_Play_only_motor();

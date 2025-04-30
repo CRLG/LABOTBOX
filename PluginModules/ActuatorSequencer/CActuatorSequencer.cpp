@@ -100,6 +100,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.tW_TabSequences, SIGNAL(currentChanged(int)), this, SLOT(Slot_setStrategyName_text(int)));
 
   //pour ajouter des actions ou des conditions à la séquence
+  connect(m_ihm.ui.pB_Add_Servo,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
   connect(m_ihm.ui.pB_Add_AX,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
   connect(m_ihm.ui.pB_Add_SD20,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
   connect(m_ihm.ui.pB_Add_Motor,SIGNAL(clicked(bool)),this,SLOT(Slot_Add_Sequence_Item()));
@@ -140,7 +141,7 @@ void CActuatorSequencer::init(CApplication *application)
   //connect(m_ihm.ui.pB_Strategy_up,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
   //connect(m_ihm.ui.pB_Strategy_down,SIGNAL(clicked(bool)),this,SLOT(Slot_moveStrategy()));
 
-
+  connect(m_ihm.ui.pB_Play_Servo, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_Servo()));
   connect(m_ihm.ui.pB_Play_SD20, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_SD20()));
   connect(m_ihm.ui.pB_Play_AX, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_AX()));
   connect(m_ihm.ui.pB_Play_Motor, SIGNAL(clicked(bool)),this,SLOT(Slot_Play_only_motor()));
@@ -157,6 +158,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.cB_SD20,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Asser,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_Power,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
+  connect(m_ihm.ui.cB_Servo_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_SD20_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_AX_const_values,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
   connect(m_ihm.ui.cB_AX_type_cde,SIGNAL(currentIndexChanged(int)),this,SLOT(updateTooltip()));
@@ -221,6 +223,15 @@ void CActuatorSequencer::updateComboBox(void)
          m_ihm.ui.cB_Motor->addItem(str_alias,QVariant(i));
      else
          m_ihm.ui.cB_Motor->addItem(str_name.setNum(i),QVariant(i));
+ }
+ //Servo
+ for(i=1;i<8;i++){
+     str_name=QString("cde_servo_%1").arg(i);
+     str_alias = m_application->m_data_center->getDataProperty(str_name, "Alias").toString();
+     if (str_alias != "")
+         m_ihm.ui.cB_Servo->addItem(str_alias,QVariant(i));
+     else
+         m_ihm.ui.cB_Servo->addItem(str_name.setNum(i),QVariant(i));
  }
  //SD20
  for(i=13;i<21;i++){
@@ -313,8 +324,14 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
 
     //remplissage des valeurs prédéfinies dans le fichier d'entete spécifique à la coupe
     //contenant les valeurs de position des servos SD20 et AX
+ //mise à jour des valeurs initiales
+ m_ihm.ui.cB_Servo_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+ m_ihm.ui.cB_SD20_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+ m_ihm.ui.cB_AX_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+ m_ihm.ui.cB_ARM_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
+
     QString str_FicCoupe;
-    str_FicCoupe=m_defaultPath_SoftMbed+"/Includes/ConfigSpecifiqueCoupe.h";
+    str_FicCoupe=m_defaultPath_SoftMbed+"/CM7/Includes/ConfigSpecifiqueCoupe.h";
     const QFileInfo outputDir(str_FicCoupe);
 
     //on verifie si le chemin par defaut du fichier d'entete est valide
@@ -324,32 +341,36 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
     }
     else
     {
-        //on parcourt le fichier d'entete pour extraire les valeurs
-        getEnum(str_FicCoupe,"eVALUES_SERVOS_SD20",&m_hash_const_SD20);
-        getEnum(str_FicCoupe,"eVALUES_SERVOS_AX",&m_hash_const_AX);
-        getEnum(str_FicCoupe,"eKMAR_MOUVEMENTS",&m_hash_const_arm);
+        QList<EnumDefinition> enums=getEnum(str_FicCoupe);
+
+        //mise à jour avec les valeurs prédéfinies
+        for (const EnumDefinition &enumDef : enums) {
+            if (enumDef.enumName == "eVALUES_SERVOS_SD20") {
+                for (const EnumValue &value : enumDef.values) {
+                    m_hash_const_SD20[value.name]=value.value;
+                    m_ihm.ui.cB_SD20_const_values->addItem(value.name,QVariant(value.value));
+                }
+            }
+            else if (enumDef.enumName == "eVALUES_SERVOS") {
+                for (const EnumValue &value : enumDef.values) {
+                    m_hash_const_Servo[value.name]=value.value;
+                    m_ihm.ui.cB_Servo_const_values->addItem(value.name,QVariant(value.value));
+                }
+            }
+            else if (enumDef.enumName == "eVALUES_SERVOS_AX") {
+                for (const EnumValue &value : enumDef.values) {
+                    m_hash_const_AX[value.name]=value.value;
+                    m_ihm.ui.cB_AX_const_values->addItem(value.name,QVariant(value.value));
+                }
+            }
+            else if (enumDef.enumName == "eKMAR_MOUVEMENTS") {
+                for (const EnumValue &value : enumDef.values) {
+                    m_hash_const_arm[value.name]=value.value;
+                    m_ihm.ui.cB_ARM_const_values->addItem(value.name,QVariant(value.value));
+                }
+            }
+        }
     }
-
-    //mise à jour des valeurs prédéfinies pour les SD20
-    m_ihm.ui.cB_SD20_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
-    QStringList strList_const_SD20=m_hash_const_SD20.keys();
-    strList_const_SD20.sort();
-    for(int i=0;i<strList_const_SD20.count();i++)
-        m_ihm.ui.cB_SD20_const_values->addItem(strList_const_SD20.at(i),QVariant(m_hash_const_SD20[strList_const_SD20.at(i)]));
-
-    //mise à jour des valeurs prédéfinies pour les AX
-    m_ihm.ui.cB_AX_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
-    QStringList strList_const_AX=m_hash_const_AX.keys();
-    strList_const_AX.sort();
-    for(int i=0;i<strList_const_AX.count();i++)
-        m_ihm.ui.cB_AX_const_values->addItem(strList_const_AX.at(i),QVariant(m_hash_const_AX[strList_const_AX.at(i)]));
-
-    //mise à jour des valeurs prédéfinies pour le bras robotisé
-    m_ihm.ui.cB_ARM_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
-    QStringList strList_const_arm=m_hash_const_arm.keys();
-    strList_const_arm.sort();
-    for(int i=0;i<strList_const_arm.count();i++)
-        m_ihm.ui.cB_ARM_const_values->addItem(strList_const_arm.at(i),QVariant(m_hash_const_arm[strList_const_arm.at(i)]));
 }
 
 void CActuatorSequencer::updateTooltip(void)
@@ -382,6 +403,15 @@ void CActuatorSequencer::updateTooltip(void)
     }
 
     //pour les valeurs prédéfinies (SD20, AX, ARM,...)
+    //valeurs prédéfinies Servo
+    if(m_ihm.ui.cB_Servo_const_values==wdgt)
+    {
+        i=m_ihm.ui.cB_Servo_const_values->currentIndex();
+        if (i==0)
+            m_ihm.ui.sB_Servo_position->setEnabled(true);
+        else
+            m_ihm.ui.sB_Servo_position->setEnabled(false);
+    }
     //valeurs prédéfinies SD20
     if(m_ihm.ui.cB_SD20_const_values==wdgt)
     {
@@ -419,7 +449,17 @@ void CActuatorSequencer::updateTooltip(void)
             m_ihm.ui.sB_ARM->setEnabled(false);
     }
 
-     //SD20
+    //Servo
+   if(m_ihm.ui.cB_Servo==wdgt)
+   {
+       i=m_ihm.ui.cB_Servo->currentIndex()+1;
+       str_name=QString("cde_servo_%1").arg(i);
+       str_tooltip = m_application->m_data_center->getDataProperty(str_name, "Tooltip").toString();
+       m_ihm.ui.tip_Servo->setText(str_tooltip);
+       m_ihm.ui.tip_Servo->setCursorPosition(0);
+   }
+
+    //SD20
     if(m_ihm.ui.cB_SD20==wdgt)
     {
         i=m_ihm.ui.cB_SD20->currentIndex()+13;
@@ -659,6 +699,26 @@ void CActuatorSequencer::Slot_Add_Sequence_Item(void)
         comments=m_ihm.ui.cB_Sensors->currentText()+m_ihm.ui.cB_Conditions->currentText()+value;
         bFormat=true;
 
+    }
+    //ajout d'une action pour un servo natif
+    else if(pB_Add==m_ihm.ui.pB_Add_Servo)
+    {
+        type="Servo";
+        QString id_int;
+        QString other_value;
+        id=id_int.setNum(m_ihm.ui.cB_Servo->currentIndex()+1);
+        other_value.setNum(m_ihm.ui.sB_Servo_speed->value());
+        if(m_ihm.ui.sB_Servo_position->isEnabled())
+        {
+            comments=m_ihm.ui.cB_Servo->currentText();
+            value.setNum(m_ihm.ui.sB_Servo_position->value());
+        }
+        else
+        {
+            comments=m_ihm.ui.cB_Servo->currentText()+" values="+m_ihm.ui.cB_Servo_const_values->currentText();
+            value.setNum(m_hash_const_Servo[m_ihm.ui.cB_Servo_const_values->currentText()]);
+        }
+        value=value+","+other_value;
     }
     //ajout d'une action pour un servo SD20
     else if(pB_Add==m_ihm.ui.pB_Add_SD20)
@@ -1865,6 +1925,25 @@ void CActuatorSequencer::Slot_Clear()
     int nb_lignes=table_sequence->rowCount();
     for (indexItem=nb_lignes-1;indexItem>=0;indexItem--)
         table_sequence->removeRow(indexItem);
+}
+
+void CActuatorSequencer::Slot_Play_only_Servo()
+{
+    QString id;
+    QString position, speed;
+    id.setNum(m_ihm.ui.cB_Servo->currentIndex()+1);
+    //if(m_ihm.ui.sB_Servo_position->isEnabled())
+        position.setNum(m_ihm.ui.sB_Servo_position->value());
+    /*else
+        value.setNum(m_hash_const_SD20[m_ihm.ui.cB_SD20_const_values->currentText()]);*/
+        speed.setNum(m_ihm.ui.sB_Servo_speed->value());
+
+    qDebug() << "Servo number" << id << "at position" <<position << " with speed"<< speed;
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+    m_application->m_data_center->write("NumeroServoMoteur1", id);
+    m_application->m_data_center->write("PositionServoMoteur1", position);
+    m_application->m_data_center->write("VitesseServoMoteur1", speed);
+    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
 }
 
 void CActuatorSequencer::Slot_Play_only_SD20()
@@ -3182,6 +3261,11 @@ void CActuatorSequencer::Slot_Generate_CPP()
                 sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_servos_sd20.CommandePosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
                 break;
 
+            case SERVO:
+            args=sValue.split(",",QString::SkipEmptyParts);
+            sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_servos.CommandePositionVitesse(%1,%2,%3);/*%4*/").arg(sId).arg(args.at(0)).arg(args.at(1)).arg(sComments);
+            break;
+
             case AX_POSITION:
                 sConverted=sConverted+(isProto?strProto:"")+QString("Application.m_servos_ax.setPosition(%1,%2);/*%3*/").arg(sId).arg(sValue).arg(sComments);
                 break;
@@ -3793,7 +3877,7 @@ void CActuatorSequencer::Slot_moveStrategy(void)
 
 bool CActuatorSequencer::isTransition(QString sType)
 {
-    return (!((sType.compare("SD20")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
+    return (!((sType.compare("SD20")==0)||(sType.compare("Servo")==0)||(sType.compare("AX-Position")==0)||(sType.compare("AX-Speed")==0)||
            (sType.compare("Motor")==0)||(sType.compare("Power")==0)||(sType.compare("Asser")==0)||(sType.contains("FreeAction"))||(sType.compare("Node")==0)||(sType.compare("ARM")==0) ));
 
 }
@@ -3958,6 +4042,9 @@ int CActuatorSequencer::getType(QString sActuator)
     if(sActuator.compare("SD20")==0)
         iType=SD20;
 
+    if(sActuator.compare("Servo")==0)
+        iType=SERVO;
+
     if(sActuator.compare("AX-Position")==0)
         iType=AX_POSITION;
 
@@ -4034,7 +4121,7 @@ QList<int> CActuatorSequencer::findTransitionsOut(QTableWidget* table_sequence, 
     }
     return transitionsList;
 }
-
+/*
 bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QString, int> *results)
 {
     bool is_ok=false;
@@ -4111,4 +4198,50 @@ bool CActuatorSequencer::getEnum(QString fileName, QString enum_name, QHash<QStr
     }
 
     return is_ok;
+}
+*/
+QList<EnumDefinition> CActuatorSequencer::getEnum(const QString &filePath)
+{
+    QList<EnumDefinition> enums;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Impossible d'ouvrir le fichier:" << filePath;
+        return enums;
+    }
+
+    QTextStream in(&file);
+    QString fileContent = in.readAll();
+    file.close();
+
+    // Expression régulière pour capturer les typedef enum
+    QRegularExpression enumRegex(
+        R"(typedef\s+enum\s*\{\s*([^}]+?)\s*\}\s*([a-zA-Z_][a-zA-Z0-9_]*);)",
+        QRegularExpression::DotMatchesEverythingOption
+    );
+
+    QRegularExpressionMatchIterator i = enumRegex.globalMatch(fileContent);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        QString enumBody = match.captured(1);
+        QString enumName = match.captured(2);
+
+        EnumDefinition enumDef;
+        enumDef.enumName = enumName;
+
+        // Expression régulière pour capturer les affectations individuelles
+        QRegularExpression valueRegex(R"(([A-Z0-9_]+)\s*=\s*([0-9]+))");
+        QRegularExpressionMatchIterator j = valueRegex.globalMatch(enumBody);
+        while (j.hasNext()) {
+            QRegularExpressionMatch valueMatch = j.next();
+            EnumValue value;
+            value.name = valueMatch.captured(1);
+            value.value = valueMatch.captured(2).toInt();
+            enumDef.values.append(value);
+        }
+
+        enums.append(enumDef);
+    }
+
+    return enums;
 }
