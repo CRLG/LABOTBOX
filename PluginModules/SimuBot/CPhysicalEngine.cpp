@@ -18,7 +18,7 @@ CPhysicalEngine::CPhysicalEngine()
 {
     m_bot1=0;
     m_bot2=0;
-    for(int i=0;i<66;i++)
+    for(int i=0;i<40;i++)
         elementsJeu[i]=0;
 }
 
@@ -150,56 +150,25 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         realWorld->DestroyBody(m_bot1);
     if(m_bot2)
         realWorld->DestroyBody(m_bot2);
-    for(int i=0; i<12;i++)
+    for(int i=0; i<40;i++)
     {
         if(elementsJeu[i])
             realWorld->DestroyBody(elementsJeu[i]);
     }
 
     //éléments de jeux
-    //plantes
-    float x_elJeu[]={100.0f,100.0f,150.0f,150.0f,200.0f,200.0f};
-    float y_elJeu[]={70.0f,130.0f,50.0f,150.0f,70.0f,130.0f};
-    for(int k=0;k<36;k=k+6)
+        //pots
+    float x_elJeu_2[]={7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,
+                      62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
+                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f,
+                      292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f};
+    float y_elJeu_2[]={25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f};
+    for(int k=0;k<40;k++)
     {
-        int p=(int)(ceil(k/6));
-        elementsJeu[k]=setElement(x_elJeu[p]+6.5f,y_elJeu[p]+4.0f);
-        elementsJeu[k+1]=setElement(x_elJeu[p],y_elJeu[p]+6.5f);
-        elementsJeu[k+2]=setElement(x_elJeu[p]-6.5f,y_elJeu[p]+4.0f);
-        elementsJeu[k+3]=setElement(x_elJeu[p]-6.5f,y_elJeu[p]-4.0f);
-        elementsJeu[k+4]=setElement(x_elJeu[p],y_elJeu[p]-6.5f);
-        elementsJeu[k+5]=setElement(x_elJeu[p]+6.5f,y_elJeu[p]-4.0f);
-    }
-    //pots
-    float x_elJeu_2[]={296.5f,296.5f,200.0f,100.0f,3.5f,3.5f};
-    float y_elJeu_2[]={61.0f,139.0f,3.5f,3.5f,139.0f,61.0f};
-    for(int k=36;k<66;k=k+5)
-    {
-        int p=(k+5) % 6;
-        if((p==0)||(p==1))
-        {
-            elementsJeu[k]=setElement(x_elJeu_2[p],y_elJeu_2[p]+5.5f);
-            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
-            elementsJeu[k+2]=setElement(x_elJeu_2[p],y_elJeu_2[p]-5.5f);
-            elementsJeu[k+3]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]+3.0f);
-            elementsJeu[k+4]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]-3.0f);
-        }
-        else if((p==2)||(p==3))
-        {
-            elementsJeu[k]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]);
-            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
-            elementsJeu[k+2]=setElement(x_elJeu_2[p]-5.5f,y_elJeu_2[p]);
-            elementsJeu[k+3]=setElement(x_elJeu_2[p]+3.0f,y_elJeu_2[p]+5.5f);
-            elementsJeu[k+4]=setElement(x_elJeu_2[p]-3.0f,y_elJeu_2[p]+5.5f);
-        }
-        else
-        {
-            elementsJeu[k]=setElement(x_elJeu_2[p],y_elJeu_2[p]+5.5f);
-            elementsJeu[k+1]=setElement(x_elJeu_2[p],y_elJeu_2[p]);
-            elementsJeu[k+2]=setElement(x_elJeu_2[p],y_elJeu_2[p]-5.5f);
-            elementsJeu[k+3]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]+3.0f);
-            elementsJeu[k+4]=setElement(x_elJeu_2[p]+5.5f,y_elJeu_2[p]-3.0f);
-        }
+        elementsJeu[k]=setElement(x_elJeu_2[k],y_elJeu_2[k]);
     }
 
     //comme pour l'asservissement on centre le repère de notre monde sur le centre de notre robot
@@ -520,7 +489,7 @@ b2Body* CPhysicalEngine::setElement(float x, float y)
     //pour créer un cercle
     b2CircleShape* Forme_ElJeu=new b2CircleShape();
     Forme_ElJeu->m_p.Set(0.0f,0.0f);
-    Forme_ElJeu->m_radius=2.5f;
+    Forme_ElJeu->m_radius=3.65f;
     b2FixtureDef Fixture_ElJeu;
     Fixture_ElJeu.shape = Forme_ElJeu;
     Fixture_ElJeu.density = 1.0f;

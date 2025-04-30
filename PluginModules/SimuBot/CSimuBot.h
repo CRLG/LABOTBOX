@@ -114,7 +114,7 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
-    QGraphicsEllipseItem * elementsJeu[66];
+    QGraphicsEllipseItem * elementsJeu[40];
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;

@@ -437,7 +437,7 @@
     <item row="2" column="10" rowspan="5" colspan="3">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tb_Placement">
        <attribute name="title">

@@ -164,56 +164,24 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2024_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2025_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-    //plantes
-    float x_elJeu[]={100.0f,100.0f,150.0f,150.0f,200.0f,200.0f};
-    float y_elJeu[]={70.0f,130.0f,50.0f,150.0f,70.0f,130.0f};
-    for(int k=0;k<36;k=k+6)
+    float x_elJeu_2[]={7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,
+                      62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
+                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f,
+                      292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f};
+    float y_elJeu_2[]={25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f};
+    for(int k=0;k<40;k++)
     {
-        int p=qCeil(k/6);
-        elementsJeu[k]=setElementJeu(x_elJeu[p]+6.5f,y_elJeu[p]+4.0f,Qt::green);
-        elementsJeu[k+1]=setElementJeu(x_elJeu[p],y_elJeu[p]+6.5f,Qt::green);
-        elementsJeu[k+2]=setElementJeu(x_elJeu[p]-6.5f,y_elJeu[p]+4.0f,Qt::green);
-        elementsJeu[k+3]=setElementJeu(x_elJeu[p]-6.5f,y_elJeu[p]-4.0f,Qt::green);
-        elementsJeu[k+4]=setElementJeu(x_elJeu[p],y_elJeu[p]-6.5f,Qt::green);
-        elementsJeu[k+5]=setElementJeu(x_elJeu[p]+6.5f,y_elJeu[p]-4.0f,Qt::green);
-    }
-    //pots
-    float x_elJeu_2[]={296.5f,296.5f,200.0f,100.0f,3.5f,3.5f};
-    float y_elJeu_2[]={61.0f,139.0f,3.5f,3.5f,139.0f,61.0f};
-    for(int k=36;k<66;k=k+5)
-    {
-        int p=(k+5) % 6;
-        if((p==0)||(p==1))
-        {
-            elementsJeu[k]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]+5.5f,Qt::gray);
-            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
-            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]-5.5f,Qt::gray);
-            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p]+3.0f,Qt::gray);
-            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p]-3.0f,Qt::gray);
-        }
-        else if((p==2)||(p==3))
-        {
-            elementsJeu[k]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p],Qt::gray);
-            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
-            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p]-5.5f,y_elJeu_2[p],Qt::gray);
-            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]+3.0f,y_elJeu_2[p]+5.5f,Qt::gray);
-            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]-3.0f,y_elJeu_2[p]+5.5f,Qt::gray);
-        }
-        else
-        {
-            elementsJeu[k]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]+5.5f,Qt::gray);
-            elementsJeu[k+1]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p],Qt::gray);
-            elementsJeu[k+2]=setElementJeu(x_elJeu_2[p],y_elJeu_2[p]-5.5f,Qt::gray);
-            elementsJeu[k+3]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p]+3.0f,Qt::gray);
-            elementsJeu[k+4]=setElementJeu(x_elJeu_2[p]+5.5f,y_elJeu_2[p]-3.0f,Qt::gray);
-        }
+        elementsJeu[k]=setElementJeu(x_elJeu_2[k],y_elJeu_2[k],Qt::gray);
     }
 
 
@@ -660,9 +628,9 @@ void CSimuBot::initView(void){
         }
 
         //placement des élements de jeu dans le monde simulé
-        for(int i=0;i<66;i++)
+        for(int i=0;i<40;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5,5.0,5.0));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-3.65, -m_physical_engine.getElement(i).y()-3.65,7.3,7.3));
             /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
             elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
         }
@@ -1615,7 +1583,7 @@ void CSimuBot::on_active_external_robot2(bool state)
  */
 QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
 {
-    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x-2.5,-(y+2.5),5.0,5.0);
+    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x-3.65,-(y+3.65),7.3,7.3);
     //QPolygonF element_shape;
     /*element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
     element_shape << QPointF(7.5*cos(5*M_PI/6),7.5*sin(5*M_PI/6)) << QPointF(7.5*cos(-5*M_PI/6),7.5*sin(-5*M_PI/6));
@@ -1673,7 +1641,7 @@ void CSimuBot::Slot_catch_TxSync()
             GrosBot->setSpeed(0.0);
             GrosBot->setTargetXY(x_target,y_target);
             GrosBot->setTargetTeta(teta_target);
-            m_simulia_Enabled=false;
+            //m_simulia_Enabled=false;
             toRun=true;
         }
     }
@@ -1724,9 +1692,9 @@ void CSimuBot::updateStepFromSimulia()
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2,x_recal,y_recal);
 
         //récupération des données simulées pour les éléments de jeu
-        for(int i=0;i<66;i++)
+        for(int i=0;i<40;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5,5.0,5.0));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-3.65, -m_physical_engine.getElement(i).y()-3.65,7.3,7.3));
             /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5);
             elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
         }
@@ -1880,16 +1848,16 @@ void CSimuBot::slot_designChanged(QList<QRectF> regions)
 void CSimuBot::slot_enableSimulia(int state)
 {
     m_simulia_Enabled=((state==Qt::Checked)?true:false);
-    if(m_ihm.ui.horizontalSlider_toggle_simu->value()==SIMUBOT::SIMU)
+    /*if(m_ihm.ui.horizontalSlider_toggle_simu->value()==SIMUBOT::SIMU)
     {
-        //on est déjà en mode visu on se contente de réinitialiser la vue en simulant un changement de mode
+        //on est déjà en mode SIMU on se contente de réinitialiser la vue en simulant un changement de mode
         changeMode(SIMUBOT::SIMU);
     }
     else
     {
         //sinon on change vraiment de vue
         m_ihm.ui.horizontalSlider_toggle_simu->setValue(SIMUBOT::SIMU);
-    }
+    }*/
 
     qDebug() << "[SimuBot] Simulia est maintenant " << (m_simulia_Enabled?"activé":"désactivé");
     if(!m_simulia_Enabled)
