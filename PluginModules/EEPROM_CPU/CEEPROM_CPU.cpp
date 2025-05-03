@@ -86,6 +86,8 @@ void CEEPROM_CPU::init(CApplication *application)
   m_ihm.ui.table_eeprom->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(m_ihm.ui.table_eeprom, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicTable(QPoint)));
 
+  connect(m_ihm.ui.filter_txt, SIGNAL(textChanged(QString)), this, SLOT(onDataFilterChanged(QString)));
+
   load_mapping(m_eep_mapping_pathfilename);
 }
 
@@ -116,6 +118,29 @@ void CEEPROM_CPU::onRightClicGUI(QPoint pos)
   menu->addAction("Select background color", this, SLOT(selectBackgroundColor()));
   menu->exec(m_ihm.mapToGlobal(pos));
 }
+
+// _____________________________________________________________________
+/*!
+ * \brief Filtre sur le nom des variables
+ * \param filter_name le filtre
+ */
+void CEEPROM_CPU::onDataFilterChanged(QString filter_name)
+{
+    QStringList items_to_match;
+    items_to_match = filter_name.toLower().simplified().split(" ");
+
+    for (int i=0; i<m_ihm.ui.table_eeprom->rowCount(); i++) {
+        m_ihm.ui.table_eeprom->hideRow(i);
+        bool found = true;
+        foreach (QString item_to_match, items_to_match) {
+            if (!m_ihm.ui.table_eeprom->item(i, COL_NAME)->text().trimmed().toLower().contains(item_to_match)) {
+                found = false; // si tous les mots clés du filtre ne sont pas présents dans le nom du script, le script est rejeté
+            }
+        }
+        if (found) m_ihm.ui.table_eeprom->showRow(i);
+    }
+}
+
 
 // _____________________________________________________________________
 void CEEPROM_CPU::onTest()

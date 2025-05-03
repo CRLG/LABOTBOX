@@ -87,6 +87,8 @@ private:
 
 private slots :
     void onRightClicGUI(QPoint pos);
+    void onDataFilterChanged(QString filter_name);
+
     void onTest();
 
     void onRxValue(unsigned long address, unsigned long value);
