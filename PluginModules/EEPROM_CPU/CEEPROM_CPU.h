@@ -74,35 +74,49 @@ private:
     bool m_automatic_load_mapping;
     QString m_eep_mapping_pathfilename;
 
+    const QString LINE_SEPARATOR = "\n";
+    const QString CSV_SEPARATOR = ";";
+
     void apply_mapping(unsigned long address, QString name, QString type);
+    void apply_value(QString name, QString value);
     QWidget *type2Combobox(QString type);
     void createLine(unsigned long address, QString name, QString value, QString type);
     QString value2Display(unsigned long value, QString type_str);
     void read_1_value(unsigned long address);
     void write_1_value(unsigned long address, unsigned long value);
-    unsigned long tableIndex2RawValue(unsigned long table_index);
+    void write_1_value(unsigned long table_index);
+    unsigned long tableIndex2RawValue(unsigned long table_index, bool *ok=nullptr);
     QString tableIndex2Value(unsigned long table_index);
+    QString tableIndex2Name(unsigned long table_index);
     unsigned long tableIndex2Adress(unsigned long table_index);
     QString tableIndex2Type(unsigned long table_index);
 
+    void delay_between_cpu_commands(unsigned int delay_msec=100);
+
 private slots :
     void onRightClicGUI(QPoint pos);
+    void onRightClicTable(QPoint p);
     void onDataFilterChanged(QString filter_name);
 
-    void onTest();
+    void clean();
 
     void onRxValue(unsigned long address, unsigned long value);
 
-    void load_mapping(QString pathfilename);
-
-    void onRightClicTable(QPoint p);
-/*
-    void export_values();
-    void export_all();
+    void import_mapping(QString pathfilename);
+    void import_mapping();
     void export_mapping();
 
-    void load_all();
-*/
+    void import_values();
+    void export_values();
+
+    void save_table();
+    void open_table();
+
+    void read_eeprom_to_table();
+    void write_table_to_eeprom();
+
+    void read_selected_index_to_table();
+    void write_selected_index_to_table();
 };
 
 #endif // _CPLUGIN_MODULE_EEPROM_CPU_H_

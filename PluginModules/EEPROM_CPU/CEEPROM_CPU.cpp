@@ -3,6 +3,8 @@
  * A more elaborated file description.
  */
 #include <QDebug>
+#include <QFileDialog>
+#include <QProgressDialog>
 #include "CEEPROM_CPU.h"
 #include "CApplication.h"
 #include "CPrintView.h"
@@ -14,7 +16,7 @@
 #include "csvParser.h"
 
 
-/*! \addtogroup Module_Test2
+/*! \addtogroup Module_EEPROM_CPU
    * 
    *  @{
    */
@@ -76,7 +78,16 @@ void CEEPROM_CPU::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "eep_mapping_pathfilename", "");
   m_eep_mapping_pathfilename= val.toString();
 
-  connect(m_ihm.ui.pb_read_eeprom, SIGNAL(clicked(bool)), this, SLOT(onTest()));
+  connect(m_ihm.ui.pb_read_eeprom, SIGNAL(clicked(bool)), this, SLOT(read_eeprom_to_table()));
+  connect(m_ihm.ui.actionReadEEPROM, SIGNAL(triggered(bool)), this, SLOT(read_eeprom_to_table()));
+  connect(m_ihm.ui.actionWriteEEPROM, SIGNAL(triggered(bool)), this, SLOT(write_table_to_eeprom()));
+
+  connect(m_ihm.ui.actionImportMapping, SIGNAL(triggered(bool)), this, SLOT(import_mapping()));
+  connect(m_ihm.ui.actionExportMapping, SIGNAL(triggered(bool)), this, SLOT(export_mapping()));
+
+  connect(m_ihm.ui.actionImportValues, SIGNAL(triggered(bool)), this, SLOT(import_values()));
+  connect(m_ihm.ui.actionExportValues, SIGNAL(triggered(bool)), this, SLOT(export_values()));
+
 
   CTrameBot *trame = m_application->m_MessagerieBot->getTrameFactory()->getTrameFromID(ID_EEPROM_VALUE);
   CTrame_EEPROM_VALUE *trame_eeprom_req = (CTrame_EEPROM_VALUE *)trame;
@@ -86,9 +97,14 @@ void CEEPROM_CPU::init(CApplication *application)
   m_ihm.ui.table_eeprom->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(m_ihm.ui.table_eeprom, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onRightClicTable(QPoint)));
 
+  connect(m_ihm.ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(save_table()));
+  connect(m_ihm.ui.actionOpen, SIGNAL(triggered(bool)), this, SLOT(open_table()));
+  connect(m_ihm.ui.actionCleanTable, SIGNAL(triggered(bool)), this, SLOT(clean()));
+
   connect(m_ihm.ui.filter_txt, SIGNAL(textChanged(QString)), this, SLOT(onDataFilterChanged(QString)));
 
-  load_mapping(m_eep_mapping_pathfilename);
+
+  import_mapping(m_eep_mapping_pathfilename);
 }
 
 
@@ -121,7 +137,7 @@ void CEEPROM_CPU::onRightClicGUI(QPoint pos)
 
 // _____________________________________________________________________
 /*!
- * \brief Filtre sur le nom des variables
+ * \brief Filtre de recherche sur le nom des variables
  * \param filter_name le filtre
  */
 void CEEPROM_CPU::onDataFilterChanged(QString filter_name)
@@ -139,45 +155,24 @@ void CEEPROM_CPU::onDataFilterChanged(QString filter_name)
         }
         if (found) m_ihm.ui.table_eeprom->showRow(i);
     }
+    m_ihm.ui.table_eeprom->resizeColumnsToContents();
 }
 
-
 // _____________________________________________________________________
-void CEEPROM_CPU::onTest()
+/*!
+ * \brief Nettoie toute la table
+ */
+void CEEPROM_CPU::clean()
 {
-
-    CTrameBot *trame = m_application->m_MessagerieBot->getTrameFactory()->getTrameFromID(ID_READ_EEPROM_REQ);
-    CTrame_READ_EEPROM_REQ *trame_eeprom_req = (CTrame_READ_EEPROM_REQ *)trame;
-    trame_eeprom_req->start_address = 0;
-    trame_eeprom_req->count = 100;
-    trame->Encode();
-
-/*
-    // cree les elements de la table
-    m_ihm.ui.table_eeprom->setRowCount(9);
-    for (int row=0; row<LidarUtils::NBRE_MAX_OBSTACLES; row++) {
-        QTableWidgetItem *newItem = new QTableWidgetItem();
-        m_ihm.ui.table_eeprom->setItem(row, 0, newItem);
-        newItem->setText(QString("%1.0").arg(row));
-
-        newItem = new QTableWidgetItem();
-        m_ihm.ui.table_eeprom->setItem(row, 1, newItem);
-        newItem->setText(QString("%1.1").arg(row));
-
-        QComboBox* _list = new QComboBox();
-              _list->addItem("UINT32");
-              _list->addItem("INT32");
-              _list->addItem("FLOAT");
-              m_ihm.ui.table_eeprom->setCellWidget(row, 3, (QWidget*)_list);
-    }
-*/
-
+    m_ihm.ui.table_eeprom->clearContents();
+    m_ihm.ui.table_eeprom->setRowCount(0);
 }
 
 // _____________________________________________________________________
 void CEEPROM_CPU::onRxValue(unsigned long address, unsigned long value)
 {
     qDebug() << address << value;
+    m_ihm.statusBar()->showMessage(QString("Receive @%1=%2").arg(address).arg(value), 1000);
 
     // 1. Vérifie si la ligne n'existe pas déjà, si c'est le cas, il suffit de la mettre à jour
     for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
@@ -202,7 +197,7 @@ void CEEPROM_CPU::onRxValue(unsigned long address, unsigned long value)
  * \remark le format du fichier de mappint est un .csv 3 colonnes :
  *      Adresse;Nom;Type
  */
-void CEEPROM_CPU::load_mapping(QString pathfilename)
+void CEEPROM_CPU::import_mapping(QString pathfilename)
 {
     csvData data;
     csvParser parser;
@@ -215,39 +210,242 @@ void CEEPROM_CPU::load_mapping(QString pathfilename)
         return;
     }
 
-    qDebug() << data.m_header;               // display columnn description if exists
-    qDebug() << data.getColumnsCount();      // display the number of columns detected
-    qDebug() << data.getLinesCount();        // display the number of lines detected
+    //qDebug() << data.m_header;               // display columnn description if exists
+    //qDebug() << data.getColumnsCount();      // display the number of columns detected
+    //qDebug() << data.getLinesCount();        // display the number of lines detected
     for (int line=0; line<data.m_datas.size(); line++) {
         QStringList data_line = data.m_datas.at(line);
         for (int column=0; column<data_line.size(); column++) {
-            qDebug() << data_line.at(column);
+            //qDebug() << data_line.at(column);
         }
         apply_mapping(data_line.at(0).toULong(), data_line.at(1), data_line.at(2));
     }
 }
 
 // _____________________________________________________________________
-void CEEPROM_CPU::onRightClicTable(QPoint pos)
+void CEEPROM_CPU::import_mapping()
 {
-    //QMenu *menu = new QMenu();
+    QString pathfilename = QFileDialog::getOpenFileName(&m_ihm, tr("Open File"), ".csv");
+    if (pathfilename.isEmpty()) return;
 
-    QTableWidgetItem *item = m_ihm.ui.table_eeprom->itemAt(pos);
-    if (item) {
-        qDebug() << "Clic sur" << item->row()<< item->column();
-        unsigned long address = m_ihm.ui.table_eeprom->item(item->row(), COL_ADDRESS)->text().toInt();
-        //read_1_value(m_ihm.ui.table_eeprom->item(item->row(), COL_ADDRESS)->text().toInt());
-        //uEE eeval;
-        //eeval.fval = 2.345;
-        write_1_value(tableIndex2Adress(item->row()), tableIndex2RawValue(address));
-    }
-
-    //menu->addAction("Read", this, SLOT(selectBackgroundColor()));
-    //menu->addAction("Write", this, SLOT(selectBackgroundColor()));
-    //menu->exec(m_ihm.mapToGlobal(pos));
-
+    import_mapping(pathfilename);
 }
 
+// _____________________________________________________________________
+/*!
+ * \brief Sauvegarde le mapping mémoire dans un fichier .csv 3 colonnes
+ */
+void CEEPROM_CPU::export_mapping()
+{
+    QString pathfilename = QFileDialog::getSaveFileName(&m_ihm, tr("Save File"), ".csv");
+    if (pathfilename.isEmpty()) return;
+
+    QFile file;
+    file.setFileName(pathfilename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+    QTextStream out(&file);
+    out << "Adress;Name;Type" << LINE_SEPARATOR;
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        out << tableIndex2Adress(row)   << CSV_SEPARATOR
+            << tableIndex2Name(row)     << CSV_SEPARATOR
+            << tableIndex2Type(row)
+            << LINE_SEPARATOR;
+    }
+    file.close();
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Charge les valeurs depuis un fichier .csv 2 colonnes : adress;valeur
+ */
+void CEEPROM_CPU::import_values()
+{
+    QString pathfilename = QFileDialog::getOpenFileName(&m_ihm, tr("Open File"), ".csv");
+    if (pathfilename.isEmpty()) return;
+
+    csvData data;
+    csvParser parser;
+    QStringList err_msg;
+
+    parser.setNumberOfExpectedColums(2);
+    if (!parser.parse(pathfilename, data, &err_msg)) {
+        qDebug() << err_msg;
+        m_application->m_print_view->print_error(this, err_msg.join('\n'));
+        return;
+    }
+
+    //qDebug() << data.m_header;               // display columnn description if exists
+    //qDebug() << data.getColumnsCount();      // display the number of columns detected
+    //qDebug() << data.getLinesCount();        // display the number of lines detected
+    for (int line=0; line<data.m_datas.size(); line++) {
+        QStringList data_line = data.m_datas.at(line);
+        for (int column=0; column<data_line.size(); column++) {
+            //qDebug() << data_line.at(column);
+        }
+        apply_value(data_line.at(0), data_line.at(1));
+    }
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Exporte les valeurs dans un fichier .csv 2 colonnes : name;value
+ */
+void CEEPROM_CPU::export_values()
+{
+    QString pathfilename = QFileDialog::getSaveFileName(&m_ihm, tr("Save File"), ".csv");
+    if (pathfilename.isEmpty()) return;
+
+    QFile file;
+    file.setFileName(pathfilename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+    QTextStream out(&file);
+    out << "Name;Value" << LINE_SEPARATOR;
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        out << tableIndex2Name(row)     << CSV_SEPARATOR
+            << tableIndex2Value(row)
+            << LINE_SEPARATOR;
+    }
+    file.close();
+}
+
+// _____________________________________________________________________
+void CEEPROM_CPU::onRightClicTable(QPoint pos)
+{
+    QMenu *menu = new QMenu();
+
+    menu->addAction("Clean", this, SLOT(clean()));
+    menu->addAction("Read selected", this, SLOT(read_selected_index_to_table()));
+    menu->addAction("Write selected", this, SLOT(write_selected_index_to_table()));
+    menu->exec(m_ihm.ui.table_eeprom->mapToGlobal(pos));
+}
+
+// _____________________________________________________________________
+void CEEPROM_CPU::save_table()
+{
+    QString pathfilename = QFileDialog::getSaveFileName(&m_ihm, tr("Save File"), ".csv");
+    if (pathfilename.isEmpty()) return;
+
+    QFile file;
+    file.setFileName(pathfilename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+    QTextStream out(&file);
+    out << "Adress;Name;Value;Type" << LINE_SEPARATOR;
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        out << tableIndex2Adress(row)   << CSV_SEPARATOR
+            << tableIndex2Name(row)     << CSV_SEPARATOR
+            << tableIndex2Value(row)    << CSV_SEPARATOR
+            << tableIndex2Type(row)
+            << LINE_SEPARATOR;
+    }
+    file.close();
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Charge un fichier .csv 4 colonnes : Adress;Name;Value;Type
+ *
+ */
+void CEEPROM_CPU::open_table()
+{
+    QString pathfilename = QFileDialog::getOpenFileName(&m_ihm, tr("Open File"), ".csv");
+    if (pathfilename.isEmpty()) return;
+
+    // efface la table
+    clean();
+
+    csvData data;
+    csvParser parser;
+    QStringList err_msg;
+
+    parser.setNumberOfExpectedColums(4);
+    parser.enableEmptyCells(true);
+    if (!parser.parse(pathfilename, data, &err_msg)) {
+        qDebug() << err_msg;
+        m_application->m_print_view->print_error(this, err_msg.join('\n'));
+        return;
+    }
+
+    //qDebug() << data.m_header;               // display columnn description if exists
+    //qDebug() << data.getColumnsCount();      // display the number of columns detected
+    //qDebug() << data.getLinesCount();        // display the number of lines detected
+    for (int line=0; line<data.m_datas.size(); line++) {
+        QStringList data_line = data.m_datas.at(line);
+        for (int column=0; column<data_line.size(); column++) {
+            //qDebug() << data_line.at(column);
+        }
+        createLine(data_line.at(0).toULong(), data_line.at(1), data_line.at(2), data_line.at(3));
+    }
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Lit toute l'EEPROM et affiche les informations dans la table
+ */
+void CEEPROM_CPU::read_eeprom_to_table()
+{
+    clean(); // commence par effacer la table
+    import_mapping(m_eep_mapping_pathfilename);  // charge le mapping
+    CTrameBot *trame = m_application->m_MessagerieBot->getTrameFactory()->getTrameFromID(ID_READ_EEPROM_REQ);
+    CTrame_READ_EEPROM_REQ *trame_eeprom_req = (CTrame_READ_EEPROM_REQ *)trame;
+    trame_eeprom_req->start_address = 0;
+    trame_eeprom_req->count = 0xFFFF; // valeur maximum possible (c'est le CPU qui limitera l'envoi aux données réellement existantes)
+    trame->Encode();
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Ecrit la table vers l'EEPROM
+ */
+void CEEPROM_CPU::write_table_to_eeprom()
+{
+    QProgressDialog progress("Send parameters...", QString(), 0, m_ihm.ui.table_eeprom->rowCount(), &m_ihm);
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        progress.setWindowModality(Qt::WindowModal);
+        progress.setValue(row);
+        write_1_value(row);
+        delay_between_cpu_commands();
+    }
+    QApplication::restoreOverrideCursor();
+    progress.setValue(m_ihm.ui.table_eeprom->rowCount());
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Lit les valeurs EEPROM de chaque adresse sélectionnée
+ */
+void CEEPROM_CPU::read_selected_index_to_table()
+{
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        QTableWidgetItem *item = m_ihm.ui.table_eeprom->item(row, COL_ADDRESS);
+        if (item->isSelected()) {
+            read_1_value(item->row());
+            delay_between_cpu_commands();
+        }
+    }
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Ecrit les valeurs EEPROM de chaque adresse sélectionnée
+ */
+void CEEPROM_CPU::write_selected_index_to_table()
+{
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        QTableWidgetItem *item = m_ihm.ui.table_eeprom->item(row, COL_ADDRESS);
+        if (item->isSelected()) {
+            write_1_value(item->row());
+            delay_between_cpu_commands();
+        }
+    }
+}
 
 // _____________________________________________________________________
 /*!
@@ -274,6 +472,25 @@ void CEEPROM_CPU::apply_mapping(unsigned long address, QString name, QString typ
                 name,
                 QString("?"),
                 type);
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Met à jour la table avec la valeur de la variable si elle existe
+ * \param name le nom de la variable
+ * \param value sa valeur
+ */
+void CEEPROM_CPU::apply_value(QString name, QString value)
+{
+    // Vérifie si la variable existe, si c'est le cas, il suffit de la mettre à jour le champ valeur
+    for (int row=0; row<m_ihm.ui.table_eeprom->rowCount(); row++) {
+        QString current_name = m_ihm.ui.table_eeprom->item(row, COL_NAME)->text().toLower();
+        if (current_name == name.toLower()) { // met à jour la ligne existante
+            m_ihm.ui.table_eeprom->item(row, COL_VALUE)->setText(value);
+            m_ihm.ui.table_eeprom->resizeColumnsToContents();
+            return; // pas la peine d'aller plus loin, on a trouvé
+        }
+    }
 }
 
 
@@ -385,22 +602,39 @@ void CEEPROM_CPU::write_1_value(unsigned long address, unsigned long value)
 
 // _____________________________________________________________________
 /*!
+ * \brief Envoie vers l'EEPROM la valeur de la table pointée par l'index
+ * \param table_index l'index de la table
+ * \remark contrôle la convertion string -> valeur numérique avant d'envoyer une mauvaise valeur au CPU
+ */
+void CEEPROM_CPU::write_1_value(unsigned long table_index)
+{
+    bool ok;
+    unsigned long address = tableIndex2Adress(table_index);
+    unsigned long raw_value = tableIndex2RawValue(table_index, &ok);
+    if (ok) write_1_value(address, raw_value); // pas d'envoi si la conversion n'a pas aboutit
+}
+
+// _____________________________________________________________________
+/*!
  * \brief Convertit la valeur de la table en une valeur brute unsigned long prêt à envoyer
  * \param table_index
  * \return
  */
-unsigned long CEEPROM_CPU::tableIndex2RawValue(unsigned long table_index)
+unsigned long CEEPROM_CPU::tableIndex2RawValue(unsigned long table_index, bool *ok)
 {
     QString type_str = tableIndex2Type(table_index).simplified().toLower();
     QString val_str = tableIndex2Value(table_index);
     uEE eeval;
+    bool _ok;
 
-    if (type_str == "uint32")       eeval.ulval = val_str.toUInt();
-    else if (type_str == "int32")   eeval.sval = val_str.toInt();
-    else if (type_str == "float")   eeval.fval = val_str.toFloat();
-    else if (type_str == "bin")     eeval.ulval = val_str.remove("0b").toUInt(nullptr, 2);  // il faut supprimer le "0b" car non reconnu par la conversion "toUInt"
+    if (type_str == "uint32")       eeval.ulval = val_str.toUInt(&_ok);
+    else if (type_str == "int32")   eeval.sval = val_str.toInt(&_ok);
+    else if (type_str == "float")   eeval.fval = val_str.toFloat(&_ok);
+    else if (type_str == "bin")     eeval.ulval = val_str.remove("0b").toUInt(&_ok, 2);  // il faut supprimer le "0b" car non reconnu par la conversion "toUInt"
     // hex et cas par défaut
-    else                            eeval.ulval = val_str.toUInt(nullptr, 16);
+    else                            eeval.ulval = val_str.toUInt(&_ok, 16);
+
+    if (ok) *ok = _ok;
 
     return eeval.ulval;
 }
@@ -418,6 +652,21 @@ QString CEEPROM_CPU::tableIndex2Value(unsigned long table_index)
     if (item) val = item->text();
     return val;
 }
+
+// _____________________________________________________________________
+/*!
+ * \brief Récupère le nom de la donnéeà partir de la ligne de la table
+ * \param table_index numéro de ligne de la table
+ * \return le nom
+ */
+QString CEEPROM_CPU::tableIndex2Name(unsigned long table_index)
+{
+    QString val;
+    QTableWidgetItem *item = m_ihm.ui.table_eeprom->item(table_index, COL_NAME);
+    if (item) val = item->text();
+    return val;
+}
+
 // _____________________________________________________________________
 /*!
  * \brief Récupère l'adresse EEPROM à partir de la ligne de la table
@@ -441,8 +690,14 @@ QString CEEPROM_CPU::tableIndex2Type(unsigned long table_index)
     return type_str;
 }
 
-
-// TODO :
-//   Trie du tableau par nom
-//   Trie du tableau par adresse
-//   Ajout d'un filtre de recherche de nom
+// _____________________________________________________________________
+/*!
+ * \brief Crée un délai utilisé entre 2 envois de commands au CPU
+ * \param delay_msec valeur du délai en msec
+ */
+void CEEPROM_CPU::delay_between_cpu_commands(unsigned int delay_msec)
+{
+    QTime dieTime= QTime::currentTime().addMSecs(delay_msec);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);  // s'assure de rendre la main à la boucle infinie pourque les messages RS232 soient gérés en lecture et écriture
+}

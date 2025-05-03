@@ -34,6 +34,12 @@
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
@@ -79,9 +85,35 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
-    <addaction name="actionImport"/>
+    <addaction name="separator"/>
+    <addaction name="actionLockTable"/>
+    <addaction name="actionCleanTable"/>
+   </widget>
+   <widget class="QMenu" name="menuMapping">
+    <property name="title">
+     <string>Mapping</string>
+    </property>
+    <addaction name="actionImportMapping"/>
+    <addaction name="actionExportMapping"/>
+   </widget>
+   <widget class="QMenu" name="menuEEPROM">
+    <property name="title">
+     <string>CPU</string>
+    </property>
+    <addaction name="actionReadEEPROM"/>
+    <addaction name="actionWriteEEPROM"/>
+   </widget>
+   <widget class="QMenu" name="menuValues">
+    <property name="title">
+     <string>Values</string>
+    </property>
+    <addaction name="actionImportValues"/>
+    <addaction name="actionExportValues"/>
    </widget>
    <addaction name="menuTable"/>
+   <addaction name="menuMapping"/>
+   <addaction name="menuValues"/>
+   <addaction name="menuEEPROM"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -97,6 +129,52 @@
   <action name="actionImport">
    <property name="text">
     <string>Import</string>
+   </property>
+  </action>
+  <action name="actionExportMapping">
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
+  <action name="actionImportMapping">
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionLockTable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lock</string>
+   </property>
+  </action>
+  <action name="actionReadEEPROM">
+   <property name="text">
+    <string>Read EEPROM</string>
+   </property>
+  </action>
+  <action name="actionWriteEEPROM">
+   <property name="text">
+    <string>Write EEPROM</string>
+   </property>
+  </action>
+  <action name="actionCleanTable">
+   <property name="text">
+    <string>Clean</string>
+   </property>
+  </action>
+  <action name="actionImportValues">
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionExportValues">
+   <property name="text">
+    <string>Export</string>
    </property>
   </action>
  </widget>
