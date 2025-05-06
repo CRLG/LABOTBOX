@@ -928,7 +928,7 @@
       </widget>
       <widget class="QWidget" name="tab_mbed">
        <attribute name="title">
-        <string>MBED</string>
+        <string>CPU</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
         <item row="0" column="0">
@@ -945,7 +945,7 @@
          </spacer>
         </item>
         <item row="0" column="1">
-         <widget class="QPushButton" name="CPU_MBED_Reboot">
+         <widget class="QPushButton" name="CPU_Reboot">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -963,7 +963,7 @@
            <string notr="true">background-color: rgb(252, 175, 62);</string>
           </property>
           <property name="text">
-           <string>Reboot CPU MBED</string>
+           <string>Reboot CPU</string>
           </property>
          </widget>
         </item>
