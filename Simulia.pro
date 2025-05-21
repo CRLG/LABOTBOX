@@ -112,11 +112,11 @@ for(i, LIST_TOOLS) {
 INCLUDEPATH +=  ./ext/CppRobLib
 
 for(i, LIST_EXT_CPPROBLIB) {
-    INCLUDEPATH+= $$_PRO_FILE_PWD_/../Soft_MBED/ext/CppRobLib/$${i}
-    SOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_MBED/ext/CppRobLib/$${i}/*.cpp)
-    HEADERS+= $$files($$_PRO_FILE_PWD_/../Soft_MBED/ext/CppRobLib/$${i}/*.h)
-    FORMS+= $$files($$_PRO_FILE_PWD_/../Soft_MBED/ext/CppRobLib/$${i}/*.ui)
-    RESOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_MBED/ext/CppRobLib/$${i}/*.qrc)
+    INCLUDEPATH+= $$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}
+    SOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.cpp)
+    HEADERS+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.h)
+    FORMS+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.ui)
+    RESOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.qrc)
 }
 
 # __________________________________________________
@@ -135,17 +135,17 @@ LIBS += -lbox2d
 
 # __________________________________________________
 # Spécifiquement pour Simulia
-PATH_SOFT_MBED =        ../Soft_MBED
-PATH_CPPROBLIB =        $$PATH_SOFT_MBED/ext/CppRobLib
+PATH_SOFT_CPU =         ../Soft_STM32
+PATH_CPPROBLIB =        $$PATH_SOFT_CPU/ext/CppRobLib
 PATH_COMMON_ROB =       $$PATH_CPPROBLIB/common-rob
-PATH_MBED_COMMON_ROB =  $$PATH_SOFT_MBED/ext/mbed-common-rob
+PATH_CPU_COMMON_ROB =   $$PATH_SOFT_CPU/ext/common-rob
 PATH_MODELIA_COMMON =   $$PATH_COMMON_ROB/Modelia
-PATH_MODELIA_ROBOT =    $$PATH_SOFT_MBED/Modelia
+PATH_MODELIA_ROBOT =    $$PATH_SOFT_CPU/CM7/Modelia
 DEFINES+= MESSENGER_FULL
 INCLUDEPATH +=  $$PATH_MODELIA_COMMON \
                 $$PATH_MODELIA_ROBOT \
-                $$PATH_SOFT_MBED/Includes \
-                $$PATH_MBED_COMMON_ROB/Includes \
+                $$PATH_SOFT_CPU/CM7/Includes \
+                $$PATH_CPU_COMMON_ROB/Includes \
                 ./PluginModules/Simulia/simu_moteurs \
 
 SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
