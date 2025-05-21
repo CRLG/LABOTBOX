@@ -20,7 +20,7 @@
    *  @{
    */
 
-//! Enumere des codes commandes de l'ecran vers le MBED
+//! Enumere des codes commandes de l'ecran vers le CPU
 typedef enum {
     // Generique pour toutes les annees
     LBB_CMDE_INVALIDE = 0,
@@ -1165,18 +1165,18 @@ public :
 
 
 // ========================================================
-//             TRAME MBED_CMDE
+//             TRAME CPU_CMDE
 // ========================================================
-#define ID_MBED_CMDE 0x95
-#define DLC_MBED_CMDE 8
-#define BRUTE2PHYS_cde_mbed_char(val) ( ((float)val * (1.000000)) + (0.000000) )
-#define PHYS2BRUTE_cde_mbed_char(val) (char)( (val - (0.000000)) / (1.000000) )
-class CTrame_MBED_CMDE : public CTrameBot
+#define ID_CPU_CMDE 0x95
+#define DLC_CPU_CMDE 8
+#define BRUTE2PHYS_cde_cpu_char(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_cde_cpu_char(val) (char)( (val - (0.000000)) / (1.000000) )
+class CTrame_CPU_CMDE : public CTrameBot
 {
    Q_OBJECT
 public :
-    CTrame_MBED_CMDE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
-    ~CTrame_MBED_CMDE() { }
+    CTrame_CPU_CMDE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_CPU_CMDE() { }
     /*virtual*/ void Encode(void);
 
  private :
@@ -1189,37 +1189,37 @@ public :
     bool m_synchro_tx;
 
 private slots :
-    void Valeur_mbed_cmde_01_changed(QVariant val);
-    void Valeur_mbed_cmde_02_changed(QVariant val);
-    void Valeur_mbed_cmde_03_changed(QVariant val);
-    void Valeur_mbed_cmde_04_changed(QVariant val);
-    void Code_mbed_cmde_changed(QVariant val);
+    void Valeur_cpu_cmde_01_changed(QVariant val);
+    void Valeur_cpu_cmde_02_changed(QVariant val);
+    void Valeur_cpu_cmde_03_changed(QVariant val);
+    void Valeur_cpu_cmde_04_changed(QVariant val);
+    void Code_cpu_cmde_changed(QVariant val);
     void Synchro_changed(QVariant val);
 };
 
 // ========================================================
-//             TRAME MBED_ETAT
+//             TRAME CPU_ETAT
 // ========================================================
-#define ID_MBED_ETAT 0x96
-#define DLC_MBED_ETAT 8
-#define BRUTE2PHYS_code_mbed_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
-#define PHYS2BRUTE_code_mbed_etat(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
-#define BRUTE2PHYS_valeur_mbed_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
-#define PHYS2BRUTE_valeur_mbed_etat(val) (short)( (val - (0.000000)) / (1.000000) )
-class CTrame_MBED_ETAT : public CTrameBot
+#define ID_CPU_ETAT 0x96
+#define DLC_CPU_ETAT 8
+#define BRUTE2PHYS_code_cpu_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_code_cpu_etat(val) (unsigned short)( (val - (0.000000)) / (1.000000) )
+#define BRUTE2PHYS_valeur_cpu_etat(val) ( ((float)val * (1.000000)) + (0.000000) )
+#define PHYS2BRUTE_valeur_cpu_etat(val) (short)( (val - (0.000000)) / (1.000000) )
+class CTrame_CPU_ETAT : public CTrameBot
 {
    Q_OBJECT
 public :
-    CTrame_MBED_ETAT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
-    ~CTrame_MBED_ETAT() { }
+    CTrame_CPU_ETAT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_CPU_ETAT() { }
     /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
 
  private :
-    short Valeur_mbed_etat_01;
-    short Valeur_mbed_etat_02;
-    char Valeur_mbed_etat_03;
-    char Valeur_mbed_etat_04;
-    unsigned short Cde_mbed_etat;
+    short Valeur_cpu_etat_01;
+    short Valeur_cpu_etat_02;
+    char Valeur_cpu_etat_03;
+    char Valeur_cpu_etat_04;
+    unsigned short Cde_cpu_etat;
 
 private slots :
 };

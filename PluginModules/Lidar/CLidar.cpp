@@ -287,7 +287,7 @@ void CLidar::new_data(const CLidarData &data)
 
     // Met en forme la structure obstacles a partir des donnees filtrees
     // la recopie dans la structure obstacle a la capacite de dire qu'il y a un probleme (trop de points detectes par ex)
-    // Envoie les infos vers le MBED
+    // Envoie les infos vers le CPU
     LidarUtils::tLidarObstacles obstacles;
     int status = lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
 
@@ -588,7 +588,7 @@ void CLidar::log_data(const CLidarData &data)
 
 // _____________________________________________________________________
 /*!
- * \brief Envoie des donnees mises en forme du Lidar vers le MBED
+ * \brief Envoie des donnees mises en forme du Lidar vers le CPU
  * \param data les donnees filtrees
  */
 void CLidar::send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned char lidar_status)

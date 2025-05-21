@@ -82,7 +82,7 @@ void CActuatorSequencer::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "default_path_modelia", QVariant("."));
   m_defaultPath_Modelia=val.toString();
   val = m_application->m_eeprom->read(getName(), "default_path_softmbed", QVariant("."));
-  m_defaultPath_SoftMbed=val.toString();
+  m_defaultPath_SoftCPU=val.toString();
 
   m_ihm.ui.tW_TabSequences->setCurrentIndex(0);
   QTableWidget * newSequence= new QTableWidget();
@@ -331,7 +331,7 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
  m_ihm.ui.cB_ARM_const_values->addItem("NO_DEFINED_VALUE",QVariant(0));
 
     QString str_FicCoupe;
-    str_FicCoupe=m_defaultPath_SoftMbed+"/CM7/Includes/ConfigSpecifiqueCoupe.h";
+    str_FicCoupe=m_defaultPath_SoftCPU+"/CM7/Includes/ConfigSpecifiqueCoupe.h";
     const QFileInfo outputDir(str_FicCoupe);
 
     //on verifie si le chemin par defaut du fichier d'entete est valide

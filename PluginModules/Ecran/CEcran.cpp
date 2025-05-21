@@ -139,8 +139,8 @@ void CEcran::init(CApplication *application)
   connect(m_application->m_data_center->getData("ConvergenceAsserv"), SIGNAL(valueChanged(QVariant)), this, SLOT(ConvergenceAsserv_changed(QVariant)));
 
 
-//  int modeMbed=m_application->m_data_center->getData("ModeFonctionnement")->read().toInt();
-//  if(modeMbed==1)
+//  int modeCPU=m_application->m_data_center->getData("ModeFonctionnement")->read().toInt();
+//  if(modeCPU==1)
 //      setBackgroundColor(Qt::red);
 
   m_ihm.ui.qLed_green->setVisible(false);

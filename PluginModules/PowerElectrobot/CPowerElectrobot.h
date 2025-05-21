@@ -40,7 +40,7 @@ class CPowerElectrobot : public CPluginModule
 #define     INFO_PowerElectrobot      "Module de contrôle de la carte PowerElectrobot"
 
     //! La liste des codes possibles dans le champ "commande" de la trame COMMANDE_POWER_ELECTROBOT
-    // (enum commun MBED<->LaBotBox)
+    // (enum commun CPU<->LaBotBox)
     typedef enum {
         cCDE_PWR_ELECTROBOT_ALL_OUTPUTS = 0,
         cCDE_PWR_ELECTROBOT_OUTPUT_1,

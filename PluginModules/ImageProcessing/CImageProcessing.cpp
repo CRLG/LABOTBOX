@@ -132,10 +132,10 @@ void CImageProcessing::init(CApplication *application)
 //    m_application->m_data_center->write("Camera.Sud",  0);
 //    m_application->m_data_center->write("Camera.ColorSequence", 0);
     m_application->m_data_center->write("Camera.VideoActive", 0);
-    m_application->m_data_center->write("Code_mbed_etat", 1);
+    m_application->m_data_center->write("Code_cpu_etat", 1);
 
     connect(m_application->m_data_center->getData("TIMESTAMP_MATCH.Timestamp",true), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
-    connect(m_application->m_data_center->getData("Valeur_mbed_etat_03",true), SIGNAL(valueChanged(QVariant)), this, SLOT(changeVideoWork(QVariant)));
+    connect(m_application->m_data_center->getData("Valeur_cpu_etat_03",true), SIGNAL(valueChanged(QVariant)), this, SLOT(changeVideoWork(QVariant)));
 
     b_robStarted=false;
     refresh_camera_list();
@@ -371,27 +371,27 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("Camera.Robot2_Dist",  distance2/10);
             m_application->m_data_center->write("Camera.Robot2_Teta",  angle2);
 
-            //envoi de l'info au mbed
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 1);
-            m_application->m_data_center->write("valeur_mbed_cmde_01", distance1);
-            m_application->m_data_center->write("valeur_mbed_cmde_02", distance2);
-            m_application->m_data_center->write("valeur_mbed_cmde_03", 0);
-            m_application->m_data_center->write("valeur_mbed_cmde_04", 0);
+            //envoi de l'info au cpu
+            m_application->m_data_center->write("CPU_CMDE_TxSync", 1);
+            m_application->m_data_center->write("valeur_cpu_cmde_01", distance1);
+            m_application->m_data_center->write("valeur_cpu_cmde_02", distance2);
+            m_application->m_data_center->write("valeur_cpu_cmde_03", 0);
+            m_application->m_data_center->write("valeur_cpu_cmde_04", 0);
             m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_BALISE_MAT );
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
+            m_application->m_data_center->write("CPU_CMDE_TxSync", 0);
         break;
 
 /*        case VIDEO_PROCESS_SEQUENCE_COULEUR:
             m_application->m_data_center->write("Camera.ColorSequence", result.value[IDX_SEQUENCE]);
 
-            //envoi de l'info au mbed
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 1);
-            m_application->m_data_center->write("valeur_mbed_cmde_01", 0);
-            m_application->m_data_center->write("valeur_mbed_cmde_02", 0);
-            m_application->m_data_center->write("valeur_mbed_cmde_03", result.value[IDX_SEQUENCE]);
-            m_application->m_data_center->write("valeur_mbed_cmde_04", 0);
+            //envoi de l'info au cpu
+            m_application->m_data_center->write("CPU_CMDE_TxSync", 1);
+            m_application->m_data_center->write("valeur_cpu_cmde_01", 0);
+            m_application->m_data_center->write("valeur_cpu_cmde_02", 0);
+            m_application->m_data_center->write("valeur_cpu_cmde_03", result.value[IDX_SEQUENCE]);
+            m_application->m_data_center->write("valeur_cpu_cmde_04", 0);
             m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE_COULEUR );
-            m_application->m_data_center->write("MBED_CMDE_TxSync", 0);
+            m_application->m_data_center->write("CPU_CMDE_TxSync", 0);
         break;*/
 
         default: break;
@@ -526,8 +526,8 @@ void CImageProcessing::stopVideoWork()
 
 void CImageProcessing::changeVideoWork(QVariant mode)
 {
-    int CmdMBED=m_application->m_data_center->read("Code_mbed_etat").toInt();
-    if(CmdMBED==1) //il s'agit d'une demande de traitement video dans la trame generique
+    int CmdCPU=m_application->m_data_center->read("Code_cpu_etat").toInt();
+    if(CmdCPU==1) //il s'agit d'une demande de traitement video dans la trame generique
     {
         if((mode.toInt()<=3) && m_video_worker)
         {

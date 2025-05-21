@@ -438,7 +438,7 @@ void CAsserv::ModeAsservissement_changed(int val)
 void CAsserv::initList_ActionsDiagAsserv(void)
 {
   QStringList lst;
-  // à mettre dans le même ordre que l'énuméré "eASSERV_WRITE_PARAM" (commun avec le MBED)
+  // à mettre dans le même ordre que l'énuméré "eASSERV_WRITE_PARAM" (commun avec le CPU)
   lst << "SEUIL_CONV_DIST"
       << "SEUIL_CONV_ANGLE"
       << "DIAG_WR_KI_ANGLE"
@@ -467,7 +467,7 @@ void CAsserv::DiagAsserv_Send_clicked(void)
 // ____________________________________________________
 // Les coeficients de l'asserv ne sont pas tous dans le même range
 // Adapte le range au coeficient
-// Attention : doit être en cohérence avec le code côté MBED
+// Attention : doit être en cohérence avec le code côté CPU
 int CAsserv::FacteurPhys2Brute_ActionDiagAsserv(int param)
 {
     switch (param) {

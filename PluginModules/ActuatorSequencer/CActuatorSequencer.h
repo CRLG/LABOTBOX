@@ -113,7 +113,7 @@ private:
     QList<int> strategies2Combine;
 
     QString m_defaultPath_Modelia;
-    QString m_defaultPath_SoftMbed;
+    QString m_defaultPath_SoftCPU;
 
     QHash<QString, int> m_hash_const_Servo;
     QHash<QString, int> m_hash_const_SD20;
@@ -127,7 +127,7 @@ private:
 
 
     //! La liste des codes possibles dans le champ "commande_ax" de la trame ELECTROBOT_CDE_SERVOS_AX
-    // (enum commun MBED<->LaBotBox)
+    // (enum commun CPU<->LaBotBox)
     typedef enum {
       cSERVO_AX_POSITION = 0,
       cSERVO_AX_VITESSE,

@@ -539,7 +539,7 @@ void CActuatorElectrobot::CdeServoMoteurAX7_changed()
 void CActuatorElectrobot::initList_ActionsServosAX(void)
 {
   QStringList lst;
-  // à mettre dans le même ordre que l'énuméré "eCOMMANDES_SERVOS_AX" (commun avec le MBED)
+  // à mettre dans le même ordre que l'énuméré "eCOMMANDES_SERVOS_AX" (commun avec le CPU)
   lst << "POSITION"
       << "VITESSE"
       << "COUPLE"
@@ -567,7 +567,7 @@ void CActuatorElectrobot::ServosAXConfig_Send_clicked(void)
 void CActuatorElectrobot::initList_ActionsServos(void)
 {
   QStringList lst;
-  // à mettre dans le même ordre que l'énuméré "eCONFIG_SERVOS" (commun avec le MBED)
+  // à mettre dans le même ordre que l'énuméré "eCONFIG_SERVOS" (commun avec le CPU)
   lst << "POSITION"
       << "BUTEE_MIN"
       << "BUTEE_MAX"
