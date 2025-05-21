@@ -396,7 +396,7 @@ void CSimulia::simu_task_sequencer()
         cpt200msec = 0;
 
         Application.m_capteurs.Traitement();
-        Application.m_kmar.compute();
+        //Application.m_kmar.compute();
     }
     // ______________________________
     cpt500msec++;
@@ -526,13 +526,13 @@ void CSimulia::updateStepFromSimuBot()
 // ___________________________________________________
 void CSimulia::on_pb_kmar_mouvement_init()
 {
-    Application.m_kmar.start(1);
+    //Application.m_kmar.start(1);
 }
 
 // ___________________________________________________
 void CSimulia::on_pb_kmar_mouvement_ramasse()
 {
-    Application.m_kmar.start(2);
+    //Application.m_kmar.start(2);
 }
 
 // ___________________________________________________

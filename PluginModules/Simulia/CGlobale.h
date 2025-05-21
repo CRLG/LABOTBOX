@@ -17,7 +17,7 @@
 #include "CLidar_simu.h"
 #include "CDetectionObstacles_simu.h"
 #include "CCapteurs_simu.h"
-#include "kmar.h"
+//#include "kmar.h"
 #include "ia.h"
 
 
@@ -37,7 +37,7 @@ public :
     CTelemetresSimu             m_telemetres;
     CLidarSimu                  m_lidar;
     CDetectionObstaclesSimu     m_detection_obstacles;
-    CKmar                       m_kmar;
+    //CKmar                       m_kmar;
     IA                          m_modelia;
 
     // Gestion des LED
