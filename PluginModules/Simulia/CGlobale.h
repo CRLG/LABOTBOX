@@ -17,6 +17,7 @@
 #include "CLidar_simu.h"
 #include "CDetectionObstacles_simu.h"
 #include "CCapteurs_simu.h"
+#include "CServomoteurs_simu.h"
 //#include "kmar.h"
 #include "ia.h"
 
@@ -32,6 +33,7 @@ public :
     PowerElectrobotSimu         m_power_electrobot;
     CServoMoteurAXSimu          m_servos_ax;
     CServoMoteurSD20Simu        m_servos_sd20;
+    CServomoteursSimu           m_servos;
     MessengerXbeeNetworkSimu    m_messenger_xbee_ntw;
     CAsservissementChariotSimu  m_asservissement_chariot;
     CTelemetresSimu             m_telemetres;
@@ -39,6 +41,7 @@ public :
     CDetectionObstaclesSimu     m_detection_obstacles;
     //CKmar                       m_kmar;
     IA                          m_modelia;
+
 
     // Gestion des LED
     CLedSimu m_led1;  // Ne pas utiliser directement led1...4 dans le modèle, c'est juste pour la simulation

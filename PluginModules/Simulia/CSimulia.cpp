@@ -110,6 +110,7 @@ void CSimulia::init(CApplication *application)
     Application.m_servos_ax.init(m_application);
     Application.m_asservissement.init(m_application);
     Application.m_servos_sd20.init(m_application);
+    Application.m_servos.init(m_application);
     Application.m_led1.init(m_application);
     Application.m_led2.init(m_application);
     Application.m_led3.init(m_application);
@@ -255,6 +256,7 @@ void CSimulia::on_pb_init_all()
     Application.m_asservissement.Init();
     Application.m_roues.init_model();
     Application.m_servos_sd20.Init();
+    Application.m_servos.Init();
     Application.m_servos_ax.Init();
     Application.m_leds.setState(ALL_LED, 0);
     Application.m_asservissement_chariot.Init();
@@ -375,6 +377,8 @@ void CSimulia::simu_task_sequencer()
 
         // Execute un pas de calcul du modele
         Application.m_modelia.step();
+
+        Application.m_servos.periodicCall();
     }
     // ______________________________
     cpt50msec++;

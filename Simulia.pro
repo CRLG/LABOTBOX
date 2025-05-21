@@ -62,6 +62,7 @@ LIST_EXT_CPPROBLIB+= \
         PowerElectrobot \
         mcp23017 \
         Lidar \
+        Servomoteurs \
         common-rob \
         Communication/Messenger \
         Communication/Messenger/MessagesGeneric \
