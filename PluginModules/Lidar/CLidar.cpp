@@ -32,7 +32,8 @@ CLidar::CLidar(const char *plugin_name)
       m_lidar_data_filter(Q_NULLPTR),
       m_lidar_filter_params(Q_NULLPTR),
       m_polar_graph(Q_NULLPTR),
-      m_angular_axis(Q_NULLPTR)
+      m_angular_axis(Q_NULLPTR),
+      m_logger_file(Q_NULLPTR)
 {
 }
 
@@ -45,6 +46,7 @@ CLidar::CLidar(const char *plugin_name)
 CLidar::~CLidar()
 {
     on_filter_params_close();
+    logger_stop();
 }
 
 
@@ -92,12 +94,22 @@ void CLidar::init(CApplication *application)
     int logger_refresh_period = m_application->m_eeprom->read(getName(), "logger_refresh_period", 0).toInt();
     m_ihm.ui.logger_sample_period->setValue(logger_refresh_period);
 
+    QString logger_pathfilename = m_application->m_eeprom->read(getName(), "logger_pathfilename",
+                                                                QString("%1/LogLidar.csv").arg(application->m_pathname_log_file)).toString();
+    m_ihm.ui.logger_pathfilename->setText(logger_pathfilename);
+
+    bool enable_autostart_logger = m_application->m_eeprom->read(getName(), "enable_autostart_logger", false).toBool();
+    m_ihm.ui.enable_autostart_logger->setChecked(enable_autostart_logger);
+
+    bool auto_increment_pathfilename = m_application->m_eeprom->read(getName(), "auto_increment_pathfilename", true).toBool();
+    m_ihm.ui.logger_name_auto_increment->setChecked(auto_increment_pathfilename);
+
     int graph_type = m_application->m_eeprom->read(getName(), "graph_type", GRAPH_TYPE_POLAR).toInt();
     m_ihm.ui.type_affichage_graph->setCurrentIndex(graph_type);
     on_change_graph_type(m_ihm.ui.type_affichage_graph->currentIndex());  // met en cohérence le type de grapha affiché avec le choix de la liste
 
-    int data_diplayed = m_application->m_eeprom->read(getName(), "data_diplayed", GRAPH_RAW_DATA).toInt();
-    m_ihm.ui.data_affichees->setCurrentIndex(data_diplayed);
+    int data_displayed = m_application->m_eeprom->read(getName(), "data_displayed", GRAPH_RAW_DATA).toInt();
+    m_ihm.ui.data_affichees->setCurrentIndex(data_displayed);
     on_change_data_displayed(m_ihm.ui.data_affichees->currentIndex());
 
     init_data_filter(); // ajoute à la liste déroulante tous les filtres existants
@@ -138,7 +150,8 @@ void CLidar::init(CApplication *application)
     m_ihm.ui.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
     open_sick();
 
-    logger_stop();
+    if (m_ihm.ui.enable_autostart_logger->isChecked())  logger_start();
+    else                                                logger_stop();
 }
 
 // _____________________________________________________________________
@@ -160,9 +173,12 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "logger_refresh_period",  m_ihm.ui.logger_sample_period->value());
     m_application->m_eeprom->write(getName(), "lidar_sample_period",  m_ihm.ui.lidar_sample_period->value());
     m_application->m_eeprom->write(getName(), "graph_type",  m_ihm.ui.type_affichage_graph->currentIndex());
-    m_application->m_eeprom->write(getName(), "data_diplayed",  m_ihm.ui.data_affichees->currentIndex());
+    m_application->m_eeprom->write(getName(), "data_displayed",  m_ihm.ui.data_affichees->currentIndex());
     m_application->m_eeprom->write(getName(), "index_data_filter", m_ihm.ui.filter_data_choice->currentIndex());
     m_application->m_eeprom->write(getName(), "enable_update_datamanager", m_ihm.ui.enable_datamanager_update->isChecked());
+    m_application->m_eeprom->write(getName(), "logger_pathfilename", m_ihm.ui.logger_pathfilename->text());
+    m_application->m_eeprom->write(getName(), "enable_autostart_logger", m_ihm.ui.enable_autostart_logger->isChecked());
+    m_application->m_eeprom->write(getName(), "auto_increment_pathfilename", m_ihm.ui.logger_name_auto_increment->isChecked());
 }
 
 // _____________________________________________________________________
@@ -496,9 +512,26 @@ void CLidar::on_filter_params_close()
 // _____________________________________________________________________
 void CLidar::logger_start(QString pathfilename)
 {
+    logger_stop();
+    if (m_ihm.ui.logger_name_auto_increment->isChecked()) {
+        pathfilename = pathfilename.remove(".csv");
+        for (unsigned int i=0; i<10000; i++) {
+            QString newfilename = QString("%1_%2.csv").arg(pathfilename).arg(i, 5, 10, QLatin1Char('0'));
+            if (!QFile(newfilename).exists())   {
+                pathfilename = newfilename;
+                break;  // pas la peine d'aller plus loin, on a trouvé le prochain numéro
+            }
+        }
+    }
+
     // Ouvre et construit le fichier
-    m_logger_file.setFileName(pathfilename);
-    if (!m_logger_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!pathfilename.endsWith(".csv")) pathfilename.append(".csv");
+    qDebug() << pathfilename;
+    m_logger_file = new QFile(pathfilename);
+    if (!m_logger_file) return;
+    if (!m_logger_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        delete m_logger_file;
+        m_logger_file = Q_NULLPTR;
         return;
     }
 
@@ -519,7 +552,9 @@ void CLidar::logger_start(QString pathfilename)
 void CLidar::logger_start()
 {
     if (m_ihm.ui.logger_pathfilename->text().isEmpty())         logger_select_file();
-    if (QFile(m_ihm.ui.logger_pathfilename->text()).exists())   logger_select_file();
+    if (QFile(m_ihm.ui.logger_pathfilename->text()).exists())   {
+        if (!m_ihm.ui.logger_name_auto_increment->isChecked()) logger_select_file();
+    }
     if (m_ihm.ui.logger_pathfilename->text().isEmpty()) return; // pas la peine d'aller plus loin si pas de fichier renseigné
 
     logger_start(m_ihm.ui.logger_pathfilename->text());
@@ -530,8 +565,11 @@ void CLidar::logger_start()
 void CLidar::logger_stop()
 {
     m_logger_active = false;
-    if (!m_logger_file.isOpen()) m_logger_file.close();
-
+    if (m_logger_file && (!m_logger_file->isOpen())) {
+        m_logger_file->close();
+        delete m_logger_file;
+        m_logger_file = Q_NULLPTR;
+    }
     // Grise ou dégrise les éléments de l'onglet Logger
     m_ihm.ui.PB_start_logger->setEnabled(true);
     //m_ihm.ui.logger_sample_period->setEnabled(true);
@@ -559,10 +597,11 @@ void CLidar::logger_select_file()
 //      - Résolution
 void CLidar::log_data(const CLidarData &data)
 {
-    if (!m_logger_file.isOpen()) return;
+    if (!m_logger_file) return;
+    if (!m_logger_file->isOpen()) return;
 
     // Ecrit l'entête du fichier
-    QTextStream out(&m_logger_file);
+    QTextStream out(m_logger_file);
 
     // Gestion de l'entête du fichier csv sur la première réception de données
     if (m_first_log) {

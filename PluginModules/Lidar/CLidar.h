@@ -88,7 +88,7 @@ private:
 
     bool m_logger_active;
     bool m_first_log;
-    QFile m_logger_file;
+    QFile *m_logger_file;
     const QString CSV_SEPARATOR = ";";
     void log_data(const CLidarData &data);
 
