@@ -497,7 +497,7 @@
            <string>Commence l'enregistrement lorsque la match robot démarre</string>
           </property>
           <property name="text">
-           <string>Syncrho match</string>
+           <string>Synchro match</string>
           </property>
          </widget>
         </item>
