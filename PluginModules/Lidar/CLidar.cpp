@@ -95,7 +95,7 @@ void CLidar::init(CApplication *application)
     m_ihm.ui.logger_sample_period->setValue(logger_refresh_period);
 
     QString logger_pathfilename = m_application->m_eeprom->read(getName(), "logger_pathfilename",
-                                                                QString("%1/LogLidar.csv").arg(application->m_pathname_log_file)).toString();
+                                                                QString("%1/%2").arg(application->m_pathname_log_file).arg(DEFAULT_LOGGER_FILENAME)).toString();
     m_ihm.ui.logger_pathfilename->setText(logger_pathfilename);
 
     bool enable_autostart_logger = m_application->m_eeprom->read(getName(), "enable_autostart_logger", false).toBool();
@@ -120,6 +120,10 @@ void CLidar::init(CApplication *application)
     bool enable_update_datamanager = m_application->m_eeprom->read(getName(), "enable_update_datamanager", 1).toBool();
     m_ihm.ui.enable_datamanager_update->setChecked(enable_update_datamanager);
 
+    bool synchro_match = m_application->m_eeprom->read(getName(), "synchro_match", 1).toBool();
+    m_ihm.ui.enable_synchro_match->setChecked(synchro_match);
+    active_synchro_match_logger(synchro_match);
+
     connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
     connect(&m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
     connect(&m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
@@ -139,6 +143,7 @@ void CLidar::init(CApplication *application)
     connect(m_ihm.ui.PB_logger_select_file, SIGNAL(clicked(bool)), this, SLOT(logger_select_file()));
     connect(m_ihm.ui.PB_start_logger, SIGNAL(clicked(bool)), this, SLOT(logger_start()));
     connect(m_ihm.ui.PB_stop_logger, SIGNAL(clicked(bool)), this, SLOT(logger_stop()));
+    connect(m_ihm.ui.enable_synchro_match, SIGNAL(clicked(bool)), this, SLOT(active_synchro_match_logger(bool)));
 
     // Simulateur / rejoueur de trace
     connect(m_ihm.ui.PB_choixTrace, SIGNAL(clicked()), this, SLOT(on_PB_player_choix_trace_clicked()));
@@ -179,6 +184,7 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "logger_pathfilename", m_ihm.ui.logger_pathfilename->text());
     m_application->m_eeprom->write(getName(), "enable_autostart_logger", m_ihm.ui.enable_autostart_logger->isChecked());
     m_application->m_eeprom->write(getName(), "auto_increment_pathfilename", m_ihm.ui.logger_name_auto_increment->isChecked());
+    m_application->m_eeprom->write(getName(), "synchro_match", m_ihm.ui.enable_synchro_match->isChecked());
 }
 
 // _____________________________________________________________________
@@ -502,6 +508,33 @@ void CLidar::on_filter_params_close()
     if(m_lidar_filter_params) {
         delete m_lidar_filter_params;
         m_lidar_filter_params = Q_NULLPTR;
+    }
+}
+
+// _____________________________________________________________________
+// Relance l'enregistreur de données lorsque le match commence
+void CLidar::temps_match_changed(QVariant temps_match)
+{
+    if (!m_ihm.ui.enable_synchro_match) return;
+
+    if (temps_match == 1) { // test avec exactement "1" pour commencer l'enregistrement au début du match (et une seule fois) -> à noter : on perd la première seconde de match
+        if (m_ihm.ui.logger_pathfilename->text().simplified().isEmpty()) {  // crée un nom par défaut si absent
+            QString default_pathfilename = QString("%1/%2").arg(m_application->m_pathname_log_file).arg(DEFAULT_LOGGER_FILENAME);
+            m_ihm.ui.logger_pathfilename->setText(default_pathfilename);
+        }
+        logger_start();
+    }
+}
+
+// _____________________________________________________________________
+void CLidar::active_synchro_match_logger(bool on_off)
+{
+    if (on_off) {
+        m_application->m_data_center->write("TempsMatch", -1); // S'assure que la donnée existe avant de l'utiliser
+        connect(m_application->m_data_center->getData("TempsMatch"), SIGNAL(valueChanged(QVariant)), this, SLOT(temps_match_changed(QVariant)));
+    }
+    else {
+        disconnect(m_application->m_data_center->getData("TempsMatch"), SIGNAL(valueChanged(QVariant)), this, SLOT(temps_match_changed(QVariant)));
     }
 }
 

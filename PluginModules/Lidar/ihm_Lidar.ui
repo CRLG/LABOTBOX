@@ -331,6 +331,19 @@
         <string>Logger</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="3">
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="1" column="1" colspan="2">
          <widget class="QSpinBox" name="logger_sample_period">
           <property name="enabled">
@@ -359,26 +372,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>212</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="0" colspan="3">
-         <widget class="QLineEdit" name="logger_pathfilename">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="placeholderText">
-           <string>Nom du fichier de log</string>
+        <item row="4" column="0" colspan="3">
+         <widget class="QCheckBox" name="logger_name_auto_increment">
+          <property name="text">
+           <string>Auto increment name</string>
           </property>
          </widget>
         </item>
@@ -392,7 +389,17 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="0" column="0" colspan="3">
+         <widget class="QLineEdit" name="logger_pathfilename">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Nom du fichier de log</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -404,6 +411,16 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <widget class="QCheckBox" name="enable_autostart_logger">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Logger start when Lidar connected&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Enable autostart</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
          <widget class="QPushButton" name="PB_stop_logger">
@@ -425,6 +442,16 @@
           </property>
           <property name="flat">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="logger_sample_period_label">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Période</string>
           </property>
          </widget>
         </item>
@@ -451,43 +478,26 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="logger_sample_period_label">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Période</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <spacer name="horizontalSpacer_7">
+        <item row="2" column="2">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>40</width>
+            <width>212</width>
             <height>20</height>
            </size>
           </property>
          </spacer>
         </item>
-        <item row="4" column="0" colspan="3">
-         <widget class="QCheckBox" name="logger_name_auto_increment">
-          <property name="text">
-           <string>Auto increment name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="3">
-         <widget class="QCheckBox" name="enable_autostart_logger">
+        <item row="5" column="0" colspan="2">
+         <widget class="QCheckBox" name="enable_synchro_match">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Logger start when Lidar connected&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>Commence l'enregistrement lorsque la match robot démarre</string>
           </property>
           <property name="text">
-           <string>Enable autostart</string>
+           <string>Syncrho match</string>
           </property>
          </widget>
         </item>

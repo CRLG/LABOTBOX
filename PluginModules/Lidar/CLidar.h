@@ -75,6 +75,8 @@ private:
         GRAPH_FILTERED_DATA
     };
 
+    const QString DEFAULT_LOGGER_FILENAME = "LogLidar.csv";
+
     void init_polar_qcustomplot();
     void init_linear_qcustomplot();
     void delete_current_graph();
@@ -116,6 +118,9 @@ private slots :
     void on_filter_params_show();
     void filter_params_load();
     void on_filter_params_close();
+    void temps_match_changed(QVariant temps_match);
+    void active_synchro_match_logger(bool on_off);
+
 signals :
     void test();
 
