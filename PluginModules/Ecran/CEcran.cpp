@@ -103,7 +103,7 @@ void CEcran::init(CApplication *application)
   m_application->m_data_center->write("Telemetre3",  -1);
   m_application->m_data_center->write("Telemetre2",  -1);
   m_application->m_data_center->write("Telemetre1",  -1);
-  m_application->m_data_center->write("Vbat", -1);
+  m_application->m_data_center->write("PowerElectrobot.battery_voltage", -1);
   m_application->m_data_center->write("TempsMatch", -1);
   m_application->m_data_center->write("Score", 0);
 
@@ -125,7 +125,7 @@ void CEcran::init(CApplication *application)
   connect(m_application->m_data_center->getData("CouleurEquipe"), SIGNAL(valueChanged(QVariant)), this, SLOT(CouleurEquipe_changed(QVariant)));
   connect(m_application->m_data_center->getData("NumStrategie"), SIGNAL(valueChanged(QVariant)), this, SLOT(NumStrategie_changed(QVariant)));
   connect(m_application->m_data_center->getData("ModeFonctionnement"), SIGNAL(valueUpdated(QVariant)), this, SLOT(ModeFonctionnement_changed(QVariant)));
-  connect(m_application->m_data_center->getData("Vbat"), SIGNAL(valueChanged(QVariant)), this, SLOT(Vbat_changed(QVariant)));
+  connect(m_application->m_data_center->getData("PowerElectrobot.battery_voltage"), SIGNAL(valueChanged(QVariant)), this, SLOT(Vbat_changed(QVariant)));
   connect(m_application->m_data_center->getData("TempsMatch"), SIGNAL(valueChanged(QVariant)), this, SLOT(TpsMatch_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre1"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre1_changed(QVariant)));
   connect(m_application->m_data_center->getData("Telemetre2"), SIGNAL(valueChanged(QVariant)), this, SLOT(Telemetre2_changed(QVariant)));
