@@ -33,7 +33,7 @@ LIST_BASIC_MODULES+= \
         RS232 \ 
         Joystick \
         UserGuides \
-        ExternalControler \ 
+        #ExternalControler \ 
         # ##_NEW_BASIC_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -47,10 +47,10 @@ LIST_PLUGIN_MODULES+= \
         #BotCam \
         Ecran \
         ImageProcessing \ 
-        XBEE \ 
-        XbeeNetworkMessenger \ 
+        #XBEE \ 
+        #XbeeNetworkMessenger \ 
         PowerElectrobot \ 
-        KMAR \ 
+        #KMAR \ 
         Lidar \
         ModeFonctionnementCPU \
         EEPROM_CPU \
@@ -80,9 +80,9 @@ LIST_EXT_CPPROBLIB+= \
 DEFINES+= MESSENGER_FULL
 # __________________________________________________
 # Ajouter ici les modules spécifiques à RaspberyPi
-    LIST_BASIC_MODULES+=  RaspiGPIO
-    DEFINES += RASPBERRY_PI
-    LIBS += -L/usr/lib -lwiringPi
+  #  LIST_BASIC_MODULES+=  RaspiGPIO
+  #  DEFINES += RASPBERRY_PI
+  #  LIBS += -L/usr/lib -lwiringPi
 		
 # __________________________________________________
 # Gestion des basic modules
