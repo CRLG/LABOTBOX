@@ -410,7 +410,7 @@ void CActuatorElectrobot::choix_type_servo_classique_sd20()
     case cSERVOS_CLASSIQUES :
     default :
         m_ihm.ui.servo_label_1->setText("Servo1");
-        min_value = 300;
+        min_value = 0;
         max_value = 3000;
         default_val = 1500;
         m_ihm.ui.servo_label_8->setEnabled(false);
