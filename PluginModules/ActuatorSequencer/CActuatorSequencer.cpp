@@ -341,6 +341,7 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
     }
     else
     {
+       qDebug() << "[CActuatorSequencer] Conf Specifique coupe (" << str_FicCoupe << " ) exists and is readable";
         QList<EnumDefinition> enums=getEnum(str_FicCoupe);
 
         //mise à jour avec les valeurs prédéfinies
@@ -369,6 +370,18 @@ m_ihm.ui.cB_AX_type_cde->addItem("Vitesse",QVariant(cSERVO_AX_VITESSE));
                     m_ihm.ui.cB_ARM_const_values->addItem(value.name,QVariant(value.value));
                 }
             }
+            else if (enumDef.enumName == "eATTRIBUTION_SERVOS") {
+                for (const EnumValue &value : enumDef.values) {
+                    for(int i=1;i<=8;i++)
+                    {
+                        if(i==(QVariant(value.value).toInt()))
+                        {
+                            m_ihm.ui.cB_Servo->setItemText(i-1,value.name);
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
