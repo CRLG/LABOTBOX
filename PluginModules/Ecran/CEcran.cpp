@@ -308,12 +308,12 @@ void CEcran::ModeFonctionnement_changed(QVariant val)
     int value=val.toInt();
     if(value==0)//mode autonome
     {
-        m_ihm.ui.lbl_ModeFct->setText("Autonome");
+        m_ihm.ui.lbl_ModeFct->setText("Mode Autonome");
         setBackgroundColor(initColor);
     }
     else if (value==1)
     {
-        m_ihm.ui.lbl_ModeFct->setText("LaBotBox");
+        m_ihm.ui.lbl_ModeFct->setText("Mode LaBotBox");
         setBackgroundColor(QColor(255,0,0,255));
     }
     else if (value==2)
