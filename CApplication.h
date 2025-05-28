@@ -54,6 +54,7 @@ class CLidar;
 class CKMAR;
 class CModeFonctionnementCPU;
 class CEEPROM_CPU;
+class CRobotPanelControl;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -198,6 +199,9 @@ public:
 #ifdef MODULE_EEPROM_CPU
    CEEPROM_CPU     *m_EEPROM_CPU;
 #endif // MODULE_EEPROM_CPU
+#ifdef MODULE_RobotPanelControl
+   CRobotPanelControl     *m_RobotPanelControl;
+#endif // MODULE_RobotPanelControl
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 

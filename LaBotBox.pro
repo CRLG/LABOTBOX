@@ -63,6 +63,7 @@ LIST_PLUGIN_MODULES+= \
         KMAR \ 
         ModeFonctionnementCPU \ 
         EEPROM_CPU \ 
+        RobotPanelControl \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
