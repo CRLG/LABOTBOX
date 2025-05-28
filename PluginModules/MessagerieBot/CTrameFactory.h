@@ -1475,6 +1475,29 @@ signals :
     void receive_value(unsigned long address, unsigned long value);
 };
 
+// ========================================================
+//             TRAME ACTION_ROBOT
+// ========================================================
+#define ID_ACTION_ROBOT 0x111
+#define DLC_ACTION_ROBOT 8
+class CTrame_ACTION_ROBOT : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ACTION_ROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ACTION_ROBOT() { }
+    /*virtual*/ void Encode(void);
+
+    unsigned long command;
+    unsigned long value;
+
+    bool m_synchro_tx;
+
+private slots :
+    void Synchro_changed(QVariant val);
+};
+
+
 #endif // _CTRAME_FACTORY_H_
 /*! @} */
 

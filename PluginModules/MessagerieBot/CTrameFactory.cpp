@@ -118,6 +118,7 @@ void CTrameFactory::create(void)
  m_liste_trames_tx.append(new CTrame_COMMANDE_MODE_FONCTIONNEMENT_CPU(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_READ_EEPROM_REQ(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_WRITE_EEPROM_REQ(m_messagerie_bot, m_data_manager));
+ m_liste_trames_tx.append(new CTrame_ACTION_ROBOT(m_messagerie_bot, m_data_manager));
 
  // Crée une seule liste avec toutes les trames en émission et en réception
  for (int i=0; i<m_liste_trames_rx.size(); i++) {
@@ -3743,4 +3744,61 @@ void CTrame_EEPROM_VALUE::Decode(tStructTrameBrute *trameRecue)
     m_nombre_recue++;
 
     emit receive_value(address, value);
+}
+
+
+// ========================================================
+//             TRAME ACTION_ROBOT
+// ========================================================
+CTrame_ACTION_ROBOT::CTrame_ACTION_ROBOT(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ACTION_ROBOT";
+ m_id = ID_ACTION_ROBOT;
+ m_dlc = DLC_ACTION_ROBOT;
+
+ // Initialise les données de la messagerie
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("ACTION_ROBOT_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("ACTION_ROBOT_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_ACTION_ROBOT::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_ACTION_ROBOT::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_ACTION_ROBOT;
+  trame.DLC = DLC_ACTION_ROBOT;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+    CDataEncoderDecoder::encode_uint32(trame.Data,  0, command);
+    CDataEncoderDecoder::encode_uint32(trame.Data,  4, value);
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
 }
