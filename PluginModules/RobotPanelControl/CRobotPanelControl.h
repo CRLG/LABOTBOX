@@ -75,7 +75,7 @@ private:
         VERRIN_BAS,
         VERRIN_INTERMEDIAIRE,
 
-        PINCE_PLANCHE_OUVERT,
+        PINCE_PLANCHE_OUVERTE,
         PINCE_PLANCHE_FERMEE,
         PINCE_PLANCHE_INTERMEDIAIRE,
 
@@ -92,9 +92,6 @@ private:
 
 private slots :
     void onRightClicGUI(QPoint pos);
-
-    void ascenseur_haut();
-    void ascenseur_bas();
 
     void send_command(unsigned long command, unsigned long value=0);
 

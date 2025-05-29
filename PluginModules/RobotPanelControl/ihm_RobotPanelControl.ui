@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>249</width>
+    <width>425</width>
     <height>459</height>
    </rect>
   </property>
@@ -16,21 +16,35 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="10" column="0">
-     <widget class="QPushButton" name="pushButton_4">
+     <widget class="QPushButton" name="pince_arg_ouverte">
       <property name="text">
        <string>Ouverte</string>
       </property>
      </widget>
     </item>
     <item row="14" column="0">
-     <widget class="QPushButton" name="pushButton_11">
+     <widget class="QPushButton" name="pince_planche_repos">
       <property name="text">
        <string>Repos</string>
       </property>
      </widget>
     </item>
+    <item row="0" column="3">
+     <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>true</underline>
+       </font>
+      </property>
+      <property name="text">
+       <string>VERRIN</string>
+      </property>
+     </widget>
+    </item>
     <item row="8" column="1">
-     <widget class="QPushButton" name="pushButton_6">
+     <widget class="QPushButton" name="pince_ard_fermee">
       <property name="text">
        <string>Fermée</string>
       </property>
@@ -40,6 +54,13 @@
      <widget class="QPushButton" name="ascenseur_bas">
       <property name="text">
        <string>Ascenseur Bas</string>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="0">
+     <widget class="QPushButton" name="banderole_horizontale">
+      <property name="text">
+       <string>Horizontale</string>
       </property>
      </widget>
     </item>
@@ -58,9 +79,16 @@
      </widget>
     </item>
     <item row="9" column="0">
-     <widget class="QPushButton" name="pushButton_5">
+     <widget class="QPushButton" name="pince_arg_intermediaire">
       <property name="text">
        <string>Intermédiaire</string>
+      </property>
+     </widget>
+    </item>
+    <item row="17" column="1">
+     <widget class="QPushButton" name="banderole_deployee">
+      <property name="text">
+       <string>Déployée</string>
       </property>
      </widget>
     </item>
@@ -75,13 +103,6 @@
       </property>
       <property name="text">
        <string>BANDEROLE</string>
-      </property>
-     </widget>
-    </item>
-    <item row="17" column="1">
-     <widget class="QPushButton" name="pushButton_13">
-      <property name="text">
-       <string>Déployée</string>
       </property>
      </widget>
     </item>
@@ -112,16 +133,9 @@
      </widget>
     </item>
     <item row="9" column="1">
-     <widget class="QPushButton" name="pushButton_7">
+     <widget class="QPushButton" name="pince_ard_intermediaire">
       <property name="text">
        <string>Intermédiaire</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>TIRETTE</string>
       </property>
      </widget>
     </item>
@@ -137,7 +151,7 @@
        </font>
       </property>
       <property name="text">
-       <string>PINCE AVANT</string>
+       <string>PINCE PLANCHE</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -145,7 +159,7 @@
      </widget>
     </item>
     <item row="17" column="0">
-     <widget class="QPushButton" name="pushButton_12">
+     <widget class="QPushButton" name="banderole_rangee">
       <property name="text">
        <string>Rangée</string>
       </property>
@@ -189,56 +203,22 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QLed" name="qLed">
-      <property name="minimumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="toolTip">
-       <string>Binary Led</string>
-      </property>
-      <property name="whatsThis">
-       <string>Led widget</string>
-      </property>
-      <property name="value">
-       <bool>false</bool>
-      </property>
-      <property name="onColor">
-       <enum>QLed::Red</enum>
-      </property>
-      <property name="offColor">
-       <enum>QLed::Grey</enum>
-      </property>
-      <property name="shape">
-       <enum>QLed::Circle</enum>
-      </property>
-     </widget>
-    </item>
     <item row="10" column="1">
-     <widget class="QPushButton" name="pushButton_8">
+     <widget class="QPushButton" name="pince_ard_ouverte">
       <property name="text">
        <string>Ouverte</string>
       </property>
      </widget>
     </item>
     <item row="13" column="0">
-     <widget class="QPushButton" name="pushButton_9">
+     <widget class="QPushButton" name="pince_planche_fermee">
       <property name="text">
        <string>Fermée</string>
       </property>
      </widget>
     </item>
     <item row="8" column="0">
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="pince_arg_fermee">
       <property name="text">
        <string>Fermée</string>
       </property>
@@ -252,23 +232,100 @@
      </widget>
     </item>
     <item row="13" column="1">
-     <widget class="QPushButton" name="pushButton_10">
+     <widget class="QPushButton" name="pince_planche_ouverte">
       <property name="text">
        <string>Ouverte</string>
       </property>
      </widget>
     </item>
-    <item row="18" column="0">
-     <widget class="QPushButton" name="pushButton_14">
-      <property name="text">
-       <string>Horizontale</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2" rowspan="14">
+    <item row="0" column="2" rowspan="19">
      <widget class="Line" name="line_3">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QPushButton" name="verrin_haut">
+      <property name="text">
+       <string>Haut</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <widget class="QPushButton" name="verrin_bas">
+      <property name="text">
+       <string>Bas</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="3">
+     <widget class="QLabel" name="label_8">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>true</underline>
+       </font>
+      </property>
+      <property name="text">
+       <string>CAN INT</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="3">
+     <widget class="QPushButton" name="can_int_off">
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="4">
+     <widget class="QPushButton" name="can_int_on">
+      <property name="text">
+       <string>On</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="3">
+     <widget class="QLabel" name="label_9">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>true</underline>
+       </font>
+      </property>
+      <property name="text">
+       <string>CAN EXT</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="3">
+     <widget class="QPushButton" name="can_ext_off">
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="4">
+     <widget class="QPushButton" name="can_ext_on">
+      <property name="text">
+       <string>On</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="3" colspan="2">
+     <widget class="Line" name="line_5">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="3" colspan="2">
+     <widget class="Line" name="line_6">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -279,20 +336,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>249</width>
+     <width>425</width>
      <height>22</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QLed</class>
-   <extends>QWidget</extends>
-   <header>qled.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

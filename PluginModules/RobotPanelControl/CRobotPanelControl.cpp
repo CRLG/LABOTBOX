@@ -69,8 +69,37 @@ void CRobotPanelControl::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
-  connect(m_ihm.ui.ascenseur_haut, SIGNAL(clicked(bool)), this, SLOT(ascenseur_haut()));
-  connect(m_ihm.ui.ascenseur_bas, SIGNAL(clicked(bool)), this, SLOT(ascenseur_bas()));
+  //connect(m_ihm.ui.ascenseur_haut, SIGNAL(clicked(bool)), this, SLOT(ascenseur_haut()));
+  //connect(m_ihm.ui.ascenseur_bas, SIGNAL(clicked(bool)), this, SLOT(ascenseur_bas()));
+
+  // Code inline dans les connect pour faciliter l'écriture du code
+  QObject::connect(m_ihm.ui.ascenseur_haut,             &QPushButton::clicked, [this]() { send_command(ASCENSEUR_MONTE); } );
+  QObject::connect(m_ihm.ui.ascenseur_bas,              &QPushButton::clicked, [this]() { send_command(ASCENSEUR_DESCEND); } );
+
+  QObject::connect(m_ihm.ui.pince_arg_fermee,           &QPushButton::clicked, [this]() { send_command(PINCE_ARG_FERMEE); } );
+  QObject::connect(m_ihm.ui.pince_arg_ouverte,          &QPushButton::clicked, [this]() { send_command(PINCE_ARG_OUVERTE); } );
+  QObject::connect(m_ihm.ui.pince_arg_intermediaire,    &QPushButton::clicked, [this]() { send_command(PINCE_ARG_INTERMEDIAIRE); } );
+
+  QObject::connect(m_ihm.ui.pince_ard_fermee,           &QPushButton::clicked, [this]() { send_command(PINCE_ARD_FERMEE); } );
+  QObject::connect(m_ihm.ui.pince_ard_ouverte,          &QPushButton::clicked, [this]() { send_command(PINCE_ARD_OUVERTE); } );
+  QObject::connect(m_ihm.ui.pince_ard_intermediaire,    &QPushButton::clicked, [this]() { send_command(PINCE_ARD_INTERMEDIAIRE); } );
+
+  QObject::connect(m_ihm.ui.pince_planche_fermee,       &QPushButton::clicked, [this]() { send_command(PINCE_PLANCHE_FERMEE); } );
+  QObject::connect(m_ihm.ui.pince_planche_ouverte,      &QPushButton::clicked, [this]() { send_command(PINCE_PLANCHE_OUVERTE); } );
+  QObject::connect(m_ihm.ui.pince_planche_repos,        &QPushButton::clicked, [this]() { send_command(PINCE_PLANCHE_INTERMEDIAIRE); } );
+
+  QObject::connect(m_ihm.ui.banderole_rangee,           &QPushButton::clicked, [this]() { send_command(BANDEROLE_RANGEE); } );
+  QObject::connect(m_ihm.ui.banderole_deployee,         &QPushButton::clicked, [this]() { send_command(BANDEROLE_DEPLOYEE); } );
+  QObject::connect(m_ihm.ui.banderole_horizontale,      &QPushButton::clicked, [this]() { send_command(BANDEROLE_INTERMEDIAIRE); } );
+
+  QObject::connect(m_ihm.ui.verrin_haut,                &QPushButton::clicked, [this]() { send_command(VERRIN_HAUT); } );
+  QObject::connect(m_ihm.ui.verrin_bas,                 &QPushButton::clicked, [this]() { send_command(VERRIN_BAS); } );
+
+  QObject::connect(m_ihm.ui.can_int_off,                &QPushButton::clicked, [this]() { send_command(CAN_MOVER_INT_OFF); } );
+  QObject::connect(m_ihm.ui.can_int_on,                 &QPushButton::clicked, [this]() { send_command(CAN_MOVER_INT_ON); } );
+
+  QObject::connect(m_ihm.ui.can_ext_off,                &QPushButton::clicked, [this]() { send_command(CAN_MOVER_EXT_OFF); } );
+  QObject::connect(m_ihm.ui.can_ext_on,                 &QPushButton::clicked, [this]() { send_command(CAN_MOVER_EXT_ON); } );
 }
 
 
@@ -99,18 +128,6 @@ void CRobotPanelControl::onRightClicGUI(QPoint pos)
 
   menu->addAction("Select background color", this, SLOT(selectBackgroundColor()));
   menu->exec(m_ihm.mapToGlobal(pos));
-}
-
-// _____________________________________________________________________
-void CRobotPanelControl::ascenseur_haut()
-{
-    send_command(ASCENSEUR_MONTE);
-}
-
-// _____________________________________________________________________
-void CRobotPanelControl::ascenseur_bas()
-{
-    send_command(ASCENSEUR_DESCEND);
 }
 
 // _____________________________________________________________________
