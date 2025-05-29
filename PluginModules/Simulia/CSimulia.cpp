@@ -121,6 +121,7 @@ void CSimulia::init(CApplication *application)
     Application.m_telemetres.init(m_application);
     Application.m_lidar.init(m_application);
     Application.m_detection_obstacles.init(m_application);
+    Application.m_ascenseur.init(m_application);
 
     init_lidar();
     Application.m_lidar.setOrigineLidar(CLidarSimu::LIDAR_FROM_GUI);

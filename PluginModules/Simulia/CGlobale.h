@@ -18,6 +18,7 @@
 #include "CDetectionObstacles_simu.h"
 #include "CCapteurs_simu.h"
 #include "CServomoteurs_simu.h"
+#include "CAscenseur_simu.h"
 //#include "kmar.h"
 #include "ia.h"
 
@@ -39,6 +40,7 @@ public :
     CTelemetresSimu             m_telemetres;
     CLidarSimu                  m_lidar;
     CDetectionObstaclesSimu     m_detection_obstacles;
+    CAscenseurSimule            m_ascenseur;
     //CKmar                       m_kmar;
     IA                          m_modelia;
 
