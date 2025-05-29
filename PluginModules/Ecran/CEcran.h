@@ -94,6 +94,8 @@ private slots :
     void onRPI_Reboot();
     void onStrategyChoice_changed(int val);
     void onCPU_Reboot();
+    void onCPU_SwitchToModeAutonome();
+    void onCPU_SwitchToModeLabotbox();
 };
 
 #endif // _CBASIC_MODULE_Ecran_H_

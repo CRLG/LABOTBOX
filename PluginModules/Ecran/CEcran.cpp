@@ -119,6 +119,8 @@ void CEcran::init(CApplication *application)
   connect(m_ihm.ui.RPI_Reboot,SIGNAL(clicked(bool)),this,SLOT(onRPI_Reboot()));
   connect(m_ihm.ui.RPI_Shutdown,SIGNAL(clicked(bool)),this,SLOT(onRPI_Shutdown()));
   connect(m_ihm.ui.CPU_Reboot,SIGNAL(clicked(bool)),this,SLOT(onCPU_Reboot()));
+  connect(m_ihm.ui.switch_to_mode_autonome, SIGNAL(clicked(bool)),this, SLOT(onCPU_SwitchToModeAutonome()));
+  connect(m_ihm.ui.switch_to_mode_Labotbox, SIGNAL(clicked(bool)),this, SLOT(onCPU_SwitchToModeLabotbox()));
 
   //pour le mode visu on se connecte aux changements du datamanager
 
@@ -474,6 +476,20 @@ void CEcran::onCPU_Reboot()
         m_application->m_data_center->write("SECURITE_RESET_CPU", SECURE_CODE_RESET_CPU);
         m_application->m_data_center->write("RESET_CPU_TxSync", false);
     }
+}
+
+void CEcran::onCPU_SwitchToModeAutonome()
+{
+    m_application->m_data_center->write("COMMANDE_MODE_FONCTIONNEMENT_CPU_TxSync", true);
+    m_application->m_data_center->write("CommandeModeFonctionnementCPU", 0);
+    m_application->m_data_center->write("COMMANDE_MODE_FONCTIONNEMENT_CPU_TxSync", false);
+}
+
+void CEcran::onCPU_SwitchToModeLabotbox()
+{
+    m_application->m_data_center->write("COMMANDE_MODE_FONCTIONNEMENT_CPU_TxSync", true);
+    m_application->m_data_center->write("CommandeModeFonctionnementCPU", 1);
+    m_application->m_data_center->write("COMMANDE_MODE_FONCTIONNEMENT_CPU_TxSync", false);
 }
 
 void CEcran::NumStrategie_changed(QVariant val)
