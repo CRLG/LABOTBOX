@@ -94,6 +94,7 @@ void CRobotPanelControl::init(CApplication *application)
 
   QObject::connect(m_ihm.ui.verrin_haut,                &QPushButton::clicked, [this]() { send_command(VERRIN_HAUT); } );
   QObject::connect(m_ihm.ui.verrin_bas,                 &QPushButton::clicked, [this]() { send_command(VERRIN_BAS); } );
+  QObject::connect(m_ihm.ui.verrin_intermediaire,       &QPushButton::clicked, [this]() { send_command(VERRIN_INTERMEDIAIRE); } );
 
   QObject::connect(m_ihm.ui.can_int_off,                &QPushButton::clicked, [this]() { send_command(CAN_MOVER_INT_OFF); } );
   QObject::connect(m_ihm.ui.can_int_on,                 &QPushButton::clicked, [this]() { send_command(CAN_MOVER_INT_ON); } );
