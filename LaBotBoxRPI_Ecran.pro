@@ -54,6 +54,8 @@ LIST_PLUGIN_MODULES+= \
         Lidar \
         ModeFonctionnementCPU \
         EEPROM_CPU \
+        RobotPanelControl \ 
+        
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
