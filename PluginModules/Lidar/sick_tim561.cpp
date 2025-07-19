@@ -3,15 +3,15 @@
 // Document de référence :
 //  telegram_listing_telegram_listing_ranging_sensors_lms1xx_lms5xx_tim2xx_tim5xx_tim7xx_lms1000_mrs1000_mrs6000_nav310_ld_oem15xx_ld_lrs36xx_lms4000_lrs4000_multiscan100_en_im0045927
 
-SickTIM651::SickTIM651(QTcpSocket *parent)
-    : QTcpSocket(parent),
+SickTIM651::SickTIM651(QObject *parent)
+    : QObject(parent),
       m_enable_autoreconnect(true),
       m_cola_protocol_binary(true)
 {
     connect(&m_timer_autoreconnect, SIGNAL(timeout()), this, SLOT(on_tick_timer_autoreconnect()));
 
-    connect(this, SIGNAL(connected()), this, SLOT(on_connect()));
-    connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnect()));
+    connect(&m_socket, SIGNAL(connected()), this, SLOT(on_connect()));
+    connect(&m_socket, SIGNAL(disconnected()), this, SLOT(on_disconnect()));
 }
 
 // _________________________________________________________
@@ -39,22 +39,22 @@ bool SickTIM651::open(const QString &hostName, quint16 port, int protocol, bool 
         m_cola_protocol_binary = (protocol == PROTOCOL_COLA_BINARY);
     }
 
-    QTcpSocket::connectToHost(m_hostname, m_port);
+    m_socket.connectToHost(m_hostname, m_port);
     if (m_enable_autoreconnect) m_timer_autoreconnect.start(AUTORECONNECT_PERIOD);
-    return waitForConnected(TIMEOUT_READ_WRITE);
+    return m_socket.waitForConnected(TIMEOUT_READ_WRITE);
 }
 
 // _________________________________________________________
 void SickTIM651::close()
 {
     m_timer_autoreconnect.stop();
-    QTcpSocket::close();
+    m_socket.close();
 }
 
 // _________________________________________________________
 void SickTIM651::disconnection()
 {
-    QTcpSocket::disconnectFromHost();
+    m_socket.disconnectFromHost();
     m_enable_autoreconnect = false;
 }
 
@@ -66,12 +66,12 @@ bool SickTIM651::login()
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
-    if (!waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
-    QByteArray ba = readAll();
+    if (!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
+    QByteArray ba = m_socket.readAll();
 
     return !isErrorReturned(ba);
 }
@@ -84,12 +84,12 @@ bool SickTIM651::start_measurement()
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
-    if (!waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
-    QByteArray ba = readAll();
+    if (!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
+    QByteArray ba = m_socket.readAll();
 
     return !isErrorReturned(ba);
 }
@@ -102,12 +102,12 @@ bool SickTIM651::stop_measurement()
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
-    if (!waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
-    QByteArray ba = readAll();
+    if (!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
+    QByteArray ba = m_socket.readAll();
 
     return !isErrorReturned(ba);
 }
@@ -120,12 +120,12 @@ bool SickTIM651::get_firmware_version(QByteArray &ba)
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
-    if (!waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
-    ba = readAll();
+    if (!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
+    ba = m_socket.readAll();
     return  (ba.size() > 0);
 }
 
@@ -137,12 +137,12 @@ bool SickTIM651::run()
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
-    if (!waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
-    QByteArray ba = readAll();
+    if (!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false;
+    QByteArray ba = m_socket.readAll();
 
     return !isErrorReturned(ba);
 }
@@ -155,9 +155,9 @@ bool SickTIM651::poll_one_telegram(CLidarData *scan_data)
     const char *data = m_cola_protocol_binary ? data_binary : data_hex;
     int size = m_cola_protocol_binary ? sizeof(data_binary) : sizeof(data_hex);
 
-    int written_size = write(data, size);
+    int written_size = m_socket.write(data, size);
     if (written_size != size) return false;
-    if (!waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
+    if (!m_socket.waitForBytesWritten(TIMEOUT_READ_WRITE)) return false;
 
     // Lecture des données
     // Le buffer reçu peut être :
@@ -176,9 +176,9 @@ bool SickTIM651::poll_one_telegram(CLidarData *scan_data)
 
     while (message.size() < total_to_receive) {
         num_bloc++;
-        if(!waitForReadyRead(TIMEOUT_READ_WRITE)) return false; // erreur de lecture ou plus rien à lire alors qu'on attendait encore des infos -> problème
+        if(!m_socket.waitForReadyRead(TIMEOUT_READ_WRITE)) return false; // erreur de lecture ou plus rien à lire alors qu'on attendait encore des infos -> problème
         //qDebug() << "Num bloc" << num_bloc;
-        message.append(readAll());
+        message.append(m_socket.readAll());
         if (message.size() >=8) {
             total_to_receive = ((message.at(4) << 24)&0xFF000000) | ((message.at(5) << 16)&0x00FF0000) | ((message.at(6) << 8)&0x0000FF00) | (message.at(7)&0x000000FF);
             total_to_receive += 9; // L'entête + la taille + checksum
@@ -284,5 +284,5 @@ void SickTIM651::on_disconnect()
 void SickTIM651::on_tick_timer_autoreconnect()
 {
     qDebug() << "Tick SickTIM651";
-    QTcpSocket::connectToHost(m_hostname, m_port);
+    m_socket.connectToHost(m_hostname, m_port);
 }

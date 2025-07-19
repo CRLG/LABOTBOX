@@ -5,11 +5,11 @@
 #include <QTimer>
 #include "lidar_data.h"
 
-class SickTIM651 : public QTcpSocket
+class SickTIM651 : public QObject
 {
     Q_OBJECT
 public:
-    explicit SickTIM651(QTcpSocket *parent = Q_NULLPTR);
+    explicit SickTIM651(QObject *parent = Q_NULLPTR);
 
     enum {
         PROTOCOL_COLA_BINARY = 0,
@@ -37,6 +37,8 @@ private :
     QTimer m_timer_autoreconnect;
 
     bool m_cola_protocol_binary;
+
+    QTcpSocket m_socket;
 
     bool decodeTelegram(const QByteArray telegram, CLidarData *scan_data);
 
