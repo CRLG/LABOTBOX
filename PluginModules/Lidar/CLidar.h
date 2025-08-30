@@ -61,8 +61,8 @@ public:
 private:
     Cihm_Lidar m_ihm;
 
-    SickTIM651 m_lidar;
-    QTimer m_read_timer;
+    LidarBase *m_lidar;
+
     QTimer m_timer_test;
 
     enum {
@@ -106,11 +106,11 @@ private:
 private slots :
     void onRightClicGUI(QPoint pos);
 
+    void create_lidar();
     void lidar_connected();
     void lidar_disconnected();
-    void read_sick();
+    void lidar_error(QString msg);
     void new_data(const CLidarData &data);
-    void on_change_read_period(int period);
     void on_change_zoom_distance(int zoom_mm);
     void on_change_graph_type(int choice);
     void on_change_data_displayed(int choice);
@@ -128,8 +128,6 @@ public slots :
     void refresh_graph(const CLidarData &data);
     void refresh_polar_graph(const CLidarData &data);
     void refresh_linear_graph(const CLidarData &data);
-    void open_sick();
-    void close_sick();
     void logger_start(QString pathfilename);
     void logger_start();
     void logger_stop();

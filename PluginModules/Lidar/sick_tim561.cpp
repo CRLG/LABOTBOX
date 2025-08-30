@@ -4,14 +4,75 @@
 //  telegram_listing_telegram_listing_ranging_sensors_lms1xx_lms5xx_tim2xx_tim5xx_tim7xx_lms1000_mrs1000_mrs6000_nav310_ld_oem15xx_ld_lrs36xx_lms4000_lrs4000_multiscan100_en_im0045927
 
 SickTIM651::SickTIM651(QObject *parent)
-    : QObject(parent),
+    : LidarBase(parent),
       m_enable_autoreconnect(true),
       m_cola_protocol_binary(true)
 {
+    m_widget = new QWidget();
+    m_ihm.setupUi(m_widget);
+
     connect(&m_timer_autoreconnect, SIGNAL(timeout()), this, SLOT(on_tick_timer_autoreconnect()));
 
     connect(&m_socket, SIGNAL(connected()), this, SLOT(on_connect()));
     connect(&m_socket, SIGNAL(disconnected()), this, SLOT(on_disconnect()));
+
+    // Sick TIM561
+    connect(m_ihm.tim5xx_openport, SIGNAL(clicked(bool)), this, SLOT(open_sick()));
+    connect(m_ihm.tim5xx_closeport, SIGNAL(clicked(bool)), this, SLOT(close_sick()));
+
+    connect(m_ihm.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_change_read_period(int)));
+    connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
+
+    open_sick();
+}
+
+SickTIM651::~SickTIM651()
+{
+    if (m_widget) m_widget->deleteLater();
+}
+
+// _________________________________________________________
+QWidget *SickTIM651::get_widget()
+{
+    return m_widget;
+}
+
+// _________________________________________________________
+QString SickTIM651::get_name()
+{
+    return "SickTIM651";
+}
+
+// _________________________________________________________
+void SickTIM651::start()
+{
+
+}
+
+// _________________________________________________________
+void SickTIM651::read_settings(CEEPROM *eeprom, QString section_name)
+{
+    QString sick_ip = eeprom->read(section_name, "sick_ip", "192.168.0.1").toString();
+    m_ihm.tim5xx_ip->setText(sick_ip);
+
+    int sick_port = eeprom->read(section_name, "sick_port", 2112).toInt();
+    m_ihm.tim5xx_port->setValue(sick_port);
+
+    int lidar_sample_period = eeprom->read(section_name, "lidar_sample_period", 100).toInt();
+    m_ihm.lidar_sample_period->setValue(lidar_sample_period);
+
+    int sick_autoreconnect = eeprom->read(section_name, "sick_autoreconnect", false).toBool();
+    m_ihm.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
+
+}
+
+// _________________________________________________________
+void SickTIM651::save_settings(CEEPROM *eeprom, QString section_name)
+{
+    eeprom->write(section_name, "sick_ip", m_ihm.tim5xx_ip->text());
+    eeprom->write(section_name, "sick_port", m_ihm.tim5xx_port->value());
+    eeprom->write(section_name, "lidar_sample_period",  m_ihm.lidar_sample_period->value());
+    eeprom->write(section_name, "sick_autoreconnect", m_ihm.tim5xx_enable_autoreconnect->isChecked());
 }
 
 // _________________________________________________________
@@ -270,19 +331,68 @@ bool SickTIM651::decodeTelegram(const QByteArray telegram, CLidarData *scan_data
 void SickTIM651::on_connect()
 {
     m_timer_autoreconnect.stop();
-    qDebug() << "Connected to LIDAR";
+    m_ihm.tim5xx_openport->setEnabled(false);
+    m_ihm.tim5xx_closeport->setEnabled(true);
+    m_read_timer.start(m_ihm.lidar_sample_period->value());
+    emit connected();
 }
 
 // _________________________________________________________
 void SickTIM651::on_disconnect()
 {
-    qDebug() << "ExchangerClient::on_disconnect : autoreconnect" << m_enable_autoreconnect;
+    m_read_timer.stop();
+    m_ihm.tim5xx_openport->setEnabled(true);
+    m_ihm.tim5xx_closeport->setEnabled(false);
     if (m_enable_autoreconnect) m_timer_autoreconnect.start(AUTORECONNECT_PERIOD);
+    emit disconnected();
 }
 
 // _________________________________________________________
 void SickTIM651::on_tick_timer_autoreconnect()
 {
-    qDebug() << "Tick SickTIM651";
+    qDebug() << "Tick autoreconnect SickTIM651";
     m_socket.connectToHost(m_hostname, m_port);
+}
+
+// _____________________________________________________________
+void SickTIM651::on_change_read_period(int period)
+{
+    m_read_timer.setInterval(period);
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief CLidar::read_sick
+ */
+void SickTIM651::read_sick()
+{
+    CLidarData data;
+    bool status = poll_one_telegram(&data);
+    if (status) emit new_data(data);
+    else        emit error("Read error");
+}
+
+
+// ______________________________________________
+/*!
+ * \brief Ouvre le port de communication avec le SICK
+ */
+void SickTIM651::open_sick()
+{
+    const int sick_protocol = -1;  // -1 = Automatic
+    bool status = open(m_ihm.tim5xx_ip->text(), m_ihm.tim5xx_port->value(), sick_protocol, m_ihm.tim5xx_enable_autoreconnect->isChecked());
+    if (!status) {
+        m_ihm.tim5xx_closeport->setEnabled(false);
+        emit error("Failed to connect to Lidar");
+        //status_to_datamanager(LidarUtils::LIDAR_ERROR);
+    }
+}
+
+// ______________________________________________
+/*!
+ * \brief Ferme le port de communication avec le SICK
+ */
+void SickTIM651::close_sick()
+{
+    close();
 }

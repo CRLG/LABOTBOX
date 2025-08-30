@@ -7,6 +7,7 @@
 #include "CLidar.h"
 #include "lidar_data_filter_factory.h"
 #include "lidar_filter_params.h"
+#include "lidar_factory.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
@@ -79,17 +80,8 @@ void CLidar::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
     setBackgroundColor(val.value<QColor>());
 
-    QString sick_ip = m_application->m_eeprom->read(getName(), "sick_ip", "192.168.0.1").toString();
-    m_ihm.ui.tim5xx_ip->setText(sick_ip);
-
-    int sick_port = m_application->m_eeprom->read(getName(), "sick_port", 2112).toInt();
-    m_ihm.ui.tim5xx_port->setValue(sick_port);
-
     bool active_graph = m_application->m_eeprom->read(getName(), "active_graph", true).toBool();
     m_ihm.ui.cb_active_graph->setChecked(active_graph);
-
-    int lidar_sample_period = m_application->m_eeprom->read(getName(), "lidar_sample_period", 100).toInt();
-    m_ihm.ui.lidar_sample_period->setValue(lidar_sample_period);
 
     int logger_refresh_period = m_application->m_eeprom->read(getName(), "logger_refresh_period", 0).toInt();
     m_ihm.ui.logger_sample_period->setValue(logger_refresh_period);
@@ -124,20 +116,11 @@ void CLidar::init(CApplication *application)
     m_ihm.ui.enable_synchro_match->setChecked(synchro_match);
     active_synchro_match_logger(synchro_match);
 
-    connect(&m_read_timer, SIGNAL(timeout()), this, SLOT(read_sick()));
-    connect(&m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
-    connect(&m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
-    connect(&m_lidar, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(lidar_disconnected()));
-    connect(m_ihm.ui.lidar_sample_period, SIGNAL(valueChanged(int)), this, SLOT(on_change_read_period(int)));
     connect(m_ihm.ui.zoom_distance, SIGNAL(valueChanged(int)), this, SLOT(on_change_zoom_distance(int)));
     connect(m_ihm.ui.type_affichage_graph, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_graph_type(int)));
     connect(m_ihm.ui.filter_data_choice, SIGNAL(currentIndexChanged(QString)), this, SLOT(on_change_data_filter(QString)));
     connect(m_ihm.ui.filter_param, SIGNAL(clicked(bool)), this, SLOT(on_filter_params_show()));
     connect(m_ihm.ui.data_affichees, SIGNAL(currentIndexChanged(int)), this, SLOT(on_change_data_displayed(int)));
-
-    // Sick TIM561
-    connect(m_ihm.ui.tim5xx_openport, SIGNAL(clicked(bool)), this, SLOT(open_sick()));
-    connect(m_ihm.ui.tim5xx_closeport, SIGNAL(clicked(bool)), this, SLOT(close_sick()));
 
     // Logger
     connect(m_ihm.ui.PB_logger_select_file, SIGNAL(clicked(bool)), this, SLOT(logger_select_file()));
@@ -151,12 +134,40 @@ void CLidar::init(CApplication *application)
     connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
     connect(&m_data_player, SIGNAL(played(int)), this, SLOT(on_PlayedStep(int)));
 
-    int sick_autoreconnect = m_application->m_eeprom->read(getName(), "sick_autoreconnect", false).toBool();
-    m_ihm.ui.tim5xx_enable_autoreconnect->setChecked(sick_autoreconnect);
-    open_sick();
-
     if (m_ihm.ui.enable_autostart_logger->isChecked())  logger_start();
     else                                                logger_stop();
+
+    m_ihm.ui.lidar_models->addItems(LidarFactory::getExisting());
+    connect(m_ihm.ui.create_lidar, SIGNAL(clicked(bool)), this, SLOT(create_lidar()));
+
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief Création dynamique d'un LIDAR parmi tous les modèles
+ */
+void CLidar::create_lidar()
+{
+    m_lidar = LidarFactory::createInstance(m_ihm.ui.lidar_models->currentText(), this);
+    if (!m_lidar) return;
+
+    m_lidar->read_settings(m_application->m_eeprom, getName());
+
+    QWidget *wdgt = m_lidar->get_widget();
+    QString name = m_lidar->get_name();
+    // Crée le nouvel onglet avec son IHM dédiée et se positionne sur le nouvel onglet
+    if (wdgt) {
+        int index_new_tab = m_ihm.ui.tabWidget->addTab(wdgt, name);
+        m_ihm.ui.tabWidget->setCurrentIndex(index_new_tab);
+    }
+
+    connect(m_lidar, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
+    connect(m_lidar, SIGNAL(connected()), this, SLOT(lidar_connected()));
+    connect(m_lidar, SIGNAL(disconnected()), this, SLOT(lidar_disconnected()));
+    connect(m_lidar, SIGNAL(error(QString)), this, SLOT(lidar_error(QString)));
+
+    // Attention : start doit être appelé après la lecture des paramètres m_lidar->read_settings
+    m_lidar->start();
 }
 
 // _____________________________________________________________________
@@ -171,12 +182,8 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
     m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
     m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
-    m_application->m_eeprom->write(getName(), "sick_ip", m_ihm.ui.tim5xx_ip->text());
-    m_application->m_eeprom->write(getName(), "sick_port", m_ihm.ui.tim5xx_port->value());
-    m_application->m_eeprom->write(getName(), "sick_autoreconnect", m_ihm.ui.tim5xx_enable_autoreconnect->isChecked());
     m_application->m_eeprom->write(getName(), "active_graph",  m_ihm.ui.cb_active_graph->isChecked());
     m_application->m_eeprom->write(getName(), "logger_refresh_period",  m_ihm.ui.logger_sample_period->value());
-    m_application->m_eeprom->write(getName(), "lidar_sample_period",  m_ihm.ui.lidar_sample_period->value());
     m_application->m_eeprom->write(getName(), "graph_type",  m_ihm.ui.type_affichage_graph->currentIndex());
     m_application->m_eeprom->write(getName(), "data_displayed",  m_ihm.ui.data_affichees->currentIndex());
     m_application->m_eeprom->write(getName(), "index_data_filter", m_ihm.ui.filter_data_choice->currentIndex());
@@ -185,6 +192,8 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "enable_autostart_logger", m_ihm.ui.enable_autostart_logger->isChecked());
     m_application->m_eeprom->write(getName(), "auto_increment_pathfilename", m_ihm.ui.logger_name_auto_increment->isChecked());
     m_application->m_eeprom->write(getName(), "synchro_match", m_ihm.ui.enable_synchro_match->isChecked());
+
+    if (m_lidar) m_lidar->save_settings(m_application->m_eeprom, getName());
 }
 
 // _____________________________________________________________________
@@ -201,29 +210,7 @@ void CLidar::onRightClicGUI(QPoint pos)
 }
 
 
-// ______________________________________________
-/*!
- * \brief Ouvre le port de communication avec le SICK
- */
-void CLidar::open_sick()
-{
-    const int sick_protocol = -1;  // -1 = Automatic
-    bool status = m_lidar.open(m_ihm.ui.tim5xx_ip->text(), m_ihm.ui.tim5xx_port->value(), sick_protocol, m_ihm.ui.tim5xx_enable_autoreconnect->isChecked());
-    if (!status) {
-        m_ihm.ui.tim5xx_closeport->setEnabled(false);
-        m_ihm.statusBar()->showMessage("Failed to connect to Lidar", 3000);
-        status_to_datamanager(LidarUtils::LIDAR_ERROR);
-    }
-}
 
-// ______________________________________________
-/*!
- * \brief Ferme le port de communication avec le SICK
- */
-void CLidar::close_sick()
-{
-    m_lidar.close();
-}
 
 // _____________________________________________________________________
 /*!
@@ -233,10 +220,7 @@ void CLidar::lidar_connected()
 {
     qDebug() << "LIDAR CONNECTED";
     m_ihm.statusBar()->showMessage("Connected to Lidar", 3000);
-    m_ihm.ui.tim5xx_openport->setEnabled(false);
-    m_ihm.ui.tim5xx_closeport->setEnabled(true);
     m_ihm.ui.tabWidget->setCurrentIndex(0);  // positionne automatiquement sur la page graphique
-    m_read_timer.start(m_ihm.ui.lidar_sample_period->value());
 }
 
 // _____________________________________________________________________
@@ -245,11 +229,8 @@ void CLidar::lidar_connected()
  */
 void CLidar::lidar_disconnected()
 {
-    m_read_timer.stop();
     qDebug() << "!!! LIDAR DISCONNECTED !!!";
     m_ihm.statusBar()->showMessage("Lidar Disconnected", 3000);
-    m_ihm.ui.tim5xx_openport->setEnabled(true);
-    m_ihm.ui.tim5xx_closeport->setEnabled(false);
 
     LidarUtils::tLidarObstacles dummy_obstacles;
     int status = LidarUtils::LIDAR_DISCONNECTED;
@@ -257,41 +238,27 @@ void CLidar::lidar_disconnected()
     if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(status);
 }
 
-// _____________________________________________________________________
-/*!
- * \brief CLidar::read_sick
- */
-void CLidar::read_sick()
+// _____________________________________________________________
+void CLidar::lidar_error(QString msg)
 {
-    CLidarData data;
-    bool status = m_lidar.poll_one_telegram(&data);
-    if (status) new_data(data);
-    else {
-        LidarUtils::tLidarObstacles dummy_obstacles;
-        send_ETAT_LIDAR(dummy_obstacles, LidarUtils::LIDAR_ERROR);
-        if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(status);
-    }
-    /*
-    if (status) {
-        qDebug() << "Timestamp" << data.m_timestamp;
-        qDebug() << "Nbre de mesures" << data.m_measures_count;
-        qDebug() << "Start angle" << data.m_start_angle;
-        qDebug() << "angle_step_resolution" << data.m_angle_step_resolution;
-        QVector<double> x(data.m_measures_count), y(data.m_measures_count);
-        for (int j=0; j<data.m_measures_count; ++j)
-        {
-            x[j] = data.m_start_angle + j * data.m_angle_step_resolution;
-            y[j] = data.m_dist_measures[j];
-            qDebug() << "Angle:" << x[j] << "=>" << y[j];
-        }
-    }
-*/
+    LidarUtils::tLidarObstacles dummy_obstacles;
+    int status = LidarUtils::LIDAR_ERROR;
+    send_ETAT_LIDAR(dummy_obstacles, status);
+    if (m_ihm.ui.enable_datamanager_update->isChecked()) status_to_datamanager(status);
+
+    m_application->m_print_view->print_error(this, msg);
+    m_ihm.statusBar()->showMessage(msg, 3000);
 }
+
+
 
 // _____________________________________________________________
 // Une nouvelle donnée est arrivée (en provenant du LIDAR ou du rejoueur)
 void CLidar::new_data(const CLidarData &data)
 {
+    if (data.m_measures_count > data.MAX_MEASURES_COUNT) {
+        m_application->m_print_view->print_error(this, QString("Plus de data que la taille du tableau: %1>%2").arg(data.m_measures_count).arg(data.MAX_MEASURES_COUNT));
+    }
     // filtre les données
     CLidarData filtered_data = data;
     if (m_lidar_data_filter) m_lidar_data_filter->filter(&data, &filtered_data);
@@ -320,11 +287,6 @@ void CLidar::new_data(const CLidarData &data)
     }
 }
 
-// _____________________________________________________________
-void CLidar::on_change_read_period(int period)
-{
-    m_read_timer.setInterval(period);
-}
 
 // _____________________________________________________________
 void CLidar::on_change_zoom_distance(int zoom_mm)
@@ -372,8 +334,8 @@ void CLidar::init_polar_qcustomplot()
       m_angular_axis->grid()->setSubGridType(QCPPolarGrid::gtAll);
 
       m_angular_axis->setRange(-180, 180);
-      m_angular_axis->setAngle(180);
-      m_angular_axis->setRangeReversed(true);
+      m_angular_axis->setAngle(90);
+      m_angular_axis->setRangeReversed(false);
       m_angular_axis->radialAxis()->setRange(0, 4000);  // échelle de valeur
 
       m_polar_graph = new QCPPolarGraph(m_angular_axis, m_angular_axis->radialAxis());
@@ -392,7 +354,7 @@ void CLidar::init_linear_qcustomplot()
     m_ihm.ui.customPlot->xAxis->setLabel("angle [deg]");
     m_ihm.ui.customPlot->yAxis->setLabel("distance [mm]");
     // set axes ranges, so we see all data:
-    m_ihm.ui.customPlot->xAxis->setRange(-180, 180);
+    m_ihm.ui.customPlot->xAxis->setRange(0, 360);
     m_ihm.ui.customPlot->yAxis->setRange(0, 4000);
     m_ihm.ui.customPlot->graph()->setScatterStyle(QCPScatterStyle::ssDisc);
     m_ihm.ui.customPlot->graph()->setLineStyle(QCPGraph::lsNone);

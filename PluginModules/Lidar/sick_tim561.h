@@ -3,13 +3,24 @@
 
 #include <QTcpSocket>
 #include <QTimer>
+#include <QWidget>
 #include "lidar_data.h"
+#include "lidar_base.h"
+#include "ui_sick_tim561.h"
 
-class SickTIM651 : public QObject
+class SickTIM651 : public LidarBase
 {
     Q_OBJECT
 public:
     explicit SickTIM651(QObject *parent = Q_NULLPTR);
+    ~SickTIM651();
+
+    // Réimpléméntation des méthodes de la classe de base LidarBase
+    /*virtual*/ QWidget *get_widget() override;
+    /*virtual*/ QString get_name() override;
+    /*virtual*/ void start() override;
+    /*virtual*/ void read_settings(CEEPROM *eeprom, QString section_name) override;
+    /*virtual*/ void save_settings(CEEPROM *eeprom, QString section_name) override;
 
     enum {
         PROTOCOL_COLA_BINARY = 0,
@@ -39,16 +50,26 @@ private :
     bool m_cola_protocol_binary;
 
     QTcpSocket m_socket;
+    QTimer m_read_timer;
+
+    Ui::ihm_sick_tim561 m_ihm;
+    QWidget *m_widget;
 
     bool decodeTelegram(const QByteArray telegram, CLidarData *scan_data);
 
 public slots :
     /*virtual*/ void close();
+    void read_sick();
 
 private slots :
     void on_connect();
     void on_disconnect();
     void on_tick_timer_autoreconnect();
+    void open_sick();
+    void close_sick();
+
+    void on_change_read_period(int period);
+
 
 signals :
     void newData(CLidarData data);
