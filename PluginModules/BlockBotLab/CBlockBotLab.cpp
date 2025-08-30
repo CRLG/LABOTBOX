@@ -82,14 +82,14 @@ void CBlockBotLab::init(CApplication *application)
   blockbotWebView=m_ihm.ui.ui_webView;
 
   httpServer = new RoboticsHttpServer(this);
-  httpServer->listen(3001); // Démarre le serveur web Qt sur le port 3001
+  int httpServerPort = m_application->m_eeprom->read(getName(), "httpServerPort", 3001).toInt();
+  httpServer->listen(httpServerPort); // Démarre le serveur web Qt sur le port (3001 par défaut)
 
-  //chemin où trouver blockbot - plus tard à mettre en .ini ou alors inclure directement blockbot
-  //dans l'arborescence LaBotBox
-  blockbotPath="/home/crlg/workspace_robot_sans_code/BlockBot";
+  //chemin où trouver blockbot
+  blockbotPath = m_application->m_eeprom->read(getName(), "blockbotPath", "/home/crlg/workspace_robot_sans_code/BlockBot").toString();
 
   //port normalement par défaut de webpack
-  blockbotPort="8080";
+  blockbotPort=m_application->m_eeprom->read(getName(), "blockbotPort", "8080").toString();
 
   //variable d'état de fonctionnement de Blockly
   blockbotStarted=false;
