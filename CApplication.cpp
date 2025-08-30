@@ -126,6 +126,9 @@
 #ifdef MODULE_RobotPanelControl
    #include "CRobotPanelControl.h"
 #endif // MODULE_RobotPanelControl
+#ifdef MODULE_BlockBotLab
+   #include "CBlockBotLab.h"
+#endif // MODULE_BlockBotLab
 //_##NEW_INCLUDE_PLUGIN_MODULE_HERE_##
 
 #include "CApplication.h"
@@ -471,6 +474,12 @@ void CApplication::createPluginModules(void)
   m_list_plugin_modules.append(m_RobotPanelControl);
   m_list_modules.append(m_RobotPanelControl);
 #endif // MODULE_RobotPanelControl
+
+#ifdef MODULE_BlockBotLab
+  m_BlockBotLab     = new CBlockBotLab("BlockBotLab");
+  m_list_plugin_modules.append(m_BlockBotLab);
+  m_list_modules.append(m_BlockBotLab);
+#endif // MODULE_BlockBotLab
 
 // ##_NEW_PLUGIN_MODULE_INSTANCIATION_HERE_##
 }

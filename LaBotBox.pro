@@ -3,7 +3,7 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport network websockets multimedia
+QT       += core gui testlib xml printsupport serialport network websockets multimedia webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -64,6 +64,7 @@ LIST_PLUGIN_MODULES+= \
         ModeFonctionnementCPU \ 
         EEPROM_CPU \ 
         RobotPanelControl \ 
+        BlockBotLab \ 
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________

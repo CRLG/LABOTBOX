@@ -55,6 +55,7 @@ class CKMAR;
 class CModeFonctionnementCPU;
 class CEEPROM_CPU;
 class CRobotPanelControl;
+class CBlockBotLab;
 //##_NEW_CLASS_PLUGIN_MODULE_HERE_##
 
 class CBasicModule;
@@ -202,6 +203,9 @@ public:
 #ifdef MODULE_RobotPanelControl
    CRobotPanelControl     *m_RobotPanelControl;
 #endif // MODULE_RobotPanelControl
+#ifdef MODULE_BlockBotLab
+   CBlockBotLab     *m_BlockBotLab;
+#endif // MODULE_BlockBotLab
 //##_NEW_PLUGIN_MODULE_CLASS_POINTER_DEFINITION_##
 
 
