@@ -168,7 +168,7 @@ void CBlockBotLab::startBlockBot() {
         QByteArray data = blockbotProcess->readAllStandardError();
         QString output = QString::fromUtf8(data);
         // pour le debug, affichage de la sortie standard
-        qDebug() << "STDERR:" << output;
+        if (!output.isEmpty()) m_application->m_print_view->print_error(this, QString("STDERR: %1").arg(output));
 
         //Si BlockBot est mal fermé, le serveur webpack devient un process zombie et bloque son port
         //Pas de panique, webpack à la prochaine instance repère le port bloqué et incrémente ce numéro de 1 pour avoir un nouveau port libre
@@ -180,13 +180,13 @@ void CBlockBotLab::startBlockBot() {
         QRegularExpressionMatch match = portRegex.match(output);
         if (match.hasMatch()) {
             blockbotPort = match.captured(1);
-            qDebug() << "Port webpack détecté:" << blockbotPort;
+            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(blockbotPort));
         }
 
         // Détecter que le serveur webpack est démarré
         if (output.contains("Project is running at:")) {
             blockbotStarted = true;
-            qDebug() << "Serveur webpack démarré";
+            m_application->m_print_view->print_debug(this, "Serveur webpack démarré");
         }
     });
 
@@ -196,7 +196,7 @@ void CBlockBotLab::startBlockBot() {
         QByteArray data = blockbotProcess->readAllStandardOutput();
         QString output = QString::fromUtf8(data);
         // pour le debug, affichage de la sortie standard
-        qDebug() << "STDOUT:" << output;
+        if (!output.isEmpty()) m_application->m_print_view->print_debug(this, QString("STDOUT: %1").arg(output));
 
         //Si BlockBot est mal fermé, le serveur webpack devient un process zombie et bloque son port
         //Pas de panique, webpack à la prochaine instance repère le port bloqué et incrémente ce numéro de 1 pour avoir un nouveau port libre
@@ -208,20 +208,20 @@ void CBlockBotLab::startBlockBot() {
         QRegularExpressionMatch match = portRegex.match(output);
         if (match.hasMatch()) {
             blockbotPort = match.captured(1);
-            qDebug() << "Port webpack détecté:" << blockbotPort;
+            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(blockbotPort));
         }
 
         // Détecter que le serveur webpack est démarré si dans STDOUT
         if (output.contains("Project is running at:")) {
             blockbotStarted = true;
-            qDebug() << "Serveur webpack démarré";
+            m_application->m_print_view->print_debug(this, "Serveur webpack démarré");
         }
 
         // Détecter la fin de compilation réussie de webpack. Dans ce cas là, tout s'est bien passé (on aura forcément un serveur
         // démarré et un port) et on autorise l'affichage de BlockBot
         if (output.contains("webpack") && output.contains("compiled successfully")) {
             blockbotBuilt = true;
-            qDebug() << "Compilation webpack terminée avec succès";
+            m_application->m_print_view->print_debug(this, "Compilation webpack terminée avec succès");
 
             // Vérifier si on peut charger BlockBot (a priori si c'est compilé on a tout ce qu'il faut)
             if (blockbotStarted && !blockbotPort.isEmpty()) {
@@ -245,7 +245,8 @@ void CBlockBotLab::startBlockBot() {
 
     //On a paramétré le processus, les sorties standard sont outillées pour récupérer les infos utiles,
     //on est donc prêt à démarrer le processus :-)
-    qDebug() << "Démarrage de BlockBot (webpack) avec bash et npm...";
+    m_application->m_print_view->print_debug(this, "Démarrage de BlockBot (webpack) avec bash et npm...");
+
     blockbotProcess->start("bash", {"-lc", cmd});
 
 
@@ -263,7 +264,8 @@ void CBlockBotLab::startBlockBot() {
  */
 void CBlockBotLab::loadBlockbotInWebView() {
     QString url = QString("http://localhost:%1").arg(blockbotPort);
-    qDebug() << "Affichage de BlockBot (serveur webpack à l'URL: " << url <<").";
+    m_application->m_print_view->print_debug(this, QString("Affichage de BlockBot (serveur webpack à l'URL: %1).").arg(url));
+
     // Charger la page BlockBot
     blockbotWebView->load(QUrl(url));
 }
