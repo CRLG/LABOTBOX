@@ -103,19 +103,12 @@ private:
      */
     void send404(QTcpSocket* socket);
 
-    /**
-     * @brief Traite les données envoyées par BlockBot
-     * @param code Code généré complet par BlockBot
-     * @return true si la sauvegarde a réussi, false en cas d'erreur
-     *
-     * Pour l'instant sauvegarde le code dans "programmeBlockBot.cpp" et crée une copie
-     * avec timestamp pour l'historique (à fin de debug)
-     */
-    bool processData(const QString& code);
-
 
 private:
     QTcpServer* server;  ///< Serveur TCP principal pour l'écoute des connexions
+
+signals :
+    void processData(const QString& code);
 };
 
 #endif // ROBOTICSHTTPSERVER_H

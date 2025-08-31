@@ -89,17 +89,9 @@ void RoboticsHttpServer::processBlockBotRequest(QTcpSocket* socket, const QStrin
     //qDebug() << "Code généré reçu, taille:" << receivedBlockBotData.length() << "caractères";
     //qDebug() << "Aperçu du code:" << receivedBlockBotData.left(100) << "...";
 
-    //Traite les données brutes reçues
-    bool success = processData(receivedBlockBotData);
-
-    // Envoyer la réponse appropriée à BlockBot
-    if (success) {
-        qDebug() << "Données BlockBot reçues et traitées avec succès";
-        sendSuccess(socket);
-    } else {
-        qDebug() << "Erreur lors du traitement ou de la réception des données BlockBot.";
-        sendError(socket, "Failed to save code");
-    }
+    //Traite les données brutes reçues dans la couche supérieure
+    emit processData(receivedBlockBotData);
+    sendSuccess(socket);  // s'il y a des erreurs dans le bloc de réponse, elles seront traitées et affichées par la couche supérieure
 }
 
 void RoboticsHttpServer::handleCorsOptions(QTcpSocket* socket)
@@ -161,34 +153,3 @@ void RoboticsHttpServer::send404(QTcpSocket* socket)
     socket->write(response.toUtf8());
     socket->disconnectFromHost();
 }
-
-bool RoboticsHttpServer::processData(const QString& code)
-{
-    // Sauvegarder le code généré dans un fichier .ino pour Arduino/STM32
-    QFile codeFile("programmeBlockBot.cpp");
-    if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "Impossible d'ouvrir le fichier de code en écriture:" << codeFile.errorString();
-        return false;
-    }
-
-    QTextStream codeStream(&codeFile);
-    codeStream << code;
-    codeFile.close();
-
-    qDebug() << "Code généré par BlockBot sauvegardé dans:" << codeFile.fileName();
-
-    // Optionnel: sauvegarde avec un timestamp pour l'historique car à chaque fois on écrase le fichier
-    //même mécanisme que CActuatorSequencer
-    QString timestampFilename = QString("programmeBlockBot%1.cpp")
-                               .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
-    QFile timestampFile(timestampFilename);
-    if (timestampFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream timestampStream(&timestampFile);
-        timestampStream << code;
-        timestampFile.close();
-        //qDebug() << "Copie sauvegardée avec timestamp:" << timestampFilename;
-    }
-
-    return true;
-}
-

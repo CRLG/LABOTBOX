@@ -14,7 +14,6 @@
 #include "CEEPROM.h"
 #include "CDataManager.h"
 
-
 /*! \addtogroup Module_Test2
    * 
    *  @{
@@ -39,13 +38,13 @@ CBlockBotLab::CBlockBotLab(const char *plugin_name)
 CBlockBotLab::~CBlockBotLab()
 {
     //fermeture de blockbot (qui est un serveur webpack démarré par QProcess)
-    if (blockbotProcess && blockbotProcess->state() != QProcess::NotRunning) {
+    if (m_blockbotProcess && m_blockbotProcess->state() != QProcess::NotRunning) {
         // Tuer tout le groupe de process pour éviter les processus fantome
-        pid_t pid = blockbotProcess->processId();
+        pid_t pid = m_blockbotProcess->processId();
         if (pid > 0) {
             ::kill(-pid, SIGTERM); // envoie SIGTERM à tout le groupe
         }
-        blockbotProcess->waitForFinished(3000);
+        m_blockbotProcess->waitForFinished(3000);
     }
 }
 
@@ -79,21 +78,39 @@ void CBlockBotLab::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
-  blockbotWebView=m_ihm.ui.ui_webView;
+  m_blockbotWebView=m_ihm.ui.ui_webView;
 
-  httpServer = new RoboticsHttpServer(this);
-  int httpServerPort = m_application->m_eeprom->read(getName(), "httpServerPort", 3001).toInt();
-  httpServer->listen(httpServerPort); // Démarre le serveur web Qt sur le port (3001 par défaut)
+  m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", "generated.cpp").toString();
+  m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
+
+  int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
+  m_httpServer = new RoboticsHttpServer(this);
+  if (m_httpServer) {
+      m_httpServer->listen(httpServerPort); // Démarre le serveur web Qt sur le port (3001 par défaut)
+      connect(m_httpServer, SIGNAL(processData(QString)), this, SLOT(processData(QString)));
+  }
 
   //chemin où trouver blockbot
-  blockbotPath = m_application->m_eeprom->read(getName(), "blockbotPath", "/home/crlg/workspace_robot_sans_code/BlockBot").toString();
+  m_blockbotPath = m_application->m_eeprom->read(getName(), "blockbot_path", "/home/crlg/workspace_robot_sans_code/BlockBot").toString();
 
   //port normalement par défaut de webpack
-  blockbotPort=m_application->m_eeprom->read(getName(), "blockbotPort", "8080").toString();
+  m_blockbotPort=m_application->m_eeprom->read(getName(), "blockbot_port", "8080").toString();
 
   //variable d'état de fonctionnement de Blockly
-  blockbotStarted=false;
-  blockbotBuilt=false;
+  m_blockbotStarted=false;
+  m_blockbotBuilt=false;
+
+  // Le process de compilation
+  connect(&m_build_target_process, SIGNAL(started()), this, SLOT(buildStarted()));
+  connect(&m_build_target_process, SIGNAL(finished(int)), this, SLOT(buildFinished(int)));
+  connect(&m_build_target_process, SIGNAL(readyReadStandardOutput()), this, SLOT(buildOutput()));
+  connect(&m_build_target_process, SIGNAL(readyReadStandardError()), this, SLOT(buildError()));
+  connect(m_ihm.ui.actionafficheBuildLog, SIGNAL(triggered(bool)), this, SLOT(setBuildLogsVisibility(bool)));
+  connect(m_ihm.ui.actionCompilAndDownload, SIGNAL(triggered(bool)), this, SLOT(buildTargetAndUpload()));
+  connect(&m_timer_close_build_logs_delayed, SIGNAL(timeout()), this, SLOT(closeBuildLogs()));
+  setBuildLogsVisibility(false);
+
+  m_timer_close_build_logs_delayed.setInterval(2000);
 
   //Démarrer Blockly
   startBlockBot();
@@ -140,7 +157,7 @@ void CBlockBotLab::onRightClicGUI(QPoint pos)
  */
 void CBlockBotLab::startBlockBot() {
     //processus qui va accueillir le bash chargé de démarrer blockbot
-    blockbotProcess = new QProcess(this);
+    m_blockbotProcess = new QProcess(this);
 
     //commande de mise en place de nvm dans le bash qu'on va appeler
     const QString nvmInit = "export NVM_DIR=\"$HOME/.nvm\"; . \"$NVM_DIR/nvm.sh\"";
@@ -148,24 +165,24 @@ void CBlockBotLab::startBlockBot() {
     const QString cmd = " exec setsid npm start";
 
     //répertoire de travail de blockbot (cf le constructeur ou l'init)
-    blockbotProcess->setWorkingDirectory(blockbotPath);
+    m_blockbotProcess->setWorkingDirectory(m_blockbotPath);
 
     //Etant donné qu'on va appeler un bash, on s'assure de bien configurer l'environnement en rapatriant les variables d'environnement
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("HOME", QDir::homePath());
-    blockbotProcess->setProcessEnvironment(env);
+    m_blockbotProcess->setProcessEnvironment(env);
 
     //On regourpe tous les processus enfants avec le processus père, comme cela quand on ferme le processus père
     //linux ferme tous les autres automatiquement évitant, tant que faire se peut, les processus zombie
-    blockbotProcess->setProcessChannelMode(QProcess::MergedChannels);
+    m_blockbotProcess->setProcessChannelMode(QProcess::MergedChannels);
 
     //trouver les infos utiles (port, bonne compilation,...) dans la sortie standard du processus
     //l'info utile peut être dans stderr ou stdout suivant les cas
 
     //Gérer les messages de la sortie standard STDERR
-    connect(blockbotProcess, &QProcess::readyReadStandardError, [this]() {
+    connect(m_blockbotProcess, &QProcess::readyReadStandardError, [this]() {
         //lecture de la sortie standard
-        QByteArray data = blockbotProcess->readAllStandardError();
+        QByteArray data = m_blockbotProcess->readAllStandardError();
         QString output = QString::fromUtf8(data);
         // pour le debug, affichage de la sortie standard
         if (!output.isEmpty()) m_application->m_print_view->print_error(this, QString("STDERR: %1").arg(output));
@@ -179,21 +196,21 @@ void CBlockBotLab::startBlockBot() {
         QRegularExpression portRegex("Loopback: http://localhost:(\\d+)/");
         QRegularExpressionMatch match = portRegex.match(output);
         if (match.hasMatch()) {
-            blockbotPort = match.captured(1);
-            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(blockbotPort));
+            m_blockbotPort = match.captured(1);
+            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(m_blockbotPort));
         }
 
         // Détecter que le serveur webpack est démarré
         if (output.contains("Project is running at:")) {
-            blockbotStarted = true;
+            m_blockbotStarted = true;
             m_application->m_print_view->print_debug(this, "Serveur webpack démarré");
         }
     });
 
     //Gérer les messages de la sortie standard STDOUT
-    connect(blockbotProcess, &QProcess::readyReadStandardOutput, [this]() {
+    connect(m_blockbotProcess, &QProcess::readyReadStandardOutput, [this]() {
         //lecture de la sortie standard
-        QByteArray data = blockbotProcess->readAllStandardOutput();
+        QByteArray data = m_blockbotProcess->readAllStandardOutput();
         QString output = QString::fromUtf8(data);
         // pour le debug, affichage de la sortie standard
         if (!output.isEmpty()) m_application->m_print_view->print_debug(this, QString("STDOUT: %1").arg(output));
@@ -207,24 +224,24 @@ void CBlockBotLab::startBlockBot() {
         QRegularExpression portRegex("Loopback: http://localhost:(\\d+)/");
         QRegularExpressionMatch match = portRegex.match(output);
         if (match.hasMatch()) {
-            blockbotPort = match.captured(1);
-            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(blockbotPort));
+            m_blockbotPort = match.captured(1);
+            m_application->m_print_view->print_info(this, QString("Port webpack détecté: %1").arg(m_blockbotPort));
         }
 
         // Détecter que le serveur webpack est démarré si dans STDOUT
         if (output.contains("Project is running at:")) {
-            blockbotStarted = true;
+            m_blockbotStarted = true;
             m_application->m_print_view->print_debug(this, "Serveur webpack démarré");
         }
 
         // Détecter la fin de compilation réussie de webpack. Dans ce cas là, tout s'est bien passé (on aura forcément un serveur
         // démarré et un port) et on autorise l'affichage de BlockBot
         if (output.contains("webpack") && output.contains("compiled successfully")) {
-            blockbotBuilt = true;
+            m_blockbotBuilt = true;
             m_application->m_print_view->print_debug(this, "Compilation webpack terminée avec succès");
 
             // Vérifier si on peut charger BlockBot (a priori si c'est compilé on a tout ce qu'il faut)
-            if (blockbotStarted && !blockbotPort.isEmpty()) {
+            if (m_blockbotStarted && !m_blockbotPort.isEmpty()) {
                 //Petit délai pour s'assurer que le serveur est vraiment prêt ;-)
                 QTimer::singleShot(1000, this, &CBlockBotLab::loadBlockbotInWebView);
             }
@@ -247,10 +264,10 @@ void CBlockBotLab::startBlockBot() {
     //on est donc prêt à démarrer le processus :-)
     m_application->m_print_view->print_debug(this, "Démarrage de BlockBot (webpack) avec bash et npm...");
 
-    blockbotProcess->start("bash", {"-lc", cmd});
+    m_blockbotProcess->start("bash", {"-lc", cmd});
 
 
-    if(!blockbotProcess->waitForStarted()){
+    if(!m_blockbotProcess->waitForStarted()){
         qCritical() << "Impossible de démarrer BlockBot, vous pouvez décommenter le code de surveillance des sorties standard ou des signaux de fin de process pour plus d'infos";
     }
 }
@@ -263,11 +280,147 @@ void CBlockBotLab::startBlockBot() {
  * Elle dépend du port trouvé lors de lancement de webpack
  */
 void CBlockBotLab::loadBlockbotInWebView() {
-    QString url = QString("http://localhost:%1").arg(blockbotPort);
+    QString url = QString("http://localhost:%1").arg(m_blockbotPort);
     m_application->m_print_view->print_debug(this, QString("Affichage de BlockBot (serveur webpack à l'URL: %1).").arg(url));
 
     // Charger la page BlockBot
-    blockbotWebView->load(QUrl(url));
+    m_blockbotWebView->load(QUrl(url));
 }
 
+
+// _____________________________________________________________________
+/**
+ * @brief Traite les données envoyées par BlockBot
+ * @param code Code généré complet par BlockBot
+ * @return true si la sauvegarde a réussi, false en cas d'erreur
+ *
+ * Pour l'instant sauvegarde le code dans "programmeBlockBot.cpp" et crée une copie
+ * avec timestamp pour l'historique (à fin de debug)
+ */
+bool CBlockBotLab::processData(const QString& code)
+{
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+    QString msg;
+
+    // Le fichier .cpp template est embarqué dans l'exécutable Labotbox.
+    // Ouvre le template et remplace les balises pour générer le code final
+    QString file_content = readFile(":/templates/Templates/sm_blockly_debutant.tpl.cpp");
+    file_content.replace("##GENERATED_DATE_TIME##", timestamp);
+    file_content.replace("##FUNCTION_STEP##", code);
+
+    // Sauvegarder le code généré dans un fichier pour Arduino/STM32
+    QFile codeFile(m_generated_pathfilename);
+    if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
+        m_application->m_print_view->print_error(this, msg);
+        m_ihm.ui.statusbar->showMessage(msg, 4000);
+        return false;
+    }
+
+    QTextStream codeStream(&codeFile);
+    codeStream << file_content;
+    codeFile.close();
+
+    msg = QString("Code généré par BlockBot sauvegardé dans: %1").arg(codeFile.fileName());
+    m_application->m_print_view->print_debug(this, msg);
+    m_ihm.ui.statusbar->showMessage(msg, 4000);
+
+    // Optionnel: sauvegarde avec un timestamp pour l'historique car à chaque fois on écrase le fichier
+    //même mécanisme que CActuatorSequencer
+    QString timestampFilename = QString("programmeBlockBot%1.cpp")
+                               .arg(timestamp);
+    QFile timestampFile(timestampFilename);
+    if (timestampFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream timestampStream(&timestampFile);
+        timestampStream << code;
+        timestampFile.close();
+        msg = QString("Copie sauvegardée avec timestamp:: %1").arg(timestampFilename);
+        m_application->m_print_view->print_debug(this, msg);
+    }
+
+    // Lance la compilation et le téléchargement de la ciblee
+    buildTargetAndUpload();
+
+    return true;
+}
+
+// _____________________________________________________________________
+/*!
+*  Lit le contenu d'un fichier
+*
+*/
+QString CBlockBotLab::readFile(QString pathfilename)
+{
+  pathfilename.replace("//", "/");
+  QFile file(pathfilename);
+  if (file.open(QFile::ReadOnly) == false) {
+      m_application->m_print_view->print_error(this, "Impossible d'ouvrir le fichier : " + pathfilename);
+      return "";
+  }
+  QTextStream txtstream(&file);
+  txtstream.setCodec("UTF-8");
+  QString contenu = txtstream.readAll();
+  file.close();
+  return(contenu);
+}
+
+
+// ===================================================================
+//                GESTION DU PROCESS DE COMPILATION - TELECHARGEMENT
+// ===================================================================
+// _____________________________________________________________________
+/*!
+ * \brief compile le code généré et lance la programmation de la cible
+ * \return
+ */
+bool CBlockBotLab::buildTargetAndUpload()
+{
+    if (m_launch_and_program_command.isEmpty()) return false;
+    m_build_target_process.start(m_launch_and_program_command);
+    return true;
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::buildStarted()
+{
+    qDebug() << "CBlockBotLab::buildStarted";
+    m_ihm.ui.build_logs->clear();
+    m_ihm.ui.build_logs->setVisible(true);
+    m_ihm.ui.actionafficheBuildLog->setChecked(true);
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::buildFinished(int exitcode)
+{
+    qDebug() << "CBlockBotLab::buildFinished: " << exitcode;
+    m_timer_close_build_logs_delayed.start();  // décale la fermeture de la fenêtre pour laisser le temps de voir les derniers messages
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::buildError()
+{
+    QString txt = m_build_target_process.readAllStandardError();
+    m_ihm.ui.build_logs->appendPlainText(txt);
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::buildOutput()
+{
+    QString txt = m_build_target_process.readAllStandardOutput();
+    m_ihm.ui.build_logs->appendPlainText(txt);
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::setBuildLogsVisibility(bool visible)
+{
+    m_ihm.ui.build_logs->setVisible(visible);
+    m_ihm.ui.actionafficheBuildLog->setChecked(visible);
+    m_timer_close_build_logs_delayed.stop();
+}
+
+// _____________________________________________________________________
+void CBlockBotLab::closeBuildLogs()
+{
+    setBuildLogsVisibility(false);
+}
 

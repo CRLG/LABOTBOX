@@ -59,21 +59,37 @@ public:
 
 private:
     Cihm_BlockBotLab m_ihm;
+    QString m_generated_pathfilename;
+    QString m_launch_and_program_command;
+    QProcess m_build_target_process;
+    QTimer m_timer_close_build_logs_delayed;
 
-    QString blockbotPath;
-    QString blockbotPort;
-    bool blockbotStarted;
-    bool blockbotBuilt;
+    QString m_blockbotPath;
+    QString m_blockbotPort;
+    bool m_blockbotStarted;
+    bool m_blockbotBuilt;
     //Ui::RoboticsMainWindow *ui;
-    QWebEngineView* blockbotWebView;
-    QProcess* blockbotProcess;
-    RoboticsHttpServer* httpServer; // Ton serveur pour les requêtes POST
+    QWebEngineView* m_blockbotWebView;
+    QProcess* m_blockbotProcess;
+    RoboticsHttpServer* m_httpServer; // Ton serveur pour les requêtes POST
     void startBlockBot();
     void loadBlockbotInWebView();
+    QString readFile(QString pathfilename);
     //void loadBlocklyInWebView(const QString& port);
+
 
 private slots :
     void onRightClicGUI(QPoint pos);
+
+public slots :
+    bool processData(const QString& code);
+    bool buildTargetAndUpload();
+    void buildStarted();
+    void buildFinished(int exitcode);
+    void buildError();
+    void buildOutput();
+    void setBuildLogsVisibility(bool visible);
+    void closeBuildLogs();
 };
 
 #endif // _CPLUGIN_MODULE_BlockBotLab_H_

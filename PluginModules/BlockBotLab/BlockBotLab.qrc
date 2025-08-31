@@ -2,5 +2,7 @@
     <qresource prefix="/user_guide">
         <file>BlockBotLab.html</file>
     </qresource>
-
+    <qresource prefix="/templates">
+        <file>Templates/sm_blockly_debutant.tpl.cpp</file>
+    </qresource>
 </RCC>
