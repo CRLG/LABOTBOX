@@ -112,6 +112,15 @@ void CBlockBotLab::init(CApplication *application)
 
   m_timer_close_build_logs_delayed.setInterval(2000);
 
+  // Nettoie le cache
+  QString clean_cache_directory =m_application->m_eeprom->read(getName(), "clean_cache_directory", "").toString();
+  if (!clean_cache_directory.trimmed().isEmpty()) {
+      QDir dir(clean_cache_directory);
+      if (dir.removeRecursively()) {
+          m_application->m_print_view->print_debug(this, QString("Clean cache directory: %1").arg(clean_cache_directory));
+      }
+  }
+
   //Démarrer Blockly
   startBlockBot();
 
