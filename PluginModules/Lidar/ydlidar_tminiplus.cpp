@@ -203,8 +203,9 @@ void YDLIDAR_TminiPlus::serial_data_received()
 //           Driver YdLidar (à déplacer dans la classe de base)
 // ========================================================================
 
-void YDLIDAR_TminiPlus::write_serial(const char buff[], unsigned long len)
+bool YDLIDAR_TminiPlus::write_serial(const char buff[], unsigned long len)
 {
-    m_serial.write(buff, len);
+    unsigned long byte_written = m_serial.write(buff, len);
+    return (len == byte_written);
 }
 
