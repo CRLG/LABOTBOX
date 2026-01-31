@@ -30,6 +30,7 @@ protected :
     virtual void packet_error() override;
     virtual void new_cycle() override;
     /*virtual*/ bool write_serial(const char buff[], unsigned long len) override;
+    /*virtual*/ bool read_serial(const char buff[], unsigned long len) override;
 
 private :
     bool openSerialPort(QString portname);
