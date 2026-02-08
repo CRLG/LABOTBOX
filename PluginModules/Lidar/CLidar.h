@@ -14,7 +14,7 @@
 #include "sick_tim561.h"
 #include "lidar_data.h"
 #include "lidar_data_player.h"
-#include "lidar_data_filter_base.h"
+#include "lidar_data_filter_module_base.h"
 #include "Lidar_utils.h"
 
  class Cihm_Lidar : public QMainWindow
@@ -81,7 +81,7 @@ private:
     void init_linear_qcustomplot();
     void delete_current_graph();
 
-    CLidarDataFilterBase *m_lidar_data_filter;
+    CLidarDataFilterModuleBase *m_lidar_data_filter;
     CLidarFilterParams *m_lidar_filter_params;
     void init_data_filter();
 

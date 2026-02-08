@@ -1,8 +1,8 @@
 #include <QSettings>
 #include "lidar_filter_params.h"
-#include "lidar_data_filter_base.h"
+#include "lidar_data_filter_module_base.h"
 
-CLidarFilterParams::CLidarFilterParams(CLidarDataFilterBase *filter, QString eeprom_pathfilename, QWidget *parent)
+CLidarFilterParams::CLidarFilterParams(CLidarDataFilterModuleBase *filter, QString eeprom_pathfilename, QWidget *parent)
     : QWidget(parent),
       m_filter(filter),
       m_eeprom_pathfilename(eeprom_pathfilename)

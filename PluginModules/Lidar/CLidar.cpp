@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include "CLidar.h"
-#include "lidar_data_filter_factory.h"
+#include "lidar_data_filter_module_factory.h"
 #include "lidar_filter_params.h"
 #include "lidar_factory.h"
 #include "CApplication.h"
@@ -387,7 +387,7 @@ void CLidar::delete_current_graph()
 // Initialise la liste déroulante des filtres avec la liste existante
 void CLidar::init_data_filter()
 {
-    QStringList filter_lst = CLidarDataFilterFactory::getExisting();
+    QStringList filter_lst = CLidarDataFilterModuleFactory::getExisting();
     m_ihm.ui.filter_data_choice->addItems(filter_lst);
 }
 
@@ -435,7 +435,7 @@ void CLidar::refresh_linear_graph(const CLidarData &data)
 void CLidar::on_change_data_filter(QString filter_name)
 {
     if (m_lidar_data_filter) delete m_lidar_data_filter;
-    m_lidar_data_filter = CLidarDataFilterFactory::createInstance(filter_name);
+    m_lidar_data_filter = CLidarDataFilterModuleFactory::createInstance(filter_name);
     bool visible = m_lidar_filter_params && m_lidar_filter_params->isVisible(); // memorise si la fenetre de reglage des parametres etait ouverte pour la rouvrir apres changement de filtre
     filter_params_load();
     if(visible) on_filter_params_show();  // si la fenetre des parametres du filtre etait affichee, il faut l'afficher pour le nouveau filtre selectionne

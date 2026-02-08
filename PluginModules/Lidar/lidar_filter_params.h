@@ -4,12 +4,12 @@
 #include <QWidget>
 #include "ui_lidar_filter_params.h"
 
-class CLidarDataFilterBase;
+class CLidarDataFilterModuleBase;
 class CLidarFilterParams : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CLidarFilterParams(CLidarDataFilterBase *filter, QString eeprom_pathfilename, QWidget *parent = nullptr);
+    explicit CLidarFilterParams(CLidarDataFilterModuleBase *filter, QString eeprom_pathfilename, QWidget *parent = nullptr);
 
     void fromFile(QString pathfilename);
     void toFile(QString pathfilename);
@@ -17,7 +17,7 @@ public:
     Ui::ihm_lidar_filter_params m_ihm;
 
 private :
-    CLidarDataFilterBase *m_filter;
+    CLidarDataFilterModuleBase *m_filter;
     QString m_eeprom_pathfilename;
 
     QString getEEPROMFileSection();

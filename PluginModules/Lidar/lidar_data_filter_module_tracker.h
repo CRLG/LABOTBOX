@@ -1,16 +1,17 @@
-#ifndef _LIDARDATA_FILTER_TRACKER_H_
-#define _LIDARDATA_FILTER_TRACKER_H_
+#ifndef _LIDAR_DATA_FILTER_MODULE_TRACKER_H_
+#define _LIDAR_DATA_FILTER_MODULE_TRACKER_H_
 
-#include "lidar_data_filter_base.h"
+#include "lidar_data_filter_module_base.h"
+#include "lidar_data_filter_tracker.h"
 
-class CLidarDataFilterTracker : public CLidarDataFilterBase
+class CLidarDataFilterModuleTracker : public CLidarDataFilterModuleBase
 {
 public:
-    CLidarDataFilterTracker();
+    CLidarDataFilterModuleTracker();
 
-    /*virtual*/void filter(const CLidarData *data_in, CLidarData *data_out);
-    /*virtual*/const char *get_name();
-    /*virtual*/const char *get_description();
+    /*virtual*/void filter(const CLidarData *data_in, CLidarData *data_out) override;
+    /*virtual*/const char *get_name() override;
+    /*virtual*/const char *get_description() override;
 
     //Paramétrage
     CData* m_d_dist_offset;           // mm
@@ -26,6 +27,7 @@ public:
     CData* m_d_seuil_facteur_forme;
     CData* m_dot_size;
 
+    CLidarDataFilterTracker m_filter;
 };
 
-#endif // _LIDARDATA_FILTER_TRACKER_H_
+#endif // _LIDAR_DATA_FILTER_MODULE_TRACKER_H_
