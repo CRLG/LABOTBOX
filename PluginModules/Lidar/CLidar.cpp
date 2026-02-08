@@ -278,7 +278,7 @@ void CLidar::new_data(const CLidarData &data)
     // la recopie dans la structure obstacle a la capacite de dire qu'il y a un probleme (trop de points detectes par ex)
     // Envoie les infos vers le CPU
     LidarUtils::tLidarObstacles obstacles;
-    int status = lidar_data_to_obstacles(filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
+    int status = LidarUtils::lidar_data_to_obstacles(&filtered_data, obstacles); // TODO: cette fonction reste a completer (pour le moment, il y a juste un exemple)
 
     send_ETAT_LIDAR(obstacles, status);
     if (m_ihm.ui.enable_datamanager_update->isChecked())  {
@@ -632,96 +632,6 @@ void CLidar::send_ETAT_LIDAR(LidarUtils::tLidarObstacles obstacles, unsigned cha
     trame_lidar->m_status = lidar_status;
     LidarUtils::copy_tab_obstacles(obstacles, trame_lidar->m_obstacles);
     trame_lidar->Encode();
-}
-
-// _____________________________________________________________________
-/*!
- * \brief Met en forme la structure de donnes d'obstacles a partir des donnees LIDAR
- * \param data les donnees filtrees
- * \return la structure de donnees d'obstacle
-*  \return le statut du LIDAR
- */
-int CLidar::lidar_data_to_obstacles(const CLidarData &in_data, LidarUtils::tLidarObstacles out_obstacles)
-{
-    for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++) {
-         out_obstacles[i].angle = 0;
-         out_obstacles[i].distance = LidarUtils::NO_OBSTACLE;
-     }
-
-     //TODO mettre la limite max d'objets filtrés dans lidarutils
-     int tempObstacles[2][LidarUtils::NBRE_MAX_OBSTACLES_FILTRES];
-     int nbObstaclesFiltres=0;
-     for (int i=0; i< (in_data.m_measures_count);i++)
-     {
-         if(in_data.m_dist_measures[i]!=LidarUtils::NO_OBSTACLE)
-         {
-             //il y a trop d'objets filtrés ce n'est pas normal, on arrête le traitement et on le met en erreur
-             if(nbObstaclesFiltres>=LidarUtils::NBRE_MAX_OBSTACLES_FILTRES)
-                 return LidarUtils::LIDAR_ERROR;
-
-             tempObstacles[0][nbObstaclesFiltres]=in_data.m_dist_measures[i];
-             tempObstacles[1][nbObstaclesFiltres]=in_data.m_start_angle + i*in_data.m_angle_step_resolution;
-             nbObstaclesFiltres++;
-         }
-     }
-     int idx=nbObstaclesFiltres;
-     while(idx < LidarUtils::NBRE_MAX_OBSTACLES_FILTRES)
-     {
-         tempObstacles[0][idx]=LidarUtils::NO_OBSTACLE;
-         tempObstacles[1][idx]=0;
-         idx++;
-     }
-
-     //à trier
-     int minD=0;
-     int minPhi=0;
-     int minIdx=0;
-     for(int i=0; i<(LidarUtils::NBRE_MAX_OBSTACLES_FILTRES-1);i++)
-     {
-         //init min
-         minD=tempObstacles[0][i];
-         minPhi=tempObstacles[1][i];
-         minIdx=i;
-
-         //recherche du min dans le reste du tableau
-         for(int j=i+1; j<LidarUtils::NBRE_MAX_OBSTACLES_FILTRES ;j++)
-         {
-             if((tempObstacles[0][j])<minD)
-             {
-                minD=tempObstacles[0][j];
-                minPhi=tempObstacles[1][j];
-                minIdx=j;
-             }
-         }
-
-         //si il y a un minimum dans le reste du tableau, on permute avec l'élement en cours
-         if(minIdx!=i)
-         {
-             int tempMinD=tempObstacles[0][i];
-             int tempMinPhi=tempObstacles[1][i];
-             tempObstacles[0][i]=tempObstacles[0][minIdx];
-             tempObstacles[1][i]=tempObstacles[1][minIdx];
-             tempObstacles[0][minIdx]=tempMinD;
-             tempObstacles[1][minIdx]=tempMinPhi;
-         }
-     }
-
-     //on rempli le tableau d'obstacle à hauteur du nombre max de point que l'on souhaite envoyer
-     for (int i=0; i<LidarUtils::NBRE_MAX_OBSTACLES; i++)
-     {
-         out_obstacles[i].distance = tempObstacles[0][i];
-         out_obstacles[i].angle = tempObstacles[1][i];
-     }
-
-     // code laissé pour l'exemple: renseigne une valeur pipo pour le premier obstacle (juste pour tester la communication)
-     /*int index=45+60;
-     int angle = in_data.m_start_angle + index*in_data.m_angle_step_resolution;
-     int distance = in_data.m_dist_measures[index];
-     out_obstacles[0].angle = angle;
-     out_obstacles[0].distance = distance;*/
-
-     //on est allé au bout du traitement le statut est OK
-     return LidarUtils::LIDAR_OK;
 }
 
 // _____________________________________________________________________
