@@ -92,7 +92,7 @@ private slots :
 
 public slots :
     //bool processData(const QString& code);
-    bool processData(const QString& code, const QString& nomStrategie, const QString& listeEtatsJSON);
+    bool processData(QString code, QString nomStrategie, QString listeEtatsJSON);
     bool buildTargetAndUpload();
     void buildStarted();
     void buildFinished(int exitcode);

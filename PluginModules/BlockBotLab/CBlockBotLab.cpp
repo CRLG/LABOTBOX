@@ -356,10 +356,12 @@ void CBlockBotLab::loadBlockbotInWebView() {
  * Pour l'instant sauvegarde le code dans "programmeBlockBot.cpp" et crée une copie
  * avec timestamp pour l'historique (à fin de debug)
  */
-bool CBlockBotLab::processData(const QString& code, const QString& nomStrategie, const QString& listeEtatsJSON)
+bool CBlockBotLab::processData(QString code, QString nomStrategie, QString listeEtatsJSON)
 {
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
     QString msg;
+    qDebug() << "génération des fichiers";
+    qDebug() << modeChoice->currentText();
 
     if(modeChoice->currentText()=="expert")
     {
@@ -422,6 +424,8 @@ bool CBlockBotLab::processData(const QString& code, const QString& nomStrategie,
         codeStream_h << file_content_h;
         headerFile.close();
 
+        qDebug() << "header OK:" << headerFile.fileName();
+
         //------------------------------------------------------
         // Génération du CPP
         //------------------------------------------------------
@@ -449,6 +453,8 @@ bool CBlockBotLab::processData(const QString& code, const QString& nomStrategie,
         QTextStream codeStream(&codeFile);
         codeStream << file_content;
         codeFile.close();
+
+         qDebug() << "cpp OK:" << codeFile.fileName();
 
         msg = QString("Code généré par BlockBot sauvegardé dans: %1").arg(codeFile.fileName());
         m_application->m_print_view->print_debug(this, msg);
@@ -482,18 +488,18 @@ bool CBlockBotLab::processData(const QString& code, const QString& nomStrategie,
         m_application->m_print_view->print_debug(this, msg);
         m_ihm.ui.statusbar->showMessage(msg, 4000);
 
-    // Optionnel: sauvegarde avec un timestamp pour l'historique car à chaque fois on écrase le fichier
-    //même mécanisme que CActuatorSequencer
-    QString timestampFilename = QString("programmeBlockBot%1.cpp")
-                               .arg(timestamp);
-    QFile timestampFile(timestampFilename);
-    if (timestampFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream timestampStream(&timestampFile);
-        timestampStream << code;
-        timestampFile.close();
-        msg = QString("Copie sauvegardée avec timestamp:: %1").arg(timestampFilename);
-        m_application->m_print_view->print_debug(this, msg);
-    }
+        // Optionnel: sauvegarde avec un timestamp pour l'historique car à chaque fois on écrase le fichier
+        //même mécanisme que CActuatorSequencer
+        QString timestampFilename = QString("programmeBlockBot%1.cpp")
+                                   .arg(timestamp);
+        QFile timestampFile(timestampFilename);
+        if (timestampFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream timestampStream(&timestampFile);
+            timestampStream << code;
+            timestampFile.close();
+            msg = QString("Copie sauvegardée avec timestamp:: %1").arg(timestampFilename);
+            m_application->m_print_view->print_debug(this, msg);
+        }
 
     }
     // Lance la compilation et le téléchargement de la ciblee
@@ -600,7 +606,7 @@ void CBlockBotLab::send2BlockBot()
     }
     //Action de génération des fichiers modélia à partir du code généré par blockly
     //cf slot processData
-    if (obj->objectName()=="actionCompilAndDownload")
+    if (obj->objectName()=="actionBlockbotGenerate")
     {
         emit executeCommand("upload_code","no_param");
     }
