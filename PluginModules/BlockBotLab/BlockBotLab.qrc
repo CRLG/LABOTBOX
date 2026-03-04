@@ -4,5 +4,7 @@
     </qresource>
     <qresource prefix="/templates">
         <file>Templates/sm_blockly_debutant.tpl.cpp</file>
+        <file>Templates/sm_blockly_expert.tpl.cpp</file>
+        <file>Templates/sm_blockly_expert.tpl.h</file>
     </qresource>
 </RCC>

@@ -3,7 +3,7 @@
 # Project created by QtCreator 2014-07-21T12:19:41
 #
 #-------------------------------------------------
-QT       += core gui testlib xml printsupport serialport network websockets multimedia webenginewidgets
+QT       += core gui testlib xml printsupport serialport network websockets multimedia webenginewidgets webchannel
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,11 +13,10 @@ TEMPLATE = app
 #CONFIG += RASPBERRY_PI
 
 SOURCES +=  main.cpp\
-            CApplication.cpp
-
+            CApplication.cpp \
 
 HEADERS  += CApplication.h \
-            CModule.h
+            CModule.h \
 
 RESOURCES+= icons.qrc \
             code_template.qrc

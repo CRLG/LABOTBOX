@@ -7,12 +7,20 @@
 #include <QDebug>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QWebEnginePage>
+#include <QWebEngineProfile>
 #include "CBlockBotLab.h"
 #include "CApplication.h"
 #include "CPrintView.h"
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QStringList>
+#include <QFileDialog>
+#include <QStandardPaths>
+
 
 /*! \addtogroup Module_Test2
    * 
@@ -83,18 +91,31 @@ void CBlockBotLab::init(CApplication *application)
   m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", "generated.cpp").toString();
   m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
 
-  int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
+  /*int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
   m_httpServer = new RoboticsHttpServer(this);
   if (m_httpServer) {
       m_httpServer->listen(httpServerPort); // Démarre le serveur web Qt sur le port (3001 par défaut)
       connect(m_httpServer, SIGNAL(processData(QString)), this, SLOT(processData(QString)));
-  }
+  }*/
 
   //chemin où trouver blockbot
   m_blockbotPath = m_application->m_eeprom->read(getName(), "blockbot_path", "/home/crlg/workspace_robot_sans_code/BlockBot").toString();
 
   //port normalement par défaut de webpack
   m_blockbotPort=m_application->m_eeprom->read(getName(), "blockbot_port", "8080").toString();
+
+  //mode développeur ou en prod pour BlockBot
+  m_blockbotDevMode=m_application->m_eeprom->read(getName(), "blockbot_devmode", false).toBool();
+
+    // Création de la combobox permettant de choisir entre les modes "débutant" et "expert"
+    modeChoice=new QComboBox();
+    modeChoice->addItem("debutant");
+    modeChoice->addItem("expert");
+    modeChoice->setObjectName("setMode");
+    modeChoice->setMaximumWidth(150);
+    // Ajout dans la toolbar
+    m_ihm.ui.toolBar->addWidget(modeChoice);
+
 
   //variable d'état de fonctionnement de Blockly
   m_blockbotStarted=false;
@@ -121,9 +142,34 @@ void CBlockBotLab::init(CApplication *application)
       }
   }
 
-  //Démarrer Blockly
-  startBlockBot();
+  //gère la sauvegarde
+  connect(m_ihm.ui.ui_webView->page()->profile(),  &QWebEngineProfile::downloadRequested,this, &CBlockBotLab::onDownloadRequested);
 
+  // Configuration du lien entre LaBotBox et BlockBot
+    // Créer le canal web et association du pont
+    webChannel = new QWebChannel(this);
+    webChannel->registerObject("BlockBotLab",this);
+    // Associer le canal configuré à l'affichage (navigateur) de BlockBot
+    m_blockbotWebView->page()->setWebChannel(webChannel);
+    //Connection du bouton avec la commande à envoyer à BlockBot
+    connect(m_ihm.ui.actionBlockbotGenerate, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+    connect(modeChoice, SIGNAL(currentTextChanged(QString)),this, SLOT(send2BlockBot()));
+    connect(m_ihm.ui.actionOpen, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+    connect(m_ihm.ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+
+  //Démarrer Blockly
+    if(m_blockbotDevMode)
+    {
+        qDebug() << "[BlockBotLab] Démarrage de blockbot en mode dev!";
+        startBlockBot();
+    }
+    else
+    {
+        qDebug() << "[BlockBotLab] Démarrage de blockbot en mode indus!";
+        QString appDir = QCoreApplication::applicationDirPath();
+        QString filePath = appDir + "/BlockBot/index.html";
+        m_blockbotWebView->setUrl(QUrl::fromLocalFile(filePath));
+    }
 }
 
 
@@ -171,7 +217,11 @@ void CBlockBotLab::startBlockBot() {
     //commande de mise en place de nvm dans le bash qu'on va appeler
     const QString nvmInit = "export NVM_DIR=\"$HOME/.nvm\"; . \"$NVM_DIR/nvm.sh\"";
     //complément de commande (avec la mise en place de nvm) pour lancer blockbot (avec npm start) dans le bash qu'on va appeler
-    const QString cmd = " exec setsid npm start";
+    const QString cmd = nvmInit +
+            " && nvm use 20"           // adapte la version si besoin
+            " && which node && node -v"
+            " && which npm && npm -v"
+            " && exec setsid npm start";
 
     //répertoire de travail de blockbot (cf le constructeur ou l'init)
     m_blockbotProcess->setWorkingDirectory(m_blockbotPath);
@@ -306,33 +356,131 @@ void CBlockBotLab::loadBlockbotInWebView() {
  * Pour l'instant sauvegarde le code dans "programmeBlockBot.cpp" et crée une copie
  * avec timestamp pour l'historique (à fin de debug)
  */
-bool CBlockBotLab::processData(const QString& code)
+bool CBlockBotLab::processData(const QString& code, const QString& nomStrategie, const QString& listeEtatsJSON)
 {
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
     QString msg;
 
-    // Le fichier .cpp template est embarqué dans l'exécutable Labotbox.
-    // Ouvre le template et remplace les balises pour générer le code final
-    QString file_content = readFile(":/templates/Templates/sm_blockly_debutant.tpl.cpp");
-    file_content.replace("##GENERATED_DATE_TIME##", timestamp);
-    file_content.replace("##FUNCTION_STEP##", code);
+    if(modeChoice->currentText()=="expert")
+    {
+        // Parser le JSON pour récupérer la liste des états
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(listeEtatsJSON.toUtf8());
+        QStringList listeEtats;
+        if (jsonDoc.isArray()) {
+            QJsonArray jsonArray = jsonDoc.array();
+            for (int i = 0; i < jsonArray.size(); i++)
+            {
+                listeEtats.append(jsonArray[i].toString());
+            }
+        }
 
-    // Sauvegarder le code généré dans un fichier pour Arduino/STM32
-    QFile codeFile(m_generated_pathfilename);
-    if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
-        m_application->m_print_view->print_error(this, msg);
+        //Nom include
+        QString nomIncludeSM = "SM_"+nomStrategie.toUpper()+"_H";
+        //Nom du fichier
+        QString nomFicSM = "sm_"+nomStrategie.toLower();
+        //Nom classe
+        QString nomClasse = "SM_" + nomStrategie;
+        //List états vers noms et définition
+        QString listeEtatsNoms;
+        QString listeEtatsDef;
+        if(!listeEtats.isEmpty())
+        {
+            for(int i=0; i<listeEtats.size();i++)
+            {
+                //liste des états pour l'entete
+                if(i==0)
+                    listeEtatsDef.append("\t"+listeEtats.at(i)+" = SM_StateMachineBase::SM_FIRST_STATE,\n");
+                else
+                    listeEtatsDef.append("\t"+listeEtats.at(i)+",\n");
+                //liste des états pour le cpp
+                listeEtatsNoms.append("\t\tcase "+listeEtats.at(i)+" :\treturn \""+listeEtats.at(i)+"\";\n");
+            }
+        }
+
+        //------------------------------------------------------
+        // Génération de l'entete
+        //------------------------------------------------------
+        // Le fichier .h template est embarqué dans l'exécutable Labotbox.
+        //Ouvre le template et remplace les balises pour générer le code final
+        QString file_content_h = readFile(":/templates/Templates/sm_blockly_expert.tpl.h");
+        file_content_h.replace("##GENERATED_DATE_TIME##", timestamp);
+        file_content_h.replace("##INCLUDE_DEF##",nomIncludeSM);
+        file_content_h.replace("##NOM_CLASSE##",nomClasse);
+        file_content_h.replace("##LISTE_ETAT_DEF##",listeEtatsDef);
+
+        // Sauvegarder le code généré dans un fichier pour Arduino/STM32
+        QString sFicName_h=nomFicSM+".h";
+        QFile headerFile(sFicName_h);
+        if (!headerFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(headerFile.errorString());
+            m_application->m_print_view->print_error(this, msg);
+            m_ihm.ui.statusbar->showMessage(msg, 4000);
+            return false;
+        }
+
+        QTextStream codeStream_h(&headerFile);
+        codeStream_h << file_content_h;
+        headerFile.close();
+
+        //------------------------------------------------------
+        // Génération du CPP
+        //------------------------------------------------------
+        // Le fichier .cpp template est embarqué dans l'exécutable Labotbox.
+        //Ouvre le template et remplace les balises pour générer le code final
+        //QString file_content = readFile(":/templates/Templates/sm_blockly_debutant.tpl.cpp");
+        QString file_content = readFile(":/templates/Templates/sm_blockly_expert.tpl.cpp");
+        file_content.replace("##GENERATED_DATE_TIME##", timestamp);
+        file_content.replace("##NOM_FIC##",nomFicSM);
+        file_content.replace("##NOM_CLASSE##",nomClasse);
+        file_content.replace("##LISTE_ETAT_NOM##",listeEtatsNoms);
+        file_content.replace("##FUNCTION_STEP##", code);
+
+        // Sauvegarder le code généré dans un fichier pour Arduino/STM32
+        //QFile codeFile(m_generated_pathfilename);
+        QString sFicName=nomFicSM+".cpp";
+        QFile codeFile(sFicName);
+        if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
+            m_application->m_print_view->print_error(this, msg);
+            m_ihm.ui.statusbar->showMessage(msg, 4000);
+            return false;
+        }
+
+        QTextStream codeStream(&codeFile);
+        codeStream << file_content;
+        codeFile.close();
+
+        msg = QString("Code généré par BlockBot sauvegardé dans: %1").arg(codeFile.fileName());
+        m_application->m_print_view->print_debug(this, msg);
         m_ihm.ui.statusbar->showMessage(msg, 4000);
-        return false;
     }
+    else if(modeChoice->currentText()=="debutant")
+    {
+        //------------------------------------------------------
+        // Génération du CPP
+        //------------------------------------------------------
+        // Le fichier .cpp template est embarqué dans l'exécutable Labotbox.
+        //Ouvre le template et remplace les balises pour générer le code final
+        QString file_content = readFile(":/templates/Templates/sm_blockly_debutant.tpl.cpp");
+        file_content.replace("##GENERATED_DATE_TIME##", timestamp);
+        file_content.replace("##FUNCTION_STEP##", code);
 
-    QTextStream codeStream(&codeFile);
-    codeStream << file_content;
-    codeFile.close();
+        // Sauvegarder le code généré dans un fichier pour Arduino/STM32
+        QFile codeFile(m_generated_pathfilename);
+        if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
+            m_application->m_print_view->print_error(this, msg);
+            m_ihm.ui.statusbar->showMessage(msg, 4000);
+            return false;
+        }
 
-    msg = QString("Code généré par BlockBot sauvegardé dans: %1").arg(codeFile.fileName());
-    m_application->m_print_view->print_debug(this, msg);
-    m_ihm.ui.statusbar->showMessage(msg, 4000);
+        QTextStream codeStream(&codeFile);
+        codeStream << file_content;
+        codeFile.close();
+
+        msg = QString("Code généré par BlockBot sauvegardé dans: %1").arg(codeFile.fileName());
+        m_application->m_print_view->print_debug(this, msg);
+        m_ihm.ui.statusbar->showMessage(msg, 4000);
 
     // Optionnel: sauvegarde avec un timestamp pour l'historique car à chaque fois on écrase le fichier
     //même mécanisme que CActuatorSequencer
@@ -347,6 +495,7 @@ bool CBlockBotLab::processData(const QString& code)
         m_application->m_print_view->print_debug(this, msg);
     }
 
+    }
     // Lance la compilation et le téléchargement de la ciblee
     buildTargetAndUpload();
 
@@ -433,3 +582,85 @@ void CBlockBotLab::closeBuildLogs()
     setBuildLogsVisibility(false);
 }
 
+// _____________________________________________________________________
+void CBlockBotLab::send2BlockBot()
+{
+    //récupération du pointeur de l'action ayant envoyé son signal
+    QObject *obj = sender();
+    if (!obj)
+        return;
+    //si l'action existe, choix de la fonctionnalité à activer côté blockly
+
+    //Action de bascule entre les modes expert et débutant
+    //pas de retour capturé par un slot, tout se passe ensuite dans blockly (masquage de la toolbox idoine)
+    if (obj->objectName()=="setMode")
+    {
+        emit executeCommand("set_mode",modeChoice->currentText());
+        qDebug() << "set_mode : " <<modeChoice->currentText();
+    }
+    //Action de génération des fichiers modélia à partir du code généré par blockly
+    //cf slot processData
+    if (obj->objectName()=="actionCompilAndDownload")
+    {
+        emit executeCommand("upload_code","no_param");
+    }
+    //Action de sauvegarde de workspace (lance une logique de téléchargement dans blockly récupéré par Qt
+    //cf slot onDownloadRequested
+    if (obj->objectName()=="actionSave")
+    {
+        emit executeCommand("save_project","no_param");
+    }
+    //Action de restauration du workspace, blockly ayant une logique "navigateur", il ne peut pas ouvrir
+    //de fichier directement, donc LaBotBox doit le faire à sa place et lui envoyer le workspace désérialisé à restaurer
+    if (obj->objectName() == "actionOpen")
+    {
+        QString fileName = QFileDialog::getOpenFileName(
+                m_ihm.ui.centralwidget,
+                tr("Ouvrir un workspace"),
+                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                tr("Fichier Blockly (*.json)")
+            );
+
+        if(fileName.isEmpty())
+            return;
+
+        QFile file(fileName);
+        if(file.open(QIODevice::ReadOnly))
+        {
+            QString json = file.readAll();
+            file.close();
+
+            emit executeCommand("load_project",json);
+        }
+    }
+}
+
+void CBlockBotLab::logJS(const QString& message)
+{
+    qDebug() << "[log JS] : " << message;
+}
+
+void CBlockBotLab::onDownloadRequested(QWebEngineDownloadItem *download)
+{
+    QString defaultDir =
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+
+    QString defaultFile =
+        defaultDir + "/" + download->downloadFileName();
+
+    QString selectedFile = QFileDialog::getSaveFileName(
+        m_ihm.ui.centralwidget,
+        tr("Enregistrer le workspace Blockly"),
+        defaultFile,
+        tr("Fichier Blockly (*.json)")
+    );
+
+    // Si l'utilisateur annule
+    if (selectedFile.isEmpty()) {
+        download->cancel();
+        return;
+    }
+
+    download->setPath(selectedFile);
+    download->accept();
+}

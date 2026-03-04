@@ -10,10 +10,12 @@
 #include <QProcess>
 #include <QTimer>
 #include <QUrl>
+#include <QWebChannel>
+#include <QComboBox>
+#include <QWebEngineDownloadItem>
 
 #include "CPluginModule.h"
 #include "ui_ihm_BlockBotLab.h"
-#include "roboticshttpserver.h"
 
 
  class Cihm_BlockBotLab : public QMainWindow
@@ -66,23 +68,31 @@ private:
 
     QString m_blockbotPath;
     QString m_blockbotPort;
+    bool m_blockbotDevMode;
     bool m_blockbotStarted;
     bool m_blockbotBuilt;
     //Ui::RoboticsMainWindow *ui;
     QWebEngineView* m_blockbotWebView;
     QProcess* m_blockbotProcess;
-    RoboticsHttpServer* m_httpServer; // Ton serveur pour les requêtes POST
     void startBlockBot();
     void loadBlockbotInWebView();
     QString readFile(QString pathfilename);
     //void loadBlocklyInWebView(const QString& port);
 
+    QWebChannel* webChannel;
+
+    QComboBox *modeChoice;
+
+signals:
+    //signal pour envoyer une commande et un paramètre à BlockBot
+    void executeCommand(const QString &Cmd, const QString &params);
 
 private slots :
     void onRightClicGUI(QPoint pos);
 
 public slots :
-    bool processData(const QString& code);
+    //bool processData(const QString& code);
+    bool processData(const QString& code, const QString& nomStrategie, const QString& listeEtatsJSON);
     bool buildTargetAndUpload();
     void buildStarted();
     void buildFinished(int exitcode);
@@ -90,6 +100,10 @@ public slots :
     void buildOutput();
     void setBuildLogsVisibility(bool visible);
     void closeBuildLogs();
+    void send2BlockBot();
+    void logJS(const QString& message);
+    void onDownloadRequested(QWebEngineDownloadItem *download);
+
 };
 
 #endif // _CPLUGIN_MODULE_BlockBotLab_H_
