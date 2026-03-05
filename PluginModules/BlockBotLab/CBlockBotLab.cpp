@@ -376,6 +376,35 @@ bool CBlockBotLab::processData(QString code, QString nomStrategie, QString liste
             }
         }
 
+        /**
+         * Vérification des doublons des noms dans les états
+         * on prévient l'utilisateur dans ce cas
+         */
+
+        // Vérification des doublons de noms d'états
+        // Détecter les doublons
+        QStringList doublons;
+        QStringList vus;
+        for (const QString& nom : listeEtats) {
+            if (vus.contains(nom)) {
+                if (!doublons.contains(nom))
+                    doublons.append(nom);
+            } else {
+                vus.append(nom);
+            }
+        }
+
+        if (!doublons.isEmpty()) {
+            QString msgErreur = QString("⚠️ ERREUR : Les états suivants ont des noms en double :\n  • %1\n\nCorrigez les noms avant de générer le code.")
+                                .arg(doublons.join("\n  • "));
+            m_application->m_print_view->print_error(this, msgErreur);
+            //m_ihm.ui.statusbar->showMessage("Erreur : noms d'états en double détectés !", 6000);
+        }
+
+        /**
+         * La présence de doublon n'est pas une erreur bloquante, on continue donc les traitements
+         */
+
         //Nom include
         QString nomIncludeSM = "SM_"+nomStrategie.toUpper()+"_H";
         //Nom du fichier
