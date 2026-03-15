@@ -100,6 +100,7 @@ public:
     virtual bool hasGUI(void)           { return(true); }
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Pr�cise l'ic�ne qui repr�sente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Pr�cise le nom du menu de la fen�tre principale dans lequel le module appara�t
+    static QList<EnumDefinition> getEnum(const QString &filePath);
 
 public slots:
     void Slot_Generate_CPP();
@@ -120,7 +121,7 @@ private:
     QHash<QString, int> m_hash_const_AX;
     QHash<QString, int> m_hash_const_arm;
     //bool getEnum(QString fileName, QString enum_name, QHash<QString, int> * results);
-    QList<EnumDefinition> getEnum(const QString &filePath);
+
 
     void updateComboBox();
     void update_sequenceButtons();

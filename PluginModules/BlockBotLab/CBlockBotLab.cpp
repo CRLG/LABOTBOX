@@ -20,6 +20,9 @@
 #include <QStringList>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QJsonObject>
+
+#include "CActuatorSequencer.h"
 
 
 /*! \addtogroup Module_Test2
@@ -156,6 +159,7 @@ void CBlockBotLab::init(CApplication *application)
     connect(modeChoice, SIGNAL(currentTextChanged(QString)),this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionOpen, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+    connect(m_ihm.ui.actionContext, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
 
   //Démarrer Blockly
     if(m_blockbotDevMode)
@@ -667,6 +671,136 @@ void CBlockBotLab::send2BlockBot()
 
             emit executeCommand("load_project",json);
         }
+    }
+
+    //Action d'enrichissement du contexte
+    if (obj->objectName() == "actionContext")
+    {
+        QString str_FicCoupe;
+        str_FicCoupe="/home/laguiche/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h";
+        const QFileInfo outputDir(str_FicCoupe);
+
+        QJsonArray jsonArray_servo;
+        QJsonArray jsonArray_servo_values;
+        QJsonArray jsonArray_motor;
+        QJsonArray jsonArray_ax;
+        QJsonArray jsonArray_ax_values;
+        QJsonArray jsonArray_state_machine;
+
+        //valeurs par défaut pour nommer les servos
+        QString servoName="SERVO_%1";
+        for (int i=1;i<8;i++)
+        {
+            QJsonObject obj_json;
+            obj_json["nom"] = servoName.arg(i);
+            obj_json["valeur"] = i;
+            jsonArray_servo.append(obj_json);
+        }
+        //Valeurs par défaut pour nommer les moteurs
+        QString motorName="MOTOR_%1";
+        for (int i=1;i<7;i++)
+        {
+            QJsonObject obj_json;
+            obj_json["nom"] = motorName.arg(i);
+            obj_json["valeur"] = i;
+            jsonArray_motor.append(obj_json);
+        }
+        //Valeurs par défaut pour nommer les ax
+        QString axName="AX_%1";
+        for (int i=1;i<10;i++)
+        {
+            QJsonObject obj_json;
+            obj_json["nom"] = axName.arg(i);
+            obj_json["valeur"] = i;
+            jsonArray_ax.append(obj_json);
+        }
+
+        //pour les tests liste statique de machine à état
+        jsonArray_state_machine.append("Autotest");
+        jsonArray_state_machine.append("ChasseNeige");
+        jsonArray_state_machine.append("DeposerBanderole");
+        jsonArray_state_machine.append("DeposerPileBordure");
+        jsonArray_state_machine.append("DeposerPileCentrale");
+        jsonArray_state_machine.append("DeposerPileBasDePente");
+        jsonArray_state_machine.append("RetourZoneArrivee");
+        jsonArray_state_machine.append("Assembler2Etages");
+
+
+        //on verifie si le chemin par defaut du fichier d'entete est valide
+        if ((outputDir.exists()) || (outputDir.isReadable()))
+        {
+            qDebug() << "[CBlockBotLab] Conf Specifique coupe (" << str_FicCoupe << " ) exists and is readable";
+            QList<EnumDefinition> enums=CActuatorSequencer::getEnum(str_FicCoupe);
+
+            //mise à jour avec les valeurs prédéfinies
+            for (const EnumDefinition &enumDef : enums) {
+                if (enumDef.enumName == "eVALUES_SERVOS") {
+                    for (const auto& servo_values : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = servo_values.name;
+                        obj_json["valeur"] = servo_values.value;
+                        jsonArray_servo_values.append(obj_json);
+                    }
+                }
+                else if (enumDef.enumName == "eVALUES_SERVOS_AX") {
+                    for (const auto& ax_values : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = ax_values.name;
+                        obj_json["valeur"] = ax_values.value;
+                        jsonArray_ax_values.append(obj_json);
+                    }
+                }
+                else if (enumDef.enumName == "eATTRIBUTION_SERVOS_AX") {
+                    jsonArray_ax={};
+                    for (const auto& ax : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = ax.name;
+                        obj_json["valeur"] = ax.value;
+                        jsonArray_ax.append(obj_json);
+                    }
+                }
+                else if (enumDef.enumName == "eATTRIBUTION_SERVOS") {
+                    jsonArray_servo={};
+                    for (const auto& servo : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = servo.name;
+                        obj_json["valeur"] = servo.value;
+                        jsonArray_servo.append(obj_json);
+                    }
+                }
+                else if (enumDef.enumName == "eATTRIBUTION_MOTEURS") {
+                    jsonArray_motor={};
+                    for (const auto& motor : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = motor.name;
+                        obj_json["valeur"] = motor.value;
+                        jsonArray_motor.append(obj_json);
+                    }
+                }
+                // Noms des machines à états disponibles.
+                // Format : tableau de strings (pas de valeur numérique associée).
+                // Adapter enumName selon la définition dans ConfigSpecifiqueCoupe.h.
+                else if (enumDef.enumName == "eSTATE_MACHINES") {
+                    jsonArray_state_machine = {};
+                    for (const auto& sm : enumDef.values)
+                        jsonArray_state_machine.append(sm.name);
+                }
+
+            }
+        }
+
+        //on envoie les valeurs pour enrichir le contexte de BlockBot
+        emit executeCommand("servos", QJsonDocument(jsonArray_servo).toJson());
+        emit executeCommand("values_servos", QJsonDocument(jsonArray_servo_values).toJson());
+        emit executeCommand("moteurs", QJsonDocument(jsonArray_motor).toJson());
+        emit executeCommand("servos_ax", QJsonDocument(jsonArray_ax).toJson());
+        emit executeCommand("values_servos_ax", QJsonDocument(jsonArray_ax_values).toJson());
+        emit executeCommand("state_machine", QJsonDocument(jsonArray_state_machine).toJson());
     }
 }
 

@@ -67,6 +67,7 @@
    <addaction name="actionBlockbotGenerate"/>
    <addaction name="actionSave"/>
    <addaction name="actionOpen"/>
+   <addaction name="actionContext"/>
   </widget>
   <action name="actionCompilAndDownload">
    <property name="icon">
@@ -126,6 +127,18 @@
    </property>
    <property name="toolTip">
     <string>Sauvegrader projet</string>
+   </property>
+  </action>
+  <action name="actionContext">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/peertopeer.png</normaloff>:/icons/peertopeer.png</iconset>
+   </property>
+   <property name="text">
+    <string>set context</string>
+   </property>
+   <property name="toolTip">
+    <string>positionner contexte</string>
    </property>
   </action>
  </widget>
