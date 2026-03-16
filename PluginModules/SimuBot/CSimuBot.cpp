@@ -265,7 +265,14 @@ void CSimuBot::init(CApplication *application)
     //pour changer de mode visu ou placement
     connect(m_ihm.ui.horizontalSlider_toggle_simu,SIGNAL(valueChanged(int)),this,SLOT(changeMode(int)));
     val=m_application->m_eeprom->read(getName(),"mode_visu",QVariant(0));
+    // Bloquer les signaux avant setValue() pour éviter un double appel à changeMode() :
+    // si la valeur sauvegardée est identique à la valeur par défaut du slider (0 = TEST),
+    // setValue() n'émet pas valueChanged → changeMode() ne serait jamais appelé →
+    // modeVisu resterait indéterminé → initView() échouerait silencieusement sa condition.
+    m_ihm.ui.horizontalSlider_toggle_simu->blockSignals(true);
     m_ihm.ui.horizontalSlider_toggle_simu->setValue(val.toInt());
+    m_ihm.ui.horizontalSlider_toggle_simu->blockSignals(false);
+    changeMode(val.toInt());
 
     //on initialise et ajoute le robot au terrain
     //TODO: prendre un fichier de config pour l'emplacement et l'angle de départ pour le robot
@@ -647,6 +654,15 @@ void CSimuBot::initView(void){
             m_application->m_data_center->write("PosTeta_robot", theta_reel_init);
         else
             m_application->m_data_center->write("PosTeta_robot", normalizeAngleDeg(180*theta_reel_init/Pi));
+
+        // Initialisation des clés de position simulée utilisées par les autres modules (ex. CBlockBotLab).
+        // Sans ces écritures, x_pos/y_pos/teta_pos restent à 0 en mode TEST jusqu'au premier déplacement manuel.
+        m_application->m_data_center->write("x_pos", x_reel_init);
+        m_application->m_data_center->write("y_pos", y_reel_init);
+        if (setAndGetInRad)
+            m_application->m_data_center->write("teta_pos", theta_reel_init);
+        else
+            m_application->m_data_center->write("teta_pos", normalizeAngleDeg(180*theta_reel_init/Pi));
 
         m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
         m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
