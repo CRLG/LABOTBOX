@@ -65,9 +65,14 @@
    <addaction name="actionCompilAndDownload"/>
    <addaction name="actionafficheBuildLog"/>
    <addaction name="actionBlockbotGenerate"/>
+   <addaction name="separator"/>
    <addaction name="actionSave"/>
    <addaction name="actionOpen"/>
    <addaction name="actionContext"/>
+   <addaction name="separator"/>
+   <addaction name="actionPlayHIL"/>
+   <addaction name="actionStopHIL"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionCompilAndDownload">
    <property name="icon">
@@ -139,6 +144,30 @@
    </property>
    <property name="toolTip">
     <string>positionner contexte</string>
+   </property>
+  </action>
+  <action name="actionPlayHIL">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/on_off.png</normaloff>:/icons/on_off.png</iconset>
+   </property>
+   <property name="text">
+    <string>playHIL</string>
+   </property>
+   <property name="toolTip">
+    <string>Lancer la machine à états sur le Robot</string>
+   </property>
+  </action>
+  <action name="actionStopHIL">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/stop.png</normaloff>:/icons/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>stopHIL</string>
+   </property>
+   <property name="toolTip">
+    <string>Arrêter la sium sur le Robot</string>
    </property>
   </action>
  </widget>

@@ -21,8 +21,10 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QJsonObject>
+#include <QLabel>
 
 #include "CActuatorSequencer.h"
+#include "CSimuBot.h"
 
 
 /*! \addtogroup Module_Test2
@@ -118,6 +120,15 @@ void CBlockBotLab::init(CApplication *application)
     modeChoice->setMaximumWidth(150);
     // Ajout dans la toolbar
     m_ihm.ui.toolBar->addWidget(modeChoice);
+    // Création de la checkbox permettant de choisir d'afficher ou non le code généré
+    QLabel* l_showCode=new QLabel();
+    l_showCode->setText("Montrer le code");
+    m_ihm.ui.toolBar->addWidget(l_showCode);
+    showCode=new QCheckBox();
+    showCode->setChecked(false);
+    showCode->setObjectName("showCode");
+    // Ajout dans la toolbar
+    m_ihm.ui.toolBar->addWidget(showCode);
 
 
   //variable d'état de fonctionnement de Blockly
@@ -157,9 +168,12 @@ void CBlockBotLab::init(CApplication *application)
     //Connection du bouton avec la commande à envoyer à BlockBot
     connect(m_ihm.ui.actionBlockbotGenerate, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(modeChoice, SIGNAL(currentTextChanged(QString)),this, SLOT(send2BlockBot()));
+    connect(showCode, SIGNAL(stateChanged(int)),this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionOpen, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionContext, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+    // Double-clic sur la simulation (CSimuBot) → création automatique d'un état XYTheta dans BlockBot
+    connect(m_application->m_SimuBot, SIGNAL(setSequence()), this, SLOT(Slot_SetPosFromSimu()));
 
   //Démarrer Blockly
     if(m_blockbotDevMode)
@@ -637,6 +651,11 @@ void CBlockBotLab::send2BlockBot()
         emit executeCommand("set_mode",modeChoice->currentText());
         qDebug() << "set_mode : " <<modeChoice->currentText();
     }
+    //Action de montrer ou non le code généré dans BlockBot
+    if (obj->objectName()=="showCode")
+    {
+        emit executeCommand("show_code",(showCode->isChecked()?"true":"false"));
+    }
     //Action de génération des fichiers modélia à partir du code généré par blockly
     //cf slot processData
     if (obj->objectName()=="actionBlockbotGenerate")
@@ -807,6 +826,45 @@ void CBlockBotLab::send2BlockBot()
 void CBlockBotLab::logJS(const QString& message)
 {
     qDebug() << "[log JS] : " << message;
+}
+
+// _____________________________________________________________________
+/*!
+*  Slot_SetPosFromSimu
+*
+*  Déclenché par le signal setSequence() de CSimuBot (double-clic sur la
+*  simulation quand la checkbox "setSequence" est cochée).
+*
+*  Lit les coordonnées courantes du robot simulé dans le DataCenter (même
+*  source que CActuatorSequencer::Slot_SetPosFromSimu) et envoie à BlockBot
+*  la commande "add_state_simu" pour créer un triplet :
+*    - etat_expert
+*    - set_pos en mode XYTheta avec les coordonnées lues
+*    - convergence_expert avec un timeout de 7000 ms
+*  Le tout est automatiquement connecté au dernier état libre de la chaîne.
+*/
+void CBlockBotLab::Slot_SetPosFromSimu()
+{
+    // Basculer en mode expert si nécessaire.
+    // setCurrentText() déclenche currentTextChanged → send2BlockBot() → emit executeCommand("set_mode","expert")
+    // ce signal est émis AVANT add_state_simu, donc BlockBot reçoit et traite set_mode en premier.
+    if (modeChoice->currentText() != "expert") {
+        modeChoice->setCurrentText("expert");
+    }
+
+    // Lecture des coordonnées simulées depuis le DataCenter
+    int    x     = m_application->m_data_center->read("x_pos").toInt();
+    int    y     = m_application->m_data_center->read("y_pos").toInt();
+    double theta = m_application->m_data_center->read("teta_pos").toDouble();
+
+    // Construction du JSON de paramètres transmis à BlockBot
+    QJsonObject params;
+    params["x"]       = x;
+    params["y"]       = y;
+    params["theta"]   = theta;
+    params["timeout"] = 7000;
+
+    emit executeCommand("add_state_simu", QJsonDocument(params).toJson(QJsonDocument::Compact));
 }
 
 void CBlockBotLab::onDownloadRequested(QWebEngineDownloadItem *download)

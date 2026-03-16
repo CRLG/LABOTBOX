@@ -1123,6 +1123,20 @@ void CActuatorSequencer::Slot_Play(bool oneStep, int idStart)
                     setPlayMessage(chrono.elapsed(),"ACTION",msg);
                 }
 
+                if(sActuator.compare("Servo")==0) //SERVO
+                {
+                    id=getIdText(table_sequence,indexItem);
+                    value=getValueText(table_sequence,indexItem);
+                    QStringList args=value.split(",",QString::SkipEmptyParts);
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", true);
+                    m_application->m_data_center->write("NumeroServoMoteur1", id);
+                    m_application->m_data_center->write("PositionServoMoteur1", args.at(0));
+                    m_application->m_data_center->write("VitesseServoMoteur1", args.at(1));
+                    m_application->m_data_center->write("ELECTROBOT_CDE_SERVOS_TxSync", false);
+                    msg="SERVO "+id+" à la position "+args.at(0)+ " vitesse"+args.at(1);
+                    setPlayMessage(chrono.elapsed(),"ACTION",msg);
+                }
+
                 if(sActuator.compare("AX-Position")==0) //SERVO AX position
                 {
                     id=getIdText(table_sequence,indexItem);

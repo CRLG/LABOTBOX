@@ -12,6 +12,7 @@
 #include <QUrl>
 #include <QWebChannel>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QWebEngineDownloadItem>
 
 #include "CPluginModule.h"
@@ -82,6 +83,7 @@ private:
     QWebChannel* webChannel;
 
     QComboBox *modeChoice;
+    QCheckBox *showCode;
 
 signals:
     //signal pour envoyer une commande et un paramètre à BlockBot
@@ -103,6 +105,9 @@ public slots :
     void send2BlockBot();
     void logJS(const QString& message);
     void onDownloadRequested(QWebEngineDownloadItem *download);
+    // Déclenché par CSimuBot::setSequence() (double-clic simulation, checkbox cochée).
+    // Lit x_pos / y_pos / teta_pos et envoie la commande de création de blocs à BlockBot.
+    void Slot_SetPosFromSimu();
 
 };
 
