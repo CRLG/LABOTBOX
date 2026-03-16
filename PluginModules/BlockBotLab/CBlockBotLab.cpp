@@ -93,7 +93,7 @@ void CBlockBotLab::init(CApplication *application)
 
   m_blockbotWebView=m_ihm.ui.ui_webView;
 
-  m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", "generated.cpp").toString();
+  m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString();
   m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
 
   /*int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
@@ -459,7 +459,8 @@ bool CBlockBotLab::processData(QString code, QString nomStrategie, QString liste
 
         // Sauvegarder le code généré dans un fichier pour Arduino/STM32
         QString sFicName_h=nomFicSM+".h";
-        QFile headerFile(sFicName_h);
+        QString fileNameHGenerated=m_generated_pathfilename+"/"+sFicName_h;
+        QFile headerFile(fileNameHGenerated);
         if (!headerFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(headerFile.errorString());
             m_application->m_print_view->print_error(this, msg);
@@ -489,7 +490,8 @@ bool CBlockBotLab::processData(QString code, QString nomStrategie, QString liste
         // Sauvegarder le code généré dans un fichier pour Arduino/STM32
         //QFile codeFile(m_generated_pathfilename);
         QString sFicName=nomFicSM+".cpp";
-        QFile codeFile(sFicName);
+        QString fileNameGenerated=m_generated_pathfilename+"/"+sFicName;
+        QFile codeFile(fileNameGenerated);
         if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
             m_application->m_print_view->print_error(this, msg);
@@ -518,8 +520,10 @@ bool CBlockBotLab::processData(QString code, QString nomStrategie, QString liste
         file_content.replace("##GENERATED_DATE_TIME##", timestamp);
         file_content.replace("##FUNCTION_STEP##", code);
 
+        QString fileNameGenerated=m_generated_pathfilename+"/"+"sm_blockly_debutant.cpp";
+
         // Sauvegarder le code généré dans un fichier pour Arduino/STM32
-        QFile codeFile(m_generated_pathfilename);
+        QFile codeFile(fileNameGenerated);
         if (!codeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             msg = QString("Impossible d'ouvrir le fichier de code en écriture: %1").arg(codeFile.errorString());
             m_application->m_print_view->print_error(this, msg);
