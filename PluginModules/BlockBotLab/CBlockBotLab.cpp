@@ -709,6 +709,7 @@ void CBlockBotLab::send2BlockBot()
         QJsonArray jsonArray_ax;
         QJsonArray jsonArray_ax_values;
         QJsonArray jsonArray_state_machine;
+        QJsonArray jsonArray_switch;
 
         //valeurs par défaut pour nommer les servos
         QString servoName="SERVO_%1";
@@ -718,6 +719,15 @@ void CBlockBotLab::send2BlockBot()
             obj_json["nom"] = servoName.arg(i);
             obj_json["valeur"] = i;
             jsonArray_servo.append(obj_json);
+        }
+        //Valeurs par défaut pour nommer les switches (Switch_1 à Switch_10)
+        QString switchName="Switch_%1";
+        for (int i=1;i<=10;i++)
+        {
+            QJsonObject obj_json;
+            obj_json["nom"] = switchName.arg(i);
+            obj_json["valeur"] = i-1;  // index physique 0-based (eATTRIBUTION_POWER_ELECTROBOT)
+            jsonArray_switch.append(obj_json);
         }
         //Valeurs par défaut pour nommer les moteurs
         QString motorName="MOTOR_%1";
@@ -805,6 +815,16 @@ void CBlockBotLab::send2BlockBot()
                         jsonArray_motor.append(obj_json);
                     }
                 }
+                else if (enumDef.enumName == "eATTRIBUTION_POWER_ELECTROBOT") {
+                    jsonArray_switch={};
+                    for (const auto& sw : enumDef.values)
+                    {
+                        QJsonObject obj_json;
+                        obj_json["nom"] = sw.name;
+                        obj_json["valeur"] = sw.value;
+                        jsonArray_switch.append(obj_json);
+                    }
+                }
                 // Noms des machines à états disponibles.
                 // Format : tableau de strings (pas de valeur numérique associée).
                 // Adapter enumName selon la définition dans ConfigSpecifiqueCoupe.h.
@@ -824,6 +844,7 @@ void CBlockBotLab::send2BlockBot()
         emit executeCommand("servos_ax", QJsonDocument(jsonArray_ax).toJson());
         emit executeCommand("values_servos_ax", QJsonDocument(jsonArray_ax_values).toJson());
         emit executeCommand("state_machine", QJsonDocument(jsonArray_state_machine).toJson());
+        emit executeCommand("switch", QJsonDocument(jsonArray_switch).toJson());
     }
 }
 
