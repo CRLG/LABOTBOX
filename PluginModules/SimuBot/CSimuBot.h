@@ -19,6 +19,7 @@
 #include <QTimer>
 #include "CData.h"
 #include "CExternalControlerClient.h"
+#include <QGraphicsRectItem>
 #include <QGraphicsEllipseItem>
 #include "CPhysicalEngine.h"
 
@@ -114,7 +115,7 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
-    QGraphicsEllipseItem * elementsJeu[40];
+    QGraphicsRectItem * elementsJeu[40];
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -155,7 +156,7 @@ private:
     void addStepOther(double x, double y, double teta, int row);
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[], float lidar[]);
-    QGraphicsEllipseItem *setElementJeu(float x, float y, int Color);
+    QGraphicsRectItem *setElementJeu(float x, float y, int Color, bool vertical);
     //design robot
     QGraphicsScene * scene_design;
 

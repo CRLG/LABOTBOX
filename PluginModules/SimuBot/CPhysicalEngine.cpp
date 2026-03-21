@@ -157,18 +157,29 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
     }
 
     //éléments de jeux
-        //pots
-    float x_elJeu_2[]={7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,
-                      62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
-                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f,
-                      292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f};
-    float y_elJeu_2[]={25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f,
-                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
-                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
-                      25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f};
-    for(int k=0;k<40;k++)
+    //éléments de jeu 2026: caisses de noisettes soit des rectangles de 15x5 cm
+    //elements horizontaux
+    float x_elJeu_h[]={17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,
+                      282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f};
+    float y_elJeu_h[]={32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f,
+                      32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f};
+    float x_elJeu_v[]={62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
+                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f};
+    float y_elJeu_v[]={25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f};
+    for(int k=0;k<16;k++)
     {
-        elementsJeu[k]=setElement(x_elJeu_2[k],y_elJeu_2[k]);
+        if(k%2==0)
+            elementsJeu[k]=setElement(x_elJeu_h[k],y_elJeu_h[k],false);
+        else
+            elementsJeu[k]=setElement(x_elJeu_h[k],y_elJeu_h[k],false);
+    }
+    for(int k=0;k<24;k++)
+    {
+        if(k%2==0)
+            elementsJeu[k+16]=setElement(x_elJeu_v[k],y_elJeu_v[k],true);
+        else
+            elementsJeu[k+16]=setElement(x_elJeu_v[k],y_elJeu_v[k],true);
     }
 
     //comme pour l'asservissement on centre le repère de notre monde sur le centre de notre robot
@@ -463,35 +474,33 @@ float CPhysicalEngine::getElementRotation(int num)
 }
 
 
-b2Body* CPhysicalEngine::setElement(float x, float y)
+b2Body* CPhysicalEngine::setElement(float x, float y, bool vertical)
 {
     b2Body* nouveauElement;
     b2BodyDef Definition_ElJeu;
     Definition_ElJeu.type = b2_dynamicBody; //corps dynamique
     Definition_ElJeu.linearDamping = 5.0f; //frottement lineaire pour simuler une gravite Y
     Definition_ElJeu.angularDamping=5.0f; //idem pour l'angle
-    Definition_ElJeu.position.Set(x,y); //position de depart
+    float largeur=(vertical?5.0f:15.0f);
+    float longueur=(vertical?15.0f:5.0f);
+    Definition_ElJeu.position.Set(x-(largeur/2),y-(longueur/2)); //position de depart
     //ajout du robot au monde simulé
     nouveauElement = realWorld->CreateBody(&Definition_ElJeu);
     //caractéristiques physiques de l'élément
-    //caractéristiques physiques du robot
     //Pour créer un polygone
-    /*b2PolygonShape Forme_ElJeu;
-    b2Vec2 polygonShape[6];
-    polygonShape[0].x=7.5*cos(M_PI/6);polygonShape[0].y=7.5*sin(M_PI/6);
-    polygonShape[1].x=0;polygonShape[1].y=7.5;
-    polygonShape[2].x=7.5*cos(5*M_PI/6);polygonShape[2].y=7.5*sin(5*M_PI/6);
-    polygonShape[3].x=7.5*cos(-5*M_PI/6);polygonShape[3].y=7.5*sin(-5*M_PI/6);
-    polygonShape[4].x=0;polygonShape[4].y=-7.5;
-    polygonShape[5].x=7.5*cos(-M_PI/6);polygonShape[5].y=7.5*sin(-M_PI/6);
-    //polygonShape[6].x=7.5*cos(M_PI/6);polygonShape[6].y=7.5*sin(M_PI/6);
-    Forme_ElJeu.Set(polygonShape,6);*/
+    b2PolygonShape Forme_ElJeu;
+    b2Vec2 polygonShape[4];
+    polygonShape[0].x=(-(largeur/2));polygonShape[0].y=(longueur/2);
+    polygonShape[1].x=(largeur/2);polygonShape[1].y=(longueur/2);
+    polygonShape[2].x=(largeur/2);polygonShape[2].y=(-(longueur/2));
+    polygonShape[3].x=(-(largeur/2));polygonShape[3].y=(-(longueur/2));
+    Forme_ElJeu.Set(polygonShape,4);
     //pour créer un cercle
-    b2CircleShape* Forme_ElJeu=new b2CircleShape();
+    /*b2CircleShape* Forme_ElJeu=new b2CircleShape();
     Forme_ElJeu->m_p.Set(0.0f,0.0f);
-    Forme_ElJeu->m_radius=3.65f;
+    Forme_ElJeu->m_radius=3.65f;*/
     b2FixtureDef Fixture_ElJeu;
-    Fixture_ElJeu.shape = Forme_ElJeu;
+    Fixture_ElJeu.shape = &Forme_ElJeu;
     Fixture_ElJeu.density = 1.0f;
     Fixture_ElJeu.friction = 0.3f;
     nouveauElement->CreateFixture(&Fixture_ElJeu);

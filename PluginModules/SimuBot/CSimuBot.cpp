@@ -164,24 +164,37 @@ void CSimuBot::init(CApplication *application)
 
     //ajout des limites physiques du terrain
     QGraphicsPixmapItem *surface=new QGraphicsPixmapItem();
-    surface->setPixmap(QPixmap(":/icons/terrain_2025_simubot.png"));
+    surface->setPixmap(QPixmap(":/icons/terrain_2026_simubot.png"));
     surface->setPos(0,-200);
     QGraphicsRectItem *bordures=new QGraphicsRectItem(QRect(0, -200 , 300, 200));
     terrain->addItem(surface);
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-    float x_elJeu_2[]={7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,7.5f,
-                      62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
-                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f,
-                      292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f,292.5f};
-    float y_elJeu_2[]={25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f,
-                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
-                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
-                      25.0f,35.0f,45.0f,55.0f,117.5f,127.5f,137.5f,147.5f};
-    for(int k=0;k<40;k++)
+    //éléments de jeu 2026: caisses de noisettes soit des rectangles de 15x5 cm
+    //elements horizontaux
+    float x_elJeu_h[]={17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,
+                      282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f};
+    float y_elJeu_h[]={32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f,
+                      32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f};
+    float x_elJeu_v[]={62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
+                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f};
+    float y_elJeu_v[]={25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
+                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f};
+    qDebug() << "ici";
+    for(int k=0;k<16;k++)
     {
-        elementsJeu[k]=setElementJeu(x_elJeu_2[k],y_elJeu_2[k],Qt::gray);
+        if(k%2==0)
+            elementsJeu[k]=setElementJeu(x_elJeu_h[k],y_elJeu_h[k],Qt::yellow,false);
+        else
+            elementsJeu[k]=setElementJeu(x_elJeu_h[k],y_elJeu_h[k],Qt::blue,false);
+    }
+    for(int k=0;k<24;k++)
+    {
+        if(k%2==0)
+            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],y_elJeu_v[k],Qt::yellow,true);
+        else
+            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],y_elJeu_v[k],Qt::blue,true);
     }
 
 
@@ -635,11 +648,15 @@ void CSimuBot::initView(void){
         }
 
         //placement des élements de jeu dans le monde simulé
-        for(int i=0;i<40;i++)
+        for(int i=0;i<16;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-3.65, -m_physical_engine.getElement(i).y()-3.65,7.3,7.3));
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),15.0f,5.0f));
             /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
             elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
+        }
+        for(int i=16;i<40;i++)
+        {
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),5.0f,15.0f));
         }
 
         //init data manager 1er Robot
@@ -1597,9 +1614,14 @@ void CSimuBot::on_active_external_robot2(bool state)
  * \return
  * Fonction de positionnement des éléments de jeu
  */
-QGraphicsEllipseItem * CSimuBot::setElementJeu(float x, float y, int Color)
+QGraphicsRectItem * CSimuBot::setElementJeu(float x, float y, int Color, bool vertical)
 {
-    QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x-3.65,-(y+3.65),7.3,7.3);
+    //QGraphicsEllipseItem* element=new QGraphicsEllipseItem(x-3.65,-(y+3.65),7.3,7.3);
+    QGraphicsRectItem* element=new QGraphicsRectItem();
+    if(vertical)
+        element->setRect(QRectF(x,y,5.0f,15.0f));
+    else
+        element->setRect(QRectF(x,y,15.0f,5.0f));
     //QPolygonF element_shape;
     /*element_shape << QPointF(7.5*cos(M_PI/6),7.5*sin(M_PI/6)) << QPointF(0,7.5);
     element_shape << QPointF(7.5*cos(5*M_PI/6),7.5*sin(5*M_PI/6)) << QPointF(7.5*cos(-5*M_PI/6),7.5*sin(-5*M_PI/6));

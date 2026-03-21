@@ -75,7 +75,7 @@ private :
     float _y1(float y);
     float _x2(float x);
     float _y2(float y);
-    b2Body *setElement(float x, float y);
+    b2Body *setElement(float x, float y, bool vertical);
     b2Vec2 getBotLateralVelocity(int numBot);
 };
 
