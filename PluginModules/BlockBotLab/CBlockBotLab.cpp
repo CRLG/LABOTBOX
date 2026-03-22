@@ -173,7 +173,7 @@ void CBlockBotLab::init(CApplication *application)
     connect(m_ihm.ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionContext, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     // Double-clic sur la simulation (CSimuBot) → création automatique d'un état XYTheta dans BlockBot
-    connect(m_application->m_SimuBot, SIGNAL(setSequence()), this, SLOT(Slot_SetPosFromSimu()));
+    connect(m_application->m_SimuBot, SIGNAL(setSequence(double, double)), this, SLOT(Slot_SetPosFromSimu(double, double)));
 
   //Démarrer Blockly
     if(m_blockbotDevMode)
@@ -860,36 +860,48 @@ void CBlockBotLab::logJS(const QString& message)
 *  Déclenché par le signal setSequence() de CSimuBot (double-clic sur la
 *  simulation quand la checkbox "setSequence" est cochée).
 *
-*  Lit les coordonnées courantes du robot simulé dans le DataCenter (même
-*  source que CActuatorSequencer::Slot_SetPosFromSimu) et envoie à BlockBot
-*  la commande "add_state_simu" pour créer un triplet :
-*    - etat_expert
-*    - set_pos en mode XYTheta avec les coordonnées lues
-*    - convergence_expert avec un timeout de 7000 ms
-*  Le tout est automatiquement connecté au dernier état libre de la chaîne.
+*  En mode expert : envoie "add_state_simu" pour créer un triplet
+*    (etat_expert + set_pos XYTheta + convergence_expert) connecté au
+*    dernier état libre de la chaîne.
+*
+*  En mode débutant : envoie "add_pos_simu_debutant" pour créer un triplet
+*    (set_angle_robot angle + avancer distance + set_angle_robot teta_pos)
+*    connecté au dernier bloc libre du bloc description_debutant.
+*    Le mode n'est PAS forcé en expert.
 */
-void CBlockBotLab::Slot_SetPosFromSimu()
+void CBlockBotLab::Slot_SetPosFromSimu(double angle, double distance)
 {
-    // Basculer en mode expert si nécessaire.
-    // setCurrentText() déclenche currentTextChanged → send2BlockBot() → emit executeCommand("set_mode","expert")
-    // ce signal est émis AVANT add_state_simu, donc BlockBot reçoit et traite set_mode en premier.
-    if (modeChoice->currentText() != "expert") {
-        modeChoice->setCurrentText("expert");
+    QString currentMode = modeChoice->currentText();
+
+    if (currentMode == "expert") {
+        // ── Mode expert : comportement inchangé ───────────────────────────
+        // Lecture des coordonnées simulées depuis le DataCenter
+        int    x     = m_application->m_data_center->read("x_pos").toInt();
+        int    y     = m_application->m_data_center->read("y_pos").toInt();
+        double theta = m_application->m_data_center->read("teta_pos").toDouble();
+
+        // Construction du JSON de paramètres transmis à BlockBot
+        QJsonObject params;
+        params["x"]       = x;
+        params["y"]       = y;
+        params["theta"]   = theta;
+        params["timeout"] = 7000;
+
+        emit executeCommand("add_state_simu", QJsonDocument(params).toJson(QJsonDocument::Compact));
     }
+    else {
+        // ── Mode débutant : création d'un triplet set_angle / avancer / set_angle ──
+        // Lecture de l'orientation courante du robot depuis le DataCenter
+        double teta = m_application->m_data_center->read("teta_pos").toDouble();
 
-    // Lecture des coordonnées simulées depuis le DataCenter
-    int    x     = m_application->m_data_center->read("x_pos").toInt();
-    int    y     = m_application->m_data_center->read("y_pos").toInt();
-    double theta = m_application->m_data_center->read("teta_pos").toDouble();
+        // Construction du JSON de paramètres transmis à BlockBot
+        QJsonObject params;
+        params["angle"]    = angle;
+        params["distance"] = distance;
+        params["teta"]     = teta;
 
-    // Construction du JSON de paramètres transmis à BlockBot
-    QJsonObject params;
-    params["x"]       = x;
-    params["y"]       = y;
-    params["theta"]   = theta;
-    params["timeout"] = 7000;
-
-    emit executeCommand("add_state_simu", QJsonDocument(params).toJson(QJsonDocument::Compact));
+        emit executeCommand("add_pos_simu_debutant", QJsonDocument(params).toJson(QJsonDocument::Compact));
+    }
 }
 
 void CBlockBotLab::onDownloadRequested(QWebEngineDownloadItem *download)

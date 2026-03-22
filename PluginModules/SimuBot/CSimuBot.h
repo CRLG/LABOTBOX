@@ -169,7 +169,7 @@ signals:
     void displayAngle(qreal value_theta);
     void displayCoord2(qreal value_x,qreal value_y);
     void displayAngle2(qreal value_theta);
-    void setSequence();
+    void setSequence(double angle, double distance);
 public slots:
     void viewChanged(QList<QRectF> regions);
     void initView(void);

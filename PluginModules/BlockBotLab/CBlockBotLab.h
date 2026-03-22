@@ -107,7 +107,7 @@ public slots :
     void onDownloadRequested(QWebEngineDownloadItem *download);
     // Déclenché par CSimuBot::setSequence() (double-clic simulation, checkbox cochée).
     // Lit x_pos / y_pos / teta_pos et envoie la commande de création de blocs à BlockBot.
-    void Slot_SetPosFromSimu();
+    void Slot_SetPosFromSimu(double angle, double distance);
 
 };
 

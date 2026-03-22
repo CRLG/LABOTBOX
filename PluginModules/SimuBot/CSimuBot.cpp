@@ -1075,7 +1075,11 @@ void CSimuBot::slot_getPath(void)
 void CSimuBot::catchDoubleClick()
 {
     if(m_ihm.ui.checkBox_setSequence->isChecked())
-        emit setSequence();
+    {
+        double angle=m_ihm.ui.lcdNumber_angle->value();
+        double distance=m_ihm.ui.lcdNumber_distance->value();
+        emit setSequence(angle,distance);
+    }
 }
 
 /*!

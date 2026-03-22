@@ -176,7 +176,7 @@ void CActuatorSequencer::init(CApplication *application)
   connect(m_ihm.ui.cB_bRepeatSequence, SIGNAL(toggled(bool)),this,SLOT(setEnableRepetition(bool)));
 
   connect(m_ihm.ui.pB_get_XYTeta, SIGNAL(clicked(bool)),this,SLOT(Slot_get_XYTeta()));
-  connect(m_application->m_SimuBot,SIGNAL(setSequence()),this, SLOT(Slot_SetPosFromSimu()));
+  connect(m_application->m_SimuBot,SIGNAL(setSequence(double, double)),this, SLOT(Slot_SetPosFromSimu()));
 }
 
 
