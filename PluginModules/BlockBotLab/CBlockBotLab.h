@@ -17,6 +17,7 @@
 
 #include "CPluginModule.h"
 #include "ui_ihm_BlockBotLab.h"
+#include "CHILEngine.h"
 
 
  class Cihm_BlockBotLab : public QMainWindow
@@ -85,6 +86,9 @@ private:
     QComboBox *modeChoice;
     QCheckBox *showCode;
 
+    //! Moteur d'exécution HIL (Hardware In the Loop)
+    CHILEngine *m_hilEngine;
+
 signals:
     //signal pour envoyer une commande et un paramètre à BlockBot
     void executeCommand(const QString &Cmd, const QString &params);
@@ -108,6 +112,22 @@ public slots :
     // Déclenché par CSimuBot::setSequence() (double-clic simulation, checkbox cochée).
     // Lit x_pos / y_pos / teta_pos et envoie la commande de création de blocs à BlockBot.
     void Slot_SetPosFromSimu(double angle, double distance);
+
+    // ── HIL (Hardware In the Loop) ──────────────────────────────────────
+    //! Reçoit la description HIL exportée depuis BlockBot (JSON).
+    //! Appelé par JS en réponse à get_hil_start_state, get_hil_state ou export_hil_single_action.
+    //! hilType : "start_state", "state" ou "single_action"
+    //! hilJson : description JSON (vide si rien de valide)
+    void processHILExport(const QString &hilType, const QString &hilJson);
+
+    //! Connecté à actionPlayHIL — demande l'export puis lance CHILEngine
+    void Slot_PlayHIL();
+
+    //! Connecté à actionStopHIL — arrêt de sécurité + nettoyage
+    void Slot_StopHIL();
+
+    //! Connecté à actionPlayOnlyOneHIL — demande l'export action unique puis l'exécute
+    void Slot_PlaySingleActionHIL();
 
 };
 

@@ -71,6 +71,7 @@
    <addaction name="actionContext"/>
    <addaction name="separator"/>
    <addaction name="actionPlayHIL"/>
+   <addaction name="actionPlayOnlyOneHIL"/>
    <addaction name="actionStopHIL"/>
    <addaction name="separator"/>
   </widget>
@@ -168,6 +169,18 @@
    </property>
    <property name="toolTip">
     <string>Arrêter la sium sur le Robot</string>
+   </property>
+  </action>
+  <action name="actionPlayOnlyOneHIL">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/validate.png</normaloff>:/icons/validate.png</iconset>
+   </property>
+   <property name="text">
+    <string>playOnlyOneHIL</string>
+   </property>
+   <property name="toolTip">
+    <string>Execute une seule action sans enchainement</string>
    </property>
   </action>
  </widget>

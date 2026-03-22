@@ -25,6 +25,7 @@
 
 #include "CActuatorSequencer.h"
 #include "CSimuBot.h"
+#include "CHILEngine.h"
 
 
 /*! \addtogroup Module_Test2
@@ -174,6 +175,35 @@ void CBlockBotLab::init(CApplication *application)
     connect(m_ihm.ui.actionContext, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     // Double-clic sur la simulation (CSimuBot) → création automatique d'un état XYTheta dans BlockBot
     connect(m_application->m_SimuBot, SIGNAL(setSequence(double, double)), this, SLOT(Slot_SetPosFromSimu(double, double)));
+
+    // ── HIL (Hardware In the Loop) ──────────────────────────────────────
+    m_hilEngine = new CHILEngine(this);
+    m_hilEngine->setApplication(m_application);
+
+    // Connexion des boutons toolbar HIL aux slots
+    connect(m_ihm.ui.actionPlayHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_PlayHIL()));
+    connect(m_ihm.ui.actionStopHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_StopHIL()));
+    connect(m_ihm.ui.actionPlayOnlyOneHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_PlaySingleActionHIL()));
+
+    // Quand CHILEngine demande un état → on le demande à BlockBot via QWebChannel
+    connect(m_hilEngine, &CHILEngine::requestState, this, [this](const QString &nomEtat) {
+        emit executeCommand("get_hil_state", nomEtat);
+    });
+
+    // Quand CHILEngine change d'état → surlignage dans BlockBot
+    connect(m_hilEngine, &CHILEngine::stateChanged, this, [this](const QString &nomEtat) {
+        emit executeCommand("highlight_hil_state", nomEtat);
+    });
+
+    // Quand CHILEngine termine → effacer le surlignage
+    connect(m_hilEngine, &CHILEngine::hilFinished, this, [this]() {
+        emit executeCommand("clear_hil_highlight", "");
+    });
+
+    // Messages de log HIL → printView
+    connect(m_hilEngine, &CHILEngine::logMessage, this, [this](const QString &msg) {
+        m_application->m_print_view->print_info(this, msg);
+    });
 
   //Démarrer Blockly
     if(m_blockbotDevMode)
@@ -927,4 +957,79 @@ void CBlockBotLab::onDownloadRequested(QWebEngineDownloadItem *download)
 
     download->setPath(selectedFile);
     download->accept();
+}
+
+
+// =====================================================================
+//                     HIL (Hardware In the Loop)
+// =====================================================================
+
+// _____________________________________________________________________
+/*!
+ * Slot connecté à actionPlayHIL.
+ * Demande à BlockBot l'état de départ (sélectionné ou premier de la chaîne).
+ * Le flux continue dans processHILExport() quand JS répond.
+ */
+void CBlockBotLab::Slot_PlayHIL()
+{
+    m_application->m_print_view->print_info(this, "[HIL] Demande de l'etat de depart...");
+    emit executeCommand("get_hil_start_state", "");
+}
+
+// _____________________________________________________________________
+/*!
+ * Slot connecté à actionStopHIL.
+ * Arrête le HIL (arrêt de sécurité + nettoyage).
+ */
+void CBlockBotLab::Slot_StopHIL()
+{
+    if (m_hilEngine->isRunning()) {
+        m_application->m_print_view->print_info(this, "[HIL] ARRET UTILISATEUR — arret de securite");
+    }
+    m_hilEngine->stop();
+}
+
+// _____________________________________________________________________
+/*!
+ * Slot connecté à actionPlayOnlyOneHIL.
+ * Demande à BlockBot l'action sélectionnée dans le workspace.
+ * Le flux continue dans processHILExport() quand JS répond.
+ */
+void CBlockBotLab::Slot_PlaySingleActionHIL()
+{
+    m_application->m_print_view->print_info(this, "[HIL] Demande de l'action selectionnee...");
+    emit executeCommand("export_hil_single_action", "");
+}
+
+// _____________________________________________________________________
+/*!
+ * Slot appelé par JS via QWebChannel en réponse aux commandes HIL.
+ *
+ * @param hilType  "start_state" : réponse à get_hil_start_state (nom de l'état de départ)
+ *                 "state"       : réponse à get_hil_state (JSON d'un état complet)
+ *                 "single_action" : réponse à export_hil_single_action (JSON d'une action)
+ * @param hilJson  Données JSON ou nom d'état (vide si rien de valide)
+ */
+void CBlockBotLab::processHILExport(const QString &hilType, const QString &hilJson)
+{
+    if (hilType == "start_state") {
+        // Réponse à get_hil_start_state : lancer le HIL depuis cet état
+        if (hilJson.isEmpty()) {
+            m_application->m_print_view->print_warning(this, "[HIL] Aucun etat de depart trouve dans le workspace");
+            return;
+        }
+        m_hilEngine->startFromState(hilJson);
+    }
+    else if (hilType == "state") {
+        // Réponse à get_hil_state : transmettre la description au moteur HIL
+        m_hilEngine->feedState(hilJson);
+    }
+    else if (hilType == "single_action") {
+        // Réponse à export_hil_single_action : exécuter l'action unique
+        if (hilJson.isEmpty()) {
+            m_application->m_print_view->print_warning(this, "[HIL] Aucune action selectionnee (selectionnez un bloc action dans le workspace)");
+            return;
+        }
+        m_hilEngine->executeSingleAction(hilJson);
+    }
 }
