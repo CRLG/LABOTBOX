@@ -121,27 +121,27 @@ void CSimuBot::init(CApplication *application)
     m_physical_engine.createPhysicalWorld(m_application,GrosBotForme,MiniBotForme);
 
     //récupération des positions d'init de GrosBot
-    val = m_application->m_eeprom->read(getName(), "X_init_1_bot1", QVariant(18.0));
+    val = m_application->m_eeprom->read(getName(), "X_init_1_bot1", QVariant(42.0));
     float X_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Y_init_1_bot1", QVariant(123.0));
+    val = m_application->m_eeprom->read(getName(), "Y_init_1_bot1", QVariant(165.0));
     float Y_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Theta_init_1_bot1", QVariant(0.0));
+    val = m_application->m_eeprom->read(getName(), "Theta_init_1_bot1", QVariant(-M_PI_2f));
     float Theta_init_1=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "X_init_2_bot1", QVariant(282.0));
+    val = m_application->m_eeprom->read(getName(), "X_init_2_bot1", QVariant(258.0));
     float X_init_2=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Y_init_2_bot1", QVariant(123.0));
+    val = m_application->m_eeprom->read(getName(), "Y_init_2_bot1", QVariant(165.0));
     float Y_init_2=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Theta_init_2_bot1", QVariant(3.14));
+    val = m_application->m_eeprom->read(getName(), "Theta_init_2_bot1", QVariant(-M_PI_2f));
     float Theta_init_2=val.toFloat();
     equipe1_bot1.init(X_init_1,Y_init_1,Theta_init_1,true);
     equipe2_bot1.init(X_init_2,Y_init_2,Theta_init_2,false);
 
-    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_1_bot1", QVariant(0.0));
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_1_bot1", QVariant(-M_PI_2f));
     iniTetaAsserv_bot1[EQUIPE1]=val.toFloat();
-    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_2_bot1", QVariant(0.0));
+    val = m_application->m_eeprom->read(getName(), "Theta_asserv_init_2_bot1", QVariant(M_PI_2f));
     iniTetaAsserv_bot1[EQUIPE2]=val.toFloat();
 
-    //récupération des positions d'init de GrosBot
+    //récupération des positions d'init de MiniBot
     val = m_application->m_eeprom->read(getName(), "X_init_1_bot2", QVariant(18.0));
     X_init_1=val.toFloat();
     val = m_application->m_eeprom->read(getName(), "Y_init_1_bot2", QVariant(104.0));
@@ -173,28 +173,31 @@ void CSimuBot::init(CApplication *application)
     //ajout des éléments de jeu
     //éléments de jeu 2026: caisses de noisettes soit des rectangles de 15x5 cm
     //elements horizontaux
-    float x_elJeu_h[]={17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,17.5f,
-                      282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f,282.5f};
-    float y_elJeu_h[]={32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f,
-                      32.5f,37.5f,42.5f,47.5f,112.5f,117.5f,122.5f,127.5f};
-    float x_elJeu_v[]={62.5f,72.5f,82.5f,92.5f,95.0f,105.0f,115.0f,125.0f,67.5f,77.5f,87.5f,97.5f,
-                      207.5f,217.5f,227.5f,237.5f,175.0f,185.0f,195.0f,205.0f,202.5f,212.5f,222.5f,232.5f};
-    float y_elJeu_v[]={25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f,
-                      25.0f,25.0f,25.0f,25.0f,95.0f,95.0f,95.0f,95.0f,172.5f,172.5f,172.5f,172.5f};
-    qDebug() << "ici";
+    float x_elJeu_h[]={10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,
+                      275.0f,275.0f,275.0f,275.0f,275.0f,275.0f,275.0f,275.0f};
+    float y_elJeu_h[]={35.0f,40.0f,45.0f,50.0f,115.0f,120.0f,125.0f,130.f,
+                      35.0f,40.0f,45.0f,50.0f,115.0f,120.0f,125.0f,130.f};
+    //elements verticaux
+    float x_elJeu_v[]={100.0f,105.0f,110.0f,115.0f,105.0f,110.0f,115.0f,120.0f,70.0f,75.0f,80.0f,85.0f,
+                      180.0f,185.0f,190.0f,195.0f,175.0f,180.0f,185.0f,190.0f,210.0f,215.0f,220.0f,225.0f,
+                      105.0f,110.0f,130.0f,135.0f,160.0f,165.0f,185.0f,190.0f};
+    float y_elJeu_v[]={25.0f,25.0f,25.0f,25.0f,87.5f,87.5f,87.5f,87.5f,175.0f,175.0f,175.0f,175.0f,
+                      25.0f,25.0f,25.0f,25.0f,87.5f,87.5f,87.5f,87.5f,175.0f,175.0f,175.0f,175.0f,
+                      180.0f,180.0f,185.0f,185.0f,185.0f,185.0f,180.0f,180.0f};
+    //placement des éléements de jeu
     for(int k=0;k<16;k++)
     {
         if(k%2==0)
-            elementsJeu[k]=setElementJeu(x_elJeu_h[k],y_elJeu_h[k],Qt::yellow,false);
+            elementsJeu[k]=setElementJeu(x_elJeu_h[k],-y_elJeu_h[k],Qt::yellow,false);
         else
-            elementsJeu[k]=setElementJeu(x_elJeu_h[k],y_elJeu_h[k],Qt::blue,false);
+            elementsJeu[k]=setElementJeu(x_elJeu_h[k],-y_elJeu_h[k],Qt::blue,false);
     }
-    for(int k=0;k<24;k++)
+    for(int k=0;k<32;k++)
     {
         if(k%2==0)
-            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],y_elJeu_v[k],Qt::yellow,true);
+            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],-y_elJeu_v[k],Qt::yellow,true);
         else
-            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],y_elJeu_v[k],Qt::blue,true);
+            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],-y_elJeu_v[k],Qt::blue,true);
     }
 
 
@@ -648,15 +651,18 @@ void CSimuBot::initView(void){
         }
 
         //placement des élements de jeu dans le monde simulé
+        //attention a un impact sur l'init de la vue de simubot
         for(int i=0;i<16;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),15.0f,5.0f));
-            /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y());
-            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
+            //qDebug() << " (x, y, teta) :" << m_physical_engine.getElement(i).x()-7.5f << " , " << m_physical_engine.getElement(i).y()+2.5f << " , " << m_physical_engine.getElementRotation(i);
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-7.5f, -(m_physical_engine.getElement(i).y()+2.5f),15.0f,5.0f));
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
         }
-        for(int i=16;i<40;i++)
+        for(int i=16;i<48;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x(), -m_physical_engine.getElement(i).y(),5.0f,15.0f));
+            //qDebug() << " (x, y, teta) :" << m_physical_engine.getElement(i).x()-2.5f << " , " << m_physical_engine.getElement(i).y()+7.5f << " , " << m_physical_engine.getElementRotation(i);
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5f, -(m_physical_engine.getElement(i).y()+7.5f),5.0f,15.0f));
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
         }
 
         //init data manager 1er Robot
