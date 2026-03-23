@@ -129,6 +129,10 @@ public slots :
     //! Connecté à actionPlayOnlyOneHIL — demande l'export action unique puis l'exécute
     void Slot_PlaySingleActionHIL();
 
+    //! Connecté à actionMergeProject — ouvre un fichier JSON et fusionne les blocs dans le workspace courant.
+    //! Contrairement à actionOpen (load_project), le workspace existant n'est pas effacé.
+    void Slot_MergeProject();
+
 };
 
 #endif // _CPLUGIN_MODULE_BlockBotLab_H_

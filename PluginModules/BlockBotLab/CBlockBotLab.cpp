@@ -184,6 +184,7 @@ void CBlockBotLab::init(CApplication *application)
     connect(m_ihm.ui.actionPlayHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_PlayHIL()));
     connect(m_ihm.ui.actionStopHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_StopHIL()));
     connect(m_ihm.ui.actionPlayOnlyOneHIL, SIGNAL(triggered(bool)), this, SLOT(Slot_PlaySingleActionHIL()));
+    connect(m_ihm.ui.actionMergeProject, SIGNAL(triggered(bool)), this, SLOT(Slot_MergeProject()));
 
     // Quand CHILEngine demande un état → on le demande à BlockBot via QWebChannel
     connect(m_hilEngine, &CHILEngine::requestState, this, [this](const QString &nomEtat) {
@@ -999,6 +1000,33 @@ void CBlockBotLab::Slot_PlaySingleActionHIL()
 {
     m_application->m_print_view->print_info(this, "[HIL] Demande de l'action selectionnee...");
     emit executeCommand("export_hil_single_action", "");
+}
+
+// _____________________________________________________________________
+/*!
+ * Slot connecté à actionMergeProject.
+ * Ouvre un fichier JSON via boîte de dialogue et fusionne les blocs dans le workspace
+ * courant sans l'effacer — équivalent de l'import de fragment de CActuatorSequencer.
+ * La commande envoyée est "import_project" (distincte de "load_project" qui efface).
+ */
+void CBlockBotLab::Slot_MergeProject()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+        m_ihm.ui.centralwidget,
+        tr("Importer un fragment de strategie"),
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+        tr("Fichier Blockly (*.json)")
+    );
+
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        QString json = file.readAll();
+        file.close();
+        emit executeCommand("import_project", json);
+    }
 }
 
 // _____________________________________________________________________

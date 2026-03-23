@@ -68,6 +68,7 @@
    <addaction name="separator"/>
    <addaction name="actionSave"/>
    <addaction name="actionOpen"/>
+   <addaction name="actionMergeProject"/>
    <addaction name="actionContext"/>
    <addaction name="separator"/>
    <addaction name="actionPlayHIL"/>
@@ -181,6 +182,18 @@
    </property>
    <property name="toolTip">
     <string>Execute une seule action sans enchainement</string>
+   </property>
+  </action>
+  <action name="actionMergeProject">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/plus.png</normaloff>:/icons/plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>mergeProject</string>
+   </property>
+   <property name="toolTip">
+    <string>importer un autre projet</string>
    </property>
   </action>
  </widget>
