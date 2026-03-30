@@ -1076,9 +1076,13 @@ void CSimuBot::catchDoubleClick()
 {
     if(m_ihm.ui.checkBox_setSequence->isChecked())
     {
-        double angle=m_ihm.ui.lcdNumber_angle->value();
-        double distance=m_ihm.ui.lcdNumber_distance->value();
-        emit setSequence(angle,distance);
+        double angle    = m_ihm.ui.lcdNumber_angle->value();
+        double distance = m_ihm.ui.lcdNumber_distance->value();
+        // Normalisation : le signal setSequence transmet toujours l'angle en degrés,
+        // quel que soit le réglage d'affichage du widget groupBox_angles.
+        if (setAndGetInRad)
+            angle = angle * 180.0 / Pi;
+        emit setSequence(angle, distance);
     }
 }
 

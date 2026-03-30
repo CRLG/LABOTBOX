@@ -933,10 +933,15 @@ void CBlockBotLab::Slot_SetPosFromSimu(double angle, double distance)
     }
     else {
         // ── Mode débutant : création d'un triplet set_angle / avancer / set_angle ──
-        // Lecture de l'orientation courante du robot depuis le DataCenter
+        // Lecture de l'orientation courante du robot depuis le DataCenter.
+        // teta_pos est stocké dans la même unité que setAndGetInRad (rad ou deg).
+        // Conversion en degrés : les blocs BlockBot mode débutant travaillent toujours en degrés.
         double teta = m_application->m_data_center->read("teta_pos").toDouble();
+        if (m_application->m_SimuBot->setAndGetInRad)
+            teta = teta * 180.0 / Pi;
 
-        // Construction du JSON de paramètres transmis à BlockBot
+        // Construction du JSON de paramètres transmis à BlockBot.
+        // angle est déjà normalisé en degrés par catchDoubleClick() dans CSimuBot.
         QJsonObject params;
         params["angle"]    = angle;
         params["distance"] = distance;

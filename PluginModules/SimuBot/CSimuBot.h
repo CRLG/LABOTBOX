@@ -87,6 +87,7 @@ public:
     virtual void close(void);
     virtual bool hasGUI(void) { return(true); }
     virtual QIcon getIcon(void) { return(QIcon(":/icons/edit_add.png")); }
+    bool setAndGetInRad;
 
 private slots :
     void onRightClicGUI(QPoint pos);
@@ -121,7 +122,7 @@ private:
     GraphicEnvironnement *terrain;
     int modeVisu;
     //bool isRelativToBot;
-    bool setAndGetInRad;
+
 
     void initEquipe(int equipe);
 
