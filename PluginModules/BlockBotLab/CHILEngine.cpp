@@ -17,9 +17,9 @@
 static const int cCONVERGENCE_OK_VALUE = 1;
 // Commande servo AX position (cf CActuatorElectrobot.h)
 static const int cSERVO_AX_POSITION_VALUE = 0;
-// Délai minimal (ms) avant d'écouter la convergence, pour laisser le temps
+// Délai minimal (ms) avant d'observer une convergence, pour laisser le temps
 // à l'asservissement de démarrer le mouvement et de quitter l'état "convergé".
-// Équivalent au cmptTe > 10 de CActuatorSequencer (~400ms à 25Hz).
+// Équivalent au cmptTe > 10 de CActuatorSequencer.
 static const int CONVERGENCE_GUARD_DELAY_MS = 500;
 
 
@@ -44,22 +44,23 @@ void CHILEngine::setApplication(CApplication *application)
 void CHILEngine::startFromState(const QString &nomEtat)
 {
     if (m_running) {
-        emit logMessage("[HIL] Deja en cours d'execution, arret prealable");
+        emit logMessage("[HIL] Deja en cours d'execution, arrêt préalable avant toute nouvelle execution");
         stop();
     }
 
     m_running = true;
     m_currentState = nomEtat;
 
-    emit logMessage(QString("[HIL] DEMARRAGE depuis %1").arg(nomEtat));
+    emit logMessage(QString("[HIL] DEMARRAGE de la séquence depuis l'état %1.").arg(nomEtat));
 
-    // Demande la description de l'état à BlockBot
+    // Demande la description des actions et des transitions de l'état à BlockBot
+    //fonctionnement pas à pas
     emit requestState(nomEtat);
 }
 
 // _____________________________________________________________________
 /*!
- * Reçoit la description JSON d'un état depuis BlockBot.
+ * Reçoit la description JSON d'un état depuis BlockBot (javascript oblige).
  * Parse les actions, les exécute immédiatement, puis arme les transitions.
  *
  * Format attendu :
@@ -71,29 +72,38 @@ void CHILEngine::startFromState(const QString &nomEtat)
  */
 void CHILEngine::feedState(const QString &stateJson)
 {
+    //n'est exécuté que si une séquence est en cours
     if (!m_running) return;
 
+    //gestion des états vides
+    //TODO: gérer les noeuds car pour l'instant on s'y arrête
     if (stateJson.isEmpty()) {
-        emit logMessage("[HIL] Etat vide recu — arret");
+        emit logMessage("[HIL] Etat vide — séquence arrêtée");
         stop();
         return;
     }
 
+    //gestion des états mals construits
+    //bien que peu probable avec BlockBot
     QJsonDocument doc = QJsonDocument::fromJson(stateJson.toUtf8());
     if (!doc.isObject()) {
-        emit logMessage("[HIL] JSON invalide — arret");
+        emit logMessage("[HIL] Etat invalide — séquence arrêtée.");
         stop();
         return;
     }
 
+    //Récupération des infos de l'état (nom, actions, transitions)
     QJsonObject stateObj = doc.object();
     QString nomEtat = stateObj["nom"].toString();
     QJsonArray actions = stateObj["actions"].toArray();
     QJsonArray transitions = stateObj["transitions"].toArray();
 
-    // Surlignage Blockly
+    //Surlignage Blockly
+    //On s'apprête à exécuter le contenu de l'état
+    //celui-ci est donc surligné (changement de couleur et sélection) dans BlockBot
     emit stateChanged(nomEtat);
 
+    //description de chaque exécution dans printView, ici on annonce la couleur
     emit logMessage(QString("[HIL] ETAT %1 : %2 action(s), %3 transition(s)")
                     .arg(nomEtat)
                     .arg(actions.size())
@@ -104,7 +114,9 @@ void CHILEngine::feedState(const QString &stateJson)
 
     // Armement des transitions
     if (transitions.isEmpty()) {
-        emit logMessage(QString("[HIL]   Aucune transition — reste dans %1").arg(nomEtat));
+        //fonctionnement par défaut, s'il n'y a pas de transition on n'arme aucun timeout
+        //par défaut, on restera dans l'état actuel jusqu'à l'arrêt manuel sur l'ihm
+        emit logMessage(QString("[HIL]   ATTENTION: Aucune transition — on reste dans l'état %1").arg(nomEtat));
     } else {
         emit logMessage("[HIL]   ATTENTE transitions...");
         armTransitions(transitions);
@@ -118,30 +130,40 @@ void CHILEngine::feedState(const QString &stateJson)
  */
 void CHILEngine::executeSingleAction(const QString &actionJson)
 {
+    //on n'execute que les blocs qui sont des actions
     if (actionJson.isEmpty()) {
-        emit logMessage("[HIL] Aucune action selectionnee");
+        emit logMessage("[HIL] Aucune action selectionnée - non exécutée.");
         return;
     }
 
+    //gestion des actions mals construites
+    //bien que peu probable avec BlockBot
     QJsonDocument doc = QJsonDocument::fromJson(actionJson.toUtf8());
     if (!doc.isObject()) {
-        emit logMessage("[HIL] JSON action invalide");
+        emit logMessage("[HIL] Action invalide - non exécutée.");
         return;
     }
 
+    //récupération des infos du bloc
     QJsonObject action = doc.object();
     QString type = action["type"].toString();
 
+    //certaines actions sont ignorée comme les actions perso
     if (action["ignored"].toBool()) {
         emit logMessage(QString("[HIL] ACTION UNIQUE IGNOREE : %1 (non supporte en HIL)").arg(type));
         return;
     }
 
-    emit logMessage(QString("[HIL] ACTION UNIQUE %1").arg(type));
+    //Tout est vérifié: on exécute l'action
+    emit logMessage(QString("[HIL] ACTION UNIQUE %1 EXECUTEE").arg(type));
     executeOneAction(action);
 }
 
 // _____________________________________________________________________
+/*!
+ * \brief CHILEngine::executeActions, execute une serie d'actions
+ * \param actions
+ */
 void CHILEngine::executeActions(const QJsonArray &actions)
 {
     for (int i = 0; i < actions.size(); i++) {
@@ -172,25 +194,25 @@ void CHILEngine::executeOneAction(const QJsonObject &action)
         int pos   = action["pos"].toInt();
         int speed = action["speed"].toInt(255);
         sendServo(id, pos, speed);
-        emit logMessage(QString("[HIL]   ACTION set_servo_expert : servo=%1 pos=%2 vit=%3").arg(id).arg(pos).arg(speed));
+        emit logMessage(QString("[HIL]   ACTION SERVO : servo=%1 pos=%2 vit=%3").arg(id).arg(pos).arg(speed));
     }
     else if (type == "set_ax_expert") {
         int id  = action["id"].toInt();
         int pos = action["pos"].toInt();
         sendServoAX(id, pos);
-        emit logMessage(QString("[HIL]   ACTION set_ax_expert : ax=%1 pos=%2").arg(id).arg(pos));
+        emit logMessage(QString("[HIL]   ACTION SERVO AX : ax=%1 pos=%2").arg(id).arg(pos));
     }
     else if (type == "set_motor") {
         int id  = action["id"].toInt();
         int pwm = action["pwm"].toInt();
         sendMotor(id, pwm);
-        emit logMessage(QString("[HIL]   ACTION set_motor : moteur=%1 pwm=%2").arg(id).arg(pwm));
+        emit logMessage(QString("[HIL]   ACTION MOTEUR : moteur=%1 pwm=%2").arg(id).arg(pwm));
     }
     else if (type == "set_switch") {
         int id   = action["id"].toInt();
         int etat = action["etat"].toInt();
         sendSwitch(id, etat);
-        emit logMessage(QString("[HIL]   ACTION set_switch : switch=%1 etat=%2").arg(id).arg(etat));
+        emit logMessage(QString("[HIL]   ACTION RELAIS : relais=%1 état=%2").arg(id).arg(etat));
     }
     else if (type == "set_pos") {
         QString mode = action["mode"].toString();
@@ -200,13 +222,13 @@ void CHILEngine::executeOneAction(const QJsonObject &action)
 
         if (mode == "XY") {
             sendMovementXY(val1, val2);
-            emit logMessage(QString("[HIL]   ACTION set_pos : mode=XY x=%1 y=%2").arg(val1).arg(val2));
+            emit logMessage(QString("[HIL]   ACTION ASSER X/Y: x=%1 y=%2").arg(val1).arg(val2));
         } else if (mode == "XYT") {
             sendMovementXYT(val1, val2, val3);
-            emit logMessage(QString("[HIL]   ACTION set_pos : mode=XYT x=%1 y=%2 theta=%3").arg(val1).arg(val2).arg(val3));
+            emit logMessage(QString("[HIL]   ACTION ASSER X/Y/Teta: x=%1 y=%2 theta=%3").arg(val1).arg(val2).arg(val3));
         } else if (mode == "DA") {
             sendMovementDA(val1, val3);
-            emit logMessage(QString("[HIL]   ACTION set_pos : mode=DA dist=%1 angle=%2").arg(val1).arg(val3));
+            emit logMessage(QString("[HIL]   ACTION ASSER Distance/Angle: dist=%1 angle=%2").arg(val1).arg(val3));
         }
     }
     else if (type == "set_pos_static") {
@@ -214,10 +236,10 @@ void CHILEngine::executeOneAction(const QJsonObject &action)
         float val2 = static_cast<float>(action["val2"].toDouble());
         float val3 = static_cast<float>(action["val3"].toDouble());
         sendMovementXYT(val1, val2, val3);
-        emit logMessage(QString("[HIL]   ACTION set_pos_static : x=%1 y=%2 theta=%3").arg(val1).arg(val2).arg(val3));
+        emit logMessage(QString("[HIL]   ACTION ASSER POSITION : x=%1 y=%2 theta=%3").arg(val1).arg(val2).arg(val3));
     }
     else {
-        emit logMessage(QString("[HIL]   ACTION IGNOREE : type inconnu %1").arg(type));
+        emit logMessage(QString("[HIL]   ACTION IGNOREE : type blockbot inconnu %1").arg(type));
     }
 }
 
@@ -298,6 +320,29 @@ void CHILEngine::armTransitions(const QJsonArray &transitions)
                 m_transitionTimers.append(timer);
             }
         }
+        else if (type == "si_vrai_expert") {
+            // Transition conditionnelle : la condition booléenne est évaluée côté JS
+            // via le générateur natif Blockly. CHILEngine demande l'init à BlockBot,
+            // puis envoie un snapshot DM toutes les 20ms jusqu'à ce que la condition
+            // soit vraie ou que le timeout expire.
+            m_logicEtatCible = etatCible;
+
+            // Émet requestLogicInit → CBlockBotLab → executeCommand("hil_logic_init", blockId)
+            emit requestLogicInit(trans["blockId"].toString());
+
+            // Timer timeout de sécurité (ajouté à m_transitionTimers pour nettoyage automatique)
+            if (timeoutMs > 0) {
+                QTimer *timer = new QTimer(this);
+                timer->setSingleShot(true);
+                connect(timer, &QTimer::timeout, this, [this, etatCible]() {
+                    triggerTransition(etatCible, "timeout (si_vrai_expert)");
+                });
+                timer->start(timeoutMs);
+                m_transitionTimers.append(timer);
+            }
+            // Le timer de tick 20ms est démarré dans feedLogicKeys()
+            // une fois que JS a répondu avec les clés DataManager.
+        }
         else if (type == "convergence_rapide_expert") {
             // Écoute la convergence rapide + timeout de sécurité.
             // Même délai de garde que convergence_expert.
@@ -338,12 +383,21 @@ void CHILEngine::armTransitions(const QJsonArray &transitions)
 // _____________________________________________________________________
 void CHILEngine::disarmTransitions()
 {
-    // Arrêt et suppression de tous les timers
+    // Arrêt et suppression de tous les timers de timeout
     for (QTimer *timer : m_transitionTimers) {
         timer->stop();
         delete timer;
     }
     m_transitionTimers.clear();
+
+    // Arrêt du timer de tick si_vrai_expert
+    if (m_logicTickTimer) {
+        m_logicTickTimer->stop();
+        delete m_logicTickTimer;
+        m_logicTickTimer = nullptr;
+    }
+    m_hilLogicKeys.clear();
+    m_logicEtatCible.clear();
 
     // Déconnexion des signaux DataManager
     if (m_convergenceConnection) {
@@ -356,6 +410,75 @@ void CHILEngine::disarmTransitions()
     }
 
     m_pendingTransitions.clear();
+}
+
+// _____________________________________________________________________
+/*!
+ * Reçoit les clés DataManager renvoyées par JS après hil_logic_init.
+ * Démarre le timer de tick périodique 20ms pour l'évaluation de la condition.
+ */
+void CHILEngine::feedLogicKeys(const QString &keysJson)
+{
+    if (!m_running) return;
+
+    // Parsing du tableau JSON de clés
+    m_hilLogicKeys.clear();
+    QJsonDocument doc = QJsonDocument::fromJson(keysJson.toUtf8());
+    if (doc.isArray()) {
+        for (const QJsonValue &val : doc.array()) {
+            if (!val.toString().isEmpty()) {
+                m_hilLogicKeys.append(val.toString());
+            }
+        }
+    }
+
+    emit logMessage(QString("[HIL]   CONDITION si_vrai_expert : %1 cle(s) DM").arg(m_hilLogicKeys.size()));
+
+    // Démarrage du timer de tick périodique 20ms
+    if (m_logicTickTimer) {
+        m_logicTickTimer->stop();
+        delete m_logicTickTimer;
+    }
+    m_logicTickTimer = new QTimer(this);
+    m_logicTickTimer->setInterval(20);
+    connect(m_logicTickTimer, &QTimer::timeout, this, &CHILEngine::buildAndSendLogicTick);
+    m_logicTickTimer->start();
+}
+
+// _____________________________________________________________________
+/*!
+ * Reçoit le résultat booléen renvoyé par JS après hil_logic_tick.
+ * Si true, déclenche la transition vers l'état cible.
+ */
+void CHILEngine::feedLogicResult(bool result)
+{
+    if (!m_running || m_logicEtatCible.isEmpty()) return;
+
+    if (result) {
+        // Copie locale obligatoire : triggerTransition() appelle disarmTransitions()
+        // qui efface m_logicEtatCible avant même de l'utiliser si on passe une référence.
+        QString etatCible = m_logicEtatCible;
+        triggerTransition(etatCible, "condition vraie");
+    }
+    // Si false : on attend le prochain tick (rien à faire)
+}
+
+// _____________________________________________________________________
+/*!
+ * Construit le snapshot DataManager limité aux clés m_hilLogicKeys
+ * et émet requestLogicTick() avec le JSON résultant.
+ * Appelé toutes les 20ms par m_logicTickTimer.
+ */
+void CHILEngine::buildAndSendLogicTick()
+{
+    if (!m_running || !m_application) return;
+
+    QJsonObject kvMap;
+    for (const QString &key : m_hilLogicKeys) {
+        CData *data = m_application->m_data_center->getData(key, true);
+        kvMap[key] = data ? data->read().toDouble() : 0.0;
+    }
+    emit requestLogicTick(QJsonDocument(kvMap).toJson(QJsonDocument::Compact));
 }
 
 // _____________________________________________________________________

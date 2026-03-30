@@ -201,6 +201,16 @@ void CBlockBotLab::init(CApplication *application)
         emit executeCommand("clear_hil_highlight", "");
     });
 
+    // si_vrai_expert : demande d'init de la condition booléenne côté JS
+    connect(m_hilEngine, &CHILEngine::requestLogicInit, this, [this](const QString &blockId) {
+        emit executeCommand("hil_logic_init", blockId);
+    });
+
+    // si_vrai_expert : envoi du snapshot DataManager pour le tick d'évaluation
+    connect(m_hilEngine, &CHILEngine::requestLogicTick, this, [this](const QString &kvMapJson) {
+        emit executeCommand("hil_logic_tick", kvMapJson);
+    });
+
     // Messages de log HIL → printView
     connect(m_hilEngine, &CHILEngine::logMessage, this, [this](const QString &msg) {
         m_application->m_print_view->print_info(this, msg);
@@ -876,6 +886,7 @@ void CBlockBotLab::send2BlockBot()
         emit executeCommand("values_servos_ax", QJsonDocument(jsonArray_ax_values).toJson());
         emit executeCommand("state_machine", QJsonDocument(jsonArray_state_machine).toJson());
         emit executeCommand("switch", QJsonDocument(jsonArray_switch).toJson());
+
     }
 }
 
@@ -1059,5 +1070,13 @@ void CBlockBotLab::processHILExport(const QString &hilType, const QString &hilJs
             return;
         }
         m_hilEngine->executeSingleAction(hilJson);
+    }
+    else if (hilType == "logic_keys") {
+        // Réponse à hil_logic_init : clés DM renvoyées par JS pour si_vrai_expert
+        m_hilEngine->feedLogicKeys(hilJson);
+    }
+    else if (hilType == "logic_result") {
+        // Réponse à hil_logic_tick : résultat de l'évaluation de la condition
+        m_hilEngine->feedLogicResult(hilJson == "true");
     }
 }

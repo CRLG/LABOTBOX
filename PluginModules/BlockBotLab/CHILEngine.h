@@ -60,6 +60,13 @@ public:
     //! Retourne true si le moteur HIL est en cours d'exécution.
     bool isRunning() const { return m_running; }
 
+    //! Reçoit les clés DataManager renvoyées par JS après hil_logic_init.
+    //! Lance le timer de tick et le timeout guard pour si_vrai_expert.
+    void feedLogicKeys(const QString &keysJson);
+
+    //! Reçoit le résultat booléen renvoyé par JS après hil_logic_tick.
+    void feedLogicResult(bool result);
+
 signals:
     //! Demande à CBlockBotLab de récupérer la description de l'état nomEtat via JS.
     void requestState(const QString &nomEtat);
@@ -72,6 +79,12 @@ signals:
 
     //! Message formaté [HIL] pour affichage dans printView.
     void logMessage(const QString &msg);
+
+    //! Demande à CBlockBotLab d'envoyer hil_logic_init(blockId) à BlockBot.
+    void requestLogicInit(const QString &blockId);
+
+    //! Demande à CBlockBotLab d'envoyer hil_logic_tick(kvMapJson) à BlockBot.
+    void requestLogicTick(const QString &kvMapJson);
 
 private:
     //! Exécute toutes les actions d'un état (tableau JSON "actions").
@@ -103,6 +116,10 @@ private:
     void sendMovementXYT(float x, float y, float theta);
     void sendMovementDA(float distance, float angle);
 
+    //! Construit le snapshot DataManager limité aux clés m_hilLogicKeys
+    //! et émet requestLogicTick() avec le JSON résultant.
+    void buildAndSendLogicTick();
+
     CApplication *m_application = nullptr;
     bool m_running = false;
     QString m_currentState;
@@ -121,6 +138,14 @@ private:
         int timeoutMs;
     };
     QList<PendingTransition> m_pendingTransitions;
+
+    // ── si_vrai_expert ────────────────────────────────────────────
+    //! Timer périodique 20ms pour l'évaluation de la condition booléenne
+    QTimer *m_logicTickTimer = nullptr;
+    //! Clés DataManager requises par la condition (renvoyées par JS à l'init)
+    QStringList m_hilLogicKeys;
+    //! État cible si la condition devient vraie
+    QString m_logicEtatCible;
 };
 
 #endif // CHILENGINE_H
