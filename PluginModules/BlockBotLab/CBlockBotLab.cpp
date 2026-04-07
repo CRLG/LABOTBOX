@@ -226,7 +226,7 @@ void CBlockBotLab::init(CApplication *application)
     {
         qDebug() << "[BlockBotLab] Démarrage de blockbot en mode indus!";
         QString appDir = QCoreApplication::applicationDirPath();
-        QString filePath = appDir + "/BlockBot/index.html";
+        QString filePath = appDir + "/BlockBot_static/index.html";
         m_blockbotWebView->setUrl(QUrl::fromLocalFile(filePath));
     }
 }
