@@ -1495,12 +1495,12 @@
          <rect>
           <x>10</x>
           <y>100</y>
-          <width>221</width>
+          <width>401</width>
           <height>23</height>
          </rect>
         </property>
         <property name="text">
-         <string>Set sequence on double click</string>
+         <string>Créer un mouvement dans BlockBot en double-cliquant</string>
         </property>
        </widget>
        <widget class="QCheckBox" name="checkBox_enableBlocking">

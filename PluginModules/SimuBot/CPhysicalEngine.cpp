@@ -18,7 +18,7 @@ CPhysicalEngine::CPhysicalEngine()
 {
     m_bot1=0;
     m_bot2=0;
-    for(int i=0;i<40;i++)
+    for(int i=0;i<48;i++) //48 éléments déclarés (16 horizontaux + 32 verticaux)
         elementsJeu[i]=0;
 }
 
@@ -43,6 +43,9 @@ void CPhysicalEngine::createPhysicalWorld(CApplication *application, QPolygonF b
     //les offset x et y en paramètres nous permmet
     m_x_init1=0;
     m_y_init1=0;
+    m_x_init2=0.0f;
+    m_y_init2=0.0f;
+    m_teta_init2=0.0f;
 
     //coeff de friction des bordures pour eviter de glisser dessus
     float coeffFriction=3.0f;
@@ -150,7 +153,7 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
         realWorld->DestroyBody(m_bot1);
     if(m_bot2)
         realWorld->DestroyBody(m_bot2);
-    for(int i=0; i<40;i++)
+    for(int i=0; i<48;i++) //48 éléments déclarés : était 40, 8 corps orphelins par appel à Init()
     {
         if(elementsJeu[i])
             realWorld->DestroyBody(elementsJeu[i]);
@@ -283,7 +286,7 @@ void CPhysicalEngine::Init(float x_init1, float y_init1, float teta_init1,float 
             bot2DefaultShape[5].x=min_x;bot2DefaultShape[5].y=-max_y;
             bot2DefaultShape[6].x=max_x;bot2DefaultShape[6].y=-min_y;
             bot2DefaultShape[7].x=max_x;bot2DefaultShape[7].y=min_y;
-            Forme_Robot.Set(bot2DefaultShape,8);
+            Forme_bot2.Set(bot2DefaultShape,8); //corrige copier-coller : était Forme_Robot (forme bot1)
         }
         else
         {
@@ -510,7 +513,10 @@ void CPhysicalEngine::activateBot2(bool flag)
 {
     m_bot2_activated=flag;
     if(m_bot2)
+    {
         realWorld->DestroyBody(m_bot2);
+        m_bot2=nullptr; //évite un pointeur pendant : Init() vérifie if(m_bot2) avant de détruire
+    }
     if(m_bot2_activated)
     {
         //création du 2ème robot
