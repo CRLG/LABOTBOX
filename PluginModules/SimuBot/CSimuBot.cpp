@@ -1744,11 +1744,17 @@ void CSimuBot::updateStepFromSimulia()
         m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,vect_G_B2,vect_D_B2,x_recal,y_recal);
 
         //récupération des données simulées pour les éléments de jeu
-        for(int i=0;i<40;i++)
+        for(int i=0;i<16;i++)
         {
-            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-3.65, -m_physical_engine.getElement(i).y()-3.65,7.3,7.3));
-            /*elementsJeu[i]->setPos(m_physical_engine.getElement(i).x()-2.5, -m_physical_engine.getElement(i).y()-2.5);
-            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));*/
+            //qDebug() << " (x, y, teta) :" << m_physical_engine.getElement(i).x()-7.5f << " , " << m_physical_engine.getElement(i).y()+2.5f << " , " << m_physical_engine.getElementRotation(i);
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-7.5f, -(m_physical_engine.getElement(i).y()+2.5f),15.0f,5.0f));
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
+        }
+        for(int i=16;i<48;i++)
+        {
+            //qDebug() << " (x, y, teta) :" << m_physical_engine.getElement(i).x()-2.5f << " , " << m_physical_engine.getElement(i).y()+7.5f << " , " << m_physical_engine.getElementRotation(i);
+            elementsJeu[i]->setRect(QRectF(m_physical_engine.getElement(i).x()-2.5f, -(m_physical_engine.getElement(i).y()+7.5f),5.0f,15.0f));
+            elementsJeu[i]->setRotation(m_physical_engine.getElementRotation(i));
         }
 
         //environnement physique mis à jour, on l'affiche dans SimuBot
