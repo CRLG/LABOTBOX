@@ -100,6 +100,11 @@ void CImageProcessing::init(CApplication *application)
     m_ihm.ui.aruco_tag1->setValue(val.toInt());
     val = m_application->m_eeprom->read(getName(),"tag2_aruco_lat",QVariant(92));
     m_ihm.ui.aruco_tag2->setValue(val.toInt());
+    // Persistance de la sequence detectee
+    val = m_application->m_eeprom->read(getName(), "sequence_persist_max", QVariant(5));
+    m_sequence_persist_max = val.toInt();
+    m_sequence_last_valid  = SEQUENCE_UNKNOWN;
+    m_sequence_persist_count = 0;
     /*
     VIDEO_PROCESS_BALISE_MAT = 0,
     VIDEO_PROCESS_BALISE_LATERALE,
@@ -169,6 +174,7 @@ void CImageProcessing::close(void)
   m_application->m_eeprom->write(getName(), "tag1_aruco_lat", QVariant(m_ihm.ui.aruco_tag1->value())); //CBY
   m_application->m_eeprom->write(getName(), "tag2_aruco_lat", QVariant(m_ihm.ui.aruco_tag2->value())); //CBY
   m_application->m_eeprom->write(getName(), "taille_aruco_lat", QVariant(m_ihm.ui.aruco_size->value())); //CBY
+  m_application->m_eeprom->write(getName(), "sequence_persist_max", QVariant(m_sequence_persist_max));
 
 }
 
@@ -370,16 +376,28 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
         break;
 
         case VIDEO_PROCESS_SEQUENCE:
-            m_application->m_data_center->write("Camera.Sequence", (int)(result.value[IDX_SEQUENCE]));
+        {
+            int sequence = (int)(result.value[IDX_SEQUENCE]);
+            if (sequence != SEQUENCE_UNKNOWN) {
+                // nouvelle detection valide : memorise et recharge le compteur
+                m_sequence_last_valid    = sequence;
+                m_sequence_persist_count = m_sequence_persist_max;
+            } else if (m_sequence_persist_count > 0) {
+                // pas de detection ce tour : maintient la derniere valeur connue
+                sequence = m_sequence_last_valid;
+                m_sequence_persist_count--;
+            }
+            m_application->m_data_center->write("Camera.Sequence", sequence);
 
             //envoi de l'info au cpu
             m_application->m_data_center->write("CPU_CMDE_TxSync", 1);
             m_application->m_data_center->write("valeur_cpu_cmde_01", 0);
             m_application->m_data_center->write("valeur_cpu_cmde_02", 0);
-            m_application->m_data_center->write("valeur_cpu_cmde_03", (int)(result.value[IDX_SEQUENCE]));
+            m_application->m_data_center->write("valeur_cpu_cmde_03", sequence);
             m_application->m_data_center->write("valeur_cpu_cmde_04", 0);
-            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE );
+            m_application->m_data_center->write("CodeCommande", VIDEO_PROCESS_SEQUENCE);
             m_application->m_data_center->write("CPU_CMDE_TxSync", 0);
+        }
         break;
 
         default: break;
@@ -481,6 +499,9 @@ void CImageProcessing::killVideoThread()
 
 void CImageProcessing::startVideoWork(void)
 {
+    m_sequence_last_valid    = SEQUENCE_UNKNOWN;
+    m_sequence_persist_count = 0;
+
     tVideoInput param;
     param.video_process_algo = (tVideoProcessAlgoType)m_ihm.ui.list_algo->currentIndex();
     param.value[IDX_PARAM_01] = m_ihm.ui.in_data1->value();

@@ -67,6 +67,10 @@ private:
     bool b_robStarted;
     bool m_auto_on;
     bool m_record;
+    // Persistance de la sequence detectee (anti-bagottement)
+    int m_sequence_last_valid;   // derniere valeur non-UNKNOWN detectee
+    int m_sequence_persist_count; // traitements restants pendant lesquels maintenir la derniere valeur
+    int m_sequence_persist_max;  // duree max de persistance (calibrable via EEPROM)
     void refresh_camera_list();
     tVideoInput getCalibrationValues();
 //    void showResultSequence(int color1, int color2, int color3, int color4);

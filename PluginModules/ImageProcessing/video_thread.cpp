@@ -547,15 +547,18 @@ void VideoWorker::_video_process_Sequence(tVideoInput parameter)
                 break; // on prend la premiere sequence valide (la plus proche = la plus basse triee)
             }
 
-            // Encadrement en rouge gras des 4 elements de la sequence retenue
+            // Encadrement couleur des 4 elements de la sequence retenue : bleu=bleu, jaune=jaune
             if (m_dbg_active && iWinStart >= 0)
             {
                 for (int k = 0; k < 4; k++)
                 {
+                    cv::Scalar couleur = (elements[iWinStart + k].tagId == tagBleu)
+                                        ? cv::Scalar(255, 0, 0)    // BGR bleu
+                                        : cv::Scalar(0, 255, 255); // BGR jaune
                     std::vector<cv::Point> pts;
                     for (const auto& p : elements[iWinStart + k].corners)
                         pts.push_back(cv::Point((int)p.x, (int)p.y));
-                    cv::polylines(m_frameCloned, pts, true, cv::Scalar(0, 0, 255), 3);
+                    cv::polylines(m_frameCloned, pts, true, couleur, 3);
                 }
             }
 
