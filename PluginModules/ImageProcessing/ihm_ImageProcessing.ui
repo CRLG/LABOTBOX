@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tabControles">
      <attribute name="title">
@@ -240,7 +240,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="8" column="2">
-       <widget class="QLed" name="cam_status" native="true">
+       <widget class="QLed" name="cam_status">
         <property name="minimumSize">
          <size>
           <width>31</width>
@@ -259,7 +259,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
@@ -272,7 +272,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="9" column="2">
-       <widget class="QLed" name="work_status" native="true">
+       <widget class="QLed" name="work_status">
         <property name="minimumSize">
          <size>
           <width>31</width>
@@ -291,7 +291,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
@@ -1116,7 +1116,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="6" column="7">
-       <widget class="QLed" name="qLed_Nord_2" native="true">
+       <widget class="QLed" name="qLed_Nord_2">
         <property name="minimumSize">
          <size>
           <width>25</width>
@@ -1135,7 +1135,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
@@ -1163,7 +1163,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="6" column="9">
-       <widget class="QLed" name="qLed_Sud_2" native="true">
+       <widget class="QLed" name="qLed_Sud_2">
         <property name="minimumSize">
          <size>
           <width>25</width>
@@ -1182,7 +1182,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
@@ -1258,7 +1258,7 @@ is neceassary)</string>
        </widget>
       </item>
       <item row="9" column="0">
-       <widget class="QLed" name="qLed_gob_01" native="true">
+       <widget class="QLed" name="qLed_gob_01">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1277,13 +1277,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="9" column="1">
-       <widget class="QLed" name="qLed_gob_02" native="true">
+       <widget class="QLed" name="qLed_gob_02">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1302,13 +1302,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="9" column="2">
-       <widget class="QLed" name="qLed_gob_03" native="true">
+       <widget class="QLed" name="qLed_gob_03">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1327,13 +1327,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="9" column="3">
-       <widget class="QLed" name="qLed_gob_04" native="true">
+       <widget class="QLed" name="qLed_gob_04">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1352,13 +1352,13 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="9" column="4">
-       <widget class="QLed" name="qLed_gob_05" native="true">
+       <widget class="QLed" name="qLed_gob_05">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -1377,7 +1377,7 @@ is neceassary)</string>
         <property name="whatsThis">
          <string>Led widget</string>
         </property>
-        <property name="value" stdset="0">
+        <property name="value">
          <bool>false</bool>
         </property>
        </widget>

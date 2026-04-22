@@ -1,5 +1,6 @@
 #include <qdebug.h>
 #include <QDir>
+#include <algorithm>
 
 #include "video_thread.h"
 
@@ -233,6 +234,10 @@ void VideoWorker::doWork(tVideoInput parameter) {
                 _video_process_CameraRobot(parameter);
             break;
 
+            case VIDEO_PROCESS_SEQUENCE : //CBY
+                _video_process_Sequence(parameter);
+            break;
+
             case VIDEO_PROCESS_CALIBRATION :
                 _video_process_Calibration(parameter);
             break;
@@ -362,6 +367,199 @@ void VideoWorker::_video_process_CameraRobot(tVideoInput parameter)
                     /*result.markers_detected = markerIds;*/
                 }
             }
+        }
+
+        int fps=1000/(t.elapsed());
+        result.m_fps=fps;
+
+        //TIMESTAMP_MATCH.Timestamp
+
+        QImage imgConst(m_iL,m_iH,QImage::Format_RGB888); //image du buffer video au format Qt
+
+        //on affiche l'image traitée
+        if (m_dbg_active)
+        {
+            //recuperation des donnees de la frame
+            //et referencement dans l'image Qt
+            //ATTENTION: pas de copie des donnees -> garbage collector
+            //conversion de l'image en RGB
+            frame_converted=m_frame.clone();
+            cv::cvtColor(m_frameCloned,frame_converted, cv::COLOR_BGR2RGB);
+
+            //affichage des droites de reperage
+            //centre
+            cv::line(frame_converted,cv::Point2f(m_iL/2,0),cv::Point2f(m_iL/2,m_iH),cv::Scalar(255,0,0),2);
+
+            //affichage overlay
+            char str[200];
+            sprintf(str,"%d fps",fps);
+            cv::putText(frame_converted, str, cv::Point2f(20,20), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255,0,0,0));
+
+            const uchar *qImageBuffer = (const uchar*)frame_converted.data;
+            //const uchar *qImageBuffer = (const uchar*)m_frameCloned.data;
+            //cv::imwrite("tata.jpg",frame);
+            QImage img(qImageBuffer, m_iL, m_iH, QImage::Format_RGB888);
+
+            //copie complete de l'image pour eviter une desallocation sauvage de la frame
+            imgConst=img.copy(QRect(0,0,m_iL,m_iH));
+
+        }
+
+        if(parameter.record)
+        {
+            if (m_dbg_active)
+            {
+                cv::cvtColor(frame_converted,frame_record, cv::COLOR_RGB2BGR);
+                _video_record(frame_record);//on enregistre le flux video
+            }
+            else
+                _video_record(m_frame);
+        }
+
+        emit resultReady(result,imgConst);
+
+        //QThread::msleep(5);
+        inputImage.release();
+
+       //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+        frame_converted.release();
+        frame_record.release();
+    }
+    else
+    {
+        //opencv ne profite pas du garbage collector de Qt
+        m_frame.release();
+        m_frameCloned.release();
+    }
+}
+
+// ========================================================
+void VideoWorker::_video_process_Sequence(tVideoInput parameter)
+{
+    tVideoResult result;
+    _init_tResult(&result);
+    QTime t;
+      t.start();
+
+
+    //capture d'une image du flux video
+    capture->grab();
+
+    //récupération de l'image
+    bool captureOK=capture->retrieve(m_frame,0);
+
+    //l'image a-t-elle bien été récupérée
+    if (captureOK)
+    {
+        cv::Mat frame_converted;
+        cv::Mat3b frame_record;
+
+        //dans le cas ou la configuration de la caméra aurait mal fonctionné
+        if(!parameterConfirmed)
+            _video_confirm_parameters(m_frame);
+
+        //clone de l'image pour la persistence des données
+        m_frameCloned=m_frame.clone();
+
+        if(parameter.record)
+            _video_record(m_frame);//on enregistre le flux video
+
+        //analyse de l'image
+        cv::Mat inputImage=m_frameCloned.clone();
+
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
+        std::vector< cv::Vec3d > rvecs, tvecs;
+
+        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
+        cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
+
+        //TRAITEMENT POUR DETERMINER SEQUENCE
+        if (markerIds.size() > 0)
+        {
+
+            //on dessine les marqueurs trouvés
+            if (m_dbg_active)
+                cv::aruco::drawDetectedMarkers(m_frameCloned, markerCorners, markerIds);
+
+            // Collecte des elements de jeu detectes (bleu ou jaune uniquement) avec leur centre image
+            struct ElementJeu { int tagId; float cx; float cy; std::vector<cv::Point2f> corners; };
+            const int tagBleu  = ARUCO_ID_ELEMENT_BLEU;
+            const int tagJaune = ARUCO_ID_ELEMENT_JAUNE;
+
+            std::vector<ElementJeu> elements;
+            for (unsigned int i = 0; i < markerIds.size(); i++)
+            {
+                int id = markerIds.at(i);
+                if (id != tagBleu && id != tagJaune)
+                    continue;
+                float cx = 0.f, cy = 0.f;
+                for (int k = 0; k < 4; k++) { cx += markerCorners[i][k].x; cy += markerCorners[i][k].y; }
+                cx /= 4.f; cy /= 4.f;
+                elements.push_back({id, cx, cy, markerCorners[i]});
+            }
+
+            // Tri gauche->droite par abscisse image
+            std::sort(elements.begin(), elements.end(),
+                      [](const ElementJeu& a, const ElementJeu& b){ return a.cx < b.cx; });
+
+            // Recherche d'une fenetre de 4 elements contigus : exactement 2 bleus et 2 jaunes,
+            // proches du robot (bas de l'image = Y eleve, centre horizontal)
+            int iSequenceTrouvee = SEQUENCE_UNKNOWN;
+            int iWinStart = -1;
+            const float seuilY = m_iH * 0.5f;          // moitie basse de l'image
+            const float margeX = m_iL * 0.35f;         // ecart max au centre horizontal
+
+            //fenêtre de balayage
+            for (unsigned int i = 0; i + 3 < elements.size(); i++)
+            {
+                int nbBleu = 0, nbJaune = 0;
+                for (int k = 0; k < 4; k++)
+                {
+                    if (elements[i+k].tagId == tagBleu)  nbBleu++;
+                    if (elements[i+k].tagId == tagJaune) nbJaune++;
+                }
+                if (nbBleu != 2 || nbJaune != 2)
+                    continue;
+
+                // Verification proximite robot : barycentre du groupe
+                float meanCx = 0.f, meanCy = 0.f;
+                for (int k = 0; k < 4; k++) { meanCx += elements[i+k].cx; meanCy += elements[i+k].cy; }
+                meanCx /= 4.f; meanCy /= 4.f;
+
+                if (meanCy < seuilY || fabsf(meanCx - m_iL / 2.f) > margeX)
+                    continue;
+
+                // Determination du motif de la sequence (J=jaune B=bleu, ordre gauche->droite)
+                char seq[4];
+                for (int k = 0; k < 4; k++)
+                    seq[k] = (elements[i+k].tagId == tagJaune) ? 'J' : 'B';
+
+                if      (seq[0]=='J'&&seq[1]=='J'&&seq[2]=='B'&&seq[3]=='B') iSequenceTrouvee = SEQUENCE_JJBB;
+                else if (seq[0]=='J'&&seq[1]=='B'&&seq[2]=='J'&&seq[3]=='B') iSequenceTrouvee = SEQUENCE_JBJB;
+                else if (seq[0]=='J'&&seq[1]=='B'&&seq[2]=='B'&&seq[3]=='J') iSequenceTrouvee = SEQUENCE_JBBJ;
+                else if (seq[0]=='B'&&seq[1]=='J'&&seq[2]=='B'&&seq[3]=='J') iSequenceTrouvee = SEQUENCE_BJBJ;
+                else if (seq[0]=='B'&&seq[1]=='B'&&seq[2]=='J'&&seq[3]=='J') iSequenceTrouvee = SEQUENCE_BBJJ;
+                else if (seq[0]=='B'&&seq[1]=='J'&&seq[2]=='J'&&seq[3]=='B') iSequenceTrouvee = SEQUENCE_BJJB;
+                iWinStart = (int)i;
+                break; // on prend la premiere sequence valide (la plus proche = la plus basse triee)
+            }
+
+            // Encadrement en rouge gras des 4 elements de la sequence retenue
+            if (m_dbg_active && iWinStart >= 0)
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    std::vector<cv::Point> pts;
+                    for (const auto& p : elements[iWinStart + k].corners)
+                        pts.push_back(cv::Point((int)p.x, (int)p.y));
+                    cv::polylines(m_frameCloned, pts, true, cv::Scalar(0, 0, 255), 3);
+                }
+            }
+
+            result.value[IDX_SEQUENCE] = iSequenceTrouvee;
         }
 
         int fps=1000/(t.elapsed());

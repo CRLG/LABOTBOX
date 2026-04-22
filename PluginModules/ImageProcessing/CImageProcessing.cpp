@@ -101,13 +101,14 @@ void CImageProcessing::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(),"tag2_aruco_lat",QVariant(92));
     m_ihm.ui.aruco_tag2->setValue(val.toInt());
     /*
-    VIDEO_PROCESS_BALISE_MAT = 0
-    VIDEO_PROCESS_BALISE_LATERALE
-    VIDEO_PROCESS_CAM_ROBOT
-    VIDEO_PROCESS_SEQUENCE_COULEUR
-    VIDEO_PROCESS_CALIBRATION*/ //CBY
+    VIDEO_PROCESS_BALISE_MAT = 0,
+    VIDEO_PROCESS_BALISE_LATERALE,
+    VIDEO_PROCESS_CAM_ROBOT,
+    VIDEO_PROCESS_SEQUENCE,
+    VIDEO_PROCESS_CALIBRATION
+    */
     QStringList str_list_algo;
-    str_list_algo << "MAT BALISE" << "BALISE LATERALE" << "CAMERA ROBOT"  <<"CALIBRATION" ;
+    str_list_algo << "MAT BALISE" << "BALISE LATERALE" << "CAMERA ROBOT"  << "SEQUENCE" <<"CALIBRATION" ;
     m_ihm.ui.list_algo->clear();
     m_ihm.ui.list_algo->addItems(str_list_algo);
 
@@ -128,9 +129,7 @@ void CImageProcessing::init(CApplication *application)
     m_application->m_data_center->write("Camera.Robot1_Teta",  -32000);
     m_application->m_data_center->write("Camera.Robot2_Dist",  -32000);
     m_application->m_data_center->write("Camera.Robot2_Teta",  -32000);
-//    m_application->m_data_center->write("Camera.Nord",  0);//
-//    m_application->m_data_center->write("Camera.Sud",  0);
-//    m_application->m_data_center->write("Camera.ColorSequence", 0);
+    m_application->m_data_center->write("Camera.Sequence", 0);
     m_application->m_data_center->write("Camera.VideoActive", 0);
     m_application->m_data_center->write("Code_cpu_etat", 1);
 
@@ -139,10 +138,6 @@ void CImageProcessing::init(CApplication *application)
 
     b_robStarted=false;
     refresh_camera_list();
-
-    //compteurs NordSud pour filtrage si besoin
-//    m_compteur_Nord=0;
-//    m_compteur_Sud=0;
 
     if(m_auto_on)
     {
@@ -300,6 +295,7 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_ihm.ui.containerVideo->setPixmap(QPixmap(":/icons/cancel.png"));
     }
 
+    //Restitution dans le cas d'une utilisation pour déterminer la position des autres robots
     float angle1=result.value[IDX_ROBOT1_ANGLE];
     float ratio1=0.1;//getLensRatio(result.value[IDX_ROBOT1_ANGLE]);
     int distance1=floorf(10*ratio1*result.value[IDX_ROBOT1_DIST]); //en mm
@@ -312,47 +308,39 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
     m_ihm.ui.rob2_dist->setValue(distance2);
     m_ihm.ui.rob2_angle->setValue(angle2);
 
-/*    m_ihm.ui.rob3_dist->setValue(result.value[IDX_ROBOT3_DIST]);
+/*
+    m_ihm.ui.rob3_dist->setValue(result.value[IDX_ROBOT3_DIST]);
     m_ihm.ui.rob3_angle->setValue(result.value[IDX_ROBOT3_ANGLE]);
-
-    m_ihm.ui.qLed_Nord->setValue(((result.value[IDX_NORD]==1.)?true:false));
-    m_ihm.ui.qLed_Sud->setValue(((result.value[IDX_SUD]==1.)?true:false));
-
-    m_compteur_Nord=m_compteur_Nord+result.value[IDX_NORD];
-    m_compteur_Sud=m_compteur_Sud+result.value[IDX_SUD];
-
 */
 
- //   m_ihm.ui.qLed_Nord_2->setValue(((result.value[IDX_NORD]==1.)?true:false));
- //   m_ihm.ui.qLed_Sud_2->setValue(((result.value[IDX_SUD]==1.)?true:false));
 
-/*    int iG=Qt::green;
-    int iR=Qt::red;
+/*    int iB=Qt::blue;
+    int iY=Qt::yellow;
     switch((int)result.value[IDX_SEQUENCE])
     {
         case SEQUENCE_UNKNOWN:
-            showResultGobelets(0,0,0,0,0);
+            showResultSequence(0,0,0,0);
             break;
-        case SEQUENCE_GRGGR:
-            showResultGobelets(iG,iR,iG,iG,iR);
+        case SEQUENCE_JJBB:
+            showResultSequence(iY,iY,iB,iB);
             break;
-        case SEQUENCE_GRRGR:
-            showResultGobelets(iG,iR,iR,iG,iR);
+        case SEQUENCE_JBJB:
+            showResultSequence(iY,iB,iY,iB);
             break;
-        case SEQUENCE_GGRGR:
-            showResultGobelets(iG,iG,iR,iG,iR);
+        case SEQUENCE_JBBJ:
+            showResultSequence(iY,iB,iB,iY);
             break;
-        case SEQUENCE_GRGRR:
-            showResultGobelets(iG,iR,iG,iR,iR);
+        case SEQUENCE_BJBJ:
+            showResultSequence(iB,iY,iB,iY);
             break;
-        case SEQUENCE_GGGRR:
-            showResultGobelets(iG,iG,iG,iR,iR);
+        case SEQUENCE_BBJJ:
+            showResultSequence(iB,iB,iY,iY);
             break;
-        case SEQUENCE_GGRRR:
-            showResultGobelets(iG,iG,iR,iR,iR);
+        case SEQUENCE_BJJB:
+            showResultSequence(iB,iY,iY,iB);
             break;
         default:
-            showResultGobelets(0,0,0,0,0);
+            showResultSequence(0,0,0,0);
             break;
     }
 */
@@ -381,18 +369,18 @@ void CImageProcessing::videoHandleResults(tVideoResult result, QImage imgConst)
             m_application->m_data_center->write("CPU_CMDE_TxSync", 0);
         break;
 
-/*        case VIDEO_PROCESS_SEQUENCE_COULEUR:
-            m_application->m_data_center->write("Camera.ColorSequence", result.value[IDX_SEQUENCE]);
+        case VIDEO_PROCESS_SEQUENCE:
+            m_application->m_data_center->write("Camera.Sequence", (int)(result.value[IDX_SEQUENCE]));
 
             //envoi de l'info au cpu
             m_application->m_data_center->write("CPU_CMDE_TxSync", 1);
             m_application->m_data_center->write("valeur_cpu_cmde_01", 0);
             m_application->m_data_center->write("valeur_cpu_cmde_02", 0);
-            m_application->m_data_center->write("valeur_cpu_cmde_03", result.value[IDX_SEQUENCE]);
+            m_application->m_data_center->write("valeur_cpu_cmde_03", (int)(result.value[IDX_SEQUENCE]));
             m_application->m_data_center->write("valeur_cpu_cmde_04", 0);
-            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE_COULEUR );
+            m_application->m_data_center->write("CodeCommande",VIDEO_PROCESS_SEQUENCE );
             m_application->m_data_center->write("CPU_CMDE_TxSync", 0);
-        break;*/
+        break;
 
         default: break;
     }

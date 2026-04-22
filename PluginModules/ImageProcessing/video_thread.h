@@ -45,19 +45,20 @@ typedef enum {
     VIDEO_PROCESS_BALISE_MAT = 0,
     VIDEO_PROCESS_BALISE_LATERALE,
     VIDEO_PROCESS_CAM_ROBOT,
+    VIDEO_PROCESS_SEQUENCE,
     VIDEO_PROCESS_CALIBRATION
 }tVideoProcessAlgoType; //CBY
 
-/*typedef enum {
+typedef enum {
     SEQUENCE_UNKNOWN=0,
-    SEQUENCE_GRGGR,
-    SEQUENCE_GRRGR,
-    SEQUENCE_GGRGR,
-    SEQUENCE_GRGRR,
-    SEQUENCE_GGGRR,
-    SEQUENCE_GGRRR
+    SEQUENCE_JJBB,
+    SEQUENCE_JBJB,
+    SEQUENCE_JBBJ,
+    SEQUENCE_BJBJ,
+    SEQUENCE_BBJJ,
+    SEQUENCE_BJJB
 }tVideoSequence;
-*/
+
 typedef struct
 {
     tVideoProcessAlgoType video_process_algo;
@@ -94,17 +95,18 @@ typedef enum {
     IDX_PARAM_ARUCO_TAG2
 } tIdxParam;
 
+// IDs des tags ArUco des elements de jeu 2026 (dictionnaire DICT_4X4_100)
+// Ce ne sont PAS des indices de tableau — hardcodes dans _video_process_Elements_Jeu()
+static const int ARUCO_ID_ELEMENT_BLEU  = 36;
+static const int ARUCO_ID_ELEMENT_JAUNE = 47;
+
 typedef enum {
     IDX_ROBOT1_DIST=0,
     IDX_ROBOT1_ANGLE,
     IDX_ROBOT2_DIST,
     IDX_ROBOT2_ANGLE,
-//    IDX_ROBOT3_DIST,
-//    IDX_ROBOT3_ANGLE,
-//    IDX_NORD,
-//    IDX_SUD,
-//    IDX_SEQUENCE,
-    IDX_CHARUCO_IS_SET//9 sur 20
+    IDX_SEQUENCE,
+    IDX_CHARUCO_IS_SET
 } tIdxResult;
 
 Q_DECLARE_METATYPE(tVideoInput)
@@ -171,6 +173,7 @@ signals:
 private:
     void _video_process_Balise(tVideoInput parameter);
     void _video_process_CameraRobot(tVideoInput parameter);
+    void _video_process_Sequence(tVideoInput parameter);
 //    void _video_process_ColorSequence(tVideoInput parameter);
     void _video_process_Calibration(tVideoInput parameter);
     void _video_record(cv::Mat frametoRecord);
