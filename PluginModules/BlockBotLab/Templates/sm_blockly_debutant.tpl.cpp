@@ -70,3 +70,15 @@ void SM_Tache10::step()
 {
 }
 #endif // #ifndef SM_Tache10_Generated
+
+#ifndef SM_TacheAvantMatch_Generated
+void SM_TacheAvantMatch::step()
+{
+}
+#endif // #ifndef SM_TacheAvantMatch_Generated
+
+#ifndef SM_TachePostMatch_Generated
+void SM_TachePostMatch::step()
+{
+}
+#endif // #ifndef SM_TachePostMatch_Generated
