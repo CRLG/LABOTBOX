@@ -106,6 +106,12 @@ void CLidarSimu::initGUI(QTableWidget *lidar_table_obstacles, QComboBox *lidar_s
 }
 
 // ___________________________________________________
+bool CLidarSimu::is_present()
+{
+    return true;
+}
+
+// ___________________________________________________
 QStringList CLidarSimu::getOrigines()
 {
     QStringList lst;

@@ -18,15 +18,17 @@ public :
     CTelemetresSimu();
 
     void init(CApplication *application);
-    void Init();
 
     // Ré_impléméntation des méthodes virtuelles pures
-    /*virtual*/ float getDistanceAVG();
-    /*virtual*/ float getDistanceAVD();
-    /*virtual*/ float getDistanceARG();
-    /*virtual*/ float getDistanceARD();
-    /*virtual*/ float getDistanceARGCentre();
-    /*virtual*/ float getDistanceARDCentre();
+    /*virtual*/ float getDistanceAVG() override;
+    /*virtual*/ float getDistanceAVD() override;
+    /*virtual*/ float getDistanceARG() override;
+    /*virtual*/ float getDistanceARD() override;
+    /*virtual*/ float getDistanceARGCentre() override;
+    /*virtual*/ float getDistanceARDCentre() override;
+    /*virtual*/ bool init() override;
+    /*virtual*/ void periodicTask() override;
+
 
     typedef enum {
         TELEMETRES_FROM_SIMU = 0,

@@ -49,10 +49,13 @@ public :
 
     void initGUI(QTableWidget *lidar_table_obstacles, QComboBox *lidar_status_combobox);
 
+    bool is_present();
+
+    LidarUtils::tLidarObstacles m_obstacles;
+
 private :
     CApplication *m_application;
 
-    LidarUtils::tLidarObstacles m_obstacles;
     int m_status;
     QTableWidget *m_lidar_table_obstacles;
     QComboBox *m_lidar_status_combobox;

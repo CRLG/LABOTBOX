@@ -7,12 +7,12 @@ static const float DEFAULT_DISTANCE = 999e6;
 CTelemetresSimu::CTelemetresSimu()
       : m_application(nullptr)
 {
-    Init();
+    init();
     setOrigineTelemetre(TELEMETRES_FROM_SIMU);
 }
 
 // ___________________________________________________
-void CTelemetresSimu::Init()
+bool CTelemetresSimu::init()
 {
     // Force la création des data dans le DataManager
     updateDataManager("Telemetres.AVG", DEFAULT_DISTANCE);
@@ -21,6 +21,13 @@ void CTelemetresSimu::Init()
     updateDataManager("Telemetres.ARD", DEFAULT_DISTANCE);
     updateDataManager("Telemetres.ARGCentre", DEFAULT_DISTANCE);
     updateDataManager("Telemetres.ARDCentre", DEFAULT_DISTANCE);
+    return true;
+}
+
+//___________________________________________________________________________
+void CTelemetresSimu::periodicTask()
+{
+    // rien à faire sur le télémètre simulé (juste une fonction bouchon)
 }
 
 //___________________________________________________________________________
@@ -98,7 +105,7 @@ float CTelemetresSimu::getDistanceARDCentre()
 void CTelemetresSimu::init(CApplication *application)
 {
     m_application = application;
-    Init();
+    init();
 }
 
 void CTelemetresSimu::setOrigineTelemetre(int origine)

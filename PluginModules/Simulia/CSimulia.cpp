@@ -262,7 +262,7 @@ void CSimulia::on_pb_init_all()
     Application.m_leds.setState(ALL_LED, 0);
     Application.m_asservissement_chariot.Init();
     Application.m_asservissement_chariot.Recal_Chariot();
-    Application.m_telemetres.Init();
+    Application.m_telemetres.init();
     Application.m_lidar.Init();
     Application.m_detection_obstacles.Init();
 
