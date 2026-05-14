@@ -935,9 +935,20 @@ void CBlockBotLab::Slot_SetPosFromSimu(double angle, double distance)
         // Lecture de l'orientation courante du robot depuis le DataCenter.
         // teta_pos est stocké dans la même unité que setAndGetInRad (rad ou deg).
         // Conversion en degrés : les blocs BlockBot mode débutant travaillent toujours en degrés.
-        double teta = m_application->m_data_center->read("teta_pos").toDouble();
-        if (m_application->m_SimuBot->setAndGetInRad)
-            teta = teta * 180.0 / Pi;
+        // teta_rad est transmis séparément (en radians) pour le commentaire récapitulatif info_debutant.
+        double teta_pos = m_application->m_data_center->read("teta_pos").toDouble();
+        double teta     = teta_pos;      // en degrés pour les blocs set_angle_robot
+        double teta_rad = teta_pos;      // en radians pour le commentaire récapitulatif
+
+        if (m_application->m_SimuBot->setAndGetInRad) {
+            teta = teta_pos * 180.0 / Pi;   // rad → deg pour les blocs débutant
+            // teta_rad reste teta_pos (déjà en radians)
+        } else {
+            teta_rad = teta_pos * Pi / 180.0;   // deg → rad pour le commentaire
+        }
+
+        int x = m_application->m_data_center->read("x_pos").toInt();
+        int y = m_application->m_data_center->read("y_pos").toInt();
 
         // Construction du JSON de paramètres transmis à BlockBot.
         // angle est déjà normalisé en degrés par catchDoubleClick() dans CSimuBot.
@@ -945,6 +956,9 @@ void CBlockBotLab::Slot_SetPosFromSimu(double angle, double distance)
         params["angle"]    = angle;
         params["distance"] = distance;
         params["teta"]     = teta;
+        params["x"]        = x;
+        params["y"]        = y;
+        params["teta_rad"] = teta_rad;
 
         emit executeCommand("add_pos_simu_debutant", QJsonDocument(params).toJson(QJsonDocument::Compact));
     }
