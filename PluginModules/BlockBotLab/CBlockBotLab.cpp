@@ -792,12 +792,11 @@ void CBlockBotLab::send2BlockBot()
         //pour les tests liste statique de machine à état
         jsonArray_state_machine.append("Autotest");
         jsonArray_state_machine.append("ChasseNeige");
-        jsonArray_state_machine.append("DeposerBanderole");
-        jsonArray_state_machine.append("DeposerPileBordure");
-        jsonArray_state_machine.append("DeposerPileCentrale");
-        jsonArray_state_machine.append("DeposerPileBasDePente");
-        jsonArray_state_machine.append("RetourZoneArrivee");
-        jsonArray_state_machine.append("Assembler2Etages");
+        jsonArray_state_machine.append("Centre");
+        jsonArray_state_machine.append("Curseur");
+        jsonArray_state_machine.append("PetiteBordure");
+        jsonArray_state_machine.append("GrandeBordure");
+        jsonArray_state_machine.append("RetourZoneDepart");
 
 
         //on verifie si le chemin par defaut du fichier d'entete est valide
