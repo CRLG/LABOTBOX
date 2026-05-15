@@ -11,8 +11,10 @@
 #include <QTableWidget>
 #include <QComboBox>
 
+#include "lidar_data.h"
+#include "lidar_data_filter_tracker.h"
+#include "lidar_data_filter_example.h"
 #include "Lidar_utils.h"
-
 
 class CApplication;
 
@@ -51,6 +53,7 @@ public :
 
     bool is_present();
 
+    CLidarData m_filtered_data;
     LidarUtils::tLidarObstacles m_obstacles;
 
 private :
