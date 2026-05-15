@@ -17,5 +17,6 @@ echo "Fin"
 
 
 (getgit "git pull origin master") &
+(getgit "git pull origin main") &
 
 
