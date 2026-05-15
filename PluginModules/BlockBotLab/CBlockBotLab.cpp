@@ -118,6 +118,8 @@ void CBlockBotLab::init(CApplication *application)
     modeChoice=new QComboBox();
     modeChoice->addItem("debutant");
     modeChoice->addItem("expert");
+    // Restaure le mode depuis EEPROM avant la connexion du signal pour ne pas déclencher send2BlockBot()
+    modeChoice->setCurrentText(m_application->m_eeprom->read(getName(), "blockbot_mode", "debutant").toString());
     modeChoice->setObjectName("setMode");
     modeChoice->setMaximumWidth(150);
     // Ajout dans la toolbar
@@ -246,6 +248,7 @@ void CBlockBotLab::close(void)
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "config_specifique_coupe_path", QVariant(m_config_specifique_coupe_path));
+  m_application->m_eeprom->write(getName(), "blockbot_mode", QVariant(modeChoice->currentText()));
 }
 
 // _____________________________________________________________________
