@@ -96,6 +96,7 @@ void CBlockBotLab::init(CApplication *application)
 
   m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString();
   m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
+  m_config_specifique_coupe_path = m_application->m_eeprom->read(getName(), "config_specifique_coupe_path", "/home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h").toString();
 
   /*int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
   m_httpServer = new RoboticsHttpServer(this);
@@ -244,6 +245,7 @@ void CBlockBotLab::close(void)
   m_application->m_eeprom->write(getName(), "visible", QVariant(m_ihm.isVisible()));
   m_application->m_eeprom->write(getName(), "niveau_trace", QVariant((unsigned int)getNiveauTrace()));
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
+  m_application->m_eeprom->write(getName(), "config_specifique_coupe_path", QVariant(m_config_specifique_coupe_path));
 }
 
 // _____________________________________________________________________
@@ -741,7 +743,7 @@ void CBlockBotLab::send2BlockBot()
     if (obj->objectName() == "actionContext")
     {
         QString str_FicCoupe;
-        str_FicCoupe="/home/laguiche/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h";
+        str_FicCoupe = m_config_specifique_coupe_path;
         const QFileInfo outputDir(str_FicCoupe);
 
         QJsonArray jsonArray_servo;

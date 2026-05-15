@@ -65,6 +65,7 @@ private:
     Cihm_BlockBotLab m_ihm;
     QString m_generated_pathfilename;
     QString m_launch_and_program_command;
+    QString m_config_specifique_coupe_path;
     QProcess m_build_target_process;
     QTimer m_timer_close_build_logs_delayed;
 
