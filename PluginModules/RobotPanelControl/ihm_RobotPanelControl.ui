@@ -15,34 +15,22 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-        <underline>true</underline>
-        <kerning>false</kerning>
-       </font>
-      </property>
+    <item row="14" column="0">
+     <widget class="QPushButton" name="therese_1_deployee">
       <property name="text">
-       <string>ASCENSEUR</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       <string>Deployee</string>
       </property>
      </widget>
     </item>
-    <item row="19" column="0">
-     <widget class="QPushButton" name="banderole_horizontale">
+    <item row="5" column="0">
+     <widget class="QPushButton" name="pince_noisette_repos">
       <property name="text">
-       <string>Horizontale</string>
+       <string>Repos</string>
       </property>
      </widget>
     </item>
-    <item row="12" column="3">
-     <widget class="QLabel" name="label_7">
+    <item row="16" column="0" colspan="4">
+     <widget class="QLabel" name="label_6">
       <property name="font">
        <font>
         <weight>75</weight>
@@ -51,114 +39,21 @@
        </font>
       </property>
       <property name="text">
-       <string>VERRIN</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="0">
-     <widget class="QPushButton" name="pince_arg_intermediaire">
-      <property name="text">
-       <string>Intermédiaire</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <widget class="QPushButton" name="pince_ard_intermediaire">
-      <property name="text">
-       <string>Intermédiaire</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="1">
-     <widget class="QPushButton" name="pince_ard_ouverte">
-      <property name="text">
-       <string>Ouverte</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="3">
-     <widget class="QPushButton" name="can_int_off">
-      <property name="text">
-       <string>Off</string>
-      </property>
-     </widget>
-    </item>
-    <item row="18" column="0">
-     <widget class="QPushButton" name="banderole_rangee">
-      <property name="text">
-       <string>Rangée</string>
-      </property>
-     </widget>
-    </item>
-    <item row="15" column="3">
-     <widget class="QPushButton" name="verrin_bas">
-      <property name="text">
-       <string>Bas</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="4">
-     <widget class="QPushButton" name="can_ext_on">
-      <property name="text">
-       <string>On</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="1">
-     <widget class="QLabel" name="label_3">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-        <underline>true</underline>
-        <kerning>false</kerning>
-       </font>
-      </property>
-      <property name="text">
-       <string>PINCE ARD</string>
+       <string>THERMOVE</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="0" column="2" rowspan="20">
-     <widget class="Line" name="line_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="3">
-     <widget class="QPushButton" name="can_ext_off">
+    <item row="14" column="2">
+     <widget class="QPushButton" name="therese_3_deployee">
       <property name="text">
-       <string>Off</string>
+       <string>Deployee</string>
       </property>
      </widget>
     </item>
-    <item row="13" column="1">
-     <widget class="QPushButton" name="pince_planche_ouverte">
-      <property name="text">
-       <string>Ouverte</string>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="3">
-     <widget class="QPushButton" name="verrin_haut">
-      <property name="text">
-       <string>Haut</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="1">
-     <widget class="QPushButton" name="pince_ard_fermee">
-      <property name="text">
-       <string>Fermée</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0">
+    <item row="10" column="0">
      <widget class="QLabel" name="label_2">
       <property name="font">
        <font>
@@ -170,127 +65,22 @@
        </font>
       </property>
       <property name="text">
-       <string>PINCE ARG</string>
+       <string>1</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="13" column="0">
-     <widget class="QPushButton" name="pince_planche_fermee">
+    <item row="11" column="2">
+     <widget class="QPushButton" name="therese_3_rangee">
       <property name="text">
-       <string>Fermée</string>
+       <string>Rangée</string>
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
-     <widget class="QPushButton" name="pince_arg_ouverte">
-      <property name="text">
-       <string>Ouverte</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="0" colspan="2">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="ascenseur_haut">
-      <property name="text">
-       <string>Ascenseur Haut</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="3">
-     <widget class="QLabel" name="label_8">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-        <underline>true</underline>
-       </font>
-      </property>
-      <property name="text">
-       <string>CAN INT</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="4">
-     <widget class="QPushButton" name="can_int_on">
-      <property name="text">
-       <string>On</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="2">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="3">
-     <widget class="QLabel" name="label_9">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-        <underline>true</underline>
-       </font>
-      </property>
-      <property name="text">
-       <string>CAN EXT</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="0">
-     <widget class="QPushButton" name="pince_arg_fermee">
-      <property name="text">
-       <string>Fermée</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="3" colspan="2">
-     <widget class="Line" name="line_5">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QPushButton" name="ascenseur_bas">
-      <property name="text">
-       <string>Ascenseur Bas</string>
-      </property>
-     </widget>
-    </item>
-    <item row="18" column="1">
-     <widget class="QPushButton" name="banderole_deployee">
-      <property name="text">
-       <string>Déployée</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="3" colspan="2">
-     <widget class="Line" name="line_6">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="14" column="3">
-     <widget class="QPushButton" name="verrin_intermediaire">
-      <property name="text">
-       <string>Intérmédiaire</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="0" colspan="2">
-     <widget class="QLabel" name="label_4">
+    <item row="10" column="1">
+     <widget class="QLabel" name="label_3">
       <property name="font">
        <font>
         <weight>75</weight>
@@ -301,29 +91,135 @@
        </font>
       </property>
       <property name="text">
-       <string>PINCE PLANCHE</string>
+       <string>2</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="14" column="0">
-     <widget class="QPushButton" name="pince_planche_repos">
+    <item row="5" column="2">
+     <widget class="QPushButton" name="pince_noisette_ouvert">
+      <property name="text">
+       <string>Ouvert</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QPushButton" name="pince_noisette_fermee">
+      <property name="text">
+       <string>Fermée</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="2">
+     <widget class="QPushButton" name="therese_3_intermediaire">
+      <property name="text">
+       <string>Intermédiaire</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1">
+     <widget class="QPushButton" name="therese_2_intermediaire">
+      <property name="text">
+       <string>Intermédiaire</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="2">
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+        <underline>true</underline>
+        <kerning>false</kerning>
+       </font>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="17" column="0" colspan="2">
+     <widget class="QPushButton" name="thermove_repos">
       <property name="text">
        <string>Repos</string>
       </property>
      </widget>
     </item>
-    <item row="15" column="0" colspan="2">
-     <widget class="Line" name="line_4">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+    <item row="3" column="0" colspan="4">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+        <underline>true</underline>
+        <kerning>false</kerning>
+       </font>
+      </property>
+      <property name="text">
+       <string>PINCE NOISETTE</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="16" column="0">
-     <widget class="QLabel" name="label_6">
+    <item row="14" column="3">
+     <widget class="QPushButton" name="therese_4_deployee">
+      <property name="text">
+       <string>Deployee</string>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="1">
+     <widget class="QPushButton" name="therese_2_deployee">
+      <property name="text">
+       <string>Deployee</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="3">
+     <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+        <underline>true</underline>
+        <kerning>false</kerning>
+       </font>
+      </property>
+      <property name="text">
+       <string>4</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="3">
+     <widget class="QPushButton" name="therese_4_rangee">
+      <property name="text">
+       <string>Rangée</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="3">
+     <widget class="QPushButton" name="therese_4_intermediaire">
+      <property name="text">
+       <string>Intermédiaire</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" colspan="4">
+     <widget class="QLabel" name="label_4">
       <property name="font">
        <font>
         <weight>75</weight>
@@ -332,7 +228,91 @@
        </font>
       </property>
       <property name="text">
-       <string>BANDEROLE</string>
+       <string>THERESE</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0" colspan="2">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QPushButton" name="therese_1_rangee">
+      <property name="text">
+       <string>Rangée</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0" colspan="4">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
+     <widget class="QPushButton" name="therese_1_intermediaire">
+      <property name="text">
+       <string>Intermédiaire</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QPushButton" name="therese_2_rangee">
+      <property name="text">
+       <string>Rangée</string>
+      </property>
+     </widget>
+    </item>
+    <item row="17" column="2" colspan="2">
+     <widget class="QPushButton" name="thermove_actif">
+      <property name="text">
+       <string>Actif</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="4">
+     <widget class="QLabel" name="label_8">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+        <underline>true</underline>
+        <kerning>false</kerning>
+       </font>
+      </property>
+      <property name="text">
+       <string>Actionneurs</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2" colspan="2">
+     <widget class="QPushButton" name="actionneurs_init">
+      <property name="text">
+       <string>Init</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <widget class="QPushButton" name="actionneurs_repos">
+      <property name="text">
+       <string>Repos</string>
       </property>
      </widget>
     </item>
