@@ -905,9 +905,9 @@ void CBlockBotLab::logJS(const QString& message)
 *    (etat_expert + set_pos XYTheta + convergence_expert) connecté au
 *    dernier état libre de la chaîne.
 *
-*  En mode débutant : envoie "add_pos_simu_debutant" pour créer un triplet
-*    (set_angle_robot angle + avancer distance + set_angle_robot teta_pos)
-*    connecté au dernier bloc libre du bloc description_debutant.
+*  En mode débutant : envoie "add_pos_simu_debutant" pour créer un bloc
+*    se_deplacer_en_position (X, Y, Teta) connecté au dernier bloc libre
+*    du bloc description_debutant.
 *    Le mode n'est PAS forcé en expert.
 */
 void CBlockBotLab::Slot_SetPosFromSimu(double angle, double distance)
