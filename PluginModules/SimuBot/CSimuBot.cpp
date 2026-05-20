@@ -120,6 +120,28 @@ void CSimuBot::init(CApplication *application)
     m_box2d_Enabled=true;
     m_physical_engine.createPhysicalWorld(m_application,GrosBotForme,MiniBotForme);
 
+    // Choix du moteur de simulation (etape 2 migration v2, cf. rapport_simubot.md) :
+    // "box2d" (historique, defaut, ne casse rien) ou "kinematic" (cinematique analytique,
+    // sans crabe). Bascule sans recompiler via la cle EEPROM "engine".
+    val = m_application->m_eeprom->read(getName(), "engine", QVariant(QString("box2d")));
+    m_engine_choice = val.toString();
+    m_use_kinematic = (m_engine_choice == QString("kinematic"));
+    // Gain consigne -> vitesse roue (cm/s) du moteur cinematique. Simulia publie
+    // vect_G/D = 80 * commande_% (impulsion Box2D, cf. CRoues_simu.cpp), pas une vitesse :
+    // on convertit vitesse_cm_s = vect * gain. Calibrable a chaud via EEPROM.
+    val = m_application->m_eeprom->read(getName(), "kin_speed_gain", QVariant(0.01));
+    m_kin_speed_gain = val.toFloat();
+    // Constante de temps moteur (inertie, asserv en vitesse) : evite le pompage de l'asserv
+    // sur les petits deplacements / en zone de convergence. Calibrable a chaud.
+    val = m_application->m_eeprom->read(getName(), "kin_motor_tau", QVariant(0.15));
+    m_kin_motor_tau = val.toFloat();
+    m_kinematic_engine.setMotorTau(m_kin_motor_tau);
+    // Configuration de la collision bordure du moteur cinematique : terrain 300x200 cm
+    // et rayon du cercle englobant la forme GrosBot (modele disque, cf. etape 2).
+    m_kinematic_engine.setTerrain(0.0f, 0.0f, X_TERRAIN, Y_TERRAIN);
+    m_kinematic_engine.setRobotRadius(0.5f * (float)qMax(GrosBotForme.boundingRect().width(),
+                                                         GrosBotForme.boundingRect().height()));
+
     //récupération des positions d'init de GrosBot
     val = m_application->m_eeprom->read(getName(), "X_init_1_bot1", QVariant(42.0));
     float X_init_1=val.toFloat();
@@ -444,6 +466,12 @@ void CSimuBot::close(void)
   m_application->m_eeprom->write(getName(), "mode_visu", QVariant((unsigned int)m_ihm.ui.horizontalSlider_toggle_simu->value()));
   m_application->m_eeprom->write(getName(), "zoom", QVariant((unsigned int)m_ihm.ui.verticalSlider_zoom_scene->value()));
   m_application->m_eeprom->write(getName(), "use_2_bots", QVariant((bool)m_ihm.ui.ckhB_2Bot->isChecked()));
+  // Choix du moteur de simulation (etape 2 migration v2) : "box2d" | "kinematic".
+  m_application->m_eeprom->write(getName(), "engine", QVariant(m_engine_choice));
+  // Gain de calibration consigne -> vitesse roue du moteur cinematique.
+  m_application->m_eeprom->write(getName(), "kin_speed_gain", QVariant(m_kin_speed_gain));
+  // Constante de temps moteur (inertie) du moteur cinematique.
+  m_application->m_eeprom->write(getName(), "kin_motor_tau", QVariant(m_kin_motor_tau));
 }
 
 // _____________________________________________________________________
@@ -635,6 +663,9 @@ void CSimuBot::initView(void){
             OtherBot->raz(equipeOther.x,equipeOther.y,normalizeAngleDeg(180*equipeOther.teta/Pi));
             MiniBot->raz(x_init_2,y_init_2,normalizeAngleDeg(180*theta_init_2/Pi));
             m_physical_engine.Init(x_init,y_init,theta_init,x_init_2,y_init_2,theta_init_2,twoBotsEnabled);
+            // Moteur cinematique (etape 2) : meme pose d'init, teta en radians (deja en rad ici).
+            m_kinematic_engine.init(x_init,y_init,theta_init);
+            m_kin_x_init=x_init; m_kin_y_init=y_init;
         }
         else
         {
@@ -648,6 +679,9 @@ void CSimuBot::initView(void){
             OtherBot->raz(equipeOther.x,equipeOther.y,equipeOther.teta);
             MiniBot->raz(x_init_2,y_init_2,theta_init_2);
             m_physical_engine.Init(x_init,y_init,Pi*theta_init/180.0f,x_init_2,y_init_2,Pi*theta_init_2/180.0f,twoBotsEnabled);
+            // Moteur cinematique (etape 2) : meme pose d'init, teta converti deg -> rad.
+            m_kinematic_engine.init(x_init,y_init,Pi*theta_init/180.0f);
+            m_kin_x_init=x_init; m_kin_y_init=y_init;
         }
 
         //placement des élements de jeu dans le monde simulé
@@ -1736,6 +1770,23 @@ void CSimuBot::updateStepFromSimulia()
         //déplacement du robot adverse
         nextStepOther();
 
+        if (m_use_kinematic)
+        {
+            // Chemin cinematique (etape 2) : SIL pur sur le robot principal.
+            // Pas de recal externe (on ne court-circuite jamais la boucle SIL), pas de
+            // bot2 local ni d'elements de jeu en mode kinematic (cf. rapport_simubot.md etape 2).
+            // Conversion consigne Simulia (80*commande_%) -> vitesse roue cm/s via gain calibrable.
+            m_kinematic_engine.step(0.02f, vect_G_B1 * m_kin_speed_gain, vect_D_B1 * m_kin_speed_gain);
+            // x_pos/y_pos = deplacement RELATIF a l'init (convention Box2D _x1/_y1) ;
+            // teta_pos = angle ABSOLU (comme Box2D teta_pos = GetAngle()).
+            m_application->m_data_center->write("x_pos",    m_kinematic_engine.x() - m_kin_x_init);
+            m_application->m_data_center->write("y_pos",    m_kinematic_engine.y() - m_kin_y_init);
+            m_application->m_data_center->write("teta_pos", m_kinematic_engine.teta());
+            m_application->m_data_center->write("Simubot.codeur_G", m_kinematic_engine.deltaCodeurG());
+            m_application->m_data_center->write("Simubot.codeur_D", m_kinematic_engine.deltaCodeurD());
+        }
+        else
+        {
         //recal avec l'asser
         float x_recal=m_application->m_data_center->read("Simulia.x_pos").toFloat();
         float y_recal=m_application->m_data_center->read("Simulia.y_pos").toFloat();
@@ -1787,6 +1838,7 @@ void CSimuBot::updateStepFromSimulia()
                 m_step2=updatedStep2;
             m_external_controler_client_robot2.writeData("Simubot.step", m_step2);
         }
+        } // fin du chemin box2d (sinon chemin cinematique traite plus haut)
 
         //on avertit Simulia des changement de déplacement codeur
         m_step=updatedStep;
@@ -1812,13 +1864,27 @@ void CSimuBot::updateStepFromSimuBot()
         GrosBot->stepInternalAsserv();
         GrosBot->getForcesAsserv(&vect_G_B1,&vect_D_B1);
 
-        //simulation des déplacements du robot avec le moteur box2d
-        m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,0.0,0.0);
+        if (m_use_kinematic)
+        {
+            // Chemin cinematique (etape 2) : meme entree consigne moteur que box2d, convertie en cm/s.
+            m_kinematic_engine.step(0.02f, vect_G_B1 * m_kin_speed_gain, vect_D_B1 * m_kin_speed_gain);
+            // x_pos/y_pos = deplacement RELATIF a l'init (convention Box2D) ; teta_pos absolu.
+            m_application->m_data_center->write("x_pos",    m_kinematic_engine.x() - m_kin_x_init);
+            m_application->m_data_center->write("y_pos",    m_kinematic_engine.y() - m_kin_y_init);
+            m_application->m_data_center->write("teta_pos", m_kinematic_engine.teta());
+            m_application->m_data_center->write("Simubot.codeur_G", m_kinematic_engine.deltaCodeurG());
+            m_application->m_data_center->write("Simubot.codeur_D", m_kinematic_engine.deltaCodeurD());
+        }
+        else
+        {
+            //simulation des déplacements du robot avec le moteur box2d
+            m_physical_engine.step(0.02f,vect_G_B1,vect_D_B1,0.0,0.0);
 
-        //environnement physique mis à jour, on l'affiche dans SimuBot
-        m_application->m_data_center->write("x_pos", m_physical_engine.x_pos);
-        m_application->m_data_center->write("y_pos", m_physical_engine.y_pos);
-        m_application->m_data_center->write("teta_pos", m_physical_engine.teta_pos);
+            //environnement physique mis à jour, on l'affiche dans SimuBot
+            m_application->m_data_center->write("x_pos", m_physical_engine.x_pos);
+            m_application->m_data_center->write("y_pos", m_physical_engine.y_pos);
+            m_application->m_data_center->write("teta_pos", m_physical_engine.teta_pos);
+        }
     }
 
 }

@@ -22,6 +22,7 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsEllipseItem>
 #include "CPhysicalEngine.h"
+#include "CKinematicEngine.h"
 
 //#define DEBUG_OTHER
 //#define DEBUG_SIMULIA
@@ -137,6 +138,22 @@ private:
 
     //pour gérer simulia ou actuatorsequencer
     CPhysicalEngine m_physical_engine;
+    CKinematicEngine m_kinematic_engine; // moteur cinematique analytique (etape 2 migration v2)
+    bool m_use_kinematic;                // true => chemin cinematique, false => box2d (defaut)
+    QString m_engine_choice;             // valeur EEPROM "engine" : "box2d" | "kinematic"
+    // Offset d'init du robot : x_pos/y_pos publies dans le DataManager sont RELATIFS au
+    // point de depart (comme Box2D : _x1(x)=x-m_x_init1). Le moteur cinematique travaille
+    // en terrain absolu ; on soustrait cet offset au moment d'ecrire x_pos/y_pos.
+    float m_kin_x_init;
+    float m_kin_y_init;
+    // Gain de conversion consigne -> vitesse roue (cm/s) pour le moteur cinematique.
+    // Simulia publie vect_G/D = 80 * commande_moteur_% (valeur d'impulsion calibree pour
+    // Box2D, cf. CRoues_simu.cpp), PAS une vitesse. On convertit : vitesse_cm_s = vect * gain.
+    // Calibrable via EEPROM "kin_speed_gain" (defaut 0.01 -> ~80 cm/s a pleine commande).
+    float m_kin_speed_gain;
+    // Constante de temps moteur (s) du moteur cinematique : inertie premier ordre sur la
+    // vitesse roue (asserv en vitesse). Calibrable via EEPROM "kin_motor_tau" (defaut 0.15).
+    float m_kin_motor_tau;
     bool m_box2d_Enabled; //TODO probablement inutile (à nettoyer
     int m_step;
     bool m_simulia_Enabled;
