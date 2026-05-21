@@ -29,6 +29,8 @@
 
 #include "ISimulator.h"
 
+class CCollisionEngine; // collisions geometriques maison (etape 3), branchees optionnellement
+
 class CKinematicEngine : public ISimulator
 {
 public:
@@ -60,8 +62,15 @@ public:
 
     // Configuration collision bordure (hors interface ISimulator) :
     // limites du terrain en cm et rayon du cercle englobant le robot.
+    // NB : utilises seulement par le modele disque de repli (collision engine absent).
     void setTerrain(float x_min, float y_min, float x_max, float y_max);
     void setRobotRadius(float radius);
+
+    // Branche le moteur de collisions geometriques maison (etape 3). Quand il est present,
+    // step() resout les collisions polygonales (bordures + elements de jeu, SAT) via ce
+    // moteur et ignore le clamp disque ci-dessus. nullptr => repli sur le modele disque.
+    // CKinematicEngine ne prend PAS la propriete du pointeur (detenu par CSimuBot).
+    void setCollisionEngine(CCollisionEngine* engine) { m_collision = engine; }
 
     // Constante de temps moteur (s) du filtre premier ordre sur la vitesse roue.
     // L'asserv embarque est un asservissement EN VITESSE : sans inertie, la vitesse roue
@@ -91,6 +100,9 @@ private:
     float m_x_max;
     float m_y_max;
     float m_robot_radius;
+
+    // Moteur de collisions geometriques (etape 3), non possede. nullptr => modele disque.
+    CCollisionEngine* m_collision;
 
     // Parametres mecaniques - dupliques depuis CPhysicalEngine.h pour decouplage
     // (CPhysicalEngine sera supprime en etape 3). Static constexpr pour eviter

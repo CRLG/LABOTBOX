@@ -23,6 +23,7 @@
 */
 
 #include "CKinematicEngine.h"
+#include "CCollisionEngine.h"
 #include <math.h>
 
 // Borne v dans [lo, hi]. Robuste si lo > hi (rayon robot > demi-terrain) : on renvoie
@@ -48,7 +49,8 @@ CKinematicEngine::CKinematicEngine()
       m_y_min(0.0f),
       m_x_max(300.0f),   // terrain 2026 : 300 x 200 cm (cf. X_TERRAIN/Y_TERRAIN)
       m_y_max(200.0f),
-      m_robot_radius(15.0f)
+      m_robot_radius(15.0f),
+      m_collision(nullptr)
 {
 }
 
@@ -132,13 +134,26 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
     }
     const float teta_cand = teta_old + d_theta;
 
-    // --- 3. Collision bordure (modele disque) : on borne le centre au terrain ---
-    // L'orientation n'est pas contrainte (le contact polygonal coin/pivot est repousse
-    // a l'etape 3). Le clamp peut reduire la translation effective.
-    const float x_real    = clampToRange(x_cand, m_x_min + m_robot_radius, m_x_max - m_robot_radius);
-    const float y_real    = clampToRange(y_cand, m_y_min + m_robot_radius, m_y_max - m_robot_radius);
+    // --- 3. Collision : on corrige la pose candidate pour qu'elle ne penetre aucun obstacle ---
+    // Deux modeles selon la configuration :
+    //  - Collision engine present (etape 3) : collisions polygonales (bordures + elements
+    //    de jeu, SAT). Le robot est repousse hors des obstacles ; l'orientation n'est pas
+    //    contrainte (resolution en translation, coherent avec le modele de l'etape 2).
+    //  - Sinon : repli modele disque (etape 2) : on borne le centre au terrain.
+    float x_real = x_cand;
+    float y_real = y_cand;
     const float teta_real = teta_cand;
-    const bool  clamped   = (x_real != x_cand) || (y_real != y_cand);
+    if (m_collision != nullptr)
+    {
+        int hitId = -1;
+        m_collision->resolve(x_real, y_real, teta_real, &hitId);
+    }
+    else
+    {
+        x_real = clampToRange(x_cand, m_x_min + m_robot_radius, m_x_max - m_robot_radius);
+        y_real = clampToRange(y_cand, m_y_min + m_robot_radius, m_y_max - m_robot_radius);
+    }
+    const bool clamped = (x_real != x_cand) || (y_real != y_cand);
 
     // --- 4. Pas codeurs = image du deplacement REELLEMENT effectue ---
     // Les codeurs du vrai robot sont sur des roues folles independantes des roues

@@ -21,8 +21,14 @@
 #include "CExternalControlerClient.h"
 #include <QGraphicsRectItem>
 #include <QGraphicsEllipseItem>
-#include "CPhysicalEngine.h"
 #include "CKinematicEngine.h"
+#include "CCollisionEngine.h"
+
+// Dimensions du terrain (cm). Anciennement definies dans CPhysicalEngine.h, relocalisees
+// ici lors du retrait de Box2D (etape 3 migration SimuBot v2). Servent a configurer la
+// collision bordure du moteur cinematique.
+#define X_TERRAIN 300.0f
+#define Y_TERRAIN 200.0f
 
 //#define DEBUG_OTHER
 //#define DEBUG_SIMULIA
@@ -102,7 +108,6 @@ private slots :
         void on_active_external_robot2(bool state);
         //void on_timeout_external_robot2();
         void updateStepFromSimulia();
-        void box2d_enable(bool flag);
         void slot_clearPath();
 
         void updateStepFromSimuBot();
@@ -137,10 +142,13 @@ private:
     float iniTetaAsserv_bot2[2];
 
     //pour gérer simulia ou actuatorsequencer
-    CPhysicalEngine m_physical_engine;
-    CKinematicEngine m_kinematic_engine; // moteur cinematique analytique (etape 2 migration v2)
-    bool m_use_kinematic;                // true => chemin cinematique, false => box2d (defaut)
-    QString m_engine_choice;             // valeur EEPROM "engine" : "box2d" | "kinematic"
+    // Moteur de simulation : cinematique differentielle analytique (etape 2 migration v2).
+    // Box2D (CPhysicalEngine) a ete retire a l'etape 3 ; ce moteur est desormais l'unique
+    // implementation.
+    CKinematicEngine m_kinematic_engine;
+    // Collisions geometriques maison (etape 3) : bordures (demi-plans) + elements de jeu
+    // (SAT polygone-polygone), en repere terrain. Branche dans m_kinematic_engine.
+    CCollisionEngine m_collision_engine;
     // Offset d'init du robot : x_pos/y_pos publies dans le DataManager sont RELATIFS au
     // point de depart (comme Box2D : _x1(x)=x-m_x_init1). Le moteur cinematique travaille
     // en terrain absolu ; on soustrait cet offset au moment d'ecrire x_pos/y_pos.
@@ -154,7 +162,6 @@ private:
     // Constante de temps moteur (s) du moteur cinematique : inertie premier ordre sur la
     // vitesse roue (asserv en vitesse). Calibrable via EEPROM "kin_motor_tau" (defaut 0.15).
     float m_kin_motor_tau;
-    bool m_box2d_Enabled; //TODO probablement inutile (à nettoyer
     int m_step;
     bool m_simulia_Enabled;
 
@@ -175,6 +182,9 @@ private:
     QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[], float lidar[]);
     QGraphicsRectItem *setElementJeu(float x, float y, int Color, bool vertical);
+    // Repercute dans la scene Qt le deplacement des elements de jeu pousses par le robot
+    // (le moteur de collisions deplace les caisses mobiles ; on translate leur sprite).
+    void refreshGameElementsView();
     //design robot
     QGraphicsScene * scene_design;
 

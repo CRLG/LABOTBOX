@@ -151,18 +151,10 @@ for(i, LIST_EXT_CPPROBLIB) {
 }
 
 # __________________________________________________
-# box2d
-INCLUDEPATH+= $$_PRO_FILE_PWD_/ext/box2d/include
-linux {
-    contains(QMAKE_HOST.arch, arm.*):{
-        # Raspberry
-        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/arm64
-    }else{
-        # x86-64
-        LIBS += -L$$_PRO_FILE_PWD_/ext/box2d/libs/ubuntu_x86_64
-    }
-}
-LIBS += -lbox2d
+# box2d retire en etape 3 de la migration SimuBot v2 (cf. rapport_simubot.md) :
+# la simulation utilise desormais CKinematicEngine (cinematique analytique) et
+# les collisions geometriques maison (CCollisionEngine). Plus aucun symbole Box2D
+# ne doit subsister dans le binaire.
 
 
 CONFIG += plugins_designer
