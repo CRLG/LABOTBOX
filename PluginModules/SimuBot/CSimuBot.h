@@ -158,10 +158,13 @@ private:
     // Simulia publie vect_G/D = 80 * commande_moteur_% (valeur d'impulsion calibree pour
     // Box2D, cf. CRoues_simu.cpp), PAS une vitesse. On convertit : vitesse_cm_s = vect * gain.
     // Calibrable via EEPROM "kin_speed_gain" (defaut 0.01 -> ~80 cm/s a pleine commande).
-    float m_kin_speed_gain;
+    // Type double (pas float) pour que QSettings ecrive la valeur en clair dans EEPROM.ini
+    // ("0.01") et non en blob binaire @Variant(...) reserve aux types non textuels (float).
+    double m_kin_speed_gain;
     // Constante de temps moteur (s) du moteur cinematique : inertie premier ordre sur la
     // vitesse roue (asserv en vitesse). Calibrable via EEPROM "kin_motor_tau" (defaut 0.15).
-    float m_kin_motor_tau;
+    // double pour la meme raison que m_kin_speed_gain (lisibilite EEPROM.ini).
+    double m_kin_motor_tau;
     int m_step;
     bool m_simulia_Enabled;
 

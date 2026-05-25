@@ -123,11 +123,11 @@ void CSimuBot::init(CApplication *application)
     // vect_G/D = 80 * commande_% (impulsion Box2D, cf. CRoues_simu.cpp), pas une vitesse :
     // on convertit vitesse_cm_s = vect * gain. Calibrable a chaud via EEPROM.
     val = m_application->m_eeprom->read(getName(), "kin_speed_gain", QVariant(0.01));
-    m_kin_speed_gain = val.toFloat();
+    m_kin_speed_gain = val.toDouble();
     // Constante de temps moteur (inertie, asserv en vitesse) : evite le pompage de l'asserv
     // sur les petits deplacements / en zone de convergence. Calibrable a chaud.
     val = m_application->m_eeprom->read(getName(), "kin_motor_tau", QVariant(0.15));
-    m_kin_motor_tau = val.toFloat();
+    m_kin_motor_tau = val.toDouble();
     m_kinematic_engine.setMotorTau(m_kin_motor_tau);
     // Configuration de la collision bordure du moteur cinematique : terrain 300x200 cm
     // et rayon du cercle englobant la forme GrosBot. Sert de repli (modele disque, etape 2)
@@ -484,9 +484,11 @@ void CSimuBot::close(void)
   m_application->m_eeprom->write(getName(), "zoom", QVariant((unsigned int)m_ihm.ui.verticalSlider_zoom_scene->value()));
   m_application->m_eeprom->write(getName(), "use_2_bots", QVariant((bool)m_ihm.ui.ckhB_2Bot->isChecked()));
   // Gain de calibration consigne -> vitesse roue du moteur cinematique.
-  m_application->m_eeprom->write(getName(), "kin_speed_gain", QVariant(m_kin_speed_gain));
+  // QVariant double (pas float) : QSettings serialise les double en texte lisible dans
+  // EEPROM.ini ("0.01"), alors qu'un float tombe dans la branche binaire @Variant(...).
+  m_application->m_eeprom->write(getName(), "kin_speed_gain", QVariant((double)m_kin_speed_gain));
   // Constante de temps moteur (inertie) du moteur cinematique.
-  m_application->m_eeprom->write(getName(), "kin_motor_tau", QVariant(m_kin_motor_tau));
+  m_application->m_eeprom->write(getName(), "kin_motor_tau", QVariant((double)m_kin_motor_tau));
 }
 
 // _____________________________________________________________________

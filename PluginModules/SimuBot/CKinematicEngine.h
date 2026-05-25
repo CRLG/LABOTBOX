@@ -107,9 +107,17 @@ private:
     // Parametres mecaniques - dupliques depuis CPhysicalEngine.h pour decouplage
     // (CPhysicalEngine sera supprime en etape 3). Static constexpr pour eviter
     // les conflits avec les macros #define existantes dans CPhysicalEngine.h.
-    static constexpr float k_voie_bot       = 31.6867261f; // entraxe des roues en cm
-    static constexpr float k_pas_codeur_G   = 0.0651136f;  // cm par pas codeur, roue G
-    static constexpr float k_pas_codeur_D   = 0.0651136f;  // cm par pas codeur, roue D
+    // IMPORTANT : ces 3 constantes DOIVENT etre identiques a celles de l'asserv qui ferme
+    // la boucle SIL en mode SIMU, c.-a-d. CAsservissement_simu.cpp (et NON le firmware
+    // embarque CAsservissement.cpp). L'asserv reconstruit la distance par
+    // distance_roue = getCodeur() * DISTANCE_PAR_PAS_CODEUR : si le moteur emet ses pas
+    // avec un k different de celui que l'asserv relit, la position ET la vitesse percues
+    // sont faussees du rapport des deux k (le sprite part en vrille). Valeurs firmware
+    // 27/04/2025 (0.003189567 / 0.003200126 / 30.7) volontairement NON utilisees ici :
+    // l'asserv simu tourne encore sur les valeurs GROSBOT historiques ci-dessous.
+    static constexpr float k_voie_bot       = 31.6867261f; // entraxe des roues en cm (= VOIE_ROBOT de CAsservissement_simu)
+    static constexpr float k_pas_codeur_G   = 0.0651136f;  // cm par pas codeur, roue G (= DISTANCE_PAR_PAS_CODEUR_G de CAsservissement_simu)
+    static constexpr float k_pas_codeur_D   = 0.0651136f;  // cm par pas codeur, roue D (= DISTANCE_PAR_PAS_CODEUR_D de CAsservissement_simu)
 
     // Seuil pour basculer en integration "ligne droite" (evite division par zero
     // quand le robot ne tourne pas) : delta theta inferieur a ~5.7e-5 degre.
