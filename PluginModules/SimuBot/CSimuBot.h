@@ -159,11 +159,6 @@ private:
     // Collisions geometriques maison (etape 3) : bordures (demi-plans) + elements de jeu
     // (SAT polygone-polygone), en repere terrain. Branche dans m_kinematic_engine.
     CCollisionEngine m_collision_engine;
-    // Offset d'init du robot : x_pos/y_pos publies dans le DataManager sont RELATIFS au
-    // point de depart (comme Box2D : _x1(x)=x-m_x_init1). Le moteur cinematique travaille
-    // en terrain absolu ; on soustrait cet offset au moment d'ecrire x_pos/y_pos.
-    float m_kin_x_init;
-    float m_kin_y_init;
     // Gain de conversion consigne -> vitesse roue (cm/s) pour le moteur cinematique.
     // Simulia publie vect_G/D = 80 * commande_moteur_% (valeur d'impulsion calibree pour
     // Box2D, cf. CRoues_simu.cpp), PAS une vitesse. On convertit : vitesse_cm_s = vect * gain.

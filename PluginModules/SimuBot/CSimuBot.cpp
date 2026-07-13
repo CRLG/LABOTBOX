@@ -681,7 +681,6 @@ void CSimuBot::initView(void){
             MiniBot->raz(x_init_2,y_init_2,normalizeAngleDeg(180*theta_init_2/Pi));
             // Moteur cinematique : meme pose d'init, teta en radians (deja en rad ici).
             m_kinematic_engine.init(x_init,y_init,theta_init);
-            m_kin_x_init=x_init; m_kin_y_init=y_init;
             // ETAPE 3bis : reconstructeur asserv interne cale sur le MEME repere asserv que
             // GrosBot (setAsservInit ci-dessus). setPosition_XYTeta reproduit le leurre d'init
             // du firmware ; sB_*_init_asserv sont les conditions initiales asserv (per-annee,
@@ -706,7 +705,6 @@ void CSimuBot::initView(void){
             MiniBot->raz(x_init_2,y_init_2,theta_init_2);
             // Moteur cinematique : meme pose d'init, teta converti deg -> rad.
             m_kinematic_engine.init(x_init,y_init,Pi*theta_init/180.0f);
-            m_kin_x_init=x_init; m_kin_y_init=y_init;
             // ETAPE 3bis : reconstructeur asserv interne cale sur le MEME repere asserv que
             // GrosBot. teta_asserv en degres dans cette branche -> conversion en radians.
             m_pose_reconstructor_interne.setPosition_XYTeta(m_ihm.ui.sB_X_init_asserv->value(),
