@@ -682,6 +682,16 @@ void CSimuBot::initView(void){
             // Moteur cinematique : meme pose d'init, teta en radians (deja en rad ici).
             m_kinematic_engine.init(x_init,y_init,theta_init);
             m_kin_x_init=x_init; m_kin_y_init=y_init;
+            // ETAPE 3bis : reconstructeur asserv interne cale sur le MEME repere asserv que
+            // GrosBot (setAsservInit ci-dessus). setPosition_XYTeta reproduit le leurre d'init
+            // du firmware ; sB_*_init_asserv sont les conditions initiales asserv (per-annee,
+            // EEPROM). teta_asserv deja en radians dans cette branche.
+            m_pose_reconstructor_interne.setPosition_XYTeta(m_ihm.ui.sB_X_init_asserv->value(),
+                                                            m_ihm.ui.sB_Y_init_asserv->value(),
+                                                            m_ihm.ui.sB_Theta_init_asserv->value());
+            m_pose_reconstructor_interne.distance_roue_D=0.f; m_pose_reconstructor_interne.distance_roue_G=0.f;
+            m_pose_reconstructor_interne.distance_roue_D_prec=0.f; m_pose_reconstructor_interne.distance_roue_G_prec=0.f;
+            m_cumul_distance_D=0.f; m_cumul_distance_G=0.f;
         }
         else
         {
@@ -697,6 +707,14 @@ void CSimuBot::initView(void){
             // Moteur cinematique : meme pose d'init, teta converti deg -> rad.
             m_kinematic_engine.init(x_init,y_init,Pi*theta_init/180.0f);
             m_kin_x_init=x_init; m_kin_y_init=y_init;
+            // ETAPE 3bis : reconstructeur asserv interne cale sur le MEME repere asserv que
+            // GrosBot. teta_asserv en degres dans cette branche -> conversion en radians.
+            m_pose_reconstructor_interne.setPosition_XYTeta(m_ihm.ui.sB_X_init_asserv->value(),
+                                                            m_ihm.ui.sB_Y_init_asserv->value(),
+                                                            Pi*m_ihm.ui.sB_Theta_init_asserv->value()/180.0f);
+            m_pose_reconstructor_interne.distance_roue_D=0.f; m_pose_reconstructor_interne.distance_roue_G=0.f;
+            m_pose_reconstructor_interne.distance_roue_D_prec=0.f; m_pose_reconstructor_interne.distance_roue_G_prec=0.f;
+            m_cumul_distance_D=0.f; m_cumul_distance_G=0.f;
         }
 
         // Elements de jeu : crees une fois par setElementJeu() dans init() (rectangles
@@ -1783,11 +1801,16 @@ void CSimuBot::updateStepFromSimulia()
         // robot<->elements de jeu sera portee par CCollisionEngine (sous-etape SAT).
         // Conversion consigne Simulia (80*commande_%) -> vitesse roue cm/s via gain calibrable.
         m_kinematic_engine.step(0.02f, vect_G_B1 * m_kin_speed_gain, vect_D_B1 * m_kin_speed_gain);
-        // x_pos/y_pos = deplacement RELATIF a l'init (convention historique _x1/_y1) ;
-        // teta_pos = angle ABSOLU.
-        m_application->m_data_center->write("x_pos",    m_kinematic_engine.x() - m_kin_x_init);
-        m_application->m_data_center->write("y_pos",    m_kinematic_engine.y() - m_kin_y_init);
-        m_application->m_data_center->write("teta_pos", m_kinematic_engine.teta());
+        // ETAPE 3bis : l'asservissement fait foi. x_pos/y_pos/teta_pos ne viennent plus du
+        // moteur cinematique exact mais de la croyance de l'asserv firmware (via Simulia) :
+        // pose reconstruite par CAsservissementBase::CalculXY (schema "tourne-puis-avance",
+        // approximations embarquees incluses), en REPERE ASSERV relatif au depart, avec le
+        // leurre d'init (setPosition dans match_started) deja pris en compte. Aucun offset
+        // m_kin_x_init ici : le placement terrain est applique par display_XY (repere asserv
+        // -> scene). Le moteur cinematique continue de produire les pas codeurs + collisions.
+        m_application->m_data_center->write("x_pos",    m_application->m_data_center->read("Simulia.x_pos").toFloat());
+        m_application->m_data_center->write("y_pos",    m_application->m_data_center->read("Simulia.y_pos").toFloat());
+        m_application->m_data_center->write("teta_pos", m_application->m_data_center->read("Simulia.teta_pos").toFloat());
         m_application->m_data_center->write("Simubot.codeur_G", m_kinematic_engine.deltaCodeurG());
         m_application->m_data_center->write("Simubot.codeur_D", m_kinematic_engine.deltaCodeurD());
 
@@ -1820,10 +1843,20 @@ void CSimuBot::updateStepFromSimuBot()
         // Moteur cinematique (unique depuis le retrait de Box2D, etape 3) : meme entree
         // consigne moteur, convertie en cm/s via le gain calibrable.
         m_kinematic_engine.step(0.02f, vect_G_B1 * m_kin_speed_gain, vect_D_B1 * m_kin_speed_gain);
-        // x_pos/y_pos = deplacement RELATIF a l'init (convention historique) ; teta_pos absolu.
-        m_application->m_data_center->write("x_pos",    m_kinematic_engine.x() - m_kin_x_init);
-        m_application->m_data_center->write("y_pos",    m_kinematic_engine.y() - m_kin_y_init);
-        m_application->m_data_center->write("teta_pos", m_kinematic_engine.teta());
+        // ETAPE 3bis - chemin asserv interne : l'asserv fait foi. Aucun Modelia ne tourne ici,
+        // on reconstruit donc la pose comme le firmware : distance cumulee par roue -> CalculXY
+        // (schema "tourne-puis-avance"), publiee en REPERE ASSERV relatif au depart (le
+        // reconstructeur a ete cale sur ce repere au raz via setPosition_XYTeta). Aucun offset
+        // m_kin_x_init : le placement terrain est applique par display_XY (repere asserv->scene).
+        // Le moteur cinematique continue de produire les pas codeurs + collisions (boucle SIL).
+        m_cumul_distance_D += m_kinematic_engine.deltaCodeurD() * CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D;
+        m_cumul_distance_G += m_kinematic_engine.deltaCodeurG() * CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G;
+        m_pose_reconstructor_interne.distance_roue_D = m_cumul_distance_D;
+        m_pose_reconstructor_interne.distance_roue_G = m_cumul_distance_G;
+        m_pose_reconstructor_interne.CalculXY();
+        m_application->m_data_center->write("x_pos",    m_pose_reconstructor_interne.X_robot);
+        m_application->m_data_center->write("y_pos",    m_pose_reconstructor_interne.Y_robot);
+        m_application->m_data_center->write("teta_pos", m_pose_reconstructor_interne.angle_robot);
         m_application->m_data_center->write("Simubot.codeur_G", m_kinematic_engine.deltaCodeurG());
         m_application->m_data_center->write("Simubot.codeur_D", m_kinematic_engine.deltaCodeurD());
 

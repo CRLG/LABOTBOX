@@ -339,6 +339,9 @@ void CSimulia::step_sequencer()
         m_application->m_data_center->write("Simulia.vect_D", Application.m_roues.m_vect_deplacement_D);
         m_application->m_data_center->write("Simulia.x_pos", Application.m_asservissement.X_robot);
         m_application->m_data_center->write("Simulia.y_pos", Application.m_asservissement.Y_robot);
+        // Etape 3bis : on publie aussi l'angle reconstruit par l'asserv (jusqu'ici absent),
+        // pour que SimuBot puisse afficher la pose telle que l'asserv la croit (repere asserv).
+        m_application->m_data_center->write("Simulia.teta_pos", Application.m_asservissement.angle_robot);
         m_application->m_data_center->write("Simulia.step", m_step);
     }
 

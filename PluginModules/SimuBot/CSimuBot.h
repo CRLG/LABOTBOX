@@ -23,6 +23,7 @@
 #include <QGraphicsEllipseItem>
 #include "CKinematicEngine.h"
 #include "CCollisionEngine.h"
+#include "CAsservissementBase.h"
 
 // Dimensions du terrain (cm). Anciennement definies dans CPhysicalEngine.h, relocalisees
 // ici lors du retrait de Box2D (etape 3 migration SimuBot v2). Servent a configurer la
@@ -75,8 +76,17 @@ public:
    */
 
 	   
+// ETAPE 3bis : reconstructeur de pose autonome pour le chemin asserv interne. CalculXY est
+// protected dans CAsservissementBase ; cette sous-classe l'expose en public sans rien changer
+// d'autre. On n'engage jamais la regulation : seul CalculXY est appele, il ne depend que de
+// distance_roue_D/G (publics) et de son etat interne _prec.
+class CPoseReconstructeurAsserv : public CAsservissementBase {
+public:
+    using CAsservissementBase::CalculXY;
+};
+
 /*! @brief class CSimuBot in @link TraceLogger basic module.
- */	   
+ */
 class CSimuBot : public CPluginModule
 {
     Q_OBJECT
@@ -165,6 +175,18 @@ private:
     // vitesse roue (asserv en vitesse). Calibrable via EEPROM "kin_motor_tau" (defaut 0.15).
     // double pour la meme raison que m_kin_speed_gain (lisibilite EEPROM.ini).
     double m_kin_motor_tau;
+    // ETAPE 3bis - chemin asserv interne (SIMU sans Simulia) : reconstructeur de pose
+    // autonome. Aucun code Modelia ne tourne dans ce chemin, donc on rejoue localement la
+    // reconstruction que ferait le firmware : meme classe de calcul (CAsservissementBase::
+    // CalculXY, schema "tourne-puis-avance") alimentee par la distance cumulee par roue,
+    // pour publier x_pos/y_pos/teta_pos en repere asserv (representatif, comme le chemin
+    // Simulia). N'engage PAS la regulation (ni gains, ni CommandeMouvement) : seul CalculXY
+    // est appele, qui ne depend que de distance_roue_D/G et de son etat _prec.
+    CPoseReconstructeurAsserv m_pose_reconstructor_interne;
+    // Distance cumulee par roue [cm] alimentant le reconstructeur (somme des pas codeurs du
+    // moteur cinematique x DISTANCE_PAR_PAS_CODEUR). Remise a 0 au raz.
+    float m_cumul_distance_D;
+    float m_cumul_distance_G;
     int m_step;
     bool m_simulia_Enabled;
 
