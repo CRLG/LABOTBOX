@@ -9,7 +9,15 @@
 #include "CMainWindow.h"
 #include "CEEPROM.h"
 #include "CDataManager.h"
-#include "CAStar.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QCoreApplication>
+#include <QColor>
+#include <math.h>
 
 /*!
  * \brief normalizeAngleDeg utilitaire de normalisation d'angle en degré
@@ -52,6 +60,9 @@ CSimuBot::CSimuBot(const char *plugin_name)
     deltaDistance=0;
 
     m_connected_host=false;
+
+    // Watcher de hot-reload du terrain JSON : cree dans init() (cf. loadTerrainFromJson).
+    m_terrain_watcher=nullptr;
 }
 
 
@@ -202,44 +213,20 @@ void CSimuBot::init(CApplication *application)
     terrain->addItem(bordures);
 
     //ajout des éléments de jeu
-    //éléments de jeu 2026: caisses de noisettes soit des rectangles de 15x5 cm
-    //elements horizontaux
-    float x_elJeu_h[]={10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,10.0f,
-                      275.0f,275.0f,275.0f,275.0f,275.0f,275.0f,275.0f,275.0f};
-    float y_elJeu_h[]={35.0f,40.0f,45.0f,50.0f,115.0f,120.0f,125.0f,130.f,
-                      35.0f,40.0f,45.0f,50.0f,115.0f,120.0f,125.0f,130.f};
-    //elements verticaux
-    float x_elJeu_v[]={100.0f,105.0f,110.0f,115.0f,105.0f,110.0f,115.0f,120.0f,70.0f,75.0f,80.0f,85.0f,
-                      180.0f,185.0f,190.0f,195.0f,175.0f,180.0f,185.0f,190.0f,210.0f,215.0f,220.0f,225.0f,
-                      105.0f,110.0f,130.0f,135.0f,160.0f,165.0f,185.0f,190.0f};
-    float y_elJeu_v[]={25.0f,25.0f,25.0f,25.0f,87.5f,87.5f,87.5f,87.5f,175.0f,175.0f,175.0f,175.0f,
-                      25.0f,25.0f,25.0f,25.0f,87.5f,87.5f,87.5f,87.5f,175.0f,175.0f,175.0f,175.0f,
-                      180.0f,180.0f,185.0f,185.0f,185.0f,185.0f,180.0f,180.0f};
-    //placement des éléements de jeu
-    // Conversion repere : setElementJeu recoit la position scene (y inverse) ; en repere
-    // terrain (y vers le haut) un element horizontal occupe x in [x, x+15], y in [y-5, y]
-    // et un vertical x in [x, x+5], y in [y-15, y]. On declare ces rectangles au moteur de
-    // collisions (id = index dans elementsJeu) pour le SAT robot<->elements (etape 3).
-    // mobile=true : les caisses de noisettes sont LIBRES sur le terrain (poussables par le
-    // robot, pas des bordures) -> le contact deplace l'element, le robot continue.
-    for(int k=0;k<16;k++)
-    {
-        if(k%2==0)
-            elementsJeu[k]=setElementJeu(x_elJeu_h[k],-y_elJeu_h[k],Qt::yellow,false);
-        else
-            elementsJeu[k]=setElementJeu(x_elJeu_h[k],-y_elJeu_h[k],Qt::blue,false);
-        m_collision_engine.addObstacleRect(x_elJeu_h[k], y_elJeu_h[k]-5.0f,
-                                           x_elJeu_h[k]+15.0f, y_elJeu_h[k], k, true);
-    }
-    for(int k=0;k<32;k++)
-    {
-        if(k%2==0)
-            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],-y_elJeu_v[k],Qt::yellow,true);
-        else
-            elementsJeu[k+16]=setElementJeu(x_elJeu_v[k],-y_elJeu_v[k],Qt::blue,true);
-        m_collision_engine.addObstacleRect(x_elJeu_v[k], y_elJeu_v[k]-15.0f,
-                                           x_elJeu_v[k]+5.0f, y_elJeu_v[k], k+16, true);
-    }
+    // Terrain (etape 4) : dimensions + decor fixe (estrades, tasseaux... = obstacles au meme titre
+    // que les bordures) + elements de jeu, externalises en JSON dans le dossier Config, aux cotes
+    // de EEPROM.ini. Le nombre ET la forme des elements changent chaque annee (rectangles,
+    // polygones, disques...). Cree avec un contenu par defaut si absent, a l'instar de EEPROM.ini.
+    // Chemin FIXE (pas d'entree EEPROM). loadTerrainFromJson cree les sprites (rect/polygone/cercle/
+    // ellipse) ET declare les obstacles au moteur de collisions (cercle approxime en polygone SAT).
+    m_terrain_json_path = m_application->m_pathname_config_file + "/terrain.json";
+    loadTerrainFromJson(m_terrain_json_path);
+
+    // Hot-reload : surveiller le fichier et recharger a chaque modification (sans recompiler).
+    m_terrain_watcher = new QFileSystemWatcher(this);
+    connect(m_terrain_watcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadTerrain()));
+    if (QFile::exists(m_terrain_json_path))
+        m_terrain_watcher->addPath(m_terrain_json_path);
 
 
     //ajout des tasseaux 2022
@@ -374,7 +361,8 @@ void CSimuBot::init(CApplication *application)
     else              {m_ihm.ui.radioButton_degre->setChecked(true); setAndGetInRad=false; }
 
     //pour calculer une trajectoire d'evitement
-    connect(m_ihm.ui.pb_Astar,SIGNAL(clicked()),this,SLOT(slot_getPath()));
+    // A* (pathfinding) retire : c'etait un test, non conserve pour la Coupe (cf. rapport_simubot.md).
+    // Le bouton pb_Astar de l'IHM reste present mais n'est plus connecte.
     connect(m_ihm.ui.pB_clearEvitement,SIGNAL(clicked()),this,SLOT(slot_clearPath()));
 
     // Positions x, y, teta du robot physique
@@ -489,6 +477,7 @@ void CSimuBot::close(void)
   m_application->m_eeprom->write(getName(), "kin_speed_gain", QVariant((double)m_kin_speed_gain));
   // Constante de temps moteur (inertie) du moteur cinematique.
   m_application->m_eeprom->write(getName(), "kin_motor_tau", QVariant((double)m_kin_motor_tau));
+  // NB : le chemin du terrain JSON n'est PAS en EEPROM (fichier fixe Config/terrain.json).
 }
 
 // _____________________________________________________________________
@@ -1041,94 +1030,6 @@ void CSimuBot::slot_clearPath(void)
             }
     evitement.clear();
 }
-
-void CSimuBot::slot_getPath(void)
-{
-    AStar *Recherche=new AStar();
-    int xA, yA, xB, yB; //A depart, B objetcif
-    int xC,yC;
-    int xD,yD;
-
-    xA=OldGrosBot->getX_terrain();
-    yA=OldGrosBot->getY_terrain();
-    xB=GrosBot->getX_terrain();
-    yB=GrosBot->getY_terrain();
-    xC=OtherBot->getX_terrain();
-    yC=OtherBot->getY_terrain();
-
-    //initialisation de la carte des obstacles
-    Recherche->initMap(xC,yC);
-    if (m_ihm.ui.ckhB_2Bot->isChecked())
-    {
-        xD=MiniBot->getX_terrain();
-        yD=MiniBot->getY_terrain();
-        Recherche->addBot2Map(xD,yD);
-    }
-
-    int nb_points_asser=0;
-
-    //lancement de l'algorithme et estimation du temps de calcul
-    clock_t start = std::clock();
-    int nb_points=Recherche->pathFind(xA, yA, xB, yB);
-    clock_t end = std::clock();
-    if(nb_points<=0)
-    {
-        qDebug()<<"\n[CSimuBot][A*] Calcul d'une trajectoire d'évitement";
-        qDebug()<<"[CSimuBot][A*] Pas de chemin trouve!\n";
-        /*qDebug()<<"[CSimuBot][A*] Dimension carte (X,Y):\t"<<n*PRECISION<<"x"<<m*PRECISION;
-        qDebug()<<"[CSimuBot][A*] Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
-        qDebug()<<"[CSimuBot][A*] Autre robot:\t\t("<<xC<<","<<yC<<")";
-        double time_elapsed = double(double(end - start)/CLOCKS_PER_SEC);
-        qDebug()<<"[CSimuBot][A*] Temps calcul (s):\t"<<time_elapsed<<"\n";*/
-    }
-    else
-        //l'algorithme étant itératif on est obligé de rebrousser chemin pour le reconstruire
-        nb_points_asser=Recherche->pathBuild(xA,yA);
-
-    //dans le cas où on a trouvé un chemin possible
-    if(nb_points>0)
-    {
-        qDebug()<<"\n[CSimuBot][A*] Calcul d'une trajectoire d'évitement";
-        qDebug()<<"[CSimuBot][A*] Dimension carte (X,Y):\t"<<n*PRECISION<<"x"<<m*PRECISION;
-        qDebug()<<"[CSimuBot][A*] Depart=>Objectif:\t("<<xA<<","<<yA<<")=>("<<xB<<","<<yB<<")";
-        qDebug()<<"[CSimuBot][A*] Autre robot:\t\t("<<xC<<","<<yC<<")";
-        double time_elapsed = double(double(end - start)/CLOCKS_PER_SEC);
-        qDebug()<<"[CSimuBot][A*] Temps calcul (s):\t"<<time_elapsed;
-        qDebug()<<"[CSimuBot][A*] Route:\t\t\t"<<nb_points<<" pts";
-        qDebug()<<"[CSimuBot][A*] Trajectoire:\t\t"<<nb_points_asser<<" pts\n";
-
-        //effacement graphique de la dernière trajectoire
-        slot_clearPath();
-
-        int x_temp=xB;
-        int y_temp=-yB;
-        int j=nb_points_asser-1;
-
-        //reconstruction du chemin en segments à afficher
-        while(j>=0)
-        {
-            //qDebug()<<"("<<x_temp<<","<<y_temp<<") => ("<<(Recherche->i_x_dir[j])<<","<<-(Recherche->i_y_dir[j])<<")";
-
-            //on attend de calculer un point avant de tracer un segment
-            if(j!=nb_points_asser-1)
-                evitement.append(new QGraphicsLineItem(x_temp,y_temp,(Recherche->i_x_dir[j]),-(Recherche->i_y_dir[j])));
-
-            //sauvegarde du point en cours pour tracer le prochain segment
-            x_temp=(Recherche->i_x_dir[j]);
-            y_temp=-(Recherche->i_y_dir[j]);
-
-            j--;
-        }
-
-        //traçage du chemin d'évitement et affichage
-        for(int k=0;k<evitement.size();k++)
-        {
-            evitement.at(k)->setPen(QPen(Qt::red,3));
-            terrain->addItem(evitement.at(k));
-        }
-    }
-}
-
 
 void CSimuBot::catchDoubleClick()
 {
@@ -1731,8 +1632,11 @@ QGraphicsRectItem * CSimuBot::setElementJeu(float x, float y, int Color, bool ve
  */
 void CSimuBot::refreshGameElementsView()
 {
-    for(int id=0; id<48; id++)
+    for(int id=0; id<elementsJeu.size(); id++)
     {
+        // Un id peut porter un sprite nul (type d'element JSON inconnu ignore, cf.
+        // loadTerrainFromJson) : on preserve l'alignement id<->index, on saute l'affichage.
+        if(elementsJeu[id]==nullptr) continue;
         float dx=0.0f, dy=0.0f, dteta=0.0f;
         if(m_collision_engine.getObstacleDisplacement(id, dx, dy, dteta))
         {
@@ -1744,6 +1648,254 @@ void CSimuBot::refreshGameElementsView()
             elementsJeu[id]->setRotation(-dteta * 180.0f / Pi);
         }
     }
+}
+
+/*!
+ * \brief CSimuBot::colorFromName
+ * Convertit un nom de couleur JSON en QColor. Reprend la convention historique de setElementJeu
+ * (rouge = marron des caisses). Defaut : gris.
+ */
+QColor CSimuBot::colorFromName(const QString& name) const
+{
+    const QString nm = name.toLower();
+    if (nm == "jaune")                   return QColor(255,255,0);
+    if (nm == "bleu")                    return QColor(0,0,255);
+    if (nm == "rouge")                   return QColor(139,69,19); // marron (convention Qt::red existante)
+    if (nm == "vert")                    return QColor(0,255,0);
+    if (nm == "magenta" || nm == "cyan") return QColor(255,0,255);
+    if (nm == "gris")                    return QColor(128,128,128);
+    return QColor(128,128,128); // defaut
+}
+
+/*!
+ * \brief CSimuBot::clearGameElements
+ * Detruit les sprites d'elements de jeu (retrait de la scene + delete) et vide elementsJeu.
+ * Utilise avant chaque (re)chargement du terrain pour repartir propre.
+ */
+void CSimuBot::clearGameElements()
+{
+    for (int i = 0; i < elementsJeu.size(); ++i)
+    {
+        if (elementsJeu[i] != nullptr)
+        {
+            terrain->removeItem(elementsJeu[i]);
+            delete elementsJeu[i];
+        }
+    }
+    elementsJeu.clear();
+}
+
+/*!
+ * \brief CSimuBot::loadTerrainFromJson
+ * Charge depuis un fichier JSON : les dimensions du terrain, le decor FIXE (estrades, tasseaux...
+ * = obstacles comme les bordures) et les elements de JEU (poussables si mobile=true). Cree pour
+ * chaque entree son sprite Qt ET son obstacle de collision. Si le fichier est absent, un contenu
+ * par defaut est cree (comme EEPROM.ini). Renvoie false si le fichier reste absent/invalide.
+ */
+bool CSimuBot::loadTerrainFromJson(const QString& path)
+{
+    m_terrain_json_path = path;
+    // Absent : on cree un fichier par defaut (terrain 300x200 + regles en commentaire), a
+    // l'instar de EEPROM.ini. L'utilisateur l'edite ensuite (ou depose le fichier de l'annee).
+    if (!QFile::exists(path))
+        writeDefaultTerrainFile(path);
+
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: terrain JSON introuvable: " + path);
+        return false;
+    }
+    QJsonParseError perr;
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &perr);
+    file.close();
+    if (perr.error != QJsonParseError::NoError || !doc.isObject())
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: terrain JSON invalide: " + perr.errorString());
+        return false;
+    }
+    const QJsonObject root = doc.object();
+
+    // Dimensions terrain -> moteurs cinematique + collisions (repli X/Y_TERRAIN si absent).
+    const QJsonObject terr = root.value("terrain").toObject();
+    const float larg = (float)terr.value("largeur_cm").toDouble(X_TERRAIN);
+    const float haut = (float)terr.value("hauteur_cm").toDouble(Y_TERRAIN);
+    m_kinematic_engine.setTerrain(0.0f, 0.0f, larg, haut);
+    m_collision_engine.setTerrain(0.0f, 0.0f, larg, haut);
+
+    // On repart d'un jeu d'elements/obstacles vide (recharge a chaud possible).
+    clearGameElements();
+    m_collision_engine.clearObstacles();
+
+    // Decor FIXE d'abord (obstacles comme les bordures, mobile force a false), puis elements de
+    // JEU (poussables si mobile=true). id de collision partage = index dans elementsJeu.
+    int runningId = 0;
+    addJsonElements(root.value("decor").toArray(),    true,  runningId);
+    addJsonElements(root.value("elements").toArray(), false, runningId);
+    return true;
+}
+
+/*!
+ * \brief CSimuBot::addJsonElements
+ * Cree, pour chaque entree d'une liste JSON (decor OU elements de jeu), son sprite Qt ET son
+ * obstacle de collision. forceFixed=true force mobile=false (decor : obstacle fixe comme une
+ * bordure). runningId (partage decor+elements) = id de collision = index dans elementsJeu.
+ * Types : "rect" (cx,cy,w,h,angle_deg) / "polygone" (sommets_cm) / "cercle" (cx,cy,r,n_cotes) /
+ * "ellipse" (cx,cy,rx,ry,n_cotes). Repere JSON : terrain (y vers le haut, cm) ; sprite en repere
+ * scene (y inverse). Cercle/ellipse et rect tourne approximes en polygone convexe pour le SAT.
+ */
+void CSimuBot::addJsonElements(const QJsonArray& arr, bool forceFixed, int& runningId)
+{
+    for (int k = 0; k < arr.size(); ++k)
+    {
+        const int id = runningId++; // id de collision = index dans elementsJeu (decor puis jeu)
+        const QJsonObject e = arr.at(k).toObject();
+        const QString type  = e.value("type").toString("rect");
+        // Decor : toujours fixe (comme une bordure). Element de jeu : selon le champ "mobile".
+        const bool    mobile= forceFixed ? false : e.value("mobile").toBool(true);
+        const QColor  col   = colorFromName(e.value("couleur").toString("gris"));
+        QGraphicsItem* sprite = nullptr;
+
+        if (type == "rect")
+        {
+            const float cx = (float)e.value("cx_cm").toDouble();
+            const float cy = (float)e.value("cy_cm").toDouble();
+            const float w  = (float)e.value("w_cm").toDouble();
+            const float h  = (float)e.value("h_cm").toDouble();
+            const float ang= (float)e.value("angle_deg").toDouble(0.0);
+            if (ang == 0.0f)
+            {
+                // Rectangle axis-aligned : sprite scene (y inverse) + obstacle rect exact.
+                QGraphicsRectItem* it = new QGraphicsRectItem(QRectF(cx - w/2.0f, -cy - h/2.0f, w, h));
+                it->setTransformOriginPoint(cx, -cy); // origine de rotation = centre (comme les pousses)
+                it->setBrush(QBrush(col));
+                terrain->addItem(it);
+                sprite = it;
+                m_collision_engine.addObstacleRect(cx - w/2.0f, cy - h/2.0f, cx + w/2.0f, cy + h/2.0f, id, mobile);
+            }
+            else
+            {
+                // Rectangle tourne : on le traite comme un polygone convexe (4 coins tournes),
+                // pour que la rotation de collision (dteta) s'ajoute proprement a l'affichage.
+                const float cr = cosf(ang * (float)M_PI / 180.0f);
+                const float sr = sinf(ang * (float)M_PI / 180.0f);
+                const float hx = w/2.0f, hy = h/2.0f;
+                const float lx[4] = { -hx,  hx,  hx, -hx };
+                const float ly[4] = { -hy, -hy,  hy,  hy };
+                std::vector<CCollisionEngine::Vec2> v(4);
+                QPolygonF poly;
+                for (int c = 0; c < 4; ++c)
+                {
+                    const float wx = cx + lx[c]*cr - ly[c]*sr;
+                    const float wy = cy + lx[c]*sr + ly[c]*cr;
+                    v[c] = { wx, wy };
+                    poly << QPointF(wx, -wy);
+                }
+                QGraphicsPolygonItem* it = new QGraphicsPolygonItem(poly);
+                it->setTransformOriginPoint(cx, -cy);
+                it->setBrush(QBrush(col));
+                terrain->addItem(it);
+                sprite = it;
+                m_collision_engine.addObstacleConvex(v, id, mobile);
+            }
+        }
+        else if (type == "polygone")
+        {
+            const QJsonArray sj = e.value("sommets_cm").toArray();
+            QPolygonF poly;                          // sprite (scene)
+            std::vector<CCollisionEngine::Vec2> v;   // collision (terrain)
+            float gcx = 0.0f, gcy = 0.0f;
+            for (int s = 0; s < sj.size(); ++s)
+            {
+                const QJsonArray p = sj.at(s).toArray();
+                const float px = (float)p.at(0).toDouble();
+                const float py = (float)p.at(1).toDouble();
+                poly << QPointF(px, -py);
+                v.push_back({ px, py });
+                gcx += px; gcy += py;
+            }
+            if (!v.empty()) { gcx /= (float)v.size(); gcy /= (float)v.size(); }
+            QGraphicsPolygonItem* it = new QGraphicsPolygonItem(poly);
+            it->setTransformOriginPoint(gcx, -gcy);
+            it->setBrush(QBrush(col));
+            terrain->addItem(it);
+            sprite = it;
+            m_collision_engine.addObstacleConvex(v, id, mobile);
+        }
+        else if (type == "cercle" || type == "ellipse")
+        {
+            const float cx = (float)e.value("cx_cm").toDouble();
+            const float cy = (float)e.value("cy_cm").toDouble();
+            const float rx = (type == "cercle") ? (float)e.value("r_cm").toDouble()
+                                                : (float)e.value("rx_cm").toDouble();
+            const float ry = (type == "cercle") ? rx
+                                                : (float)e.value("ry_cm").toDouble();
+            const int   nCotes = e.value("n_cotes").toInt(16);
+            QGraphicsEllipseItem* it = new QGraphicsEllipseItem(QRectF(cx - rx, -cy - ry, 2.0f*rx, 2.0f*ry));
+            it->setTransformOriginPoint(cx, -cy);
+            it->setBrush(QBrush(col));
+            terrain->addItem(it);
+            sprite = it;
+            // Collision : ellipse/cercle approximes en polygone convexe (nCotes) pour le SAT.
+            m_collision_engine.addObstacleEllipse(cx, cy, rx, ry, id, mobile, nCotes);
+        }
+        else
+        {
+            m_application->m_print_view->print_warning(this, "SimuBot: type d'element JSON inconnu: " + type);
+            // sprite reste nullptr et aucun obstacle n'est declare, mais on pousse un placeholder
+            // ci-dessous pour conserver l'alignement id == index (cf. refreshGameElementsView).
+        }
+        elementsJeu.push_back(sprite);
+    }
+}
+
+/*!
+ * \brief CSimuBot::writeDefaultTerrainFile
+ * Ecrit un fichier terrain JSON par defaut (terrain 300x200, sans obstacle) avec les regles de
+ * construction en commentaire, si le fichier est absent (a l'instar de EEPROM.ini). L'utilisateur
+ * complete ensuite le decor et les elements (ou depose le fichier de l'annee).
+ */
+void CSimuBot::writeDefaultTerrainFile(const QString& path)
+{
+    QFileInfo fi(path);
+    QDir().mkpath(fi.absolutePath()); // cree le dossier Config au besoin
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: impossible de creer le terrain par defaut: " + path);
+        return;
+    }
+    static const char* DEFAULT_TERRAIN_JSON =
+R"JSON({
+  "version": 2026,
+  "_commentaire": "Description du terrain de la Coupe pour SimuBot. Repere TERRAIN : origine coin bas-gauche, x vers la droite, y vers le HAUT, en cm. 'terrain' : dimensions (toujours 300x200 pour la Coupe). Deux listes d'obstacles au meme sous-schema de forme : 'decor' = elements de DECOR FIXES (estrades, tasseaux...) qui bloquent le robot comme les bordures (jamais pousses) ; 'elements' = elements de JEU, poussables si mobile=true. Types de forme : rect{cx_cm,cy_cm,w_cm,h_cm,angle_deg} / polygone{sommets_cm:[[x,y],...]} (convexe, sens trigo) / cercle{cx_cm,cy_cm,r_cm,n_cotes} / ellipse{cx_cm,cy_cm,rx_cm,ry_cm,n_cotes}. couleur : jaune/bleu/rouge/vert/magenta/gris. cercle et ellipse approximes en polygone (n_cotes, defaut 16) pour la collision SAT. id interne = ordre de chargement (decor puis elements). Fichier recharge a chaud a chaque sauvegarde.",
+  "terrain": { "largeur_cm": 300, "hauteur_cm": 200 },
+  "decor": [],
+  "elements": []
+}
+)JSON";
+    f.write(DEFAULT_TERRAIN_JSON);
+    f.close();
+    m_application->m_print_view->print_info(this, "SimuBot: terrain par defaut cree: " + path);
+}
+
+/*!
+ * \brief CSimuBot::reloadTerrain
+ * Slot de hot-reload : recharge terrain + elements depuis le JSON edite pendant l'execution.
+ */
+void CSimuBot::reloadTerrain()
+{
+    loadTerrainFromJson(m_terrain_json_path);
+    // Certains editeurs remplacent le fichier (nouvel inode) -> QFileSystemWatcher perd le path.
+    // On le re-ajoute si necessaire pour que les modifications suivantes soient encore captees.
+    if (m_terrain_watcher != nullptr
+        && !m_terrain_watcher->files().contains(m_terrain_json_path)
+        && QFile::exists(m_terrain_json_path))
+    {
+        m_terrain_watcher->addPath(m_terrain_json_path);
+    }
+    // Replace les sprites (le deplacement de collision est remis a zero au chargement).
+    refreshGameElementsView();
 }
 
 /*!

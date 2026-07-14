@@ -21,6 +21,9 @@
 #include "CExternalControlerClient.h"
 #include <QGraphicsRectItem>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsPolygonItem>
+#include <QFileSystemWatcher>
+#include <QVector>
 #include "CKinematicEngine.h"
 #include "CCollisionEngine.h"
 #include "CAsservissementBase.h"
@@ -30,6 +33,9 @@
 // collision bordure du moteur cinematique.
 #define X_TERRAIN 300.0f
 #define Y_TERRAIN 200.0f
+
+// Declaration anticipee : evite d'inclure <QJsonArray> dans le header (l'implementation l'inclut).
+class QJsonArray;
 
 //#define DEBUG_OTHER
 //#define DEBUG_SIMULIA
@@ -132,7 +138,11 @@ private:
     GraphicElement *MiniBot;
 	GraphicElement *OtherBot;
     QList<QGraphicsLineItem*> evitement;
-    QGraphicsRectItem * elementsJeu[48];
+    // Sprites des elements de jeu. Etape 4 : conteneur dynamique de QGraphicsItem* (base commune
+    // rect / polygone / ellipse) au lieu d'un tableau fixe de rectangles : le nombre ET la forme
+    // des elements varient chaque annee et sont charges depuis un JSON. L'index dans ce vecteur =
+    // id de l'obstacle cote CCollisionEngine (cf. loadTerrainFromJson / refreshGameElementsView).
+    QVector<QGraphicsItem*> elementsJeu;
     float deltaAngle;
     float deltaDistance;
     GraphicEnvironnement *terrain;
@@ -205,6 +215,27 @@ private:
     // Repercute dans la scene Qt le deplacement des elements de jeu pousses par le robot
     // (le moteur de collisions deplace les caisses mobiles ; on translate leur sprite).
     void refreshGameElementsView();
+    // --- Etape 4 : terrain + elements de jeu externalises en JSON rechargeable a chaud ---
+    // Charge le terrain (dimensions) et les elements de jeu depuis un fichier JSON : cree les
+    // sprites Qt (rect / polygone / cercle / ellipse) ET declare les obstacles au moteur de
+    // collisions (id = index dans elementsJeu). Cercle/ellipse approximes en polygone (n_cotes)
+    // pour le SAT. Renvoie false si le fichier est absent/invalide (on garde alors zero element
+    // plutot que de planter). Chemin resolu : absolu tel quel, sinon relatif a applicationDirPath.
+    bool loadTerrainFromJson(const QString& path);
+    // Cree les sprites + obstacles d'une liste JSON (decor OU elements de jeu). forceFixed=true
+    // force mobile=false (decor fixe, comme les bordures). runningId : id courant (partage entre
+    // decor et elements, = index dans elementsJeu), incremente pour chaque entree.
+    void addJsonElements(const QJsonArray& arr, bool forceFixed, int& runningId);
+    // Ecrit un fichier terrain JSON par defaut (terrain 300x200 + regles en commentaire) si absent,
+    // a l'instar de EEPROM.ini. Cree le dossier Config au besoin.
+    void writeDefaultTerrainFile(const QString& path);
+    // Detruit les sprites d'elements de jeu (retrait de la scene + delete) et vide elementsJeu.
+    void clearGameElements();
+    // Convertit un nom de couleur JSON ("jaune"/"bleu"/"rouge"/...) en QColor (defaut gris).
+    QColor colorFromName(const QString& name) const;
+    // Chemin du fichier terrain JSON (cle EEPROM "terrain_json_path") et surveillance hot-reload.
+    QString m_terrain_json_path;
+    QFileSystemWatcher* m_terrain_watcher;
     //design robot
     QGraphicsScene * scene_design;
 
@@ -227,11 +258,12 @@ public slots:
     void changeMode(int iMode);
     void zoom(int value);
     void slot_dial_turned(void);
-    void slot_getPath();
     void estimate_Environment_Interactions();
     void real_robot_position_changed();
     void catchDoubleClick();
     void Slot_catch_TxSync();
+    // Hot-reload du terrain : declenche par QFileSystemWatcher quand terrain_json_path change.
+    void reloadTerrain();
     void slot_designChanged(QList<QRectF> regions);
     void slot_enableSimulia(int state);
 };

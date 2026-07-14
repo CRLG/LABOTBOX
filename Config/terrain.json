@@ -1,0 +1,491 @@
+{
+  "version": 2026,
+  "_commentaire": "Description du terrain de la Coupe pour SimuBot. Repere TERRAIN : origine coin bas-gauche, x vers la droite, y vers le HAUT, en cm. 'terrain' : dimensions (toujours 300x200 pour la Coupe). Deux listes d'obstacles, meme sous-schema de forme : 'decor' = elements de DECOR FIXES (estrades, tasseaux...) qui bloquent le robot comme les bordures (jamais pousses) ; 'elements' = elements de JEU, poussables si mobile=true. Types de forme : rect{cx_cm,cy_cm,w_cm,h_cm,angle_deg} / polygone{sommets_cm:[[x,y],...]} (convexe, sens trigo) / cercle{cx_cm,cy_cm,r_cm,n_cotes} / ellipse{cx_cm,cy_cm,rx_cm,ry_cm,n_cotes}. couleur : jaune/bleu/rouge/vert/magenta/gris. cercle et ellipse sont approximes en polygone (n_cotes, defaut 16) pour la detection de collision SAT. id interne = ordre de chargement (decor puis elements). Fichier recharge a chaud a chaque sauvegarde (hot-reload).",
+  "terrain": {
+    "largeur_cm": 300,
+    "hauteur_cm": 200
+  },
+  "decor": [],
+  "elements": [
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 32.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 37.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 42.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 47.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 112.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 117.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 122.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 17.5,
+      "cy_cm": 127.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 32.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 37.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 42.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 47.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 112.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 117.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 122.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 282.5,
+      "cy_cm": 127.5,
+      "w_cm": 15,
+      "h_cm": 5,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 102.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 107.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 112.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 117.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 107.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 112.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 117.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 122.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 72.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 77.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 82.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 87.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 182.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 187.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 192.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 197.5,
+      "cy_cm": 17.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 177.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 182.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 187.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 192.5,
+      "cy_cm": 80.0,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 212.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 217.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 222.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 227.5,
+      "cy_cm": 167.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 107.5,
+      "cy_cm": 172.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 112.5,
+      "cy_cm": 172.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 132.5,
+      "cy_cm": 177.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 137.5,
+      "cy_cm": 177.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 162.5,
+      "cy_cm": 177.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 167.5,
+      "cy_cm": 177.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 187.5,
+      "cy_cm": 172.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "jaune",
+      "mobile": true
+    },
+    {
+      "type": "rect",
+      "cx_cm": 192.5,
+      "cy_cm": 172.5,
+      "w_cm": 5,
+      "h_cm": 15,
+      "angle_deg": 0,
+      "couleur": "bleu",
+      "mobile": true
+    }
+  ]
+}
