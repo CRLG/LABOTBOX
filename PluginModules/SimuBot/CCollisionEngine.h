@@ -132,7 +132,11 @@ private:
 
     // Pousse + tourne un element mobile sous une poussee de MTV (force = -mtv appliquee au
     // point de contact estime). robotW = sommets monde du robot pour estimer le contact.
-    void pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const std::vector<Vec2>& robotW);
+    // Renvoie la translation REELLEMENT appliquee au centroide (apres clamp terrain) : quand
+    // l'element est coince contre une bordure, cette translation est plus faible que -mtv, et
+    // resolve() transmet la part non absorbee au robot (l'element arrete alors le robot au lieu
+    // de le laisser traverser). La rotation est mise a l'echelle de cette part realisee.
+    Vec2 pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const std::vector<Vec2>& robotW);
 
     // Point P appartient-il au polygone convexe poly (sommets monde) ? (tolerance incluse)
     static bool pointInConvex(const std::vector<Vec2>& poly, float px, float py);

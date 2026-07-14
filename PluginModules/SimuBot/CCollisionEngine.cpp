@@ -268,7 +268,7 @@ bool CCollisionEngine::pointInConvex(const std::vector<Vec2>& poly, float px, fl
     return true;
 }
 
-void CCollisionEngine::pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const std::vector<Vec2>& robotW)
+CCollisionEngine::Vec2 CCollisionEngine::pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const std::vector<Vec2>& robotW)
 {
     // Centre de l'element AVANT deplacement (pour le bras de levier).
     const float cx = obs.x;
@@ -299,9 +299,25 @@ void CCollisionEngine::pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const 
         }
     }
 
-    // Translation : l'element s'ecarte du robot de -MTV (separation).
+    // Translation : l'element s'ecarte du robot de -MTV (separation), borne sur le terrain.
     obs.x -= mtv.x;
     obs.y -= mtv.y;
+    clampObstacleToField(obs);
+    // Translation REELLEMENT realisee (le clamp l'a eventuellement reduite : caisse coincee
+    // contre une bordure). Sert (a) a mettre la rotation a l'echelle, (b) au residu robot dans resolve.
+    const Vec2 actual = { obs.x - cx, obs.y - cy };
+
+    // Fraction de la translation voulue (-mtv) reellement absorbee : 1 = element libre,
+    // 0 = element bloque contre un bord. Une caisse coincee ne doit pas tourner sur place :
+    // sans cette mise a l'echelle, la rotation s'accumulait a chaque iteration/tick (effet toupie).
+    const float intended2 = mtv.x * mtv.x + mtv.y * mtv.y;
+    float frac = 1.0f;
+    if (intended2 > 1.0e-9f)
+    {
+        frac = -(actual.x * mtv.x + actual.y * mtv.y) / intended2; // actual . (-mtv) / |mtv|^2
+        if (frac < 0.0f) frac = 0.0f;
+        if (frac > 1.0f) frac = 1.0f;
+    }
 
     // Rotation : couple = bras_de_levier x force, force = -MTV (sens de la poussee sur l'element).
     // Modele cinematique borne (pas une vraie dynamique), suffisant pour l'effet "bras de levier".
@@ -310,12 +326,12 @@ void CCollisionEngine::pushMobileObstacle(Obstacle& obs, const Vec2& mtv, const 
     const float fx = -mtv.x;
     const float fy = -mtv.y;
     const float couple = rx * fy - ry * fx;     // produit vectoriel scalaire (z)
-    float dteta = k_push_rot_gain * couple;
+    float dteta = k_push_rot_gain * couple * frac;
     if (dteta >  k_push_rot_max) dteta =  k_push_rot_max;
     if (dteta < -k_push_rot_max) dteta = -k_push_rot_max;
     obs.teta += dteta;
 
-    clampObstacleToField(obs);
+    return actual;
 }
 
 bool CCollisionEngine::resolveBorders(float& x, float& y, float teta)
@@ -400,8 +416,22 @@ bool CCollisionEngine::resolve(float& x, float& y, float teta, int* hitId)
 
             if (m_obstacles[k].mobile)
             {
-                // Element POUSSABLE : on deplace + tourne l'element ; le robot continue.
-                pushMobileObstacle(m_obstacles[k], mtv, robotW);
+                // Element POUSSABLE : on deplace + tourne l'element ; le robot continue... SAUF si
+                // l'element est coince (contre une bordure ou une autre caisse) et n'a pas pu
+                // s'ecarter entierement. La part de separation non absorbee par l'element (mtv +
+                // actual) est alors transmise au robot pour l'arreter, au lieu de le laisser
+                // traverser la caisse plaquee contre le bord (bug "blocage bordure").
+                // Separation voulue = +mtv sur le robot (== -mtv sur l'element) ; l'element n'a
+                // realise que "actual" (deplacement relatif du robot = -actual) -> reste mtv + actual.
+                const Vec2 actual = pushMobileObstacle(m_obstacles[k], mtv, robotW);
+                const float resx = mtv.x + actual.x;
+                const float resy = mtv.y + actual.y;
+                if (resx != 0.0f || resy != 0.0f)
+                {
+                    x += resx;
+                    y += resy;
+                    robotWorldVertices(x, y, teta, robotW);
+                }
             }
             else
             {

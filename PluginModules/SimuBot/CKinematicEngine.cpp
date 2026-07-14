@@ -167,9 +167,9 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
     }
     else
     {
-        // Contact bordure : on reconstruit l'avance reelle du centre (projetee sur le
-        // cap moyen du tick) puis on revient aux roues par cinematique inverse.
-        // La rotation n'etant pas contrainte (disque), d_theta_real == d_theta.
+        // Contact (bordure ou element) : on reconstruit l'avance reelle du centre (projetee
+        // sur le cap moyen du tick) puis on revient aux roues par cinematique inverse.
+        // La rotation n'etant pas contrainte, d_theta_real == d_theta.
         const float d_theta_real  = teta_real - teta_old;
         const float cap_moyen     = teta_old + 0.5f * d_theta_real;
         const float d_center_real = (x_real - m_x) * cosf(cap_moyen)
@@ -180,6 +180,23 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
         const float dD_real = d_center_real + 0.5f * d_theta_real * k_voie_bot;
         m_delta_roue_G = (int)roundf(dG_real / k_pas_codeur_G);
         m_delta_roue_D = (int)roundf(dD_real / k_pas_codeur_D);
+
+        // --- CONTRAINTE NON-HOLONOME (roues silicone larges : ripage lateral quasi nul) ---
+        // La resolution geometrique de collision (CCollisionEngine) peut deplacer le chassis
+        // LATERALEMENT (glissement perpendiculaire au cap) pour le sortir d'un obstacle. Ce
+        // mouvement lateral n'est PAS physique pour ce robot (les roues motrices grippantes
+        // l'en empechent) ET il n'est pas mesurable par l'odometrie 2 roues (les codeurs
+        // ci-dessus ne l'encodent pas -> ils ne voient que l'avance le long du cap). Garder
+        // x_real/y_real ferait donc DIVERGER la pose physique de la croyance de l'asservissement
+        // (reconstruite depuis ces memes codeurs) : c'est l'origine du "sprite fantome" qui
+        // deplace les elements de jeu a une position decalee de l'affichage.
+        // On projette donc la pose commise sur le cap : le chassis n'avance QUE le long de son
+        // axe de roulement, coherent avec les codeurs. En espace libre c'est un no-op exact
+        // (le deplacement en arc est deja porte par le cap : la corde d'un arc bissecte l'angle).
+        // Un contact oblique peut laisser un leger chevauchement residuel (le robot s'arrete au
+        // lieu de glisser) : assume, second ordre (on recode la strategie pour eviter le contact).
+        x_real = m_x + d_center_real * cosf(cap_moyen);
+        y_real = m_y + d_center_real * sinf(cap_moyen);
     }
 
     // --- 5. Validation de la nouvelle pose ---
