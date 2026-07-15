@@ -1,0 +1,6 @@
+{
+  "version": 2026,
+  "_commentaire": "Forme(s) du/des robot(s) SimuBot. Repere ROBOT LOCAL : origine au centre, front vers +x, y vers le HAUT, en cm. 'sommets_cm' : polygone convexe (sens trigo) servant a la fois au sprite et a la collision SAT. 'grosbot' = robot principal, 'minibot' = second robot. Forme par defaut : octogone ~30x30.",
+  "grosbot": { "sommets_cm": [[10,15],[-10,15],[-15,10],[-15,-10],[-10,-15],[10,-15],[15,-10],[15,10]] },
+  "minibot": { "sommets_cm": [[10,15],[-10,15],[-15,10],[-15,-10],[-10,-15],[10,-15],[15,-10],[15,10]] }
+}

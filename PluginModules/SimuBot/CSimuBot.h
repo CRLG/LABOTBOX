@@ -34,8 +34,10 @@
 #define X_TERRAIN 300.0f
 #define Y_TERRAIN 200.0f
 
-// Declaration anticipee : evite d'inclure <QJsonArray> dans le header (l'implementation l'inclut).
+// Declaration anticipee : evite d'inclure <QJsonArray>/<QJsonObject> dans le header
+// (l'implementation les inclut).
 class QJsonArray;
+class QJsonObject;
 
 //#define DEBUG_OTHER
 //#define DEBUG_SIMULIA
@@ -209,7 +211,6 @@ private:
     int m_step2;
 
     void addStepOther(double x, double y, double teta, int row);
-    QPolygonF getForm(QStringList strL_Form);
     void getUSDistance(Coord bot, Coord obstacle, float capteurs[], float lidar[]);
     QGraphicsRectItem *setElementJeu(float x, float y, int Color, bool vertical);
     // Repercute dans la scene Qt le deplacement des elements de jeu pousses par le robot
@@ -233,16 +234,20 @@ private:
     void clearGameElements();
     // Convertit un nom de couleur JSON ("jaune"/"bleu"/"rouge"/...) en QColor (defaut gris).
     QColor colorFromName(const QString& name) const;
-    // Chemin du fichier terrain JSON (cle EEPROM "terrain_json_path") et surveillance hot-reload.
+    // Chemin du fichier terrain JSON (chemin fixe dans Config/) et surveillance hot-reload.
     QString m_terrain_json_path;
     QFileSystemWatcher* m_terrain_watcher;
-    //design robot
-    QGraphicsScene * scene_design;
-
-    //pour le design
-    QGraphicsEllipseItem *points_design[5][8];
-    QGraphicsLineItem *lignes_design[5][8];
-    void initDesign();
+    // --- Etape 5 : forme du/des robot(s) externalisee en JSON (remplace les cles EEPROM
+    // "polygon"/"polygon2"). Chemin fixe Config/robot.json, auto-cree si absent. ---
+    // Charge les polygones GrosBot + MiniBot depuis un JSON (repere robot local, y haut, cm ->
+    // scene y bas). Cree un defaut si absent. Renvoie false et laisse un repli (octogone) si KO.
+    bool loadRobotFromJson(const QString& path, QPolygonF& gros, QPolygonF& mini);
+    // Convertit un objet { "sommets_cm": [[x,y],...] } (repere robot, y haut) en QPolygonF scene.
+    QPolygonF polygonFromJson(const QJsonObject& obj) const;
+    // Ecrit un robot JSON par defaut (octogone GrosBot + MiniBot) si absent, comme terrain.json.
+    void writeDefaultRobotFile(const QString& path);
+    // Chemin du fichier robot JSON (chemin fixe dans Config/).
+    QString m_robot_json_path;
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
@@ -264,7 +269,6 @@ public slots:
     void Slot_catch_TxSync();
     // Hot-reload du terrain : declenche par QFileSystemWatcher quand terrain_json_path change.
     void reloadTerrain();
-    void slot_designChanged(QList<QRectF> regions);
     void slot_enableSimulia(int state);
 };
 

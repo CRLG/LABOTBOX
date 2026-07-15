@@ -108,21 +108,19 @@ void CSimuBot::init(CApplication *application)
     val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
     setBackgroundColor(val.value<QColor>());
 
-    //récupération des contours de GrosBot dans le fichier d'eeprom
-    //un point est décrit par une chaine de caractères
-    //formatée comme suit "(doublexdouble)", un contour existe par défaut
-    val=m_application->m_eeprom->read(getName(),"polygon",QStringList());
-    QStringList listePointsPolygon=val.toStringList();
-    QPolygonF GrosBotForme=getForm(listePointsPolygon);
+    // Recuperation des contours de GrosBot et MiniBot depuis un fichier JSON dedie (etape 5
+    // migration v2). Auparavant lues dans EEPROM.ini (cles "polygon"/"polygon2", format
+    // "(doublexdouble)") ; externalisees dans Config/robot.json, aux cotes d'EEPROM.ini et de
+    // terrain.json, avec auto-creation d'un defaut si absent (a l'instar du terrain). Chemin
+    // FIXE (pas d'entree EEPROM). Repere du fichier : robot local, front vers +x, y vers le
+    // HAUT, cm ; loadRobotFromJson convertit en repere scene (y bas) via QPointF(x,-y).
+    QPolygonF GrosBotForme, MiniBotForme;
+    m_robot_json_path = m_application->m_pathname_config_file + "/robot.json";
+    loadRobotFromJson(m_robot_json_path, GrosBotForme, MiniBotForme);
     QPolygonF GrosBotFormeOrientation;
     GrosBotFormeOrientation << QPointF(0.0,5.0) << QPointF((4.0+(GrosBotForme.boundingRect().width())/2.0),0.0) << QPointF(0.0,-5.0);
     QPolygonF GrosBotFormeOriented=GrosBotForme.united(GrosBotFormeOrientation);
 
-    //récupération des contours de MiniBot dans le fichier d'eeprom
-    val=m_application->m_eeprom->read(getName(),"polygon2",QStringList());
-    listePointsPolygon.clear();
-    listePointsPolygon=val.toStringList();
-    QPolygonF MiniBotForme=getForm(listePointsPolygon);
     QPolygonF MiniBotFormeOrientation;
     MiniBotFormeOrientation << QPointF(0.0,5.0) << QPointF((4.0+(MiniBotForme.boundingRect().width())/2.0),0.0) << QPointF(0.0,-5.0);
     QPolygonF MiniBotFormeOriented=MiniBotForme.united(MiniBotFormeOrientation);
@@ -447,9 +445,8 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
     connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
 
-    // design robot
-    initDesign();
-    //connect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
+    // Editeur de design robot retire (etape 5 migration v2) : la forme vient desormais de
+    // Config/robot.json (cf. loadRobotFromJson), plus d'edition graphique en parallele.
 
     //positionnement par défaut
     initEquipe(EQUIPE1);
@@ -1387,36 +1384,97 @@ void CSimuBot::syncMove(bool activated)
     }
 }
 
-QPolygonF CSimuBot::getForm(QStringList strL_Form)
+/*!
+ * \brief CSimuBot::polygonFromJson
+ * Convertit un objet { "sommets_cm": [[x,y],...] } (repere robot local, y vers le HAUT, cm) en
+ * QPolygonF en repere scene Qt (y vers le bas) : QPointF(x, -y) — meme convention que l'ancien
+ * getForm. Renvoie un polygone vide si la liste est absente/vide (l'appelant garde son repli).
+ */
+QPolygonF CSimuBot::polygonFromJson(const QJsonObject& obj) const
 {
-    QPolygonF BotForme;
-    if(strL_Form.isEmpty()){
-      BotForme << QPointF(10,-15) << QPointF(-10,-15)<< QPointF(-15,-10)<< QPointF(-15,10) << QPointF(-10,15);
-      BotForme << QPointF(10,15) << QPointF(15,10) << QPointF(15,-10) << QPointF(10,-15);
-    }
-    else
+    QPolygonF poly;
+    const QJsonArray sommets = obj.value("sommets_cm").toArray();
+    for (int s = 0; s < sommets.size(); ++s)
     {
-      QString unStringPoint, temp, xString, yString;
-      QStringList ListXY;
-      double xFromString, yFromString;
-      for(int ind=0;ind<strL_Form.size();ind++)
-      {
-          unStringPoint=strL_Form.at(ind);
-          //qDebug() << unStringPoint;
-          ListXY=unStringPoint.split('x');
-          if (ListXY.size()>=2){
-              temp=ListXY.at(0);
-              xString=temp.remove(QChar('('), Qt::CaseInsensitive);
-              xFromString=xString.toDouble();
-              temp=ListXY.at(1);
-              yString=temp.remove(QChar(')'), Qt::CaseInsensitive);
-              yFromString=(-1.0)*yString.toDouble();
-              BotForme << QPointF(xFromString,yFromString);
-          }
-       }
+        const QJsonArray p = sommets.at(s).toArray();
+        if (p.size() >= 2)
+            poly << QPointF(p.at(0).toDouble(), -p.at(1).toDouble());
     }
+    return poly;
+}
 
-    return BotForme;
+/*!
+ * \brief CSimuBot::loadRobotFromJson
+ * Charge la forme (polygone) du GrosBot et du MiniBot depuis un fichier JSON dedie (etape 5
+ * migration v2). Remplace les anciennes cles EEPROM "polygon"/"polygon2". Si le fichier est
+ * absent, un defaut est cree (writeDefaultRobotFile, a l'instar de terrain.json / EEPROM.ini).
+ * Repere du fichier : robot local (front +x), y vers le HAUT, cm -> QPointF(x,-y) pour la scene.
+ * Renvoie false et laisse une forme de repli (octogone) si le fichier reste absent/invalide.
+ */
+bool CSimuBot::loadRobotFromJson(const QString& path, QPolygonF& gros, QPolygonF& mini)
+{
+    // Forme de repli (octogone ~30x30) : identique a l'ancien defaut de getForm quand aucune
+    // forme n'etait definie. Sert si le JSON reste illisible malgre l'auto-creation.
+    QPolygonF fallback;
+    fallback << QPointF(10,-15) << QPointF(-10,-15) << QPointF(-15,-10) << QPointF(-15,10)
+             << QPointF(-10,15) << QPointF(10,15) << QPointF(15,10) << QPointF(15,-10);
+    gros = fallback;
+    mini = fallback;
+
+    // Absent : on cree un fichier par defaut (octogone GrosBot + MiniBot), a l'instar d'EEPROM.ini.
+    if (!QFile::exists(path))
+        writeDefaultRobotFile(path);
+
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: robot JSON introuvable: " + path);
+        return false;
+    }
+    QJsonParseError perr;
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &perr);
+    file.close();
+    if (perr.error != QJsonParseError::NoError || !doc.isObject())
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: robot JSON invalide: " + perr.errorString());
+        return false;
+    }
+    const QJsonObject root = doc.object();
+    // Chaque robot est un objet { "sommets_cm": [[x,y],...] }. Absent/vide -> on garde le repli.
+    const QPolygonF g = polygonFromJson(root.value("grosbot").toObject());
+    const QPolygonF m = polygonFromJson(root.value("minibot").toObject());
+    if (!g.isEmpty()) gros = g;
+    if (!m.isEmpty()) mini = m;
+    return true;
+}
+
+/*!
+ * \brief CSimuBot::writeDefaultRobotFile
+ * Ecrit un fichier robot JSON par defaut si absent (a l'instar d'EEPROM.ini / terrain.json) : la
+ * forme par defaut est l'octogone ~30x30 (ancien repli de getForm), pour GrosBot et MiniBot.
+ * L'utilisateur ajuste ensuite les sommets (ou depose le fichier de son robot).
+ */
+void CSimuBot::writeDefaultRobotFile(const QString& path)
+{
+    QFileInfo fi(path);
+    QDir().mkpath(fi.absolutePath()); // cree le dossier Config au besoin
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        m_application->m_print_view->print_error(this, "SimuBot: impossible de creer le robot par defaut: " + path);
+        return;
+    }
+    static const char* DEFAULT_ROBOT_JSON =
+R"JSON({
+  "version": 2026,
+  "_commentaire": "Forme(s) du/des robot(s) SimuBot. Repere ROBOT LOCAL : origine au centre, front vers +x, y vers le HAUT, en cm. 'sommets_cm' : polygone convexe (sens trigo) servant a la fois au sprite et a la collision SAT. 'grosbot' = robot principal, 'minibot' = second robot. Forme par defaut : octogone ~30x30.",
+  "grosbot": { "sommets_cm": [[10,15],[-10,15],[-15,10],[-15,-10],[-10,-15],[10,-15],[15,-10],[15,10]] },
+  "minibot": { "sommets_cm": [[10,15],[-10,15],[-15,10],[-15,-10],[-10,-15],[10,-15],[15,-10],[15,10]] }
+}
+)JSON";
+    f.write(DEFAULT_ROBOT_JSON);
+    f.close();
+    m_application->m_print_view->print_info(this, "SimuBot: robot par defaut cree: " + path);
 }
 
 void CSimuBot::enableTwoBots(int state)
@@ -2015,86 +2073,9 @@ void CSimuBot::updateStepFromSimuBot()
     }
 
 }
-void CSimuBot::initDesign()
-{
-    float echelle=10.;
-    int nb_points=2;
-
-    scene_design=new QGraphicsScene;
-    m_ihm.ui.gV_vue_conception->setScene(scene_design);
-    //scene_design->setSceneRect(-200,200,400,400);
-    /*m_ihm.ui.gV_vue_conception->setRenderHint(QPainter::Antialiasing);
-    m_ihm.ui.gV_vue_conception->centerOn(QPointF(200,200));
-    m_ihm.ui.gV_vue_conception->setCacheMode(QGraphicsView::CacheBackground);
-    m_ihm.ui.gV_vue_conception->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    m_ihm.ui.gV_vue_conception->setDragMode(QGraphicsView::ScrollHandDrag);
-    m_ihm.ui.gV_vue_conception->resize(400, 400);*/
-
-
-
-    float points_x[8]={2.3,-2.3,-11.1,-11.1,-2.3,2.3,5.3,5.3};
-    float points_y[8]={12.,12.,7.,-7.,-12.,-12.,-7.,7.};
-
-    for(int k=0;k<nb_points;k++)
-    {
-        points_x[k]=points_x[k]*echelle;
-        points_y[k]=points_y[k]*echelle;
-    }
-
-    float x1,x2,y1,y2;
-    /*for(int j=0; j<8; j++)
-    {
-        //qDebug() << j << " => " <<lignes_design[0][j];
-        lignes_design[0][j]= new QGraphicsLineItem();
-        scene_design->addItem(lignes_design[0][j]);
-    }*/
-    for(int i=0;i<nb_points;i++)
-    {
-        x1=points_x[i];
-        y1=points_y[i];
-        if(i<7)
-        {
-            x2=points_x[i+1];
-            y2=points_y[i+1];
-        }
-        else
-        {
-            x2=points_x[0];
-            y2=points_y[0];
-        }
-        QLineF ligne(x1,y1,x2,y2);
-        lignes_design[0][i] = scene_design->addLine(ligne);
-        lignes_design[0][i]->setPos(QPointF(x1,y1));
-    }
-
-    /*for(int j=0; j<nb_points; j++)
-    {
-        qDebug() << j << " => " <<lignes_design[0][j];
-    }*/
-
-    for(int i=0;i<nb_points;i++)
-    {
-        points_design[0][i]= new QGraphicsEllipseItem();
-        //qDebug() << points_design[0][i]->boundingRect().center().x() << ", " << points_design[0][i]->boundingRect().center().y();
-        points_design[0][i]->setFlag(QGraphicsItem::ItemIsMovable,true);
-        points_design[0][i]->setBrush(QBrush(QColor(0,0,0, 255)));
-        scene_design->addItem(points_design[0][i]);
-        points_design[0][i]->setRect(points_x[i]-2.5,points_y[i]-2.5,5,5);
-    }
-}
-
-void CSimuBot::slot_designChanged(QList<QRectF> regions)
-{
-    disconnect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
-    for(int i=0;i<7;i++)
-    {
-        //qDebug() << points_design[0][i]->boundingRect().center().x() << points_design[0][i]->boundingRect().center().y() << points_design[0][i+1]->boundingRect().center().x() << points_design[0][i+1]->boundingRect().center().y();
-        lignes_design[0][i]->setLine(points_design[0][i]->pos().x(),points_design[0][i]->pos().y(),
-                points_design[0][i+1]->pos().x(),points_design[0][i+1]->pos().y());
-    }
-    connect(scene_design, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_designChanged(QList<QRectF>)));
-
-}
+// Editeur de design robot (initDesign / slot_designChanged) retire a l'etape 5 de la migration
+// SimuBot v2 : la forme du robot vient desormais de Config/robot.json (cf. loadRobotFromJson),
+// il n'y a plus d'edition graphique de la forme en parallele.
 
 void CSimuBot::slot_enableSimulia(int state)
 {
