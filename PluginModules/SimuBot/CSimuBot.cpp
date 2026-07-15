@@ -441,9 +441,21 @@ void CSimuBot::init(CApplication *application)
     //pour le moteur de simulation cinematique (declenche a chaque pas de Simulia)
     connect(m_application->m_data_center->getData("Simulia.step", true), SIGNAL(valueChanged(bool)), this, SLOT(updateStepFromSimulia()));
 
-    //pour le fonctionnement avec actuatorsequencer
+    //pour le fonctionnement avec actuatorsequencer / HIL (etape 6 migration v2)
+    // Interception des commandes de deplacement : en VISU avec robot RS232 deconnecte (ou en
+    // SIMU-sans-Simulia), elles pilotent la sim interne A LA PLACE du robot -> bascule transparente
+    // robot<->sim pour le HIL (cf. internalSimActive/onCmdMove*). En robot connecte, les handlers
+    // sont no-op : CTrameFactory transmet la commande au vrai robot, qui renvoie sa position.
+    // Un handler par cle = source non ambigue (pas de sender() a inspecter).
+    m_application->m_data_center->write("COMMANDE_MVT_XY_TxSync", 0);
     m_application->m_data_center->write("COMMANDE_MVT_XY_TETA_TxSync", 0);
-    connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(Slot_catch_TxSync()));
+    m_application->m_data_center->write("COMMANDE_DISTANCE_ANGLE_TxSync", 0);
+    connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TxSync", true),         SIGNAL(valueChanged(bool)), this, SLOT(onCmdMoveXY()));
+    connect(m_application->m_data_center->getData("COMMANDE_MVT_XY_TETA_TxSync", true),    SIGNAL(valueChanged(bool)), this, SLOT(onCmdMoveXYT()));
+    connect(m_application->m_data_center->getData("COMMANDE_DISTANCE_ANGLE_TxSync", true), SIGNAL(valueChanged(bool)), this, SLOT(onCmdMoveDA()));
+    // Bascule automatique quand la connexion RS232 au robot apparait/disparait (Robot_Connecte est
+    // maintenu par CMessagerieBot sur timeout de trame). Cree la cle si absente (defaut deconnecte).
+    connect(m_application->m_data_center->getData("Robot_Connecte", true), SIGNAL(valueChanged(QVariant)), this, SLOT(onRobotConnectionChanged()));
 
     // Editeur de design robot retire (etape 5 migration v2) : la forme vient desormais de
     // Config/robot.json (cf. loadRobotFromJson), plus d'edition graphique en parallele.
@@ -941,6 +953,10 @@ void CSimuBot::changeMode(int iMode)
     default:
         break;
     }
+
+    // Etape 6 : (re)ajuste la sim interne selon le nouveau mode (elle tourne en SIMU-sans-Simulia
+    // ou en VISU robot deconnecte). Entrer/sortir de VISU demarre/arrete le cadenceur en consequence.
+    syncInternalSim();
 }
 
 // _____________________________________________________________________
@@ -1957,31 +1973,124 @@ void CSimuBot::reloadTerrain()
 }
 
 /*!
- * \brief CSimuBot::Slot_catch_TxSync
- * Slot de récupération des signaux du module CActuatorSequencer
+ * \brief CSimuBot::internalSimActive
+ * Vrai quand la simulation interne (asserv interne de GrosBot -> x_pos/y_pos/teta_pos) doit jouer
+ * le role du robot, c.-a-d. quand il n'existe aucune autre source de position :
+ *   - mode SIMU sans Simulia externe (chemin "asserv interne" de l'etape 3bis-B), OU
+ *   - mode VISU avec robot RS232 deconnecte (etape 6 : HIL sans robot reel).
+ * En VISU robot connecte, x_pos vient de CTrameFactory -> la sim interne reste eteinte.
  */
-void CSimuBot::Slot_catch_TxSync()
+bool CSimuBot::internalSimActive() const
 {
-    //TODO récupérer les autres ordres de actuatorsequencer
-    int cmd_XYTETA=m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt();
-    bool toRun=false;
+    return !m_simulia_Enabled
+        && ( (modeVisu==SIMUBOT::SIMU) || (modeVisu==SIMUBOT::VISU && !robotConnecte()) );
+}
 
-    if(!m_simulia_Enabled)
-    {
-        if(cmd_XYTETA==0) //front descendant de COMMANDE_MVT_XY_TETA_TxSync
-        {
-            float x_target=m_application->m_data_center->read("XYT_X_consigne").toFloat();
-            float y_target=m_application->m_data_center->read("XYT_Y_consigne").toFloat();
-            float teta_target=m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+/*!
+ * \brief CSimuBot::robotConnecte
+ * Etat de la liaison RS232 avec le vrai robot, publie par CMessagerieBot dans "Robot_Connecte"
+ * (true sur reception de trame, false sur timeout). getData(...,true) cree la cle si CMessagerieBot
+ * n'est pas charge -> defaut "deconnecte", donc la sim interne prend la main (comportement voulu).
+ */
+bool CSimuBot::robotConnecte() const
+{
+    CData* d = m_application->m_data_center->getData("Robot_Connecte", true);
+    return d && d->read().toBool();
+}
 
-            //TODO demander les consignes de déplacement
-            GrosBot->setSpeed(0.0);
-            GrosBot->setTargetXY(x_target,y_target);
-            GrosBot->setTargetTeta(teta_target);
-            //m_simulia_Enabled=false;
-            toRun=true;
-        }
-    }
+/*!
+ * \brief CSimuBot::syncInternalSim
+ * Demarre/arrete le cadenceur de la sim interne selon internalSimActive(). Appele quand un
+ * parametre de la condition change : mode (changeMode), Simulia on/off (slot_enableSimulia),
+ * connexion robot (onRobotConnectionChanged), ou nouvelle commande de deplacement.
+ */
+void CSimuBot::syncInternalSim()
+{
+    if (!cadenceur) return; // garde : appelable tot (changeMode peut precéder la creation du timer)
+    if (internalSimActive()) { if (!cadenceur->isActive()) cadenceur->start(25); }
+    else                     { if ( cadenceur->isActive()) cadenceur->stop();     }
+}
+
+/*!
+ * \brief CSimuBot::resetPublishedConvergence
+ * Remet a 0 les convergences publiees dans le DataManager a l'arrivee d'une nouvelle commande de
+ * deplacement (le robot n'est plus "arrive"). Republiees a 1 par updateStepFromSimuBot quand
+ * l'asserv interne atteint la cible -> permet aux transitions HIL de progresser.
+ */
+void CSimuBot::resetPublishedConvergence()
+{
+    m_application->m_data_center->write("Convergence", 0);
+    m_application->m_data_center->write("convergence_rapide", 0);
+}
+
+/*!
+ * \brief CSimuBot::onCmdMoveXY
+ * Commande de deplacement XY (front descendant de COMMANDE_MVT_XY_TxSync). En l'absence de robot
+ * reel, arme la cible de l'asserv interne. Sinon no-op (CTrameFactory transmet au robot).
+ */
+void CSimuBot::onCmdMoveXY()
+{
+    if (!internalSimActive()) return;
+    if (m_application->m_data_center->read("COMMANDE_MVT_XY_TxSync").toInt() != 0) return; // front descendant
+    float x = m_application->m_data_center->read("X_consigne").toFloat();
+    float y = m_application->m_data_center->read("Y_consigne").toFloat();
+    GrosBot->setSpeed(0.0);
+    GrosBot->setTargetXY(x, y);
+    resetPublishedConvergence();
+    syncInternalSim();
+}
+
+/*!
+ * \brief CSimuBot::onCmdMoveXYT
+ * Commande de deplacement XY+Teta (front descendant de COMMANDE_MVT_XY_TETA_TxSync).
+ */
+void CSimuBot::onCmdMoveXYT()
+{
+    if (!internalSimActive()) return;
+    if (m_application->m_data_center->read("COMMANDE_MVT_XY_TETA_TxSync").toInt() != 0) return; // front descendant
+    float x = m_application->m_data_center->read("XYT_X_consigne").toFloat();
+    float y = m_application->m_data_center->read("XYT_Y_consigne").toFloat();
+    float t = m_application->m_data_center->read("XYT_angle_consigne").toFloat();
+    GrosBot->setSpeed(0.0);
+    GrosBot->setTargetXY(x, y);
+    GrosBot->setTargetTeta(t);
+    resetPublishedConvergence();
+    syncInternalSim();
+}
+
+/*!
+ * \brief CSimuBot::onCmdMoveDA
+ * Commande de deplacement Distance/Angle (front descendant de COMMANDE_DISTANCE_ANGLE_TxSync).
+ * angle_consigne = CAP ABSOLU en radians dans le repere asserv (cf. firmware
+ * CAsservissementBase::CommandeMouvementDistanceAngle, appele avec inputs()->angle_robot dans
+ * sm_evitement). On calcule la cible depuis la pose asserv courante (x_pos/y_pos) : avance de
+ * 'distance' le long du cap 'angle'.
+ */
+void CSimuBot::onCmdMoveDA()
+{
+    if (!internalSimActive()) return;
+    if (m_application->m_data_center->read("COMMANDE_DISTANCE_ANGLE_TxSync").toInt() != 0) return; // front descendant
+    float d = m_application->m_data_center->read("distance_consigne").toFloat(); // cm
+    float a = m_application->m_data_center->read("angle_consigne").toFloat();     // rad, cap absolu (repere asserv)
+    float xc = m_application->m_data_center->read("x_pos").toFloat();
+    float yc = m_application->m_data_center->read("y_pos").toFloat();
+    float xt = xc + d * (float)qCos(a);
+    float yt = yc + d * (float)qSin(a);
+    GrosBot->setSpeed(0.0);
+    GrosBot->setTargetXY(xt, yt);
+    GrosBot->setTargetTeta(a);
+    resetPublishedConvergence();
+    syncInternalSim();
+}
+
+/*!
+ * \brief CSimuBot::onRobotConnectionChanged
+ * Reagit a un changement de "Robot_Connecte" : perte de connexion en VISU -> la sim interne reprend
+ * la main (HIL sans robot) ; (re)connexion -> on la rend au robot (CTrameFactory publie x_pos).
+ */
+void CSimuBot::onRobotConnectionChanged()
+{
+    syncInternalSim();
 }
 
 /*!
@@ -2037,10 +2146,11 @@ void CSimuBot::updateStepFromSimulia()
  */
 void CSimuBot::updateStepFromSimuBot()
 {
-    //TODO
-    //gérer le cadenceur suivant les convergences
-
-    if((modeVisu==SIMUBOT::SIMU) && !m_simulia_Enabled)
+    // La sim interne produit la pose (x_pos/y_pos/teta_pos) quand elle joue le role du robot :
+    // SIMU-sans-Simulia (chemin 3bis-B) OU VISU robot RS232 deconnecte (etape 6 : HIL sans robot).
+    // Sinon (VISU robot connecte, Simulia, TEST) la position vient d'ailleurs (CTrameFactory /
+    // Simulia) -> on ne fait rien.
+    if(internalSimActive())
     {
         //défnition et récupération des forces de déplacement
         float vect_G_B1 = 0.0;
@@ -2057,8 +2167,11 @@ void CSimuBot::updateStepFromSimuBot()
         // reconstructeur a ete cale sur ce repere au raz via setPosition_XYTeta). Aucun offset
         // m_kin_x_init : le placement terrain est applique par display_XY (repere asserv->scene).
         // Le moteur cinematique continue de produire les pas codeurs + collisions (boucle SIL).
-        m_cumul_distance_D += m_kinematic_engine.deltaCodeurD() * CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D;
-        m_cumul_distance_G += m_kinematic_engine.deltaCodeurG() * CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G;
+        // Constantes via le typedef CPoseReconstructeur : cote Simulia = CAsservissementBase::*
+        // (definies dans CAsservissement_simu.cpp), cote LaBotBox = CPoseReconstructeurStandalone::*
+        // (memes valeurs). Meme code source dans les deux builds.
+        m_cumul_distance_D += m_kinematic_engine.deltaCodeurD() * CPoseReconstructeur::DISTANCE_PAR_PAS_CODEUR_D;
+        m_cumul_distance_G += m_kinematic_engine.deltaCodeurG() * CPoseReconstructeur::DISTANCE_PAR_PAS_CODEUR_G;
         m_pose_reconstructor_interne.distance_roue_D = m_cumul_distance_D;
         m_pose_reconstructor_interne.distance_roue_G = m_cumul_distance_G;
         m_pose_reconstructor_interne.CalculXY();
@@ -2070,6 +2183,16 @@ void CSimuBot::updateStepFromSimuBot()
 
         // Repercute le deplacement des caisses poussees par le robot (elements mobiles).
         refreshGameElementsView();
+
+        // Etape 6 : republie la convergence comme le ferait le robot reel (via CTrameFactory),
+        // pour que les transitions HIL (convergence_expert / convergence_rapide_expert) progressent.
+        // Seulement si aucun robot n'est connecte, afin de ne pas concurrencer CTrameFactory.
+        if(!robotConnecte())
+        {
+            int conv = (GrosBot->isConvergenceXY && GrosBot->isConvergenceTeta) ? 1 : 0;
+            m_application->m_data_center->write("Convergence", conv);
+            m_application->m_data_center->write("convergence_rapide", conv);
+        }
     }
 
 }
@@ -2092,16 +2215,7 @@ void CSimuBot::slot_enableSimulia(int state)
     }*/
 
     qDebug() << "[SimuBot] Simulia est maintenant " << (m_simulia_Enabled?"activé":"désactivé");
-    if(!m_simulia_Enabled)
-    {
-        cadenceur->start(25);
-        if(cadenceur->isActive())
-                qDebug() << "[SimuBot] cadenceur interne actif";
-    }
-    else
-    {
-        cadenceur->stop();
-        if(!cadenceur->isActive())
-                qDebug() << "[SimuBot] cadenceur interne actif";
-    }
+    // Le cadenceur de la sim interne suit desormais internalSimActive() (mode + connexion robot),
+    // pas seulement l'etat Simulia : demarre en SIMU-sans-Simulia OU VISU-robot-deconnecte.
+    syncInternalSim();
 }

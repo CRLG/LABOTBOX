@@ -4,8 +4,17 @@
 #
 #-------------------------------------------------
 QT       += core gui testlib xml printsupport serialport network websockets multimedia
+# webenginewidgets + webchannel : requis par le plugin BlockBotLab (pont Qt <-> BlockBot/Blockly),
+# ajoute a Simulia pour pouvoir tester le HIL directement dans le simulateur (etape 6 migration v2).
+QT       += webenginewidgets webchannel
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+# Build Simulia = build AVEC la logique robot (CppRobLib/common-rob + plugin Simulia + Modelia).
+# Ce define active, dans SimuBot, le reconstructeur de pose base sur le VRAI CAsservissementBase
+# (representativite maximale, synchro firmware). Le build LaBotBox (sans ce define) utilise une
+# copie autonome de CalculXY (CPoseReconstructeurStandalone). Cf. CSimuBot.h.
+DEFINES += SIMUBOT_ROBOT_LOGIC
 
 TARGET = Simulia
 TEMPLATE = app
@@ -42,6 +51,7 @@ LIST_BASIC_MODULES+= \
 LIST_PLUGIN_MODULES+= \
         SimuBot \
         ActuatorSequencer \
+        BlockBotLab \
         Simulia\
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 

@@ -26,7 +26,9 @@
 #include <QVector>
 #include "CKinematicEngine.h"
 #include "CCollisionEngine.h"
-#include "CAsservissementBase.h"
+// L'include de CAsservissementBase.h (reconstructeur de pose "l'asserv fait foi") est place plus
+// bas, sous #ifdef SIMUBOT_ROBOT_LOGIC : il tire CGlobale.h -> toute la logique robot, disponible
+// seulement dans le build Simulia. Le build LaBotBox utilise une copie autonome (voir plus bas).
 
 // Dimensions du terrain (cm). Anciennement definies dans CPhysicalEngine.h, relocalisees
 // ici lors du retrait de Box2D (etape 3 migration SimuBot v2). Servent a configurer la
@@ -84,14 +86,28 @@ public:
    */
 
 	   
-// ETAPE 3bis : reconstructeur de pose autonome pour le chemin asserv interne. CalculXY est
-// protected dans CAsservissementBase ; cette sous-classe l'expose en public sans rien changer
-// d'autre. On n'engage jamais la regulation : seul CalculXY est appele, il ne depend que de
-// distance_roue_D/G (publics) et de son etat interne _prec.
+// ETAPE 3bis : reconstructeur de pose "l'asserv fait foi" pour le chemin asserv interne.
+// ETAPE 6 : decouplage build Simulia (avec logique robot) vs LaBotBox (sans). Le type utilise par
+// CSimuBot est CPoseReconstructeur (typedef ci-dessous), d'interface identique dans les deux cas
+// (setPosition_XYTeta, distance_roue_D/G[_prec], CalculXY, X_robot/Y_robot/angle_robot,
+// DISTANCE_PAR_PAS_CODEUR_D/G) -> CSimuBot.cpp est identique quel que soit le build.
+#ifdef SIMUBOT_ROBOT_LOGIC
+// Build Simulia : on utilise le VRAI CAsservissementBase (representativite max, synchro firmware).
+// CalculXY est protected dans CAsservissementBase ; cette sous-classe l'expose en public sans rien
+// changer d'autre. On n'engage jamais la regulation : seul CalculXY est appele, il ne depend que
+// de distance_roue_D/G (publics) et de son etat interne _prec.
+#include "CAsservissementBase.h"
 class CPoseReconstructeurAsserv : public CAsservissementBase {
 public:
     using CAsservissementBase::CalculXY;
 };
+typedef CPoseReconstructeurAsserv CPoseReconstructeur;
+#else
+// Build LaBotBox (pas de logique robot) : copie autonome fidele de CalculXY, comportement identique
+// tant qu'elle reste alignee sur CAsservissementBase (cf. CPoseReconstructeurStandalone.h).
+#include "CPoseReconstructeurStandalone.h"
+typedef CPoseReconstructeurStandalone CPoseReconstructeur;
+#endif
 
 /*! @brief class CSimuBot in @link TraceLogger basic module.
  */
@@ -129,6 +145,16 @@ private slots :
         void slot_clearPath();
 
         void updateStepFromSimuBot();
+
+        // --- Etape 6 : bascule transparente robot RS232 <-> sim interne pour le HIL en VISU ---
+        // Handlers des commandes de deplacement (front descendant des COMMANDE_*_TxSync). Un par
+        // cle = source non ambigue. Actifs uniquement quand la sim interne joue le role du robot
+        // (internalSimActive) ; sinon no-op (CTrameFactory transmet la commande au vrai robot).
+        void onCmdMoveXY();
+        void onCmdMoveXYT();
+        void onCmdMoveDA();
+        // (Re)ajuste la sim interne quand la connexion RS232 au robot apparait/disparait.
+        void onRobotConnectionChanged();
 
 private:
     Cihm_SimuBot m_ihm;
@@ -189,7 +215,7 @@ private:
     // pour publier x_pos/y_pos/teta_pos en repere asserv (representatif, comme le chemin
     // Simulia). N'engage PAS la regulation (ni gains, ni CommandeMouvement) : seul CalculXY
     // est appele, qui ne depend que de distance_roue_D/G et de son etat _prec.
-    CPoseReconstructeurAsserv m_pose_reconstructor_interne;
+    CPoseReconstructeur m_pose_reconstructor_interne;
     // Distance cumulee par roue [cm] alimentant le reconstructeur (somme des pas codeurs du
     // moteur cinematique x DISTANCE_PAR_PAS_CODEUR). Remise a 0 au raz.
     float m_cumul_distance_D;
@@ -248,6 +274,17 @@ private:
     void writeDefaultRobotFile(const QString& path);
     // Chemin du fichier robot JSON (chemin fixe dans Config/).
     QString m_robot_json_path;
+    // --- Etape 6 : bascule transparente robot RS232 <-> sim interne (HIL en mode VISU) ---
+    // Vrai quand la sim interne doit produire x_pos/y_pos/teta_pos (+ Convergence) a la place du
+    // robot : SIMU-sans-Simulia OU VISU avec robot RS232 deconnecte.
+    bool internalSimActive() const;
+    // Etat de la liaison RS232 au robot ("Robot_Connecte", maintenu par CMessagerieBot). Defaut
+    // deconnecte si la cle n'existe pas (CMessagerieBot absent) -> la sim interne prend la main.
+    bool robotConnecte() const;
+    // Demarre/arrete le cadenceur de la sim interne selon internalSimActive().
+    void syncInternalSim();
+    // Remet a 0 Convergence/convergence_rapide a l'arrivee d'une nouvelle commande de deplacement.
+    void resetPublishedConvergence();
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
@@ -266,7 +303,6 @@ public slots:
     void estimate_Environment_Interactions();
     void real_robot_position_changed();
     void catchDoubleClick();
-    void Slot_catch_TxSync();
     // Hot-reload du terrain : declenche par QFileSystemWatcher quand terrain_json_path change.
     void reloadTerrain();
     void slot_enableSimulia(int state);
