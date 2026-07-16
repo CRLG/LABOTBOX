@@ -376,31 +376,48 @@ void GraphicElement::stepInternalAsserv(void)
                 }
             }
         }
-        //déplacement à utiliser avec un moteur externe comme box2d
+        //déplacement en consigne de VITESSE ROUE [cm/s] (ex-branche "moteur externe box2d")
+        //ETAPE 6 (correctif) : l'asserv interne produit desormais directement une vitesse roue
+        //en cm/s (P sature), et non plus une "force" Box2D (les anciens gains 600/300 etaient
+        //calibres pour un consommateur Box2D retire a l'etape 3, et melangeaient rad et cm a
+        //travers un meme kin_speed_gain, d'ou rotation trop lente / translation demesuree).
+        //force_G/force_D portent maintenant des cm/s, injectes tels quels dans le moteur
+        //cinematique par updateStepFromSimuBot (SANS kin_speed_gain, reserve a l'echelle Simulia).
         else
         {
+            //Constantes de reglage (cm/s). Calibrables ici ; promouvoir en EEPROM au besoin.
+            const double K_ROT_CM_S_PAR_RAD = 60.0; //gain P rotation : cm/s de vitesse roue par rad d'erreur
+            const double V_ROT_MAX_CM_S     = 30.0; //saturation vitesse roue en rotation pure
+            const double K_LIN_CM_S_PAR_CM  = 3.0;  //gain P translation : cm/s de vitesse roue par cm d'erreur
+            const double V_LIN_MAX_CM_S     = 45.0; //saturation vitesse roue en translation
+            const double SEUIL_ANGLE_RAD    = 0.05; //seuil de convergence angulaire [rad]
+            const double SEUIL_DIST_CM      = 0.5;  //seuil de convergence en distance [cm]
+
             if(!isConvergenceXY)
             {
                 double angleError=getErrorAngle(x_internal_target,y_internal_target);
                 double posError=getErrorDistance(x_internal_target,y_internal_target);
 
-                //on corrige d'abord l'angle
-                if(fabs(angleError)>=0.05)
+                //on corrige d'abord l'angle : rotation sur place (roues en opposition)
+                if(fabs(angleError)>=SEUIL_ANGLE_RAD)
                 {
                     double sens=1.0;
                     if(angleError<0.)
                     {
                         sens=-1.0;
                     }
-                    force_G=600*fabs(angleError)*sens;
-                    force_D=-600*fabs(angleError)*sens;
+                    double v_rot=K_ROT_CM_S_PAR_RAD*fabs(angleError);
+                    if(v_rot>V_ROT_MAX_CM_S) v_rot=V_ROT_MAX_CM_S; //saturation vitesse roue
+                    force_G= v_rot*sens;  //cm/s roue gauche
+                    force_D=-v_rot*sens;  //cm/s roue droite (opposee -> rotation sur place)
                 }
-                //on corrige ensuite la distance
-                else if(posError>=0.5)
+                //on corrige ensuite la distance : le robot fait deja face a la cible -> avance
+                else if(posError>=SEUIL_DIST_CM)
                 {
-                    //TODO tenir compte du signe de l'erreur pour aller dans le bon sens
-                    force_G=300*posError;
-                    force_D=300*posError;
+                    double v_lin=K_LIN_CM_S_PAR_CM*posError;
+                    if(v_lin>V_LIN_MAX_CM_S) v_lin=V_LIN_MAX_CM_S; //saturation vitesse roue
+                    force_G=v_lin;  //cm/s, les deux roues en avant -> rapproche de la cible
+                    force_D=v_lin;
                 }
                 else
                 {
@@ -414,19 +431,21 @@ void GraphicElement::stepInternalAsserv(void)
             }
             else if(!isConvergenceTeta)
             {
-                //on corrige l'angle (double convergence dans le XYTeta)
+                //on corrige l'angle final (double convergence dans le XYTeta / distance-angle)
                 double angleError=getErrorTeta(teta_internal_target);
 
-                //on corrige d'abord l'angle
-                if(fabs(angleError)>=0.05)
+                //rotation sur place jusqu'au cap de consigne
+                if(fabs(angleError)>=SEUIL_ANGLE_RAD)
                 {
                     double sens=1.0;
                     if(angleError<0.)
                     {
                         sens=-1.0;
                     }
-                    force_G=600*fabs(angleError)*sens;
-                    force_D=-600*fabs(angleError)*sens;
+                    double v_rot=K_ROT_CM_S_PAR_RAD*fabs(angleError);
+                    if(v_rot>V_ROT_MAX_CM_S) v_rot=V_ROT_MAX_CM_S; //saturation vitesse roue
+                    force_G= v_rot*sens;
+                    force_D=-v_rot*sens;
                 }
                 else
                 {

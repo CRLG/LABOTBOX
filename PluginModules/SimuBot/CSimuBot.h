@@ -130,6 +130,11 @@ public:
     virtual QIcon getIcon(void) { return(QIcon(":/icons/edit_add.png")); }
     bool setAndGetInRad;
 
+    // Etape 6 (correctif) : stoppe l'asserv interne (cible invalidee, forces a zero) pour figer
+    // le sprite. Appele sur arret/fin HIL (CBlockBotLab, lambda hilFinished, couvre Stop HIL ET
+    // FIN_MISSION) et par syncInternalSim quand la sim interne cesse de jouer le role du robot.
+    void stopInternalSim();
+
 private slots :
     void onRightClicGUI(QPoint pos);
 

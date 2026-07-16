@@ -202,6 +202,10 @@ void CBlockBotLab::init(CApplication *application)
     // Quand CHILEngine termine → effacer le surlignage
     connect(m_hilEngine, &CHILEngine::hilFinished, this, [this]() {
         emit executeCommand("clear_hil_highlight", "");
+        // Etape 6 (correctif) : fin/arret HIL (stop() est appele sur Stop utilisateur ET sur
+        // FIN_MISSION, tous deux emettant hilFinished). En VISU/SIMU sans robot, on fige aussi
+        // l'asserv de la sim interne, sinon le sprite continue vers sa derniere cible non atteinte.
+        if (m_application->m_SimuBot) m_application->m_SimuBot->stopInternalSim();
     });
 
     // si_vrai_expert : demande d'init de la condition booléenne côté JS

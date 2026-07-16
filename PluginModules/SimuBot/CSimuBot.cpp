@@ -2008,7 +2008,27 @@ void CSimuBot::syncInternalSim()
 {
     if (!cadenceur) return; // garde : appelable tot (changeMode peut precéder la creation du timer)
     if (internalSimActive()) { if (!cadenceur->isActive()) cadenceur->start(25); }
-    else                     { if ( cadenceur->isActive()) cadenceur->stop();     }
+    else
+    {
+        if (cadenceur->isActive()) cadenceur->stop();
+        // La sim interne cesse de jouer le role du robot (mode TEST, Simulia active, robot
+        // reconnecte) : on invalide toute cible d'asserv en cours pour ne pas la rejouer a la
+        // prochaine reactivation et figer le sprite immediatement (cf. stopInternalSim).
+        stopInternalSim();
+    }
+}
+
+/*!
+ * \brief CSimuBot::stopInternalSim
+ * Fige l'asserv interne de GrosBot : cible invalidee + forces roue a zero (via stopInternalAsserv).
+ * Le cadenceur peut rester actif (internalSimActive) ; sans cible, updateStepFromSimuBot injecte
+ * une vitesse nulle et le sprite s'arrete (deceleration par l'inertie du moteur cinematique).
+ * Appele a l'arret/fin du HIL (CBlockBotLab) et depuis syncInternalSim quand la sim interne
+ * cesse de jouer le role du robot.
+ */
+void CSimuBot::stopInternalSim()
+{
+    if (GrosBot) GrosBot->stopInternalAsserv();
 }
 
 /*!
@@ -2158,9 +2178,13 @@ void CSimuBot::updateStepFromSimuBot()
         GrosBot->stepInternalAsserv();
         GrosBot->getForcesAsserv(&vect_G_B1,&vect_D_B1);
 
-        // Moteur cinematique (unique depuis le retrait de Box2D, etape 3) : meme entree
-        // consigne moteur, convertie en cm/s via le gain calibrable.
-        m_kinematic_engine.step(0.02f, vect_G_B1 * m_kin_speed_gain, vect_D_B1 * m_kin_speed_gain);
+        // Moteur cinematique (unique depuis le retrait de Box2D, etape 3). ETAPE 6 (correctif) :
+        // l'asserv interne (GraphicElement::stepInternalAsserv, branche vitesse) sort deja une
+        // vitesse roue en cm/s -> on l'injecte TELLE QUELLE, sans kin_speed_gain. Ce gain (0.01)
+        // ne sert qu'au chemin Simulia pour convertir l'echelle artefact 80xcommande_% de
+        // CRoues_simu ; l'appliquer ici ecrasait la consigne d'un facteur 100 (rotation trop
+        // lente, translation demesuree, jamais de convergence).
+        m_kinematic_engine.step(0.02f, vect_G_B1, vect_D_B1);
         // ETAPE 3bis - chemin asserv interne : l'asserv fait foi. Aucun Modelia ne tourne ici,
         // on reconstruit donc la pose comme le firmware : distance cumulee par roue -> CalculXY
         // (schema "tourne-puis-avance"), publiee en REPERE ASSERV relatif au depart (le
