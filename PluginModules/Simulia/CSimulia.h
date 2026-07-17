@@ -14,6 +14,8 @@
 #include "ui_ihm_Simulia.h"
 #include "IRobotLogic.h"   // POC hot-reload : interface vers la logique robot (plugin)
 
+class QComboBox;           // POC hot-reload : selection de la lib dans une barre d'outils
+
  class Cihm_Simulia : public QMainWindow
 {
     Q_OBJECT
@@ -74,15 +76,20 @@ private:
     destroyRobotLogicFn  m_destroyFn;
     QString              m_lib_dir;        //!< repertoire scanne (clef EEPROM robot_logic_lib_path)
     QString              m_current_lib;    //!< chemin de la lib actuellement chargee
+    QComboBox*           m_combo_lib;      //!< selection de la librobotlogic_*.so a charger
 
     bool     loadRobotLogic(const QString& lib_path); //!< charge + resout la factory + cree l'objet
     void     unloadRobotLogic();                       //!< destroy + unload (ordre du POC)
     QString  findLatestLib(const QString& dir) const;  //!< librobotlogic_*.so la plus recente (tri par nom)
     void     wireRobotLogicToIhm();                    //!< rejoue la sequence d'init dependante de l'objet
+    void     buildRobotLogicToolbar();                 //!< cree la barre d'outils combo + boutons
+    void     refreshLibCombo();                        //!< re-scanne le repertoire et selectionne la plus recente
+    QString  selectedLibPath() const;                  //!< chemin de la lib selectionnee dans le combo
 
 private slots :
     void onRightClicGUI(QPoint pos);
-    void on_reload_robot_logic();          //!< recharge a chaud la logique robot (menu contextuel)
+    void on_reload_robot_logic();          //!< recharge a chaud la lib selectionnee (bouton Recharger / menu)
+    void on_refresh_libs();                //!< re-scanne le repertoire des libs (bouton Rafraichir)
 
     void on_pb_init_all();
     void on_pb_active_main();

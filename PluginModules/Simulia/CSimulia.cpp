@@ -11,6 +11,10 @@
 #include <QDir>
 #include <QMenu>
 #include <QTableWidgetItem>
+#include <QComboBox>
+#include <QPushButton>
+#include <QToolBar>
+#include <QLabel>
 #include "CSimulia.h"
 #include "CSimuBot.h"
 #include "CApplication.h"
@@ -40,6 +44,7 @@ CSimulia::CSimulia(const char *plugin_name)
     , m_logic(nullptr)
     , m_createFn(nullptr)
     , m_destroyFn(nullptr)
+    , m_combo_lib(nullptr)
 {
 }
 
@@ -69,6 +74,57 @@ QString CSimulia::findLatestLib(const QString& dir) const
     QStringList libs = d.entryList(filters, QDir::Files, QDir::Name);
     if (libs.isEmpty()) return QString();
     return d.absoluteFilePath(libs.last());
+}
+
+// Cree la barre d'outils "Logique robot" : combo de selection + Rafraichir + Recharger.
+// Widgets crees par code (pas de modification de ihm_Simulia.ui) sur le QMainWindow de l'IHM.
+void CSimulia::buildRobotLogicToolbar()
+{
+    QToolBar* tb = m_ihm.addToolBar("Logique robot");
+    tb->setObjectName("toolbar_robot_logic");
+
+    tb->addWidget(new QLabel(" Logique robot : "));
+
+    m_combo_lib = new QComboBox();
+    m_combo_lib->setMinimumWidth(280);
+    m_combo_lib->setToolTip("librobotlogic_*.so disponibles dans le repertoire scanne");
+    tb->addWidget(m_combo_lib);
+
+    QPushButton* btn_refresh = new QPushButton("Rafraichir");
+    btn_refresh->setToolTip("Re-scanne le repertoire et selectionne la lib la plus recente");
+    tb->addWidget(btn_refresh);
+
+    QPushButton* btn_reload = new QPushButton("Recharger");
+    btn_reload->setToolTip("Recharge a chaud la lib selectionnee (reset de la simulation)");
+    tb->addWidget(btn_reload);
+
+    connect(btn_refresh, SIGNAL(clicked()), this, SLOT(on_refresh_libs()));
+    connect(btn_reload,  SIGNAL(clicked()), this, SLOT(on_reload_robot_logic()));
+}
+
+// Re-scanne m_lib_dir et remplit le combo (texte = nom de fichier, donnee = chemin absolu).
+// Selectionne la plus recente par defaut (tri par nom = par horodatage).
+void CSimulia::refreshLibCombo()
+{
+    if (!m_combo_lib) return;
+    m_combo_lib->clear();
+    QDir d(m_lib_dir);
+    QStringList libs = d.entryList(QStringList() << "librobotlogic_*.so", QDir::Files, QDir::Name);
+    for (int i = 0; i < libs.size(); ++i) {
+        m_combo_lib->addItem(libs.at(i), d.absoluteFilePath(libs.at(i)));
+    }
+    if (m_combo_lib->count() > 0) {
+        m_combo_lib->setCurrentIndex(m_combo_lib->count() - 1); // la plus recente
+    }
+}
+
+// Chemin absolu de la lib actuellement selectionnee dans le combo (vide si aucune).
+QString CSimulia::selectedLibPath() const
+{
+    if (m_combo_lib && m_combo_lib->currentIndex() >= 0) {
+        return m_combo_lib->currentData().toString();
+    }
+    return QString();
 }
 
 // Charge la bibliotheque en RTLD_LOCAL (isolation, cf. spike), resout la factory ABI C
@@ -136,14 +192,22 @@ void CSimulia::wireRobotLogicToIhm()
     m_ihm.ui.actionActive_Interrupt_Evitement->setChecked(m_logic->debug()->m_active_interrupt_evitement);
 }
 
-// Recharge a chaud la logique robot (declenche depuis le menu contextuel).
+// Re-scanne le repertoire des libs (bouton Rafraichir) : met a jour le combo et
+// selectionne la plus recente, sans decharger la lib courante.
+void CSimulia::on_refresh_libs()
+{
+    refreshLibCombo();
+    qDebug() << "[POC hot-reload] repertoire re-scanne :" << m_combo_lib->count() << "lib(s) trouvee(s)";
+}
+
+// Recharge a chaud la lib SELECTIONNEE dans le combo (bouton Recharger ou menu contextuel).
 // Reset complet de la simulation (pas de preservation d'etat, assume par le POC).
 void CSimulia::on_reload_robot_logic()
 {
     m_timer.stop();
-    QString lib = findLatestLib(m_lib_dir);
+    QString lib = selectedLibPath();
     if (lib.isEmpty()) {
-        qWarning() << "[POC hot-reload] aucune librobotlogic_*.so dans" << m_lib_dir;
+        qWarning() << "[POC hot-reload] aucune lib selectionnee dans" << m_lib_dir;
         m_timer.start();
         return;
     }
@@ -181,7 +245,9 @@ void CSimulia::init(CApplication *application)
 
     // ---- POC hot-reload : charger la logique robot AVANT tout usage de m_logic ----
     m_lib_dir = m_application->m_eeprom->read(getName(), "robot_logic_lib_path", ".").toString();
-    QString lib = findLatestLib(m_lib_dir);
+    buildRobotLogicToolbar();   // barre d'outils : combo de selection + Rafraichir + Recharger
+    refreshLibCombo();          // remplit le combo et selectionne la plus recente
+    QString lib = selectedLibPath();
     if (lib.isEmpty() || !loadRobotLogic(lib)) {
         qWarning() << "[POC hot-reload] AUCUNE logique robot chargee depuis" << m_lib_dir
                    << "-> Simulia demarre sans modele. Placer une librobotlogic_*.so dans ce repertoire"

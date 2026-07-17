@@ -485,8 +485,8 @@ qmake ../Simulia/Simulia.pro && make -j$(nproc)</pre>
         <pre style="margin:0; padding:16px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink)"><span style="color:var(--faint)"># déposer la lib dans le répertoire scanné (défaut : le dossier courant)</span>
 <span style="color:var(--accent)">cp</span> ../build_plugin/librobotlogic_*.so ./
 <span style="color:var(--accent)">./Simulia</span>
-<span style="color:var(--faint)"># puis, dans Simulia : clic droit sur la fenêtre -> « Recharger la logique robot »</span>
-<span style="color:var(--faint)"># (recompiler le plugin crée une lib plus récente ; le reload prend la dernière)</span>
+<span style="color:var(--faint)"># puis, dans Simulia : barre d'outils « Logique robot » -> Rafraîchir -> Recharger</span>
+<span style="color:var(--faint)"># (le combo liste les librobotlogic_*.so ; le clic droit « Recharger » marche aussi)</span>
 
 <span style="color:var(--faint)"># — variante headless / CI (sans écran) : reload automatique gaté par variable d'env —</span>
 QT_QPA_PLATFORM=offscreen SIMULIA_POC_AUTORELOAD=6000 <span style="color:var(--accent)">./Simulia</span></pre>
@@ -537,7 +537,8 @@ qmake ../Simulia/RobotLogicPlugin.pro && make -j$(nproc)
           <div class="role">Boucle — étape 3</div>
           <h4>Recharger dans Simulia (toujours lancé)</h4>
           <ul>
-            <li>Clic droit sur la fenêtre Simulia → <strong>« Recharger la logique robot »</strong></li>
+            <li>Barre d'outils « Logique robot » → <strong>Rafraîchir</strong> (voit la nouvelle lib) → <strong>Recharger</strong></li>
+            <li>Le combo permet aussi de choisir explicitement une version ; le clic droit « Recharger » reste dispo</li>
             <li>La simu se réinitialise et rejoue avec le nouveau code</li>
           </ul>
         </div>
