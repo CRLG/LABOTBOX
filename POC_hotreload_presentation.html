@@ -1,0 +1,569 @@
+<title>POC Simulia — Hot-reload du code robot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ground: #e9e7e0;
+    --panel: #f5f3ed;
+    --panel-2: #efece4;
+    --ink: #1b2129;
+    --muted: #5b6570;
+    --faint: #8b929b;
+    --hair: #d3cfc4;
+    --hair-strong: #bdb8aa;
+    --accent: #b26a15;
+    --accent-soft: #f0e2cc;
+    --ko: #b23b2f;
+    --ko-soft: #f0d9d5;
+    --ok: #2f7d51;
+    --ok-soft: #d5e7dc;
+    --shadow: 0 1px 2px rgba(20,26,33,.06), 0 8px 30px rgba(20,26,33,.05);
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --measure: 70ch;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0f141a;
+      --panel: #161d25;
+      --panel-2: #1a232d;
+      --ink: #dfe4e8;
+      --muted: #939fab;
+      --faint: #6c7883;
+      --hair: #263039;
+      --hair-strong: #33404b;
+      --accent: #e79a3a;
+      --accent-soft: #33281505;
+      --ko: #e06a5c;
+      --ko-soft: #2a1a18;
+      --ok: #59b382;
+      --ok-soft: #16241d;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.30);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #e9e7e0; --panel: #f5f3ed; --panel-2: #efece4; --ink: #1b2129;
+    --muted: #5b6570; --faint: #8b929b; --hair: #d3cfc4; --hair-strong: #bdb8aa;
+    --accent: #b26a15; --accent-soft: #f0e2cc; --ko: #b23b2f; --ko-soft: #f0d9d5;
+    --ok: #2f7d51; --ok-soft: #d5e7dc;
+    --shadow: 0 1px 2px rgba(20,26,33,.06), 0 8px 30px rgba(20,26,33,.05);
+  }
+  :root[data-theme="dark"] {
+    --ground: #0f141a; --panel: #161d25; --panel-2: #1a232d; --ink: #dfe4e8;
+    --muted: #939fab; --faint: #6c7883; --hair: #263039; --hair-strong: #33404b;
+    --accent: #e79a3a; --accent-soft: #2a2114; --ko: #e06a5c; --ko-soft: #2a1a18;
+    --ok: #59b382; --ok-soft: #16241d;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.30);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    background-image:
+      linear-gradient(var(--hair) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-position: -1px -1px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 120px; }
+  .col { max-width: var(--measure); }
+
+  /* ---- instrument labels ---- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 14px;
+  }
+  .eyebrow::before {
+    content: attr(data-num);
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .eyebrow .rule { flex: 1; height: 1px; background: var(--hair-strong); }
+
+  h1, h2, h3 { text-wrap: balance; line-height: 1.14; letter-spacing: -.015em; }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.3rem); font-weight: 800; margin: 0 0 18px; }
+  h2 { font-size: clamp(1.5rem, 3.4vw, 2.05rem); font-weight: 750; margin: 0 0 16px; }
+  h3 { font-size: 1.16rem; font-weight: 700; margin: 0 0 8px; letter-spacing: -.01em; }
+  p { margin: 0 0 16px; color: var(--ink); }
+  .lead { font-size: 1.24rem; line-height: 1.5; color: var(--ink); }
+  strong { font-weight: 700; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--panel-2);
+    border: 1px solid var(--hair); padding: .06em .38em; border-radius: 5px; color: var(--ink); }
+  .muted { color: var(--muted); }
+
+  /* ---- header ---- */
+  header { padding: 88px 0 40px; }
+  .kicker {
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 26px; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  }
+  .kicker b { color: var(--ink); font-weight: 600; }
+  .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .verdict-line {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 15px; margin-top: 8px;
+  }
+
+  section { padding: 40px 0; border-top: 1px solid var(--hair); }
+  section:first-of-type { border-top: none; }
+
+  /* ---- cards / panels ---- */
+  .panel { background: var(--panel); border: 1px solid var(--hair); border-radius: 12px;
+    padding: 22px 24px; box-shadow: var(--shadow); }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---- verdict badges ---- */
+  .pill { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono);
+    font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .pill.ko { background: var(--ko-soft); color: var(--ko); border: 1px solid color-mix(in oklab, var(--ko) 35%, transparent); }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); border: 1px solid color-mix(in oklab, var(--ok) 35%, transparent); }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* ---- spike table ---- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--hair); border-radius: 12px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--panel); }
+  thead th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); text-align: left; font-weight: 600; padding: 13px 18px; border-bottom: 1px solid var(--hair-strong); }
+  tbody td { padding: 14px 18px; border-bottom: 1px solid var(--hair); vertical-align: top; font-size: 15px; }
+  tbody tr:last-child td { border-bottom: none; }
+  td .t { font-weight: 650; }
+  td .d { color: var(--muted); font-size: 13.5px; display: block; margin-top: 3px; }
+  .num-cell { font-family: var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; width: 1%; }
+
+  /* ---- boundary diagram ---- */
+  .diagram { display: grid; gap: 14px; margin: 8px 0 4px; }
+  @media (min-width: 680px) { .diagram.two { grid-template-columns: 1fr 1fr; } }
+  .node { background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 11px; padding: 16px 18px; }
+  .node.plugin { border-style: dashed; }
+  .node .role { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .node h4 { margin: 0 0 4px; font-size: 1rem; }
+  .node ul { margin: 8px 0 0; padding-left: 18px; }
+  .node li { font-size: 13.5px; color: var(--muted); margin: 3px 0; }
+  .node code { font-size: 12.5px; }
+  .link-row { display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+  .link-row .arrow { color: var(--accent); font-weight: 700; }
+
+  /* ---- fail/pass strip ---- */
+  .compare { display: grid; gap: 14px; }
+  @media (min-width: 680px) { .compare { grid-template-columns: 1fr 1fr; } }
+  .cbox { border-radius: 12px; padding: 18px 20px; border: 1px solid var(--hair); background: var(--panel); }
+  .cbox.bad { border-color: color-mix(in oklab, var(--ko) 40%, var(--hair)); }
+  .cbox.good { border-color: color-mix(in oklab, var(--ok) 40%, var(--hair)); }
+  .cbox h4 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 1.02rem; }
+  .cbox p { font-size: 14px; margin: 0 0 10px; color: var(--muted); }
+  .cbox .mono-note { font-family: var(--mono); font-size: 12.5px; color: var(--ink);
+    background: var(--panel-2); border: 1px solid var(--hair); border-radius: 7px; padding: 9px 11px; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  ul.clean > li { display: flex; gap: 12px; }
+  ul.clean > li::before { content: "▸"; color: var(--accent); flex: none; line-height: 1.55; }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--panel);
+    padding: 16px 20px; border-radius: 0 10px 10px 0; box-shadow: var(--shadow); }
+  .callout .eyebrow { margin-bottom: 8px; }
+
+  /* estimation */
+  .estim { width: 100%; border-collapse: collapse; min-width: 480px; }
+  .estim td, .estim th { padding: 11px 14px; border-bottom: 1px solid var(--hair); text-align: left; }
+  .estim th { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .estim td.n { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .estim tr.total td { border-bottom: none; border-top: 2px solid var(--hair-strong); font-weight: 700; }
+  .risk { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  .risk.lo { color: var(--ok); } .risk.mid { color: var(--accent); } .risk.hi { color: var(--ko); }
+
+  .decision { background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 14px;
+    padding: 28px 28px; box-shadow: var(--shadow); }
+  .decision .opts { display: grid; gap: 12px; margin-top: 18px; }
+  @media (min-width: 620px) { .decision .opts { grid-template-columns: 1fr 1fr; } }
+  .opt { border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px; background: var(--panel-2); }
+  .opt .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .opt.go .tag { color: var(--ok); }
+  .opt.stop .tag { color: var(--ko); }
+  .opt h4 { margin: 6px 0 6px; }
+  .opt p { font-size: 13.5px; color: var(--muted); margin: 0; }
+
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--hair);
+    font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: .03em;
+    display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    section, header > * { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="col">
+      <p class="kicker">
+        <span class="dot"></span> Preuve de concept
+        <b>Simulia / LaBotBox</b>
+        <span>·</span> branche <code>poc/simulia-plugin-hotreload</code>
+        <span>·</span> CRLG 2026
+      </p>
+      <h1>Recharger le code robot dans Simulia sans tout recompiler.</h1>
+      <p class="lead">Aujourd'hui, changer une ligne de stratégie relink l'intégralité de Simulia — plus de 90&nbsp;% de code inchangé à chaque itération. Ce POC isole la logique robot dans une bibliothèque dynamique rechargeable à chaud. Voici ce qu'un spike a tranché, l'architecture qui en découle — et la preuve qu'elle tourne.</p>
+      <div class="verdict-line">
+        <span class="pill ko">Stratégie&nbsp;1 — écartée</span>
+        <span class="muted">→</span>
+        <span class="pill ok">Stratégie&nbsp;2 — implémentée &amp; prouvée</span>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="01"><span>Le problème</span><span class="rule"></span></p>
+      <h2>Un exécutable monolithique</h2>
+      <p><code>Simulia.pro</code> (<code>TEMPLATE = app</code>) compile la totalité du code stratégie et machines à états du robot — <code>Modelia</code>, <code>CppRobLib</code>, <code>CM7</code> — dans le <em>même</em> binaire que toute l'infrastructure Qt. La moindre modification côté <code>Soft_STM32</code> force à recompiler <em>et</em> relinker tout Simulia.</p>
+      <p>L'objectif du POC : sortir la logique robot dans un plugin <code>librobotlogic_*.so</code> horodaté, chargé au démarrage et <strong>rechargeable à chaud</strong> (avec reset de la simulation) — pour itérer sur la stratégie en quelques secondes au lieu d'un build complet.</p>
+      <div class="callout">
+        <p class="eyebrow" data-num="!"><span>Contrainte cardinale</span></p>
+        <p style="margin:0">La chaîne de <strong>compilation et flash du firmware STM32 réel</strong> (les <code>Makefile</code>) doit rester <strong>totalement intacte</strong>. Rien de ce POC ne touche <code>Soft_STM32/</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="02"><span>Le spike</span><span class="rule"></span></p>
+      <h2>Cinq tests jetables, un verdict net</h2>
+      <p>Avant d'écrire la moindre ligne de production, un mini-projet (exécutable&nbsp;+ <code>.so</code> chargé par <code>QLibrary</code>) a reproduit le mécanisme sur la toolchain réelle — Qt&nbsp;5.15, g++&nbsp;11. La question : <em>un exécutable peut-il appeler du code d'un</em> <code>.so</code> <em>rechargeable, et voir la nouvelle version après reload&nbsp;?</em></p>
+    </div>
+    <div class="col tablewrap" style="max-width:none">
+      <table>
+        <thead>
+          <tr><th class="num-cell">#</th><th>Test</th><th>Résultat</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num-cell">A</td>
+            <td><span class="t">Chargement unique — <code>dlopen</code> + <code>RTLD_GLOBAL</code></span><span class="d">L'exe appelle une méthode du <code>.so</code> et lit une donnée définie côté exe.</span></td>
+            <td><span class="pill ok">Passe</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">B</td>
+            <td><span class="t"><code>QLibrary</code> — 2 cycles, même <code>.so</code></span><span class="d">Chargement, résolution, unload/reload sur le binaire identique.</span></td>
+            <td><span class="pill ok">Passe</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">C</td>
+            <td><span class="t">Swap v1 → v2 — <code>.so</code> <em>différent</em>, comportement changé</span><span class="d">Après reload, la méthode renvoie encore le comportement de la v1.</span></td>
+            <td><span class="pill ko">Échoue</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">D</td>
+            <td><span class="t">Virtuel vs non-virtuel sous <code>RTLD_GLOBAL</code></span><span class="d">Même le dispatch virtuel reste collé à la v1.</span></td>
+            <td><span class="pill ko">Échoue</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">E</td>
+            <td><span class="t"><code>RTLD_LOCAL</code> + interface virtuelle <code>IRobotLogic*</code></span><span class="d">Objet créé dans le <code>.so</code>, factory re-résolue à chaque load.</span></td>
+            <td><span class="pill ok">Hot-reload réel</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="03"><span>Diagnostic</span><span class="rule"></span></p>
+      <h2>Pourquoi la voie « simple » ne peut pas marcher</h2>
+      <p>La Stratégie&nbsp;1 gardait le code appelant <strong>inchangé</strong> grâce à une macro (<code>#define Application (*g_pApplication)</code>) et des symboles globaux. Élégant sur le papier — mais le spike montre que <em>le mécanisme même qui permet à l'exe d'appeler le plugin en direct est celui qui interdit le reload.</em></p>
+    </div>
+    <div class="col compare">
+      <div class="cbox bad">
+        <h4><span class="pill ko">Strat. 1</span> Symboles globaux</h4>
+        <p>Sous <code>RTLD_GLOBAL</code>, la v1 occupe le namespace global. <code>unload()</code> ne libère rien — l'exe y reste lié. Au reload, la factory de la v2 reconstruit un objet avec le <strong>constructeur et la vtable de la v1</strong> (interposition de symboles).</p>
+        <div class="mono-note">v2.step() → renvoie le résultat v1. Le code ne change <em>jamais</em>.</div>
+      </div>
+      <div class="cbox good">
+        <h4><span class="pill ok">Strat. 2</span> Isolation + pointeur</h4>
+        <p>Sous <code>RTLD_LOCAL</code>, chaque <code>.so</code> est isolé et <code>unload()</code> libère vraiment. L'exe ne référence <strong>aucun</strong> symbole du plugin&nbsp;: il ne tient qu'un <code>IRobotLogic*</code> re-obtenu à chaque load. Le dispatch virtuel suit le nouvel objet.</p>
+        <div class="mono-note">v1.step() → 101 · v2.step() → 110. Reload prouvé.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="04"><span>Architecture retenue</span><span class="rule"></span></p>
+      <h2>Une frontière unique, tenue par pointeur</h2>
+      <p>Le shell Simulia (<code>CSimulia</code>, l'IHM) devient un <strong>dispatcher</strong> : il charge le plugin, tient un <code>IRobotLogic*</code>, et ne parle à la logique robot qu'à travers cette interface. Toute la logique — les 15 sous-systèmes agrégés par <code>CGlobaleSimule</code>, la stratégie <code>Modelia</code>, le tick multi-cadences — vit dans le plugin.</p>
+    </div>
+    <div class="col diagram two" style="max-width:none">
+      <div class="node">
+        <div class="role">Shell · exécutable Qt</div>
+        <h4>CSimulia + IHM</h4>
+        <ul>
+          <li>Pilote l'interface graphique</li>
+          <li>Charge le <code>.so</code> (<code>RTLD_LOCAL</code>)</li>
+          <li>Lit le DataManager pour l'affichage</li>
+          <li>Reste compilé une fois pour toutes</li>
+        </ul>
+      </div>
+      <div class="node plugin">
+        <div class="role">Plugin · librobotlogic_*.so</div>
+        <h4>CRobotLogic → CGlobaleSimule</h4>
+        <ul>
+          <li>Les 15 sous-systèmes + <code>Modelia</code></li>
+          <li>Le tick <code>simu_task_sequencer</code></li>
+          <li>Publie ses sorties au DataManager</li>
+          <li><strong>Recompilé et rechargé à chaud</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col" style="margin-top:14px">
+      <div class="link-row">
+        <span>shell</span><span class="arrow">— IRobotLogic* —▸</span><span>plugin</span>
+        <span style="color:var(--faint)">|</span>
+        <span class="arrow">◂— DataManager —</span>
+      </div>
+    </div>
+    <div class="col stack" style="margin-top:22px">
+      <div class="panel">
+        <h3>Les cinq principes</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li><span><strong>Isolation.</strong> <code>QLibrary</code> en <code>RTLD_LOCAL</code>, jamais <code>ExportExternalSymbolsHint</code>.</span></li>
+          <li><span><strong>Interface = données + comportement virtuel.</strong> On échange des scalaires, tableaux et pointeurs de structs partagées ; le dispatch est virtuel (vtable de l'objet neuf).</span></li>
+          <li><span><strong>Le Qt reste dans le shell.</strong> Le plugin ne connaît aucun widget.</span></li>
+          <li><span><strong>Le DataManager est le bus de sortie.</strong> Le plugin publie, le shell lit pour l'IHM — supprime la plupart des accès directs.</span></li>
+          <li><span><strong>Le tick descend dans le plugin.</strong> L'ordonnanceur multi-cadences et ses compteurs statiques se réinitialisent naturellement au reload.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="✓"><span>Preuve runtime</span><span class="rule"></span></p>
+      <h2>Le hot-reload tourne dans le vrai Simulia</h2>
+      <p>Plus qu'un plan : le POC est <strong>codé, compilé et exécuté</strong>. Simulia lancé en mode headless charge une version <code>v1</code> de la logique robot ; une <code>v2</code> recompilée est déposée à chaud ; le rechargement est déclenché. Le journal ci-dessous montre le nouveau code s'exécuter, sans redémarrage ni plantage.</p>
+    </div>
+    <div class="col" style="max-width:none">
+      <div style="background:var(--panel-2); border:1px solid var(--hair-strong); border-radius:12px; overflow:hidden; box-shadow:var(--shadow)">
+        <div style="display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--hair); font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--ko);opacity:.5"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:.5"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--ok);opacity:.5"></span>
+          <span style="margin-left:8px">Simulia — sortie console</span>
+        </div>
+        <pre style="margin:0; padding:18px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.75; color:var(--ink)"><span style="color:var(--accent)">[CRobotLogic]</span> build marker: <b>V1-BASE</b>              <span style="color:var(--faint)">// v1 construite au démarrage</span>
+<span style="color:var(--ok)">[POC hot-reload]</span> logique robot chargee: …214002.so
+<span style="color:var(--ok)">[POC hot-reload]</span> auto-reload programmé dans 6000 ms
+<span style="color:var(--accent)">[CRobotLogic]</span> build marker: <b>V2-RELOADED</b>          <span style="color:var(--faint)">// le NOUVEAU code s'exécute</span>
+<span style="color:var(--ok)">[POC hot-reload]</span> logique robot chargee: …232541.so
+<span style="color:var(--ok)">[POC hot-reload]</span> logique robot <b>rechargee a chaud</b>: …232541.so</pre>
+      </div>
+    </div>
+    <div class="col" style="margin-top:22px">
+      <div class="stack">
+        <div class="panel">
+          <h3>Trois jalons validés par compilation réelle</h3>
+          <ul class="clean" style="margin-top:12px">
+            <li><span><strong>Plugin</strong> — <code>librobotlogic_*.so</code> compile et se lie (74 objets, factory ABI C exportée).</span></li>
+            <li><span><strong>Shell</strong> — <code>Simulia</code> compile et se lie en dispatcher (binaire 5,1&nbsp;Mo, symboles exportés pour le plugin).</span></li>
+            <li><span><strong>Runtime</strong> — chargement au démarrage + rechargement à chaud d'une version recompilée, sans crash.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="05"><span>Firmware</span><span class="rule"></span></p>
+      <h2>Le STM32 n'est pas touché — par construction</h2>
+      <p>Il existe <strong>deux fichiers <code>CGlobale.h</code> distincts</strong>, un par chaîne de build. Le code partagé de <code>CppRobLib</code> résout <code>#include "CGlobale.h"</code> vers le bon selon son chemin d'inclusion. La transformation du POC n'est écrite que côté Simulia.</p>
+    </div>
+    <div class="col diagram two" style="max-width:none">
+      <div class="node">
+        <div class="role">Build Simulia · qmake</div>
+        <h4><code>PluginModules/Simulia/CGlobale.h</code></h4>
+        <ul><li><code>class CGlobaleSimule</code></li><li>Modifié par le POC</li></ul>
+      </div>
+      <div class="node">
+        <div class="role">Build Firmware · Makefile</div>
+        <h4><code>CM7/Includes/CGlobale.h</code></h4>
+        <ul><li><code>class CGlobale</code></li><li><strong>Jamais modifié</strong></li></ul>
+      </div>
+    </div>
+    <p class="col muted" style="margin-top:14px; font-size:14px">Règle POC gravée : ne jamais modifier <code>Soft_STM32/CM7/Includes/CGlobale.h</code> ni les <code>Makefile</code> de <code>Soft_STM32</code>. Compilation et flash du robot réel : inchangés.</p>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="06"><span>Coût</span><span class="rule"></span></p>
+      <h2>Le prix de la robustesse</h2>
+      <p>La Stratégie&nbsp;2 déplace les dizaines d'accès <code>Application.xxx</code> de <code>CSimulia</code> vers le plugin, derrière l'interface — ils ne disparaissent pas, ils changent de côté de la frontière. Le seul vrai inconnu reste le découplage Qt du lidar simulé.</p>
+    </div>
+    <div class="col tablewrap" style="max-width:none">
+      <table class="estim">
+        <thead><tr><th>Tâche</th><th style="text-align:right">Est.</th><th>Risque</th></tr></thead>
+        <tbody>
+          <tr><td>Interface <code>IRobotLogic</code> + wrapper <code>CRobotLogic</code></td><td class="n">1 j</td><td><span class="risk mid">moyen</span></td></tr>
+          <tr><td>Déplacer init / reset / tick / publications vers le plugin</td><td class="n">1 j</td><td><span class="risk mid">moyen</span></td></tr>
+          <tr><td>Amincir <code>CSimulia</code> en dispatcher</td><td class="n">1–1,5 j</td><td><span class="risk mid">moyen</span></td></tr>
+          <tr><td>Découpler le lidar simulé de Qt</td><td class="n">0,5–1 j</td><td><span class="risk hi">élevé</span></td></tr>
+          <tr><td>Loader <code>QLibrary</code> + combobox + horodatage</td><td class="n">1 j</td><td><span class="risk lo">faible</span></td></tr>
+          <tr><td>Non-régression (rejouer un match avant / après)</td><td class="n">0,5 j</td><td><span class="risk lo">faible</span></td></tr>
+          <tr class="total"><td>Total</td><td class="n">≈ 5–6 j</td><td><span class="risk mid">club</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col muted" style="margin-top:14px; font-size:14px">Pour mémoire, la Stratégie&nbsp;1 était estimée à ≈&nbsp;3–4&nbsp;j — mais elle ne fournit pas le hot-reload. Le surcoût est le prix, démontré, de la robustesse.</p>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="07"><span>Décision</span><span class="rule"></span></p>
+      <h2>Ce qui revient au club</h2>
+      <div class="decision">
+        <p style="margin:0 0 4px">La question technique est tranchée <em>et</em> le code existe : <strong>le POC fonctionne, sur la branche <code>poc/simulia-plugin-hotreload</code>.</strong> Reste une décision d'équipe — adopte-t-on cette base pour toute l'équipe ?</p>
+        <div class="opts">
+          <div class="opt go">
+            <div class="tag">Adopter</div>
+            <h4>Finaliser &amp; fusionner</h4>
+            <p>Base fonctionnelle et prouvée. Reste le polissage : combobox de sélection, découplage Qt complet du lidar, non-régression sur un match. Gain d'itération immédiat pour toute l'équipe.</p>
+          </div>
+          <div class="opt stop">
+            <div class="tag">Archiver</div>
+            <h4>Garder en réserve</h4>
+            <p>Si le gain de temps ne justifie pas d'entretenir cette architecture. La branche reste disponible mais n'est pas fusionnée — aucune trace sur <code>master</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="margin-top:20px">
+      <p class="muted" style="font-size:14px">Quoi qu'il arrive, le POC vit dans une branche dédiée : <code>master</code> n'est jamais pollué. C'est tout l'intérêt d'une preuve de concept — aller au bout pour décider en connaissance de cause.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="08"><span>Tester le POC</span><span class="rule"></span></p>
+      <h2>Cloner, compiler, recharger</h2>
+      <p>Le POC vit sur la branche <code>poc/simulia-plugin-hotreload</code> des deux dépôts. Pré-requis&nbsp;: la toolchain habituelle (Robuntu / Linux, Qt&nbsp;5.15, <code>qmake</code>, <code>g++</code>). Les dossiers de build sont volontairement <strong>frères</strong> de <code>Simulia/</code> pour que les chemins relatifs vers <code>Soft_STM32</code> résolvent.</p>
+    </div>
+
+    <div class="col" style="max-width:none">
+      <div style="background:var(--panel-2); border:1px solid var(--hair-strong); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px">
+        <div style="padding:9px 16px; border-bottom:1px solid var(--hair); font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">1 · Cloner (avec les sous-modules)</div>
+        <pre style="margin:0; padding:16px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink)"><span style="color:var(--faint)"># parent + Simulia(LABOTBOX) + CppRobLib, tous positionnés sur le commit POC</span>
+<span style="color:var(--accent)">git clone</span> --recurse-submodules -b poc/simulia-plugin-hotreload \
+    https://github.com/CRLG/GROSBOT_STM32.git
+<span style="color:var(--accent)">cd</span> GROSBOT_STM32</pre>
+      </div>
+
+      <div style="background:var(--panel-2); border:1px solid var(--hair-strong); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px">
+        <div style="padding:9px 16px; border-bottom:1px solid var(--hair); font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">2 · Compiler le plugin, puis le shell</div>
+        <pre style="margin:0; padding:16px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink)"><span style="color:var(--faint)"># plugin -> librobotlogic_&lt;horodatage&gt;.so</span>
+<span style="color:var(--accent)">mkdir</span> build_plugin && <span style="color:var(--accent)">cd</span> build_plugin
+qmake ../Simulia/RobotLogicPlugin.pro && make -j$(nproc)
+<span style="color:var(--accent)">cd</span> ..
+<span style="color:var(--faint)"># shell Simulia (dispatcher)</span>
+<span style="color:var(--accent)">mkdir</span> build_poc && <span style="color:var(--accent)">cd</span> build_poc
+qmake ../Simulia/Simulia.pro && make -j$(nproc)</pre>
+      </div>
+
+      <div style="background:var(--panel-2); border:1px solid var(--hair-strong); border-radius:12px; overflow:hidden; box-shadow:var(--shadow)">
+        <div style="padding:9px 16px; border-bottom:1px solid var(--hair); font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">3 · Lancer &amp; recharger à chaud</div>
+        <pre style="margin:0; padding:16px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink)"><span style="color:var(--faint)"># déposer la lib dans le répertoire scanné (défaut : le dossier courant)</span>
+<span style="color:var(--accent)">cp</span> ../build_plugin/librobotlogic_*.so ./
+<span style="color:var(--accent)">./Simulia</span>
+<span style="color:var(--faint)"># puis, dans Simulia : clic droit sur la fenêtre -> « Recharger la logique robot »</span>
+<span style="color:var(--faint)"># (recompiler le plugin crée une lib plus récente ; le reload prend la dernière)</span>
+
+<span style="color:var(--faint)"># — variante headless / CI (sans écran) : reload automatique gaté par variable d'env —</span>
+QT_QPA_PLATFORM=offscreen SIMULIA_POC_AUTORELOAD=6000 <span style="color:var(--accent)">./Simulia</span></pre>
+      </div>
+    </div>
+
+    <div class="col" style="margin-top:16px">
+      <p class="muted" style="font-size:14px">Sélection de la lib&nbsp;: clef EEPROM <code>[Simulia] robot_logic_lib_path</code> (défaut <code>"."</code>). Le shell charge la <code>librobotlogic_*.so</code> la plus récente (tri par horodatage du nom). Pour observer un vrai changement de comportement, modifier la stratégie, recompiler le plugin, puis recharger.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="col">
+      <p class="eyebrow" data-num="09"><span>Workflow d'itération</span><span class="rule"></span></p>
+      <h2>La boucle, une fois Simulia lancé</h2>
+      <p>C'est tout l'intérêt du POC&nbsp;: après le lancement initial, on n'arrête plus jamais Simulia. On pointe une fois <code>robot_logic_lib_path</code> vers le dossier de build du plugin, puis on tourne en boucle — chaque tour ne recompile que la logique robot (quelques secondes), pas les&nbsp;>90&nbsp;% de code Qt inchangé.</p>
+    </div>
+
+    <div class="col" style="max-width:none">
+      <div style="background:var(--panel-2); border:1px solid var(--hair-strong); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:18px">
+        <div style="padding:9px 16px; border-bottom:1px solid var(--hair); font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">Réglage unique — pointer la simu vers le build du plugin</div>
+        <pre style="margin:0; padding:16px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink)"><span style="color:var(--faint)"># EEPROM.ini, section [Simulia] : chemin scanné pour les librobotlogic_*.so</span>
+[Simulia]
+robot_logic_lib_path=<span style="color:var(--ink)">../build_plugin</span>
+<span style="color:var(--faint)"># (à défaut, le dossier de lancement de Simulia est scanné)</span></pre>
+      </div>
+    </div>
+
+    <div class="col" style="max-width:none">
+      <div class="stack">
+        <div class="node">
+          <div class="role">Boucle — étape 1</div>
+          <h4>Éditer la stratégie</h4>
+          <ul>
+            <li>Modifier le code robot, p.&nbsp;ex. <code>Soft_STM32/CM7/Modelia/…</code> ou <code>…/common-rob/Modelia/sm_evitement.cpp</code></li>
+          </ul>
+        </div>
+        <div class="link-row"><span class="arrow">▼</span></div>
+        <div class="node">
+          <div class="role">Boucle — étape 2</div>
+          <h4>Recompiler le plugin seul</h4>
+          <pre style="margin:8px 0 0; padding:14px 16px; overflow-x:auto; background:var(--panel-2); border:1px solid var(--hair); border-radius:8px; font-family:var(--mono); font-size:12.5px; line-height:1.7; color:var(--ink)"><span style="color:var(--accent)">cd</span> build_plugin
+qmake ../Simulia/RobotLogicPlugin.pro && make -j$(nproc)
+<span style="color:var(--faint)"># -> nouvelle librobotlogic_&lt;horodatage&gt;.so (quelques secondes)</span></pre>
+        </div>
+        <div class="link-row"><span class="arrow">▼</span></div>
+        <div class="node">
+          <div class="role">Boucle — étape 3</div>
+          <h4>Recharger dans Simulia (toujours lancé)</h4>
+          <ul>
+            <li>Clic droit sur la fenêtre Simulia → <strong>« Recharger la logique robot »</strong></li>
+            <li>La simu se réinitialise et rejoue avec le nouveau code</li>
+          </ul>
+        </div>
+        <div class="link-row"><span class="arrow" style="transform:scaleX(-1)">↻</span><span>retour à l'étape&nbsp;1 — Simulia n'est jamais relancé</span></div>
+      </div>
+    </div>
+
+    <div class="col" style="margin-top:20px">
+      <div class="compare">
+        <div class="cbox bad">
+          <h4><span class="pill ko">Avant</span> Cycle actuel</h4>
+          <p>Éditer → recompiler <strong>et relinker tout Simulia</strong> (Qt inclus) → relancer l'appli → refaire la mise en situation. Long, à chaque essai.</p>
+        </div>
+        <div class="cbox good">
+          <h4><span class="pill ok">Avec le POC</span> Cycle court</h4>
+          <p>Éditer → recompiler <strong>le seul plugin</strong> → clic droit « Recharger ». Simulia reste ouvert. Quelques secondes par tour.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>POC Simulia · hot-reload du code robot</span>
+    <span>·</span>
+    <span>branche poc/simulia-plugin-hotreload</span>
+    <span>·</span>
+    <span>CRLG 2026</span>
+  </footer>
+</div>
