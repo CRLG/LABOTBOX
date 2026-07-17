@@ -10,11 +10,14 @@ QT       += webenginewidgets webchannel
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-# Build Simulia = build AVEC la logique robot (CppRobLib/common-rob + plugin Simulia + Modelia).
-# Ce define active, dans SimuBot, le reconstructeur de pose base sur le VRAI CAsservissementBase
-# (representativite maximale, synchro firmware). Le build LaBotBox (sans ce define) utilise une
-# copie autonome de CalculXY (CPoseReconstructeurStandalone). Cf. CSimuBot.h.
-DEFINES += SIMUBOT_ROBOT_LOGIC
+# POC hot-reload : SIMUBOT_ROBOT_LOGIC RETIRE du shell.
+# Ce define faisait utiliser a CSimuBot le VRAI CAsservissementBase (classe robot-logic) pour
+# reconstruire la pose "l'asserv fait foi". Or CAsservissementBase.cpp utilise le global Application
+# et part desormais dans le plugin (librobotlogic_*.so) -> le shell ne peut plus le lier directement.
+# Sans ce define, CSimuBot bascule sur CPoseReconstructeurStandalone (copie autonome de CalculXY,
+# chemin LaBotBox), sans dependance a la logique robot. C'est le seul couplage shell->robot HORS
+# IRobotLogic ; le decoupler proprement (via une methode IRobotLogic) serait une evolution ulterieure.
+#DEFINES += SIMUBOT_ROBOT_LOGIC
 
 TARGET = Simulia
 TEMPLATE = app
@@ -52,7 +55,9 @@ LIST_PLUGIN_MODULES+= \
         SimuBot \
         ActuatorSequencer \
         BlockBotLab \
-        Simulia\
+        # POC hot-reload : Simulia RETIRE du glob automatique. La logique robot (_simu, CGlobale,
+        # Modelia, CppRobLib) part dans RobotLogicPlugin.pro (librobotlogic_*.so). Seul CSimulia.cpp
+        # reste dans le shell et est ajoute explicitement plus bas (section "POC hot-reload").
         # ##_NEW_PLUGIN_MODULE_NAME_HERE_##
 
 # __________________________________________________
@@ -123,7 +128,9 @@ INCLUDEPATH +=  ./ext/CppRobLib
 
 for(i, LIST_EXT_CPPROBLIB) {
     INCLUDEPATH+= $$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}
-    SOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.cpp)
+    # POC hot-reload : les .cpp CppRobLib partent dans RobotLogicPlugin.pro. Le shell garde
+    # UNIQUEMENT les INCLUDEPATH/HEADERS (pour que CSimulia compile contre les declarations).
+    #SOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.cpp)
     HEADERS+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.h)
     FORMS+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.ui)
     RESOURCES+= $$files($$_PRO_FILE_PWD_/../Soft_STM32/ext/CppRobLib/$${i}/*.qrc)
@@ -144,20 +151,43 @@ PATH_CPU_COMMON_ROB =   $$PATH_SOFT_CPU/ext/common-rob
 PATH_MODELIA_COMMON =   $$PATH_COMMON_ROB/Modelia
 PATH_MODELIA_ROBOT =    $$PATH_SOFT_CPU/CM7/Modelia
 DEFINES+= MESSENGER_FULL
-INCLUDEPATH +=  $$PATH_MODELIA_COMMON \
+# POC hot-reload : ./PluginModules/Simulia AVANT CM7/Includes (resolution de CGlobale.h vers
+# le CGlobaleSimule de Simulia si un fichier shell l'inclut ; cf. meme regle dans RobotLogicPlugin.pro).
+INCLUDEPATH +=  ./PluginModules/Simulia \
+                $$PATH_MODELIA_COMMON \
                 $$PATH_MODELIA_ROBOT \
                 $$PATH_SOFT_CPU/CM7/Includes \
                 $$PATH_CPU_COMMON_ROB/Includes \
                 ./PluginModules/Simulia/simu_moteurs \
 
-SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
-                $$PATH_MODELIA_ROBOT/*.cpp \
-                ./PluginModules/Simulia/simu_moteurs/plateformer_robot.cpp \
+# POC hot-reload : les .cpp Modelia + plateformer_robot partent dans RobotLogicPlugin.pro.
+# Le shell garde les INCLUDEPATH/HEADERS pour compiler CSimulia contre les declarations
+# (structs d'interface, enums _simu) sans lier les definitions (fournies par le plugin/shell).
+#SOURCES +=      $$PATH_MODELIA_COMMON/*.cpp \
+#                $$PATH_MODELIA_ROBOT/*.cpp \
+#                ./PluginModules/Simulia/simu_moteurs/plateformer_robot.cpp \
 
 HEADERS +=      $$PATH_MODELIA_COMMON/*.h \
                 $$PATH_MODELIA_ROBOT/*.h \
 
 CONFIG += plugins_designer
+
+# __________________________________________________
+# POC hot-reload : module Simulia gere explicitement (retire du glob LIST_PLUGIN_MODULES).
+# Seul le shell CSimulia reste dans l'application ; il dialogue avec la logique robot
+# via l'interface IRobotLogic (plugin librobotlogic_*.so charge a chaud).
+DEFINES     += MODULE_Simulia
+INCLUDEPATH += $$_PRO_FILE_PWD_/PluginModules/Simulia
+SOURCES     += PluginModules/Simulia/CSimulia.cpp
+HEADERS     += PluginModules/Simulia/CSimulia.h \
+               PluginModules/Simulia/IRobotLogic.h
+FORMS       += PluginModules/Simulia/ihm_Simulia.ui
+RESOURCES   += PluginModules/Simulia/Simulia.qrc
+
+# -rdynamic : exporte les symboles de l'executable Simulia (CDataManager::write, CApplication...)
+# pour que le plugin librobotlogic_*.so (charge en RTLD_LOCAL) resolve ses appels VERS le shell.
+# Direction stable (le shell ne se recharge pas) -> pas le probleme d'interposition du spike.
+QMAKE_LFLAGS += -rdynamic
 
 # __________________________________________________
 # Placé en premier, link en priorité avec les librairies contenues dans le répertoire d'installation de Qt (cas de plusieurs versions de librairies Qt installées sur la même machine dans des répertoires différents)

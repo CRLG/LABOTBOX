@@ -7,9 +7,12 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QLibrary>
+#include <QString>
 
 #include "CPluginModule.h"
 #include "ui_ihm_Simulia.h"
+#include "IRobotLogic.h"   // POC hot-reload : interface vers la logique robot (plugin)
 
  class Cihm_Simulia : public QMainWindow
 {
@@ -58,12 +61,28 @@ public:
 
 private:
     Cihm_Simulia m_ihm;
-    void simu_task_sequencer();
 
     void init_lidar();
 
+    // ---- POC hot-reload : chargement / rechargement du plugin de logique robot ----
+    typedef IRobotLogic* (*createRobotLogicFn)();
+    typedef void         (*destroyRobotLogicFn)(IRobotLogic*);
+
+    IRobotLogic*         m_logic;          //!< logique robot courante (fournie par le plugin)
+    QLibrary             m_lib;            //!< bibliotheque dynamique chargee (RTLD_LOCAL)
+    createRobotLogicFn   m_createFn;
+    destroyRobotLogicFn  m_destroyFn;
+    QString              m_lib_dir;        //!< repertoire scanne (clef EEPROM robot_logic_lib_path)
+    QString              m_current_lib;    //!< chemin de la lib actuellement chargee
+
+    bool     loadRobotLogic(const QString& lib_path); //!< charge + resout la factory + cree l'objet
+    void     unloadRobotLogic();                       //!< destroy + unload (ordre du POC)
+    QString  findLatestLib(const QString& dir) const;  //!< librobotlogic_*.so la plus recente (tri par nom)
+    void     wireRobotLogicToIhm();                    //!< rejoue la sequence d'init dependante de l'objet
+
 private slots :
     void onRightClicGUI(QPoint pos);
+    void on_reload_robot_logic();          //!< recharge a chaud la logique robot (menu contextuel)
 
     void on_pb_init_all();
     void on_pb_active_main();
