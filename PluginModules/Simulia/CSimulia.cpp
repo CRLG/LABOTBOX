@@ -16,6 +16,7 @@
 #include <QToolBar>
 #include <QLabel>
 #include <QFileSystemWatcher>
+#include <QCoreApplication>
 #include "CSimulia.h"
 #include "CSimuBot.h"
 #include "CApplication.h"
@@ -34,6 +35,18 @@
    *
    *  @{
    */
+
+// _____________________________________________________________________
+// Resolution d'un chemin de configuration EEPROM : relatif -> ancre sur le repertoire de
+// l'executable (applicationDirPath), et non sur le repertoire de lancement (CWD), pour un clone
+// fonctionnel "out of the box" quel que soit le repertoire de lancement. Absolu -> inchange.
+// (Meme regle que resolveConfigDir cote CBlockBotLab, pour que depot et scan des .so coincident.)
+static QString resolveConfigDir(const QString& path)
+{
+    if (path.isEmpty()) return path;
+    if (QDir::isAbsolutePath(path)) return QDir::cleanPath(path);
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + "/" + path);
+}
 
 // _____________________________________________________________________
 /*!
@@ -301,7 +314,7 @@ void CSimulia::init(CApplication *application)
 
     // ---- POC hot-reload : charger la logique robot AVANT tout usage de m_logic ----
     m_lib_dir = m_application->m_eeprom->read(getName(), "robot_logic_lib_path", ".").toString();
-    m_lib_dir = QDir(m_lib_dir).absolutePath();   // "." (defaut) -> repertoire courant, resolu une fois
+    m_lib_dir = resolveConfigDir(m_lib_dir);   // relatif -> ancre sur l'executable (cf. resolveConfigDir)
     buildRobotLogicToolbar();   // barre d'outils : combo de selection + Rafraichir + Recharger
     refreshLibCombo();          // remplit le combo et selectionne la plus recente
 

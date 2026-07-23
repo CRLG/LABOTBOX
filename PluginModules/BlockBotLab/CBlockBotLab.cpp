@@ -34,9 +34,34 @@
 #include "CSimulia.h"
 #endif // MODULE_Simulia
 
+#include <QCoreApplication>
+
+// _____________________________________________________________________
+// Resolution des chemins de configuration issus de l'EEPROM.
+// Un chemin RELATIF est ancre sur le repertoire de l'executable (applicationDirPath), et NON
+// sur le repertoire de lancement (CWD) : un clone fonctionne "out of the box" quel que soit le
+// repertoire depuis lequel Simulia est lance (cf. CLAUDE.md du clone, demo from scratch). Un
+// chemin ABSOLU est renvoye inchange -> retro-compatibilite totale avec les configs existantes.
+static QString resolveConfigDir(const QString& path)
+{
+    if (path.isEmpty()) return path;
+    if (QDir::isAbsolutePath(path)) return QDir::cleanPath(path);
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + "/" + path);
+}
+
+// Idem pour une commande dont le programme est un chemin de script relatif (mono-token, sans
+// argument) : le script est ancre sur l'executable. Une commande AVEC arguments (p.ex. la cible
+// STM32 "make ... -C <path>") est renvoyee inchangee -> comportement existant preserve.
+static QString resolveCommandPath(const QString& command)
+{
+    const QString c = command.trimmed();
+    if (c.isEmpty() || c.contains(' ')) return command;
+    return resolveConfigDir(c);
+}
+
 
 /*! \addtogroup Module_Test2
-   * 
+   *
    *  @{
    */
 	   
@@ -101,11 +126,13 @@ void CBlockBotLab::init(CApplication *application)
 
   m_blockbotWebView=m_ihm.ui.ui_webView;
 
-  m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString();
+  // Repertoire ou BlockBot ecrit le code genere : relatif -> ancre sur l'executable (cf. resolveConfigDir).
+  m_generated_pathfilename = resolveConfigDir(m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString());
   m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
   // Compilation de la logique robot pour Simulia (POC hot-reload). Le script encapsule qmake +
   // make incremental + depot de la librobotlogic_*.so dans le repertoire scanne par Simulia.
-  m_build_robot_logic_command = m_application->m_eeprom->read(getName(), "build_robot_logic_command", "/home/crlg/workspace/GROSBOT_STM32/Simulia/tools/build_robot_logic.sh").toString();
+  // Chemin de script relatif -> ancre sur l'executable (independant du repertoire de lancement).
+  m_build_robot_logic_command = resolveCommandPath(m_application->m_eeprom->read(getName(), "build_robot_logic_command", "/home/crlg/workspace/GROSBOT_STM32/Simulia/tools/build_robot_logic.sh").toString());
   m_build_target = BUILD_TARGET_STM32;
   m_config_specifique_coupe_path = m_application->m_eeprom->read(getName(), "config_specifique_coupe_path", "/home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h").toString();
 
@@ -726,7 +753,8 @@ void CBlockBotLab::Slot_BuildAndUploadSTM32()
 QString CBlockBotLab::robotLogicDestDir()
 {
     QString dir = m_application->m_eeprom->read("Simulia", "robot_logic_lib_path", ".").toString();
-    return QDir(dir).absolutePath();
+    // Meme ancrage que CSimulia (repertoire scanne) -> depot et scan pointent le meme endroit.
+    return resolveConfigDir(dir);
 }
 
 // _____________________________________________________________________
