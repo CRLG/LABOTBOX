@@ -1,0 +1,32 @@
+<!-- Bundle BlockBot compile (webpack) embarque en ressource Qt pour rendre le clone
+     autoporteur : le module BlockBotLab en mode "indus" charge index.html depuis qrc:/
+     (plus besoin de npm run build ni de deposer BlockBot_static/ a cote de lexecutable).
+     Regenerer apres un rebuild de BlockBot : recopier BlockBot_static/ puis rebuild Simulia. -->
+<RCC>
+    <qresource prefix="/">
+        <file>BlockBot_static/bundle.js</file>
+        <file>BlockBot_static/index.html</file>
+        <file>BlockBot_static/media/1x1.gif</file>
+        <file>BlockBot_static/media/click.mp3</file>
+        <file>BlockBot_static/media/click.ogg</file>
+        <file>BlockBot_static/media/click.wav</file>
+        <file>BlockBot_static/media/delete-icon.svg</file>
+        <file>BlockBot_static/media/delete.mp3</file>
+        <file>BlockBot_static/media/delete.ogg</file>
+        <file>BlockBot_static/media/delete.wav</file>
+        <file>BlockBot_static/media/disconnect.mp3</file>
+        <file>BlockBot_static/media/disconnect.ogg</file>
+        <file>BlockBot_static/media/disconnect.wav</file>
+        <file>BlockBot_static/media/dropdown-arrow.svg</file>
+        <file>BlockBot_static/media/foldout-icon.svg</file>
+        <file>BlockBot_static/media/handclosed.cur</file>
+        <file>BlockBot_static/media/handdelete.cur</file>
+        <file>BlockBot_static/media/handopen.cur</file>
+        <file>BlockBot_static/media/pilcrow.png</file>
+        <file>BlockBot_static/media/quote0.png</file>
+        <file>BlockBot_static/media/quote1.png</file>
+        <file>BlockBot_static/media/resize-handle.svg</file>
+        <file>BlockBot_static/media/sprites.png</file>
+        <file>BlockBot_static/media/sprites.svg</file>
+    </qresource>
+</RCC>

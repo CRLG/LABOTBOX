@@ -61,13 +61,29 @@ public:
     virtual QIcon getIcon(void)         { return(QIcon(":/icons/edit_add.png")); }  // Précise l'icône qui représente le module
     virtual QString getMenuName(void)   { return("PluginModule"); }                 // Précise le nom du menu de la fenêtre principale dans lequel le module apparaît
 
+public:
+    //! Cible du build lance par buildTargetAndUpload(). Le meme code genere par BlockBot alimente
+    //! les deux : le firmware STM32 (compilation + telechargement dans le robot) et la logique
+    //! robot de Simulia (librobotlogic_*.so rechargeable a chaud dans la simulation).
+    enum eBuildTarget {
+        BUILD_TARGET_STM32 = 0,   //!< make + flash de la cible (clef EEPROM launch_and_program_command)
+        BUILD_TARGET_SIMULIA      //!< librobotlogic_*.so   (clef EEPROM build_robot_logic_command)
+    };
+
 private:
     Cihm_BlockBotLab m_ihm;
     QString m_generated_pathfilename;
     QString m_launch_and_program_command;
+    QString m_build_robot_logic_command;   //!< script de compilation de la logique robot Simulia
     QString m_config_specifique_coupe_path;
     QProcess m_build_target_process;
+    eBuildTarget m_build_target;           //!< cible armee par le bouton qui a lance le build
     QTimer m_timer_close_build_logs_delayed;
+
+    //! Repertoire ou deposer la librobotlogic_*.so : celui que scanne Simulia.
+    //! Lu dans la clef EEPROM [Simulia] robot_logic_lib_path (source unique de verite,
+    //! aucun chemin duplique cote BlockBotLab).
+    QString robotLogicDestDir();
 
     QString m_blockbotPath;
     QString m_blockbotPort;
@@ -86,6 +102,9 @@ private:
 
     QComboBox *modeChoice;
     QCheckBox *showCode;
+    //! Rechargement automatique de la logique robot dans Simulia a la fin d'un build
+    //! "Compiler pour Simulia" reussi (chainage BlockBot -> Simulia, actif par defaut).
+    QCheckBox *autoReloadSimulia;
 
     //! Moteur d'exécution HIL (Hardware In the Loop)
     CHILEngine *m_hilEngine;
@@ -101,6 +120,9 @@ public slots :
     //bool processData(const QString& code);
     bool processData(QString code, QString nomStrategie, QString listeEtatsJSON);
     bool buildTargetAndUpload();
+    //! Connecte a actionCompilAndDownload : arme la cible STM32 puis relance le build sans
+    //! repasser par une generation de code (recompile ce qui est deja dans Modelia).
+    void Slot_BuildAndUploadSTM32();
     void buildStarted();
     void buildFinished(int exitcode);
     void buildError();

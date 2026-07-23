@@ -37,6 +37,16 @@ CONFIG  -= app_bundle
 # Nom horodate : chaque build produit une lib distincte -> selection/chargement par date.
 TARGET = robotlogic_$$system(date +%Y%m%d_%H%M%S)
 
+# Repertoire de depot de la lib generee, lu dans l'environnement AU MOMENT DU QMAKE.
+# Positionne par tools/build_robot_logic.sh, lui-meme alimente par la clef EEPROM
+# [Simulia] robot_logic_lib_path quand le build est lance depuis BlockBotLab : la lib atterrit
+# ainsi directement dans le repertoire scanne par Simulia (aucune copie manuelle).
+# Variable absente/vide -> depot dans le repertoire de build (comportement historique du POC).
+ROBOT_LOGIC_DEST_ENV = $$(ROBOT_LOGIC_DEST)
+!isEmpty(ROBOT_LOGIC_DEST_ENV) {
+    DESTDIR = $$ROBOT_LOGIC_DEST_ENV
+}
+
 # __________________________________________________
 # Chemins (identiques a Simulia.pro, ce .pro vit dans le meme repertoire Simulia/)
 PATH_SOFT_CPU =         ../Soft_STM32

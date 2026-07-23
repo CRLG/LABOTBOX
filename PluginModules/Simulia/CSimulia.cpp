@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QToolBar>
 #include <QLabel>
+#include <QFileSystemWatcher>
 #include "CSimulia.h"
 #include "CSimuBot.h"
 #include "CApplication.h"
@@ -45,6 +46,8 @@ CSimulia::CSimulia(const char *plugin_name)
     , m_createFn(nullptr)
     , m_destroyFn(nullptr)
     , m_combo_lib(nullptr)
+    , m_lib_watcher(nullptr)
+    , m_init_done(false)
 {
 }
 
@@ -103,19 +106,28 @@ void CSimulia::buildRobotLogicToolbar()
 }
 
 // Re-scanne m_lib_dir et remplit le combo (texte = nom de fichier, donnee = chemin absolu).
-// Selectionne la plus recente par defaut (tri par nom = par horodatage).
-void CSimulia::refreshLibCombo()
+// select_latest = true  : selectionne la plus recente (tri par nom = par horodatage) ;
+// select_latest = false : conserve la lib actuellement selectionnee si elle existe encore
+//                         (utilise par la surveillance de repertoire, qui ne doit pas changer
+//                          le choix de l'utilisateur dans son dos).
+void CSimulia::refreshLibCombo(bool select_latest)
 {
     if (!m_combo_lib) return;
+    QString previous = selectedLibPath();
     m_combo_lib->clear();
     QDir d(m_lib_dir);
     QStringList libs = d.entryList(QStringList() << "librobotlogic_*.so", QDir::Files, QDir::Name);
     for (int i = 0; i < libs.size(); ++i) {
         m_combo_lib->addItem(libs.at(i), d.absoluteFilePath(libs.at(i)));
     }
-    if (m_combo_lib->count() > 0) {
-        m_combo_lib->setCurrentIndex(m_combo_lib->count() - 1); // la plus recente
+    if (m_combo_lib->count() <= 0) return;
+
+    int index = m_combo_lib->count() - 1;   // la plus recente par defaut
+    if (!select_latest && !previous.isEmpty()) {
+        int previous_index = m_combo_lib->findData(previous);
+        if (previous_index >= 0) index = previous_index;
     }
+    m_combo_lib->setCurrentIndex(index);
 }
 
 // Chemin absolu de la lib actuellement selectionnee dans le combo (vide si aucune).
@@ -200,10 +212,54 @@ void CSimulia::on_refresh_libs()
     qDebug() << "[POC hot-reload] repertoire re-scanne :" << m_combo_lib->count() << "lib(s) trouvee(s)";
 }
 
+// Le repertoire des libs a change : un build exterieur (BlockBotLab, terminal) vient d'y deposer
+// ou d'y purger une lib. Le link ecrit le fichier en plusieurs fois -> on temporise pour ne
+// rafraichir le combo qu'une fois le depot stabilise.
+void CSimulia::on_lib_dir_changed()
+{
+    m_timer_rescan_libs.start();   // singleShot : un redemarrage repousse l'echeance
+}
+
+// Fin de temporisation : mise a jour de la liste des libs disponibles, SANS toucher a la
+// selection courante et SANS rien recharger (le rechargement reste un geste explicite,
+// bouton "Recharger" ou chainage depuis un build BlockBotLab reussi).
+void CSimulia::on_rescan_libs_timeout()
+{
+    refreshLibCombo(false);
+    qDebug() << "[POC hot-reload] repertoire des libs modifie :" << m_combo_lib->count() << "lib(s) disponible(s)";
+}
+
+// Chainage BlockBotLab -> Simulia : appele a la fin d'un build "Compiler pour Simulia" reussi.
+// La lib qui vient d'etre produite est forcement la plus recente -> on la selectionne puis on
+// enchaine le hot-reload standard (meme chemin que le bouton "Recharger").
+bool CSimulia::reloadFromExternalBuild()
+{
+    refreshLibCombo(true);
+    if (selectedLibPath().isEmpty()) {
+        qWarning() << "[POC hot-reload] build externe signale mais aucune lib trouvee dans" << m_lib_dir;
+        return false;
+    }
+    qDebug() << "[POC hot-reload] rechargement demande par un build exterieur (BlockBotLab)";
+    QString lib_before = m_current_lib;
+    on_reload_robot_logic();
+    // Le rechargement peut etre refuse (garde m_init_done) ou echouer au chargement : le seul
+    // temoin fiable est que la logique courante soit bien celle qui vient d'etre selectionnee.
+    return (m_logic != nullptr) && (m_current_lib != lib_before);
+}
+
 // Recharge a chaud la lib SELECTIONNEE dans le combo (bouton Recharger ou menu contextuel).
 // Reset complet de la simulation (pas de preservation d'etat, assume par le POC).
 void CSimulia::on_reload_robot_logic()
 {
+    // Si init() s'est arretee faute de lib au demarrage, l'IHM n'a jamais ete cablee (combos
+    // lidar, connexions des boutons, timer...) : recharger ici produirait un module a moitie
+    // initialise. On l'annonce clairement plutot que de laisser un comportement incoherent.
+    if (!m_init_done) {
+        qWarning() << "[POC hot-reload] Simulia a demarre sans logique robot : redemarrer Simulia"
+                   << "pour prendre en compte cette premiere librobotlogic_*.so.";
+        return;
+    }
+
     m_timer.stop();
     QString lib = selectedLibPath();
     if (lib.isEmpty()) {
@@ -245,8 +301,22 @@ void CSimulia::init(CApplication *application)
 
     // ---- POC hot-reload : charger la logique robot AVANT tout usage de m_logic ----
     m_lib_dir = m_application->m_eeprom->read(getName(), "robot_logic_lib_path", ".").toString();
+    m_lib_dir = QDir(m_lib_dir).absolutePath();   // "." (defaut) -> repertoire courant, resolu une fois
     buildRobotLogicToolbar();   // barre d'outils : combo de selection + Rafraichir + Recharger
     refreshLibCombo();          // remplit le combo et selectionne la plus recente
+
+    // Surveillance du repertoire des libs : le combo se tient a jour tout seul quand un build
+    // exterieur (bouton "Compiler pour Simulia" de BlockBotLab, ou compilation en terminal) y
+    // depose une nouvelle librobotlogic_*.so. Purement informatif : ne recharge rien.
+    m_timer_rescan_libs.setSingleShot(true);
+    m_timer_rescan_libs.setInterval(500);
+    connect(&m_timer_rescan_libs, SIGNAL(timeout()), this, SLOT(on_rescan_libs_timeout()));
+    m_lib_watcher = new QFileSystemWatcher(this);
+    if (!m_lib_watcher->addPath(m_lib_dir)) {
+        qWarning() << "[POC hot-reload] surveillance impossible du repertoire des libs:" << m_lib_dir;
+    }
+    connect(m_lib_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(on_lib_dir_changed()));
+
     QString lib = selectedLibPath();
     if (lib.isEmpty() || !loadRobotLogic(lib)) {
         qWarning() << "[POC hot-reload] AUCUNE logique robot chargee depuis" << m_lib_dir
@@ -374,6 +444,10 @@ void CSimulia::init(CApplication *application)
     m_timer.start(10);
     m_ihm.ui.speed_simu->setValue(m_timer.interval());
 
+    // A partir d'ici l'IHM est entierement cablee : le hot-reload peut rejouer la partie
+    // dependante de l'objet logique sans laisser le module dans un etat incoherent.
+    m_init_done = true;
+
     // POC hot-reload : hook de TEST headless (gate par variable d'environnement, off par defaut).
     // Permet de valider le rechargement a chaud sans interaction GUI (offscreen/CI). Inoffensif en
     // usage normal : le reload reste declenche par le menu contextuel. A retirer si le POC est adopte.
@@ -381,7 +455,9 @@ void CSimulia::init(CApplication *application)
         int delay_ms = qEnvironmentVariableIntValue("SIMULIA_POC_AUTORELOAD");
         if (delay_ms <= 0) delay_ms = 5000;
         qDebug() << "[POC hot-reload] auto-reload de TEST programme dans" << delay_ms << "ms";
-        QTimer::singleShot(delay_ms, this, SLOT(on_reload_robot_logic()));
+        // Rejoue exactement le chemin de production declenche par BlockBotLab en fin de build
+        // (selection de la lib la plus recente + hot-reload), et non le seul bouton "Recharger".
+        QTimer::singleShot(delay_ms, this, SLOT(reloadFromExternalBuild()));
     }
 }
 

@@ -15,6 +15,7 @@
 #include "IRobotLogic.h"   // POC hot-reload : interface vers la logique robot (plugin)
 
 class QComboBox;           // POC hot-reload : selection de la lib dans une barre d'outils
+class QFileSystemWatcher;  // POC hot-reload : detection d'une nouvelle lib deposee par un build
 
  class Cihm_Simulia : public QMainWindow
 {
@@ -77,19 +78,32 @@ private:
     QString              m_lib_dir;        //!< repertoire scanne (clef EEPROM robot_logic_lib_path)
     QString              m_current_lib;    //!< chemin de la lib actuellement chargee
     QComboBox*           m_combo_lib;      //!< selection de la librobotlogic_*.so a charger
+    QFileSystemWatcher*  m_lib_watcher;    //!< surveille m_lib_dir (nouvelle lib deposee par un build)
+    QTimer               m_timer_rescan_libs; //!< temporisation du re-scan (le link ecrit en plusieurs fois)
+    bool                 m_init_done;      //!< init() est allee jusqu'au bout (IHM entierement cablee)
 
     bool     loadRobotLogic(const QString& lib_path); //!< charge + resout la factory + cree l'objet
     void     unloadRobotLogic();                       //!< destroy + unload (ordre du POC)
     QString  findLatestLib(const QString& dir) const;  //!< librobotlogic_*.so la plus recente (tri par nom)
     void     wireRobotLogicToIhm();                    //!< rejoue la sequence d'init dependante de l'objet
     void     buildRobotLogicToolbar();                 //!< cree la barre d'outils combo + boutons
-    void     refreshLibCombo();                        //!< re-scanne le repertoire et selectionne la plus recente
+    void     refreshLibCombo(bool select_latest = true); //!< re-scanne le repertoire des libs
     QString  selectedLibPath() const;                  //!< chemin de la lib selectionnee dans le combo
+
+public slots :
+    //! Recharge la logique robot apres un build declenche a l'exterieur du module Simulia
+    //! (bouton "Compiler pour Simulia" de BlockBotLab). Selectionne la lib qui vient d'etre
+    //! produite (la plus recente) puis enchaine le hot-reload + reset de la simulation.
+    //! \return true si la nouvelle logique robot tourne effectivement ; false sinon (aucune lib
+    //!         trouvee, ou Simulia demarre sans logique robot -> redemarrage necessaire).
+    bool reloadFromExternalBuild();
 
 private slots :
     void onRightClicGUI(QPoint pos);
     void on_reload_robot_logic();          //!< recharge a chaud la lib selectionnee (bouton Recharger / menu)
     void on_refresh_libs();                //!< re-scanne le repertoire des libs (bouton Rafraichir)
+    void on_lib_dir_changed();             //!< le repertoire des libs a change (build exterieur) -> temporise
+    void on_rescan_libs_timeout();         //!< fin de temporisation -> met a jour le combo
 
     void on_pb_init_all();
     void on_pb_active_main();

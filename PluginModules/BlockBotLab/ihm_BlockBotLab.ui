@@ -63,6 +63,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCompilAndDownload"/>
+   <addaction name="actionCompilSimulia"/>
    <addaction name="actionafficheBuildLog"/>
    <addaction name="actionBlockbotGenerate"/>
    <addaction name="separator"/>
@@ -86,6 +87,18 @@
    </property>
    <property name="toolTip">
     <string>Compiler+Télécharger</string>
+   </property>
+  </action>
+  <action name="actionCompilSimulia">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/robot.png</normaloff>:/icons/robot.png</iconset>
+   </property>
+   <property name="text">
+    <string>CompilSimulia</string>
+   </property>
+   <property name="toolTip">
+    <string>Générer + compiler la logique robot pour Simulia (rechargement à chaud)</string>
    </property>
   </action>
   <action name="actionafficheBuildLog">

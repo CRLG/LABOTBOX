@@ -27,6 +27,13 @@
 #include "CSimuBot.h"
 #include "CHILEngine.h"
 
+// Chainage "Compiler pour Simulia" -> rechargement a chaud de la logique robot.
+// Sous condition : BlockBotLab est aussi compile dans LaBotBox.pro, ou le module Simulia
+// n'existe pas (m_application->m_Simulia est sous #ifdef MODULE_Simulia dans CApplication.h).
+#ifdef MODULE_Simulia
+#include "CSimulia.h"
+#endif // MODULE_Simulia
+
 
 /*! \addtogroup Module_Test2
    * 
@@ -96,6 +103,10 @@ void CBlockBotLab::init(CApplication *application)
 
   m_generated_pathfilename = m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString();
   m_launch_and_program_command = m_application->m_eeprom->read(getName(), "launch_and_program_command", "make install -C -j4 /home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/").toString();
+  // Compilation de la logique robot pour Simulia (POC hot-reload). Le script encapsule qmake +
+  // make incremental + depot de la librobotlogic_*.so dans le repertoire scanne par Simulia.
+  m_build_robot_logic_command = m_application->m_eeprom->read(getName(), "build_robot_logic_command", "/home/crlg/workspace/GROSBOT_STM32/Simulia/tools/build_robot_logic.sh").toString();
+  m_build_target = BUILD_TARGET_STM32;
   m_config_specifique_coupe_path = m_application->m_eeprom->read(getName(), "config_specifique_coupe_path", "/home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h").toString();
 
   /*int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
@@ -133,6 +144,18 @@ void CBlockBotLab::init(CApplication *application)
     showCode->setObjectName("showCode");
     // Ajout dans la toolbar
     m_ihm.ui.toolBar->addWidget(showCode);
+    // Création de la checkbox de chaînage BlockBot -> Simulia : quand elle est cochée, une
+    // compilation réussie de la logique robot est immédiatement rechargée à chaud dans Simulia
+    // (aucun geste dans Simulia). Décocher permet de garder la main (ex. comparer deux versions).
+    QLabel* l_autoReloadSimulia=new QLabel();
+    l_autoReloadSimulia->setText("Recharger auto Simulia");
+    m_ihm.ui.toolBar->addWidget(l_autoReloadSimulia);
+    autoReloadSimulia=new QCheckBox();
+    autoReloadSimulia->setObjectName("autoReloadSimulia");
+    autoReloadSimulia->setToolTip("Recharge la logique robot dans Simulia dès qu'une compilation réussit");
+    autoReloadSimulia->setChecked(m_application->m_eeprom->read(getName(), "auto_reload_simulia", true).toBool());
+    // Ajout dans la toolbar
+    m_ihm.ui.toolBar->addWidget(autoReloadSimulia);
 
 
   //variable d'état de fonctionnement de Blockly
@@ -145,7 +168,7 @@ void CBlockBotLab::init(CApplication *application)
   connect(&m_build_target_process, SIGNAL(readyReadStandardOutput()), this, SLOT(buildOutput()));
   connect(&m_build_target_process, SIGNAL(readyReadStandardError()), this, SLOT(buildError()));
   connect(m_ihm.ui.actionafficheBuildLog, SIGNAL(triggered(bool)), this, SLOT(setBuildLogsVisibility(bool)));
-  connect(m_ihm.ui.actionCompilAndDownload, SIGNAL(triggered(bool)), this, SLOT(buildTargetAndUpload()));
+  connect(m_ihm.ui.actionCompilAndDownload, SIGNAL(triggered(bool)), this, SLOT(Slot_BuildAndUploadSTM32()));
   connect(&m_timer_close_build_logs_delayed, SIGNAL(timeout()), this, SLOT(closeBuildLogs()));
   setBuildLogsVisibility(false);
 
@@ -171,6 +194,7 @@ void CBlockBotLab::init(CApplication *application)
     m_blockbotWebView->page()->setWebChannel(webChannel);
     //Connection du bouton avec la commande à envoyer à BlockBot
     connect(m_ihm.ui.actionBlockbotGenerate, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
+    connect(m_ihm.ui.actionCompilSimulia, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
     connect(modeChoice, SIGNAL(currentTextChanged(QString)),this, SLOT(send2BlockBot()));
     connect(showCode, SIGNAL(stateChanged(int)),this, SLOT(send2BlockBot()));
     connect(m_ihm.ui.actionOpen, SIGNAL(triggered(bool)), this, SLOT(send2BlockBot()));
@@ -232,9 +256,22 @@ void CBlockBotLab::init(CApplication *application)
     else
     {
         qDebug() << "[BlockBotLab] Démarrage de blockbot en mode indus!";
-        QString appDir = QCoreApplication::applicationDirPath();
-        QString filePath = appDir + "/BlockBot_static/index.html";
-        m_blockbotWebView->setUrl(QUrl::fromLocalFile(filePath));
+        // Le bundle BlockBot (webpack) est embarqué en ressource Qt (BlockBotBundle.qrc) : le clone
+        // est autoporteur, aucun BlockBot_static/ n'est requis à côté de l'exécutable ni de npm build.
+        // Le bundle est mono-fichier, sans fetch/XHR ni code-splitting, media en chemin relatif, et
+        // qwebchannel.js est déjà chargé depuis qrc: -> tout résout dans la même origine qrc.
+        // Repli sur un BlockBot_static/ déposé sur disque (utile pour tester un bundle plus récent
+        // sans recompiler Simulia) si jamais la ressource embarquée était absente.
+        QString qrcIndex = "qrc:/BlockBot_static/index.html";
+        if (QFile::exists(":/BlockBot_static/index.html")) {
+            m_blockbotWebView->setUrl(QUrl(qrcIndex));
+        }
+        else {
+            QString appDir = QCoreApplication::applicationDirPath();
+            QString filePath = appDir + "/BlockBot_static/index.html";
+            qWarning() << "[BlockBotLab] bundle qrc absent, repli sur le disque:" << filePath;
+            m_blockbotWebView->setUrl(QUrl::fromLocalFile(filePath));
+        }
     }
 }
 
@@ -253,6 +290,7 @@ void CBlockBotLab::close(void)
   m_application->m_eeprom->write(getName(), "background_color", QVariant(getBackgroundColor()));
   m_application->m_eeprom->write(getName(), "config_specifique_coupe_path", QVariant(m_config_specifique_coupe_path));
   m_application->m_eeprom->write(getName(), "blockbot_mode", QVariant(modeChoice->currentText()));
+  m_application->m_eeprom->write(getName(), "auto_reload_simulia", QVariant(autoReloadSimulia->isChecked()));
 }
 
 // _____________________________________________________________________
@@ -640,9 +678,55 @@ QString CBlockBotLab::readFile(QString pathfilename)
  */
 bool CBlockBotLab::buildTargetAndUpload()
 {
-    if (m_launch_and_program_command.isEmpty()) return false;
-    m_build_target_process.start(m_launch_and_program_command);
+    // Un seul QProcess de build partagé par les deux cibles : les compilations sont naturellement
+    // sérialisées et on évite deux builds concurrents dans les mêmes répertoires.
+    if (m_build_target_process.state() != QProcess::NotRunning) {
+        QString msg = "Une compilation est déjà en cours - relancer après la fin du build.";
+        m_application->m_print_view->print_error(this, msg);
+        m_ihm.ui.statusbar->showMessage(msg, 4000);
+        return false;
+    }
+
+    QString command = (m_build_target == BUILD_TARGET_SIMULIA) ? m_build_robot_logic_command
+                                                               : m_launch_and_program_command;
+    if (command.isEmpty()) return false;
+
+    if (m_build_target == BUILD_TARGET_SIMULIA) {
+        // Le .so doit atterrir exactement dans le répertoire scanné par Simulia. Ce répertoire est
+        // transmis au script par l'environnement (ROBOT_LOGIC_DEST, lu par RobotLogicPlugin.pro au
+        // moment du qmake) : la commande configurée en EEPROM reste ainsi un simple chemin de script,
+        // sans argument à maintenir en double.
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        env.insert("ROBOT_LOGIC_DEST", robotLogicDestDir());
+        m_build_target_process.setProcessEnvironment(env);
+    }
+
+    m_build_target_process.start(command);
     return true;
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief arme la cible STM32 puis lance le build (bouton Compiler+Télécharger)
+ */
+void CBlockBotLab::Slot_BuildAndUploadSTM32()
+{
+    m_build_target = BUILD_TARGET_STM32;
+    buildTargetAndUpload();
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief répertoire où déposer la librobotlogic_*.so (celui que scanne Simulia)
+ *
+ * La valeur vient de la clef EEPROM du module Simulia : un seul endroit à configurer, aucun
+ * risque de désynchronisation entre le répertoire de dépôt et le répertoire scanné.
+ * Valeur par défaut "." = répertoire courant, commun aux deux modules (même processus).
+ */
+QString CBlockBotLab::robotLogicDestDir()
+{
+    QString dir = m_application->m_eeprom->read("Simulia", "robot_logic_lib_path", ".").toString();
+    return QDir(dir).absolutePath();
 }
 
 // _____________________________________________________________________
@@ -659,6 +743,40 @@ void CBlockBotLab::buildFinished(int exitcode)
 {
     qDebug() << "CBlockBotLab::buildFinished: " << exitcode;
     m_timer_close_build_logs_delayed.start();  // décale la fermeture de la fenêtre pour laisser le temps de voir les derniers messages
+
+    if (m_build_target != BUILD_TARGET_SIMULIA) return;
+
+    if (exitcode != 0) {
+        QString msg = QString("Echec de la compilation de la logique robot (code %1) - voir les logs de build.").arg(exitcode);
+        m_application->m_print_view->print_error(this, msg);
+        m_ihm.ui.statusbar->showMessage(msg, 6000);
+        return;
+    }
+
+    // Chaînage BlockBot -> Simulia : la logique robot qui vient d'être compilée est rechargée à
+    // chaud dans la simulation, sans aucune manipulation en terminal ni copie de .so à la main.
+    // Le rechargement remet la simulation à zéro (pas de préservation d'état, assumé par le POC).
+#ifdef MODULE_Simulia
+    if (autoReloadSimulia && autoReloadSimulia->isChecked() && m_application->m_Simulia) {
+        if (m_application->m_Simulia->reloadFromExternalBuild()) {
+            QString msg = "Logique robot compilée et rechargée dans Simulia.";
+            m_application->m_print_view->print_info(this, msg);
+            m_ihm.ui.statusbar->showMessage(msg, 4000);
+        }
+        else {
+            // Cas typique : Simulia a démarré sans aucune librobotlogic_*.so, son IHM n'a donc
+            // jamais été câblée et le rechargement à chaud est refusé (cf. garde m_init_done).
+            QString msg = "Logique robot compilée mais NON rechargée - redémarrer Simulia (voir la console).";
+            m_application->m_print_view->print_error(this, msg);
+            m_ihm.ui.statusbar->showMessage(msg, 8000);
+        }
+        return;
+    }
+#endif // MODULE_Simulia
+
+    QString msg = "Logique robot compilée - la recharger depuis la barre d'outils de Simulia.";
+    m_application->m_print_view->print_info(this, msg);
+    m_ihm.ui.statusbar->showMessage(msg, 4000);
 }
 
 // _____________________________________________________________________
@@ -714,6 +832,16 @@ void CBlockBotLab::send2BlockBot()
     //cf slot processData
     if (obj->objectName()=="actionBlockbotGenerate")
     {
+        // Génération + compilation/téléchargement du firmware STM32 (comportement historique)
+        m_build_target = BUILD_TARGET_STM32;
+        emit executeCommand("upload_code","no_param");
+    }
+    //Action de génération des fichiers modélia PUIS compilation de la logique robot Simulia.
+    //Même génération de code que ci-dessus (mêmes fichiers dans Modelia) : seule la cible du
+    //build lancé en fin de processData() change. cf slots processData / buildTargetAndUpload
+    if (obj->objectName()=="actionCompilSimulia")
+    {
+        m_build_target = BUILD_TARGET_SIMULIA;
         emit executeCommand("upload_code","no_param");
     }
     //Action de sauvegarde de workspace (lance une logique de téléchargement dans blockly récupéré par Qt
