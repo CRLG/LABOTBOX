@@ -84,6 +84,11 @@ private:
     //! Lu dans la clef EEPROM [Simulia] robot_logic_lib_path (source unique de verite,
     //! aucun chemin duplique cote BlockBotLab).
     QString robotLogicDestDir();
+    //! Noms des machines a etats connues de Modelia, seuls noms de strategie compilables.
+    //! Liste de reference du firmware, remplacee par l'enumeration eSTATE_MACHINES de
+    //! ConfigSpecifiqueCoupe.h quand celle-ci existe. Source unique : sert a enrichir le contexte
+    //! de BlockBot ET a valider le nom avant une compilation pour Simulia.
+    QStringList modeliaStateMachineNames();
 
     QString m_blockbotPath;
     QString m_blockbotPort;

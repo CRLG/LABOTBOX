@@ -567,6 +567,27 @@ bool CBlockBotLab::processData(QString code, QString nomStrategie, QString liste
 
     if(modeChoice->currentText()=="expert")
     {
+        // Un nom de stratégie qui ne correspond à aucune machine à états de Modelia produit un
+        // sm_<nom>.cpp que le firmware ne déclare pas : la compilation pour Simulia échoue, avec
+        // un journal de build peu parlant. Pire, le fichier reste dans CM7/Modelia et casse
+        // aussi les compilations suivantes. On refuse donc AVANT d'écrire quoi que ce soit,
+        // en nommant les valeurs acceptées. Cas typique : contexte jamais chargé, donc BlockBot
+        // n'a proposé aucune liste et le nom est resté libre.
+        if (m_build_target == BUILD_TARGET_SIMULIA) {
+            const QStringList state_machines = modeliaStateMachineNames();
+            if (!state_machines.contains(nomStrategie)) {
+                msg = QString("Compilation pour Simulia annulee : \"%1\" n'est pas une machine a etats de Modelia.\n"
+                              "Noms acceptes : %2.\n"
+                              "Charger le contexte (bouton Contexte) pour que BlockBot propose ces noms, "
+                              "puis renommer la strategie.")
+                          .arg(nomStrategie, state_machines.join(", "));
+                m_application->m_print_view->print_error(this, msg);
+                m_ihm.ui.statusbar->showMessage(QString("Nom de strategie inconnu de Modelia : %1").arg(nomStrategie), 8000);
+                m_build_target = BUILD_TARGET_STM32;   // desarme la cible, comme apres un build
+                return false;
+            }
+        }
+
         // Parser le JSON pour récupérer la liste des états
         QJsonDocument jsonDoc = QJsonDocument::fromJson(listeEtatsJSON.toUtf8());
         QStringList listeEtats;
@@ -813,6 +834,41 @@ void CBlockBotLab::Slot_BuildAndUploadSTM32()
 
 // _____________________________________________________________________
 /*!
+ * \brief noms des machines à états connues de Modelia
+ *
+ * Ce sont les seuls noms de stratégie compilables : le code généré prend le nom
+ * <code>sm_&lt;nom&gt;.cpp</code> et n'a de sens que s'il correspond à une machine déclarée dans
+ * <code>ia.h</code>. La liste de référence est celle du firmware ; elle est remplacée par
+ * l'énumération <code>eSTATE_MACHINES</code> de <code>ConfigSpecifiqueCoupe.h</code> dès que
+ * celle-ci existe, ce qui évite d'avoir à toucher ce code quand les machines évoluent.
+ *
+ * Source unique volontairement : la même liste enrichit le contexte de BlockBot (action
+ * "actionContext") et valide le nom avant une compilation pour Simulia. Deux listes séparées
+ * finiraient par diverger, et la validation accepterait alors des noms non compilables.
+ */
+QStringList CBlockBotLab::modeliaStateMachineNames()
+{
+    QStringList names;
+    names << "Autotest" << "ChasseNeige" << "Centre" << "Curseur"
+          << "PetiteBordure" << "GrandeBordure" << "RetourZoneDepart";
+
+    // Chemin relatif -> ancré sur l'exécutable (cf. resolveConfigDir).
+    const QString coupe_file = resolveConfigDir(m_config_specifique_coupe_path);
+    const QFileInfo coupe_info(coupe_file);
+    if (coupe_info.exists() && coupe_info.isReadable()) {
+        const QList<EnumDefinition> enums = CActuatorSequencer::getEnum(coupe_file);
+        for (const EnumDefinition &enumDef : enums) {
+            if (enumDef.enumName == "eSTATE_MACHINES") {
+                names.clear();
+                for (const auto& sm : enumDef.values) names << sm.name;
+            }
+        }
+    }
+    return names;
+}
+
+// _____________________________________________________________________
+/*!
  * \brief répertoire où déposer la librobotlogic_*.so (celui que scanne Simulia)
  *
  * La valeur vient de la clef EEPROM du module Simulia : un seul endroit à configurer, aucun
@@ -1024,14 +1080,11 @@ void CBlockBotLab::send2BlockBot()
             jsonArray_ax.append(obj_json);
         }
 
-        //pour les tests liste statique de machine à état
-        jsonArray_state_machine.append("Autotest");
-        jsonArray_state_machine.append("ChasseNeige");
-        jsonArray_state_machine.append("Centre");
-        jsonArray_state_machine.append("Curseur");
-        jsonArray_state_machine.append("PetiteBordure");
-        jsonArray_state_machine.append("GrandeBordure");
-        jsonArray_state_machine.append("RetourZoneDepart");
+        //machines à états proposées à l'utilisateur : même source que la validation du nom
+        //avant compilation (cf. modeliaStateMachineNames), pour ne pas proposer dans BlockBot
+        //un nom que la compilation refuserait ensuite.
+        const QStringList state_machines = modeliaStateMachineNames();
+        for (const QString &sm_name : state_machines) jsonArray_state_machine.append(sm_name);
 
 
         //on verifie si le chemin par defaut du fichier d'entete est valide
@@ -1100,14 +1153,9 @@ void CBlockBotLab::send2BlockBot()
                         jsonArray_switch.append(obj_json);
                     }
                 }
-                // Noms des machines à états disponibles.
-                // Format : tableau de strings (pas de valeur numérique associée).
-                // Adapter enumName selon la définition dans ConfigSpecifiqueCoupe.h.
-                else if (enumDef.enumName == "eSTATE_MACHINES") {
-                    jsonArray_state_machine = {};
-                    for (const auto& sm : enumDef.values)
-                        jsonArray_state_machine.append(sm.name);
-                }
+                // NB : les noms des machines à états (énumération eSTATE_MACHINES) ne sont plus
+                // relus ici mais dans modeliaStateMachineNames(), qui sert aussi à valider le nom
+                // de stratégie avant compilation — une seule liste, donc aucune divergence possible.
 
             }
         }
