@@ -59,6 +59,17 @@ static QString resolveCommandPath(const QString& command)
     return resolveConfigDir(c);
 }
 
+// Developpe un "~" de tete en repertoire home de l'utilisateur courant. Permet de configurer en
+// EEPROM un chemin situe dans le home (p.ex. le cache QtWebEngine) sans y ecrire le nom d'un
+// utilisateur : la meme configuration fonctionne sur n'importe quel poste. Tout autre chemin
+// (absolu ou relatif) est renvoye inchange.
+static QString resolveHomePath(const QString& path)
+{
+    if (path == "~")            return QDir::homePath();
+    if (path.startsWith("~/"))  return QDir::cleanPath(QDir::homePath() + path.mid(1));
+    return path;
+}
+
 
 /*! \addtogroup Module_Test2
    *
@@ -134,6 +145,9 @@ void CBlockBotLab::init(CApplication *application)
   // Chemin de script relatif -> ancre sur l'executable (independant du repertoire de lancement).
   m_build_robot_logic_command = resolveCommandPath(m_application->m_eeprom->read(getName(), "build_robot_logic_command", "/home/crlg/workspace/GROSBOT_STM32/Simulia/tools/build_robot_logic.sh").toString());
   m_build_target = BUILD_TARGET_STM32;
+  // Valeur conservee TELLE QUELLE (elle est reecrite en EEPROM a la fermeture : la relativiser ici
+  // detruirait le chemin relatif du fichier de configuration au premier arret). L'ancrage sur
+  // l'executable est fait au moment de l'usage (resolveConfigDir, action "actionContext").
   m_config_specifique_coupe_path = m_application->m_eeprom->read(getName(), "config_specifique_coupe_path", "/home/crlg/workspace/GROSBOT_STM32/Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h").toString();
 
   /*int httpServerPort = m_application->m_eeprom->read(getName(), "http_server_port", 3001).toInt();
@@ -144,7 +158,9 @@ void CBlockBotLab::init(CApplication *application)
   }*/
 
   //chemin où trouver blockbot
-  m_blockbotPath = m_application->m_eeprom->read(getName(), "blockbot_path", "/home/crlg/workspace_robot_sans_code/BlockBot").toString();
+  // Sert de repertoire de travail au serveur webpack, uniquement en blockbot_devmode=true.
+  // Chemin relatif -> ancre sur l'executable, comme les autres chemins de configuration.
+  m_blockbotPath = resolveConfigDir(m_application->m_eeprom->read(getName(), "blockbot_path", "/home/crlg/workspace_robot_sans_code/BlockBot").toString());
 
   //port normalement par défaut de webpack
   m_blockbotPort=m_application->m_eeprom->read(getName(), "blockbot_port", "8080").toString();
@@ -202,7 +218,9 @@ void CBlockBotLab::init(CApplication *application)
   m_timer_close_build_logs_delayed.setInterval(2000);
 
   // Nettoie le cache
-  QString clean_cache_directory =m_application->m_eeprom->read(getName(), "clean_cache_directory", "").toString();
+  // "~/..." developpe en repertoire home de l'utilisateur courant : la configuration livree ne
+  // contient donc aucun nom d'utilisateur et fonctionne sur n'importe quel poste.
+  QString clean_cache_directory = resolveHomePath(m_application->m_eeprom->read(getName(), "clean_cache_directory", "").toString());
   if (!clean_cache_directory.trimmed().isEmpty()) {
       QDir dir(clean_cache_directory);
       if (dir.removeRecursively()) {
@@ -906,7 +924,8 @@ void CBlockBotLab::send2BlockBot()
     if (obj->objectName() == "actionContext")
     {
         QString str_FicCoupe;
-        str_FicCoupe = m_config_specifique_coupe_path;
+        // Chemin relatif -> ancre sur l'executable (un clone fonctionne sans chemin absolu).
+        str_FicCoupe = resolveConfigDir(m_config_specifique_coupe_path);
         const QFileInfo outputDir(str_FicCoupe);
 
         QJsonArray jsonArray_servo;
