@@ -403,8 +403,10 @@ void CSimuBot::init(CApplication *application)
     m_application->m_data_center->write("Simubot.Init", true);
 
     //pour le mode simu (fonctionnement avec Simulia)
-    m_simulia_Enabled=true;
-    m_ihm.ui.checkBox_enableSimulia->setChecked(m_simulia_Enabled);
+    // Aligne sur le mode restaure depuis l'EEPROM, comme le fait ensuite tout changement de mode
+    // (cf. changeMode) : le mode VISU n'est pas dedie a Simulia, TEST et SIMU le sont. Sans cette
+    // coherence, la restauration ecraserait la decision que changeMode vient de prendre plus haut.
+    setSimuliaEnabled(modeVisu != SIMUBOT::VISU);
     connect(m_ihm.ui.checkBox_enableSimulia,SIGNAL(stateChanged(int)),this,SLOT(slot_enableSimulia(int)));
 
     cadenceur=new QTimer(); //timer pour cadencer les mouvements autonomes du 2ème robot
@@ -904,6 +906,11 @@ void CSimuBot::changeMode(int iMode)
 
         break;
     case SIMUBOT::VISU:
+        // Le mode VISU n'est pas dedie a Simulia : la position vient du robot RS232 ou, a defaut,
+        // de la simulation interne (HIL). Laisser "Enable Simulia" coche ferait attendre une source
+        // de position qui ne viendra pas -> on decoche automatiquement.
+        setSimuliaEnabled(false);
+
         m_ihm.ui.active_external_robot2->setEnabled(false);
         m_ihm.ui.active_external_robot2->setChecked(false);
 
@@ -928,6 +935,10 @@ void CSimuBot::changeMode(int iMode)
 
         break;
     case SIMUBOT::SIMU:
+        // Le mode SIMU est, lui, reellement dedie a Simulia : c'est la logique robot qui pilote la
+        // simulation. On recoche automatiquement, symetriquement au decochage du mode VISU.
+        setSimuliaEnabled(true);
+
         if(m_ihm.ui.ckhB_2Bot->isChecked())
             m_ihm.ui.active_external_robot2->setEnabled(true);
         GrosBot->setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -2223,6 +2234,21 @@ void CSimuBot::updateStepFromSimuBot()
 // Editeur de design robot (initDesign / slot_designChanged) retire a l'etape 5 de la migration
 // SimuBot v2 : la forme du robot vient desormais de Config/robot.json (cf. loadRobotFromJson),
 // il n'y a plus d'edition graphique de la forme en parallele.
+
+/*!
+ * \brief CSimuBot::setSimuliaEnabled
+ * Positionne l'etat "Simulia actif" et la case a cocher ensemble, sans dependre de l'ordre
+ * d'initialisation : la case n'est connectee a slot_enableSimulia qu'apres sa restauration, donc
+ * ecrire uniquement le widget ne suffirait pas a mettre l'etat interne a jour. Quand la connexion
+ * existe, setChecked() rejoue slot_enableSimulia avec la meme valeur -> geste idempotent.
+ */
+void CSimuBot::setSimuliaEnabled(bool enabled)
+{
+    m_simulia_Enabled = enabled;
+    if (m_ihm.ui.checkBox_enableSimulia->isChecked() != enabled) {
+        m_ihm.ui.checkBox_enableSimulia->setChecked(enabled);
+    }
+}
 
 void CSimuBot::slot_enableSimulia(int state)
 {

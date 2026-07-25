@@ -290,6 +290,10 @@ private:
     void syncInternalSim();
     // Remet a 0 Convergence/convergence_rapide a l'arrivee d'une nouvelle commande de deplacement.
     void resetPublishedConvergence();
+    // Positionne l'etat "Simulia actif" ET la case a cocher correspondante, en un seul geste.
+    // Utilise pour aligner automatiquement la case sur le mode de visualisation (cf. changeMode) :
+    // le mode VISU n'est pas dedie a Simulia, le mode SIMU l'est.
+    void setSimuliaEnabled(bool enabled);
 signals:
     void displayCoord(qreal value_x,qreal value_y);
     void displayAngle(qreal value_theta);
