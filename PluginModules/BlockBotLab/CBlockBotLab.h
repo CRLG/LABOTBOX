@@ -115,6 +115,12 @@ signals:
 
 private slots :
     void onRightClicGUI(QPoint pos);
+    //! Appele a chaque fin de chargement de la page BlockBot (mode dev comme mode indus).
+    //! Reapplique dans BlockBot l'etat de l'IHM LaBotBox qui, sinon, ne lui serait jamais
+    //! transmis : BlockBot redemarre sur ses propres valeurs par defaut a chaque chargement.
+    void onBlockBotLoaded(bool ok);
+    //! Pousse le mode courant du combo (debutant/expert) vers BlockBot.
+    void pushCurrentModeToBlockBot();
 
 public slots :
     //bool processData(const QString& code);

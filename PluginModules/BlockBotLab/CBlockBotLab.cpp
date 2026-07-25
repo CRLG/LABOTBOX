@@ -59,6 +59,11 @@ static QString resolveCommandPath(const QString& command)
     return resolveConfigDir(c);
 }
 
+// Delai laisse a la page BlockBot pour etablir son pont QWebChannel avant de lui pousser l'etat
+// initial de l'IHM. Cote JS, la connexion est faite 100 ms apres DOMContentLoaded ; on garde une
+// marge confortable, le geste n'etant joue qu'une fois par chargement de page.
+static const int BLOCKBOT_WEBCHANNEL_HANDSHAKE_DELAY_MS = 500;
+
 // Developpe un "~" de tete en repertoire home de l'utilisateur courant. Permet de configurer en
 // EEPROM un chemin situe dans le home (p.ex. le cache QtWebEngine) sans y ecrire le nom d'un
 // utilisateur : la meme configuration fonctionne sur n'importe quel poste. Tout autre chemin
@@ -136,6 +141,13 @@ void CBlockBotLab::init(CApplication *application)
   setBackgroundColor(val.value<QColor>());
 
   m_blockbotWebView=m_ihm.ui.ui_webView;
+
+  // Le mode restaure depuis l'EEPROM n'etait applique qu'au combo de la barre d'outils : BlockBot,
+  // lui, redemarre systematiquement sur son propre mode par defaut (debutant), car aucune commande
+  // set_mode ne lui est envoyee au chargement de la page. La configuration affichait donc "expert"
+  // alors que l'IHM BlockBot restait en debutant. On rejoue l'etat de l'IHM a chaque fin de
+  // chargement de la page (cf. onBlockBotLoaded), en mode developpeur comme en mode industriel.
+  connect(m_blockbotWebView, SIGNAL(loadFinished(bool)), this, SLOT(onBlockBotLoaded(bool)));
 
   // Repertoire ou BlockBot ecrit le code genere : relatif -> ancre sur l'executable (cf. resolveConfigDir).
   m_generated_pathfilename = resolveConfigDir(m_application->m_eeprom->read(getName(), "generated_pathfilename", ".").toString());
@@ -495,6 +507,45 @@ void CBlockBotLab::loadBlockbotInWebView() {
 
     // Charger la page BlockBot
     m_blockbotWebView->load(QUrl(url));
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief fin de chargement de la page BlockBot : lui reapplique l'etat de l'IHM LaBotBox
+ *
+ * BlockBot repart de ses propres valeurs par defaut a chaque chargement de page. Tout etat
+ * restaure cote LaBotBox (ici le mode debutant/expert lu en EEPROM) doit donc lui etre pousse
+ * explicitement, sinon les deux divergent silencieusement.
+ *
+ * Le delai est necessaire : cote JS, le pont QWebChannel n'est etabli que 100 ms apres
+ * DOMContentLoaded (temporisation de index.js), donc apres ce signal. Une commande emise avant
+ * cet etablissement n'a aucun abonne et est purement et simplement perdue.
+ */
+void CBlockBotLab::onBlockBotLoaded(bool ok)
+{
+    if (!ok) {
+        qWarning() << "[BlockBotLab] chargement de la page BlockBot en echec : mode non applique";
+        return;
+    }
+    QTimer::singleShot(BLOCKBOT_WEBCHANNEL_HANDSHAKE_DELAY_MS, this, SLOT(pushCurrentModeToBlockBot()));
+}
+
+// _____________________________________________________________________
+/*!
+ * \brief pousse vers BlockBot le mode courant du combo (debutant / expert)
+ *
+ * Meme commande que celle emise quand l'utilisateur change le combo a la main (cf. send2BlockBot,
+ * objet "setMode") : un seul chemin de bascule de mode, donc pas de comportement divergent entre
+ * le mode initial et un changement en cours de session.
+ */
+void CBlockBotLab::pushCurrentModeToBlockBot()
+{
+    if (!modeChoice) return;
+    emit executeCommand("set_mode", modeChoice->currentText());
+    // Meme trace que la bascule manuelle (send2BlockBot), pour pouvoir distinguer dans les logs
+    // le mode applique au chargement de celui choisi ensuite a la main.
+    qDebug() << "[BlockBotLab] set_mode au chargement de la page :" << modeChoice->currentText();
+    m_application->m_print_view->print_debug(this, QString("Mode BlockBot applique au demarrage : %1").arg(modeChoice->currentText()));
 }
 
 
