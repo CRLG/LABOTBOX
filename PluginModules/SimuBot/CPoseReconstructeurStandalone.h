@@ -12,9 +12,11 @@
  * Choix (assume par l'utilisateur) : dans le build Simulia (define SIMUBOT_ROBOT_LOGIC) on utilise
  * le VRAI CAsservissementBase -> representativite maximale et synchro automatique avec le firmware.
  * Dans le build LaBotBox (define absent) on utilise cette copie autonome, au comportement IDENTIQUE
- * tant que l'algorithme et les constantes ci-dessous restent alignes sur CAsservissementBase. Une
- * evolution future de CAsservissementBase::CalculXY devra etre reportee ici manuellement (Simulia
- * reste la reference de representativite). Cf. CSimuBot.h (typedef CPoseReconstructeur sous #ifdef).
+ * tant que l'ALGORITHME reste aligne sur CAsservissementBase : une evolution future de
+ * CAsservissementBase::CalculXY devra etre reportee ici manuellement (Simulia reste la reference de
+ * representativite). En revanche les CONSTANTES geometriques ne sont plus a synchroniser depuis
+ * l'etape 8quater : les deux cotes les tirent de PluginModules/RobotGeometrySimu.h.
+ * Cf. CSimuBot.h (typedef CPoseReconstructeur sous #ifdef).
  */
 #ifndef CPOSERECONSTRUCTEURSTANDALONE_H
 #define CPOSERECONSTRUCTEURSTANDALONE_H
@@ -22,9 +24,9 @@
 class CPoseReconstructeurStandalone
 {
 public:
-    // Constantes geometriques : MEMES valeurs que CAsservissementBase::* cote build Simulia
-    // (definies dans PluginModules/Simulia/CAsservissement_simu.cpp : 0.00325568*20 et 31.6867261).
-    // A garder synchro manuellement avec ce fichier pour un comportement identique Simulia/LaBotBox.
+    // Constantes geometriques. ETAPE 8quater : plus rien a synchroniser a la main -- les valeurs
+    // viennent de la source unique PluginModules/RobotGeometrySimu.h, comme celles de
+    // CAsservissement_simu (build Simulia) et de CKinematicEngine. Le .cpp ne fait que les relayer.
     static const float DISTANCE_PAR_PAS_CODEUR_G;
     static const float DISTANCE_PAR_PAS_CODEUR_D;
     static const float VOIE_ROBOT;

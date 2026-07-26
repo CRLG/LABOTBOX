@@ -28,6 +28,7 @@
 #define CKINEMATICENGINE_H
 
 #include "ISimulator.h"
+#include "RobotGeometrySimu.h"  // etape 8quater : source unique voie / pas codeurs
 
 class CCollisionEngine; // collisions geometriques maison (etape 3), branchees optionnellement
 
@@ -88,6 +89,16 @@ private:
     int m_delta_roue_G;
     int m_delta_roue_D;
 
+    // Modele de codeur incremental : on suit une distance cumulee (double, cf. step()) et le
+    // nombre de pas cumule correspondant ; le delta emis est la DIFFERENCE de ce compteur.
+    // C'est ce qui evite de perdre la fraction de pas non franchie a la fin de chaque tick
+    // (biais systematique de -2,33 % mesure a 20 cm/s avant correctif). Remis a zero par init(),
+    // JAMAIS par recal() (recalage de pose sans toucher aux codeurs, par contrat).
+    double m_dist_cumul_G;
+    double m_dist_cumul_D;
+    long   m_steps_cumul_G;
+    long   m_steps_cumul_D;
+
     // Inertie moteur (asserv en vitesse) : vitesse roue REELLE (cm/s), filtree premier ordre
     // vers la consigne, et constante de temps associee (s).
     float m_vG_actual;
@@ -104,20 +115,16 @@ private:
     // Moteur de collisions geometriques (etape 3), non possede. nullptr => modele disque.
     CCollisionEngine* m_collision;
 
-    // Parametres mecaniques - dupliques depuis CPhysicalEngine.h pour decouplage
-    // (CPhysicalEngine sera supprime en etape 3). Static constexpr pour eviter
-    // les conflits avec les macros #define existantes dans CPhysicalEngine.h.
-    // IMPORTANT : ces 3 constantes DOIVENT etre identiques a celles de l'asserv qui ferme
-    // la boucle SIL en mode SIMU, c.-a-d. CAsservissement_simu.cpp (et NON le firmware
-    // embarque CAsservissement.cpp). L'asserv reconstruit la distance par
-    // distance_roue = getCodeur() * DISTANCE_PAR_PAS_CODEUR : si le moteur emet ses pas
-    // avec un k different de celui que l'asserv relit, la position ET la vitesse percues
-    // sont faussees du rapport des deux k (le sprite part en vrille). Valeurs firmware
-    // 27/04/2025 (0.003189567 / 0.003200126 / 30.7) volontairement NON utilisees ici :
-    // l'asserv simu tourne encore sur les valeurs GROSBOT historiques ci-dessous.
-    static constexpr float k_voie_bot       = 31.6867261f; // entraxe des roues en cm (= VOIE_ROBOT de CAsservissement_simu)
-    static constexpr float k_pas_codeur_G   = 0.0651136f;  // cm par pas codeur, roue G (= DISTANCE_PAR_PAS_CODEUR_G de CAsservissement_simu)
-    static constexpr float k_pas_codeur_D   = 0.0651136f;  // cm par pas codeur, roue D (= DISTANCE_PAR_PAS_CODEUR_D de CAsservissement_simu)
+    // Parametres mecaniques. ETAPE 8quater : ils ne sont plus recopies ici mais DERIVES de la
+    // source unique RobotGeometrySimu.h -- ce moteur EMET les pas codeurs (steps = distance /
+    // k_pas_codeur) que l'asserv RELIT (distance = steps * DISTANCE_PAR_PAS_CODEUR) : les deux
+    // cotes de la boucle SIL ne peuvent donc plus diverger. Les alias ci-dessous sont conserves
+    // pour ne rien changer au code de CKinematicEngine.cpp. Ne PAS y remettre de litteral, ni
+    // les aligner sur le firmware embarque : lire l'en-tete de RobotGeometrySimu.h avant toute
+    // modification (une tentative d'alignement firmware a deja casse la boucle d'un facteur ~20).
+    static constexpr float k_voie_bot       = RobotGeometrySimu::VOIE_ROBOT;
+    static constexpr float k_pas_codeur_G   = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_G;
+    static constexpr float k_pas_codeur_D   = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_D;
 
     // Seuil pour basculer en integration "ligne droite" (evite division par zero
     // quand le robot ne tourne pas) : delta theta inferieur a ~5.7e-5 degre.

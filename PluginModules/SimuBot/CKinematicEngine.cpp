@@ -17,9 +17,15 @@
       - teta trigonometrique (sens direct), x vers la droite, y vers le haut.
       - dG > dD  =>  d_theta < 0  =>  rotation vers la droite (sens horaire).
 
-    Pas codeurs (sortie SIL) : bijection mathematique avec l'entree :
-      m_delta_roue_G = round(dG / k_pas_codeur_G)
-      m_delta_roue_D = round(dD / k_pas_codeur_D)
+    Pas codeurs (sortie SIL) : modele de codeur INCREMENTAL, qui compte une position absolue.
+    On cumule la distance roue, on en deduit un nombre de pas cumule, et on emet sa DIFFERENCE :
+      m_dist_cumul_G  += dG                                       (cm, distance roue cumulee)
+      steps_cumul_G    = lround(m_dist_cumul_G / k_pas_codeur_G)   (pas cumules)
+      m_delta_roue_G   = steps_cumul_G - steps_cumul_G_precedent   (pas emis sur le tick)
+    Arrondir chaque tick isolement (ancienne formule round(dG / k_pas_codeur_G)) perdait la
+    fraction de pas non franchie, d'ou un biais systematique a vitesse constante : -2,33 % sur
+    la distance et sur l'angle a 20 cm/s avec dt = 20 ms. Avec le compteur cumule, l'erreur reste
+    bornee a +/- 1 pas quelle que soit la duree du match.
 */
 
 #include "CKinematicEngine.h"
@@ -42,6 +48,10 @@ CKinematicEngine::CKinematicEngine()
       m_teta(0.0f),
       m_delta_roue_G(0),
       m_delta_roue_D(0),
+      m_dist_cumul_G(0.0),
+      m_dist_cumul_D(0.0),
+      m_steps_cumul_G(0),
+      m_steps_cumul_D(0),
       m_vG_actual(0.0f),
       m_vD_actual(0.0f),
       m_motor_tau(0.15f),   // ~ equivalent de l'amortissement Box2D (linearDamping=7)
@@ -61,6 +71,13 @@ void CKinematicEngine::init(float x_init, float y_init, float teta_init)
     m_teta = teta_init;
     m_delta_roue_G = 0;
     m_delta_roue_D = 0;
+    // Compteurs codeurs cumules remis a zero : init() est un raz complet de la simulation
+    // (nouveau match), pas un recalage. Le residu de pas du match precedent ne doit pas
+    // deborder sur le suivant. NB : recal() ne les touche PAS, par contrat.
+    m_dist_cumul_G = 0.0;
+    m_dist_cumul_D = 0.0;
+    m_steps_cumul_G = 0;
+    m_steps_cumul_D = 0;
     // Reset de l'etat d'inertie : a l'init le robot est a l'arret.
     m_vG_actual = 0.0f;
     m_vD_actual = 0.0f;
@@ -158,12 +175,14 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
     // --- 4. Pas codeurs = image du deplacement REELLEMENT effectue ---
     // Les codeurs du vrai robot sont sur des roues folles independantes des roues
     // motrices : ils mesurent le deplacement reel du chassis, jamais la consigne moteur.
+    // dG_eff/dD_eff = deplacement roue reellement realise sur le tick ; il alimente le
+    // compteur cumule en fin de bloc (cf. emission des pas plus bas).
+    float dG_eff = dG;
+    float dD_eff = dD;
     if (!clamped)
     {
         // Espace libre : pose reelle == pose candidate -> bijection exacte avec la
         // consigne (garantit la fidelite des trajectoires droite / cercle / octogone).
-        m_delta_roue_G = (int)roundf(dG / k_pas_codeur_G);
-        m_delta_roue_D = (int)roundf(dD / k_pas_codeur_D);
     }
     else
     {
@@ -176,10 +195,8 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
                                   + (y_real - m_y) * sinf(cap_moyen);
 
         // Cinematique inverse : dD = d_center + d_theta*voie/2 ; dG = d_center - d_theta*voie/2.
-        const float dG_real = d_center_real - 0.5f * d_theta_real * k_voie_bot;
-        const float dD_real = d_center_real + 0.5f * d_theta_real * k_voie_bot;
-        m_delta_roue_G = (int)roundf(dG_real / k_pas_codeur_G);
-        m_delta_roue_D = (int)roundf(dD_real / k_pas_codeur_D);
+        dG_eff = d_center_real - 0.5f * d_theta_real * k_voie_bot;
+        dD_eff = d_center_real + 0.5f * d_theta_real * k_voie_bot;
 
         // --- CONTRAINTE NON-HOLONOME (roues silicone larges : ripage lateral quasi nul) ---
         // La resolution geometrique de collision (CCollisionEngine) peut deplacer le chassis
@@ -199,7 +216,34 @@ void CKinematicEngine::step(float schedule_lap, float vect_deplacement_G, float 
         y_real = m_y + d_center_real * sinf(cap_moyen);
     }
 
-    // --- 5. Validation de la nouvelle pose ---
+    // --- 5. Emission des pas codeurs : delta d'un COMPTEUR CUMULE ---
+    // Un codeur incremental compte une position ABSOLUE : la fraction de pas non encore
+    // franchie a la fin d'un tick n'est pas perdue, elle est reprise au tick suivant. On
+    // reproduit exactement cela -- distance cumulee -> nombre de pas cumule -> difference --
+    // au lieu d'arrondir chaque tick isolement.
+    //
+    // POURQUOI C'EST IMPORTANT : arrondir tick par tick introduit un biais SYSTEMATIQUE des que
+    // la partie fractionnaire tombe toujours du meme cote, ce qui est le cas a vitesse constante.
+    // Exemple mesure a 20 cm/s avec dt = 20 ms : un tick vaut 6,14 pas -> 6 emis, soit -2,33 %
+    // sur la distance ET sur l'angle, a chaque tick, cumulatif sur tout le match. La croyance de
+    // l'asserv (reconstruite depuis ces pas, cf. etape 3bis) derivait donc de la pose physique
+    // pour une raison purement numerique, sans contrepartie physique -- un vrai codeur ne perd
+    // pas ses fractions. Avec le compteur cumule, l'erreur reste bornee a +/- 1 pas (0,065 cm)
+    // quelle que soit la duree, au lieu de croitre indefiniment.
+    //
+    // Accumulateurs en double : sur un match entier la distance cumulee atteint plusieurs
+    // milliers de cm, ou la resolution d'un float (~1e-3 cm a 1e4 cm) deviendrait comparable a
+    // la fraction de pas que l'on cherche justement a preserver.
+    m_dist_cumul_G += dG_eff;
+    m_dist_cumul_D += dD_eff;
+    const long steps_cumul_G = lround(m_dist_cumul_G / (double)k_pas_codeur_G);
+    const long steps_cumul_D = lround(m_dist_cumul_D / (double)k_pas_codeur_D);
+    m_delta_roue_G = (int)(steps_cumul_G - m_steps_cumul_G);
+    m_delta_roue_D = (int)(steps_cumul_D - m_steps_cumul_D);
+    m_steps_cumul_G = steps_cumul_G;
+    m_steps_cumul_D = steps_cumul_D;
+
+    // --- 6. Validation de la nouvelle pose ---
     m_x    = x_real;
     m_y    = y_real;
     m_teta = teta_real;
