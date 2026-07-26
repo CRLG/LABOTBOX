@@ -26,6 +26,7 @@
 #include <QVector>
 #include "CKinematicEngine.h"
 #include "CCollisionEngine.h"
+#include "CRoseDesVents.h"
 // L'include de CAsservissementBase.h (reconstructeur de pose "l'asserv fait foi") est place plus
 // bas, sous #ifdef SIMUBOT_ROBOT_LOGIC : il tire CGlobale.h -> toute la logique robot, disponible
 // seulement dans le build Simulia. Le build LaBotBox utilise une copie autonome (voir plus bas).
@@ -67,7 +68,10 @@ enum SECTEURS{
 {
     Q_OBJECT
 public:
-    Cihm_SimuBot(QWidget *parent = 0)  : QMainWindow(parent) { ui.setupUi(this); }
+    // simuView est resolu par findChild() dans CSimuBot::init() : initialise a nullptr pour que
+    // tout code appele avant (ex. refreshRoseDesVents via un changed() de la scene) puisse tester
+    // sa validite au lieu de dereferencer un pointeur non initialise.
+    Cihm_SimuBot(QWidget *parent = 0)  : QMainWindow(parent), simuView(nullptr) { ui.setupUi(this); }
     ~Cihm_SimuBot() { }
 
     Ui::ihm_SimuBot ui;
@@ -135,6 +139,12 @@ public:
     // FIN_MISSION) et par syncInternalSim quand la sim interne cesse de jouer le role du robot.
     void stopInternalSim();
 
+    // ETAPE 7 : la rose des vents doit se replier dans le viewport quand l'ancrage naturel
+    // (au-dessus du terrain) n'est plus visible. Un redimensionnement de la fenetre change la
+    // surface visible SANS emettre QGraphicsScene::changed : sans ce filtre, la rose resterait
+    // hors champ jusqu'a la prochaine modification de la scene (cas du mode TEST, robot immobile).
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
 private slots :
     void onRightClicGUI(QPoint pos);
 
@@ -160,6 +170,12 @@ private slots :
         void onCmdMoveDA();
         // (Re)ajuste la sim interne quand la connexion RS232 au robot apparait/disparait.
         void onRobotConnectionChanged();
+
+        // --- Etape 7 : rose des vents ---
+        // Met a jour les deux caps de la rose ET recalcule son ancrage (naturel au-dessus du
+        // terrain, ou repli dans le viewport si l'ancrage naturel n'est plus visible). Slot pour
+        // pouvoir etre raccorde directement aux barres de defilement de la vue.
+        void refreshRoseDesVents(void);
 
 private:
     Cihm_SimuBot m_ihm;
@@ -202,6 +218,13 @@ private:
     // Collisions geometriques maison (etape 3) : bordures (demi-plans) + elements de jeu
     // (SAT polygone-polygone), en repere terrain. Branche dans m_kinematic_engine.
     CCollisionEngine m_collision_engine;
+    // ETAPE 7 : rose des vents (indicateur de cap, remplace le "nez" du robot retire a l'etape 5).
+    // Ajoutee a la scene par init() -> la scene en devient proprietaire, rien a liberer ici.
+    CRoseDesVents *m_rose_des_vents;
+    // Cap de depart du robot en degres, dans le repere ASSERV (celui du code de strategie) :
+    // capture a chaque raz (initView) via GrosBot->getTheta(), donc avec le meme accesseur que le
+    // cap courant -> les deux aiguilles de la rose sont dans le meme repere par construction.
+    qreal m_cap_init_deg;
     // Gain de conversion consigne -> vitesse roue (cm/s) pour le moteur cinematique.
     // Simulia publie vect_G/D = 80 * commande_moteur_% (valeur d'impulsion calibree pour
     // Box2D, cf. CRoues_simu.cpp), PAS une vitesse. On convertit : vitesse_cm_s = vect * gain.

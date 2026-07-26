@@ -1260,19 +1260,6 @@
          <string>Effacement Evitement</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pb_Astar">
-        <property name="geometry">
-         <rect>
-          <x>140</x>
-          <y>10</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Evitement</string>
-        </property>
-       </widget>
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
