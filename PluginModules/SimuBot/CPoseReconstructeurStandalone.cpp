@@ -7,10 +7,13 @@
 #include "math.h"
 
 // MEMES valeurs que CAsservissementBase::* cote build Simulia (CAsservissement_simu.cpp).
-// 0.00325568*20 = valeur "SIL" reprise de GROSBOT (cf. rapport_simubot.md / memoire kpascodeur).
-const float CPoseReconstructeurStandalone::DISTANCE_PAR_PAS_CODEUR_G = 0.00325568f*20;
-const float CPoseReconstructeurStandalone::DISTANCE_PAR_PAS_CODEUR_D = 0.00325568f*20;
-const float CPoseReconstructeurStandalone::VOIE_ROBOT = 31.6867261f;
+// ETAPE 8quater : valeurs reprises de la source unique PluginModules/RobotGeometrySimu.h, plus
+// aucun litteral ici. Cette copie autonome (build LaBotBox) reste ainsi alignee par CONSTRUCTION
+// sur CAsservissement_simu (build Simulia) et sur CKinematicEngine, qui emet les pas codeurs.
+#include "RobotGeometrySimu.h"
+const float CPoseReconstructeurStandalone::DISTANCE_PAR_PAS_CODEUR_G = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_G;
+const float CPoseReconstructeurStandalone::DISTANCE_PAR_PAS_CODEUR_D = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_D;
+const float CPoseReconstructeurStandalone::VOIE_ROBOT = RobotGeometrySimu::VOIE_ROBOT;
 
 void CPoseReconstructeurStandalone::setPosition_XYTeta(float x, float y, float teta)
 {

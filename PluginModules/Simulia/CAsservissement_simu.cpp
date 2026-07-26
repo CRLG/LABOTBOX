@@ -9,10 +9,16 @@
 
 #include <QDebug>
 
-// Constantes spécifiques au robot
-const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G = 0.00325568f*20;  // valeur par défaut reprise de GROSBOT
-const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D = 0.00325568f*20;
-const float CAsservissementBase::VOIE_ROBOT = 31.6867261f;
+// Constantes spécifiques au robot.
+// ETAPE 8quater : les valeurs ne sont plus ecrites ici mais reprises de la source unique
+// PluginModules/RobotGeometrySimu.h. Ce fichier reste le point de DEFINITION des statiques de
+// CAsservissementBase pour le build Simulia (le firmware fournit les siennes de son cote), mais
+// il n'est plus le point ou l'on CHOISIT les valeurs. C'est ce cote de la boucle SIL qui RELIT
+// les pas emis par CKinematicEngine : les deux doivent matcher, d'ou la source commune.
+#include "RobotGeometrySimu.h"
+const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_G = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_G;
+const float CAsservissementBase::DISTANCE_PAR_PAS_CODEUR_D = RobotGeometrySimu::DISTANCE_PAR_PAS_CODEUR_D;
+const float CAsservissementBase::VOIE_ROBOT = RobotGeometrySimu::VOIE_ROBOT;
 
 // Cartos spécifique au robo
 const float CAsservissementBase::ini_conv_erreur_dist_vitesse_cur_x[NBRE_POINTS_CARTO_ERREUR] = {-40, -20, -10, -4, -2, -1, 0, 1, 2, 4, 10, 20, 40};							// [cm]

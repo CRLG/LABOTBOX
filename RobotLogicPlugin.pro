@@ -93,6 +93,7 @@ INCLUDEPATH += ./PluginModules/Simulia \
 # Seuls headers necessaires : le shell fournit les definitions a l'execution (le plugin ne
 # reimplemente pas ces classes -> resolues dans le binaire Simulia via l'objet CApplication passe).
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
+               $$_PRO_FILE_PWD_/PluginModules \
                $$_PRO_FILE_PWD_/BasicModules \
                $$_PRO_FILE_PWD_/BasicModules/DataManager \
                $$_PRO_FILE_PWD_/BasicModules/EEPROM \

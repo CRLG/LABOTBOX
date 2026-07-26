@@ -17,7 +17,22 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QColor>
+#include <QScrollBar>
+#include <QEvent>
 #include <math.h>
+
+// --- ETAPE 7 : geometrie de la rose des vents, en unites scene (cm terrain) ---
+// La rose n'utilise PAS ItemIgnoresTransformations : elle est rendue sous la transformation de
+// la vue et grossit donc avec le zoom SimuBot. Comme aucun fitInView n'existe dans SimuBot, la
+// transformation ne depend que du slider de zoom -> redimensionner la fenetre ne change pas la
+// taille de la rose, seulement la surface visible.
+static const qreal ROSE_RAYON_SCENE = 22.0;  //!< rayon du disque
+static const qreal ROSE_MARGE_SCENE = 6.0;   //!< ecart entre le bord haut du terrain et la rose
+static const qreal ROSE_PAD_SCENE   = 4.0;   //!< marge conservee vis a vis des bords du viewport
+//! En dessous de ce deplacement on ne repositionne pas la rose : un setPos modifie la scene, donc
+//! reemet QGraphicsScene::changed -> viewChanged -> refreshRoseDesVents. Sans ce seuil, la boucle
+//! tournerait en permanence, robot immobile compris.
+static const qreal ROSE_SEUIL_DEPLACEMENT_SCENE = 0.05;
 
 /*!
  * \brief normalizeAngleDeg utilitaire de normalisation d'angle en degré
@@ -63,6 +78,10 @@ CSimuBot::CSimuBot(const char *plugin_name)
 
     // Watcher de hot-reload du terrain JSON : cree dans init() (cf. loadTerrainFromJson).
     m_terrain_watcher=nullptr;
+
+    // Etape 7 : rose des vents, creee et ajoutee a la scene dans init().
+    m_rose_des_vents=nullptr;
+    m_cap_init_deg=0.0;
 }
 
 
@@ -330,6 +349,14 @@ void CSimuBot::init(CApplication *application)
 	terrain->addItem(OtherBot);
     terrain->addItem(MiniBot);
 
+    // ETAPE 7 : rose des vents. Dimensionnee en unites scene (donc solidaire du zoom, cf.
+    // CRoseDesVents.h) et placee par refreshRoseDesVents() : ancrage naturel dans la bande libre
+    // AU-DESSUS du terrain, aligne sur son bord droit, pour ne jamais recouvrir les zones de jeu
+    // (qui changent chaque annee) ; repli dans le viewport si ce placement sort du champ.
+    // addItem transfere la propriete de l'item a la scene : rien a detruire dans close().
+    m_rose_des_vents=new CRoseDesVents(ROSE_RAYON_SCENE);
+    terrain->addItem(m_rose_des_vents);
+
     //Mise en place du terrain
     m_ihm.simuView=m_ihm.findChild<QGraphicsView*>("simuGraphicsView");
     m_ihm.simuView->setRenderHint(QPainter::Antialiasing);
@@ -339,6 +366,16 @@ void CSimuBot::init(CApplication *application)
     m_ihm.simuView->setDragMode(QGraphicsView::ScrollHandDrag);
     m_ihm.simuView->resize(326, 236);
     m_ihm.simuView->setScene(terrain);
+
+    // ETAPE 7 : le repli de la rose des vents depend de la portion de scene reellement visible.
+    // viewChanged() (scene modifiee) couvre les mouvements du robot, mais PAS le defilement ni le
+    // redimensionnement de la fenetre, qui ne modifient pas la scene. On les raccorde donc :
+    //  - defilement : le ScrollHandDrag est actif, l'utilisateur peut deplacer la vue a la souris
+    //  - redimensionnement : via eventFilter sur le viewport (aucun signal Qt pour cela)
+    connect(m_ihm.simuView->horizontalScrollBar(),SIGNAL(valueChanged(int)),this,SLOT(refreshRoseDesVents()));
+    connect(m_ihm.simuView->verticalScrollBar(),SIGNAL(valueChanged(int)),this,SLOT(refreshRoseDesVents()));
+    m_ihm.simuView->viewport()->installEventFilter(this);
+
     connect(m_ihm.ui.verticalSlider_zoom_scene,SIGNAL(valueChanged(int)),this,SLOT(zoom(int)));
     val = m_application->m_eeprom->read(getName(), "zoom", QVariant(1));
     m_ihm.ui.verticalSlider_zoom_scene->setValue(val.toInt());
@@ -360,7 +397,7 @@ void CSimuBot::init(CApplication *application)
 
     //pour calculer une trajectoire d'evitement
     // A* (pathfinding) retire : c'etait un test, non conserve pour la Coupe (cf. rapport_simubot.md).
-    // Le bouton pb_Astar de l'IHM reste present mais n'est plus connecte.
+    // Le bouton pb_Astar, devenu mort, a ete retire du .ui a l'etape 7.
     connect(m_ihm.ui.pB_clearEvitement,SIGNAL(clicked()),this,SLOT(slot_clearPath()));
 
     // Positions x, y, teta du robot physique
@@ -564,6 +601,9 @@ void CSimuBot::viewChanged(QList<QRectF> regions)
     m_ihm.ui.lcdNumber_x_terrain->display(GrosBot->getX_terrain());
     m_ihm.ui.lcdNumber_y_terrain->display(GrosBot->getY_terrain());
 
+    // ETAPE 7 : la scene vient de changer, donc potentiellement l'orientation du robot.
+    refreshRoseDesVents();
+
     //récupération des coordonnées du 2eme robot
     /*qreal x_view2=MiniBot->getX();
     qreal y_view2=MiniBot->getY();
@@ -728,6 +768,13 @@ void CSimuBot::initView(void){
         qreal y_reel_init=GrosBot->getY();
         qreal theta_reel_init=GrosBot->getTheta();
 
+        // ETAPE 7 : aiguille d'init de la rose des vents. On capture le cap JUSTE APRES le raz,
+        // via le meme accesseur que le cap courant (getTheta) : les deux aiguilles sont donc dans
+        // le meme repere PAR CONSTRUCTION, quelle que soit l'option rad/deg et quel que soit le
+        // choix repere asserv / repere terrain. C'est aussi la valeur ecrite dans teta_pos juste
+        // en dessous -> aucune divergence possible avec les autres affichages.
+        m_cap_init_deg=normalizeAngleDeg(180*theta_reel_init/Pi);
+
         m_application->m_data_center->write("PosX_robot", x_reel_init);
         m_application->m_data_center->write("PosY_robot", y_reel_init);
 
@@ -761,6 +808,10 @@ void CSimuBot::initView(void){
             m_application->m_data_center->write("PosTeta_robot2", normalizeAngleDeg(180*theta_reel_init2/Pi));
 
         m_application->m_data_center->write("Simubot.Init", false);
+
+        // ETAPE 7 : recale la rose des vents apres le raz (aiguille d'init repositionnee sur la
+        // nouvelle orientation de depart, aiguille courante ramenee dessus).
+        refreshRoseDesVents();
 }
 }
 
@@ -1011,6 +1062,111 @@ void CSimuBot::zoom(int value)
     m_ihm.simuView->resetTransform();
     m_ihm.simuView->scale(factor,factor);
     m_ihm.simuView->centerOn(QPointF(151,101));
+
+    // ETAPE 7 : le zoom change la portion de scene visible. La rose grossit toute seule (elle est
+    // dimensionnee en unites scene), mais son ancrage naturel au-dessus du terrain peut sortir du
+    // champ : on recalcule le repli.
+    refreshRoseDesVents();
+}
+
+/*!
+ * \brief CSimuBot::refreshRoseDesVents met a jour les caps et le placement de la rose des vents
+ *
+ * # CAPS — repere ASSERV (celui du code de strategie)
+ * SimuBot sert a construire et derouler une strategie : le 0 de la rose doit donc etre le 0 de
+ * l'ASSERVISSEMENT, pas celui du terrain, sinon l'angle lu sur la rose ne correspond pas a celui
+ * manipule dans le code genere par BlockBotLab (qui tourne dans le repere asserv, cf. la section
+ * "Convention de repere x_pos/y_pos/teta_pos" de GROSBOT_STM32/CLAUDE.md).
+ *
+ * On lit GrosBot->getTheta(), qui renvoie precisement ce cap : c'est l'inverse exact de
+ * display_theta (rotation scene -> repere asserv, en tenant compte de angle_offset et
+ * angle_asserv_init), et c'est deja la source de la cle teta_pos et du lcdNumber_theta ecrits
+ * par viewChanged() -> la rose ne peut pas diverger de ces deux affichages.
+ *
+ * Lire le SPRITE plutot que la cle DataManager teta_pos n'est pas un detail : en mode TEST c'est
+ * l'utilisateur qui tourne le robot a la molette, et c'est le sprite qui ALIMENTE teta_pos (pas
+ * l'inverse). Le sprite est donc la seule source valable dans les TROIS modes ; en VISU/SIMU le
+ * aller-retour display_theta/getTheta est exact, la valeur est identique a teta_pos.
+ *
+ * Note : si l'utilisateur choisit "coordonnees relatives au terrain" (radioButton_terrain_relative),
+ * getTheta() bascule sur le cap terrain. La rose suit alors ce choix, comme tous les autres
+ * affichages de SimuBot -- c'est le comportement voulu.
+ *
+ * # PLACEMENT
+ * Ancrage naturel : dans la bande libre AU-DESSUS du terrain, aligne sur son bord droit. Le
+ * terrain change chaque annee (Config/terrain.json) et une rose posee dessus, meme translucide,
+ * generait la lecture des zones de jeu. Si ce placement n'est plus visible (zoom fort, fenetre
+ * reduite, defilement), on replie la rose dans le coin haut-droit du viewport, quitte a ce
+ * qu'elle recouvre le terrain : mieux vaut une rose sur le terrain qu'une rose invisible.
+ */
+void CSimuBot::refreshRoseDesVents(void)
+{
+    if(m_rose_des_vents==nullptr) return;
+
+    //--- caps (degres, repere asserv : cf. en-tete) ---
+    const qreal cap_asserv_deg =normalizeAngleDeg(180*GrosBot->getTheta()/Pi);
+    // Cap du MEME robot vu dans le repere terrain : rotation() est l'angle scene (y vers le bas,
+    // sens horaire), donc cap terrain = -rotation().
+    const qreal cap_terrain_deg=normalizeAngleDeg(-GrosBot->rotation());
+    // Ecart entre les deux reperes = direction TERRAIN de l'axe 0 de l'asserv. Le cadran doit
+    // pivoter d'autant, sinon on afficherait des valeurs asserv sur des graduations terrain (le
+    // 0 de la rose resterait a droite de l'ecran quel que soit le reglage d'init de l'asserv).
+    // Cet ecart vaut (angle_offset - angle_asserv_init) cote GraphicElement ; on le RECALCULE ici
+    // a partir des deux accesseurs plutot que de le memoriser : il suit donc automatiquement les
+    // changements d'equipe, de pose d'init et l'option repere terrain (ou il devient nul, les
+    // deux caps etant alors identiques -> cadran aligne sur le terrain, ce qui est correct).
+    m_rose_des_vents->setOrientationCadranDeg(normalizeAngleDeg(cap_terrain_deg-cap_asserv_deg));
+    m_rose_des_vents->setCapCourantDeg(cap_asserv_deg);
+    m_rose_des_vents->setCapInitDeg(m_cap_init_deg);
+
+    if(m_ihm.simuView==nullptr) return;
+
+    //--- placement ---
+    const qreal R=m_rose_des_vents->rayon();
+
+    // Ancrage naturel : bord droit du terrain (x=X_TERRAIN), bande libre au-dessus (y negatif
+    // au-dela de -Y_TERRAIN, la scene Qt ayant son axe y vers le bas).
+    const qreal x_naturel= X_TERRAIN-R;
+    const qreal y_naturel=-Y_TERRAIN-ROSE_MARGE_SCENE-R;
+
+    // Portion de scene reellement visible dans le viewport (tient compte du zoom, de la taille
+    // de la fenetre ET du defilement courant).
+    const QRectF vue=m_ihm.simuView->mapToScene(m_ihm.simuView->viewport()->rect()).boundingRect();
+
+    // On tire la rose vers l'interieur juste ce qu'il faut pour qu'elle reste entierement
+    // visible, en conservant l'ancrage haut-droit.
+    qreal x=qMin(x_naturel, vue.right()-R-ROSE_PAD_SCENE);
+    qreal y=qMax(y_naturel, vue.top()  +R+ROSE_PAD_SCENE);
+    // Garde-fous viewport tres petit : sans eux la rose sortirait par le bord oppose.
+    x=qMax(x, vue.left()  +R+ROSE_PAD_SCENE);
+    y=qMin(y, vue.bottom()-R-ROSE_PAD_SCENE);
+
+    // setPos modifie la scene -> reemet QGraphicsScene::changed -> viewChanged -> ici meme.
+    // On ne bouge donc que si le deplacement est reel, sinon la boucle tournerait sans fin.
+    const QPointF pos_actuelle=m_rose_des_vents->pos();
+    if(qAbs(pos_actuelle.x()-x)>ROSE_SEUIL_DEPLACEMENT_SCENE
+    || qAbs(pos_actuelle.y()-y)>ROSE_SEUIL_DEPLACEMENT_SCENE)
+    {
+        m_rose_des_vents->setPos(x,y);
+    }
+}
+
+/*!
+ * \brief CSimuBot::eventFilter surveille le redimensionnement du viewport de la vue terrain
+ *
+ * Un redimensionnement de la fenetre change la portion de scene visible SANS modifier la scene :
+ * aucun QGraphicsScene::changed n'est emis, donc viewChanged() n'est pas appele et le repli de la
+ * rose des vents resterait perime (visible en mode TEST, robot immobile). Il n'existe pas de
+ * signal Qt pour cela sur QGraphicsView, d'ou ce filtre. On ne consomme jamais l'evenement.
+ */
+bool CSimuBot::eventFilter(QObject *watched, QEvent *event)
+{
+    if(event!=nullptr && event->type()==QEvent::Resize
+    && m_ihm.simuView!=nullptr && watched==m_ihm.simuView->viewport())
+    {
+        refreshRoseDesVents();
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 void CSimuBot::returnCapture_XY()
