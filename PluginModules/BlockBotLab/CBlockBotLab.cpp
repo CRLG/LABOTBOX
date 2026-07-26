@@ -32,6 +32,17 @@
 // marge confortable, le geste n'etant joue qu'une fois par chargement de page.
 static const int BLOCKBOT_WEBCHANNEL_HANDSHAKE_DELAY_MS = 500;
 
+// Developpe un "~" de tete en repertoire home de l'utilisateur courant. Permet de configurer en
+// EEPROM un chemin situe dans le home (p.ex. le cache QtWebEngine) sans y ecrire le nom d'un
+// utilisateur : la meme configuration fonctionne sur n'importe quel poste. Tout autre chemin
+// (absolu ou relatif) est renvoye inchange.
+static QString resolveHomePath(const QString& path)
+{
+    if (path == "~")            return QDir::homePath();
+    if (path.startsWith("~/"))  return QDir::cleanPath(QDir::homePath() + path.mid(1));
+    return path;
+}
+
 
 /*! \addtogroup Module_Test2
    * 
@@ -164,7 +175,9 @@ void CBlockBotLab::init(CApplication *application)
   m_timer_close_build_logs_delayed.setInterval(2000);
 
   // Nettoie le cache
-  QString clean_cache_directory =m_application->m_eeprom->read(getName(), "clean_cache_directory", "").toString();
+  // "~/..." developpe en repertoire home de l'utilisateur courant : la configuration livree ne
+  // contient donc aucun nom d'utilisateur et fonctionne sur n'importe quel poste.
+  QString clean_cache_directory = resolveHomePath(m_application->m_eeprom->read(getName(), "clean_cache_directory", "").toString());
   if (!clean_cache_directory.trimmed().isEmpty()) {
       QDir dir(clean_cache_directory);
       if (dir.removeRecursively()) {
