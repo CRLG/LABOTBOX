@@ -11,6 +11,7 @@
 #include "CDataManager.h"
 #include "CRS232.h"
 #include "CTrameFactory.h"
+#include "exchangerclient.h"
 
 /*! \addtogroup MessagerieBot
    * 
@@ -25,6 +26,9 @@
 CMessagerieBot::CMessagerieBot(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_MessagerieBot, AUTEUR_MessagerieBot, INFO_MessagerieBot),
      m_rs232(NULL),
+     m_tcp_client(NULL),
+     m_enable_rs232(true),
+     m_enable_tcp(true),
      m_etatReconst(cETAT_INIT),
      m_numero_data(0),
      m_transfert_avec_checksum(true),
@@ -73,10 +77,27 @@ void CMessagerieBot::init(CApplication *application)
   val = m_application->m_eeprom->read(getName(), "background_color", QVariant(DEFAULT_MODULE_COLOR));
   setBackgroundColor(val.value<QColor>());
 
-  // Pour les essais uniquement.
-  // A supprimer et association à réaliser au niveau LaBotBox pour que le module de Messagerie
-  // soit réutilisable si besoin
-  setRS232(m_application->m_RS232_robot);
+  // autorisation d'utiliser la RS232 pour la communication
+  val = m_application->m_eeprom->read(getName(), "enable_rs232", true);
+  if (val.toBool()) {
+      // Pour les essais uniquement.
+      // A supprimer et association à réaliser au niveau LaBotBox pour que le module de Messagerie
+      // soit réutilisable si besoin
+      setRS232(m_application->m_RS232_robot);
+      connect(m_rs232, SIGNAL(readyBytes(QByteArray)), this, SLOT(Reconstitution(QByteArray)));
+  }
+
+  // autorisation d'utiliser le client TCP (serveur dans le CPU) pour la communication
+  val = m_application->m_eeprom->read(getName(), "enable_tcp", false);
+  if (val.toBool()) {
+      QString hostname = m_application->m_eeprom->read(getName(), "tcp_hostname", QVariant("192.168.0.10")).toString();
+      int port = m_application->m_eeprom->read(getName(), "tcp_port", QVariant("234596")).toInt();
+      m_tcp_client = new ExchangerClient(this);
+      if (m_tcp_client) {
+          m_tcp_client->connectToHost(hostname, port, true);
+          connect(m_tcp_client, SIGNAL(readyRead()), this, SLOT(TcpReadyRead()));
+      }
+  }
 
   // Crée une data indiquant la connexion avec le robot
   QString connect_dataname = "Robot_Connecte";
@@ -88,7 +109,6 @@ void CMessagerieBot::init(CApplication *application)
   connect(this, SIGNAL(frameReceived(tStructTrameBrute)), m_trame_factory, SLOT(Decode(tStructTrameBrute)));
 
   connect(this, SIGNAL(frameReceived(tStructTrameBrute)), this, SLOT(DecodeFrame(tStructTrameBrute)));
-  connect(m_rs232, SIGNAL(readyBytes(QByteArray)), this, SLOT(Reconstitution(QByteArray)));
 
 
   // Diagnostic de perte de communication
@@ -97,7 +117,7 @@ void CMessagerieBot::init(CApplication *application)
 
   // Configuration de la période des trames
   connect(m_ihm.ui.pb_ArreterToutesTrames, SIGNAL(clicked()), this, SLOT(onArreterToutesTrames()));
-  connect(m_ihm.ui.pb_ToutesTrames200ms, SIGNAL(clicked()), this, SLOT(onToutesTrames200ms()));
+  connect(m_ihm.ui.pb_ToutesTramesXms, SIGNAL(clicked()), this, SLOT(onToutesTramesXms()));
   connect(m_ihm.ui.ConfigListeTrames, SIGNAL(currentIndexChanged(QString)), this, SLOT(onConfigSelectTrame(QString)));
   connect(m_ihm.ui.ConfigID, SIGNAL(editingFinished()), this, SLOT(onConfigSelectID()));
   connect(m_ihm.ui.pb_SendConfigPeriode, SIGNAL(clicked()), this, SLOT(onSendConfigPeriodeTrame()));
@@ -156,11 +176,11 @@ void CMessagerieBot::onArreterToutesTrames()
 *  Demande au robot d'émettre toutes les trames à 200msec
 *
 */
-void CMessagerieBot::onToutesTrames200ms()
+void CMessagerieBot::onToutesTramesXms()
 {
     m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", true);
     m_application->m_data_center->write("CONFIG_PERIODE_TRAME_ID", 0xFFFF);  // valeur pour dire "concerne toutes les trames"
-    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_Periode", 200);
+    m_application->m_data_center->write("CONFIG_PERIODE_TRAME_Periode", m_ihm.ui.ConfigPeriode->value());
     m_application->m_data_center->write("CONFIG_PERIODE_TRAME_TxSync", false);
 }
 
@@ -431,6 +451,16 @@ CTrameFactory *CMessagerieBot::getTrameFactory()
     return m_trame_factory;
 }
 
+//___________________________________________________________________________
+/*!
+ * \brief Récupère les données reçues sur le canal de communication et reconstitue le message
+ */
+void CMessagerieBot::TcpReadyRead()
+{
+    if (m_tcp_client) {
+        Reconstitution(m_tcp_client->readAll());
+    }
+}
 
 
 // =======================================================
@@ -464,5 +494,6 @@ void CMessagerieBot::SerialiseTrame(tStructTrameBrute *trameBrute)
   byteArray.append(getCheckSumTrame(trameBrute));
 
   // Envoie la trame
-  m_rs232->write(byteArray);
+  if (m_rs232) m_rs232->write(byteArray);
+  if (m_tcp_client) m_tcp_client->write(byteArray);
 }
