@@ -109,6 +109,29 @@ private slots :
 
 
 // ========================================================
+//             TRAME KEEP_ALIVE
+// ========================================================
+#define ID_KEEP_ALIVE 0x01
+#define DLC_KEEP_ALIVE 4
+class CTrame_KEEP_ALIVE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_KEEP_ALIVE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_KEEP_ALIVE() { }
+    /*virtual*/ void Encode(void);
+
+ private :
+    unsigned long time_msec;
+    bool m_synchro_tx;
+
+private slots :
+    void time_msec_changed(QVariant val);
+    void Synchro_changed(QVariant val);
+};
+
+
+// ========================================================
 //             TRAME ELECTROBOT_CDE_SERVOS_AX
 // ========================================================
 #define ID_ELECTROBOT_CDE_SERVOS_AX 0x52

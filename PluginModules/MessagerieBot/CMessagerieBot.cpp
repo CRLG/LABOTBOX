@@ -97,7 +97,12 @@ void CMessagerieBot::init(CApplication *application)
           m_tcp_client->connectToHost(hostname, port, true);
           connect(m_tcp_client, SIGNAL(readyRead()), this, SLOT(TcpReadyRead()));
       }
+      // Gestion du timer pour l'envoi du keep_alive
+      connect(&m_timer_keep_alive, SIGNAL(timeout()), this, SLOT(TimeoutSendKeepAlive()));
+      int keep_alive_period = m_application->m_eeprom->read(getName(), "keep_alive_period", 2000).toInt();
+      m_timer_keep_alive.start(keep_alive_period);
   }
+  m_boot_time.start();
 
   // Crée une data indiquant la connexion avec le robot
   QString connect_dataname = "Robot_Connecte";
@@ -496,4 +501,15 @@ void CMessagerieBot::SerialiseTrame(tStructTrameBrute *trameBrute)
   // Envoie la trame
   if (m_rs232) m_rs232->write(byteArray);
   if (m_tcp_client) m_tcp_client->write(byteArray);
+}
+
+//___________________________________________________________________________
+/*!
+ * \brief Fonction appelée pour transmettre le message KEEP_ALIVE
+ */
+void CMessagerieBot::TimeoutSendKeepAlive()
+{
+    m_application->m_data_center->write("KEEP_ALIVE_TxSync", true);
+    m_application->m_data_center->write("KEEP_ALIVE_time_msec", m_boot_time.elapsed());
+    m_application->m_data_center->write("KEEP_ALIVE_TxSync", false);
 }

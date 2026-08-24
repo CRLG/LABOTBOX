@@ -7,6 +7,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QElapsedTimer>
 
 #include "CPluginModule.h"
 #include "ui_ihm_MessagerieBot.h"
@@ -165,6 +166,14 @@ private :
 public :
     //! Sérialise une trame
     void SerialiseTrame(tStructTrameBrute *trameBrute);
+
+private :
+    QTimer  m_timer_keep_alive;
+    QElapsedTimer m_boot_time;
+
+private slots :
+    //! Pour l'envoi du message KEEP_ALIVE
+    void TimeoutSendKeepAlive();
 };
 
 #endif // _CPLUGIN_MODULE_MessagerieBot_H_

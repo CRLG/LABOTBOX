@@ -94,6 +94,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_EEPROM_VALUE(m_messagerie_bot, m_data_manager));
 
  // Trames en émission
+ m_liste_trames_tx.append(new CTrame_KEEP_ALIVE(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CONFIG_SERVOS(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_SERVOS_AX(m_messagerie_bot, m_data_manager));
  m_liste_trames_tx.append(new CTrame_ELECTROBOT_CDE_MOTEURS(m_messagerie_bot, m_data_manager));
@@ -176,6 +177,76 @@ CTrameBot *CTrameFactory::getTrameFromID(unsigned int id)
     }
     return nullptr;
 
+}
+
+
+// ========================================================
+//             TRAME KEEP_ALIVE
+// ========================================================
+CTrame_KEEP_ALIVE::CTrame_KEEP_ALIVE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "KEEP_ALIVE";
+ m_id = ID_KEEP_ALIVE;
+ m_dlc = DLC_KEEP_ALIVE;
+ m_liste_noms_signaux.append("time_msec");
+
+ // Initialise les données de la messagerie
+ time_msec = 0;
+ m_synchro_tx = 0;
+
+ // S'assure que les données existent dans le DataManager
+ data_manager->write("KEEP_ALIVE_time_msec",  (unsigned int)time_msec);
+ data_manager->write("KEEP_ALIVE_TxSync",  m_synchro_tx);
+
+ // Connexion avec le DataManager
+ connect(data_manager->getData("KEEP_ALIVE_time_msec"), SIGNAL(valueChanged(QVariant)), this, SLOT(time_msec_changed(QVariant)));
+ connect(data_manager->getData("KEEP_ALIVE_TxSync"), SIGNAL(valueChanged(QVariant)), this, SLOT(Synchro_changed(QVariant)));
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_KEEP_ALIVE::time_msec_changed(QVariant val)
+{
+  time_msec = val.toInt();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+//___________________________________________________________________________
+/*!
+  \brief Fonction appelée lorsque la data est modifée
+  \param val la nouvelle valeur de la data
+*/
+void CTrame_KEEP_ALIVE::Synchro_changed(QVariant val)
+{
+  m_synchro_tx = val.toBool();
+  if (m_synchro_tx == 0) { Encode(); }
+}
+
+//___________________________________________________________________________
+/*!
+  \brief Encode et envoie la trame
+*/
+void CTrame_KEEP_ALIVE::Encode(void)
+{
+  tStructTrameBrute trame;
+
+  // Informations générales
+  trame.ID = ID_KEEP_ALIVE;
+  trame.DLC = DLC_KEEP_ALIVE;
+
+ for (unsigned int i=0; i<m_dlc; i++) {
+     trame.Data[i] = 0;
+ }
+  // Encode chacun des signaux de la trame
+  CDataEncoderDecoder::encode_uint32(trame.Data, 0, time_msec);
+
+  // Envoie la trame
+  m_messagerie_bot->SerialiseTrame(&trame);
+
+  // Comptabilise le nombre de trames émises
+  m_nombre_emis++;
 }
 
 
