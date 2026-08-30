@@ -394,6 +394,7 @@ void CMessagerieBot::TimeoutPerteComm(void)
     m_data_robot_connected->write(false);
     emit connected(false);
     m_timer_diag_comm.stop();  // la connexion étant perdue, pas la peine de poursuivre le diagnostic de perte de communication
+    if (m_tcp_client) m_tcp_client->disconnectFromHost();  // en connexion TCP, ferme la socket pour qu'elle puisse être rouverte par tentatives périodiques et retrouver une connexion automatique quel que soit le motif de la perte de communication
 }
 
 //___________________________________________________________________________
