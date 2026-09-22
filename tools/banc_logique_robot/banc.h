@@ -29,8 +29,24 @@ public:
     void demarrerMatch(int strategie, int couleur);    // strategie, couleur, SM_Main, retrait de la tirette
     void pas(int n = 1);                               // n pas de 10 ms (IA::step tourne un pas sur deux)
     void passagesModele(int n) { pas(2 * n); }         // n passages de IA::step (20 ms chacun)
+    //! Attend qu'un obstacle injecte soit vu, c'est-a-dire qu'un tour de balayage l'ait balaye.
+    //! Depuis l'etape 2, le lidar simule tourne a 8 Hz : un obstacle n'est pas visible au pas
+    //! suivant son injection, mais au prochain tour. Rend le nombre de passages attendus, ou -1.
+    int attendreDetectionBrute(int passages_max = 12);
+    //! Symetrique : attend que la detection brute retombe (l'obstacle a disparu d'un tour).
+    int attendreFinDetectionBrute(int passages_max = 12);
     void obstacle(int index, int distance_mm, int angle_deg);   // index 1..10, comme Lidar.ObstacleN
     void aucunObstacle();
+
+    //! Place l'adversaire a une position du TERRAIN ; le banc calcule ce que le lidar en verrait
+    //! et le maintient a jour a chaque passage, y compris quand notre robot se deplace.
+    void adversaireEnPositionTerrain(float x_cm, float y_cm);
+    void retirerAdversaire();
+
+    //! Avance le temps de n passages de modele en faisant avancer et tourner le robot : les pas
+    //! codeurs sont injectes comme le fait SimuBot en simulation (le plugin seul ne deplace pas
+    //! le robot). L'adversaire, s'il y en a un, est reobserve a chaque passage.
+    void simuler(int passages, float vitesse_avance_cms = 0.f, float vitesse_rotation_rads = 0.f);
     void statutLidar(int statut);                      // LidarUtils::LIDAR_OK / _DISCONNECTED / _ERROR
 
     // ---- observation
@@ -45,7 +61,14 @@ public:
     int  verifications() const { return m_verifications; }
 
 private:
+    void rafraichirAdversaire();
+
     void           *m_handle;
+    float           m_adversaire_x_cm;
+    float           m_adversaire_y_cm;
+    bool            m_adversaire_actif;
+    float           m_reste_pas_G;      // fraction de pas codeur non encore injectee
+    float           m_reste_pas_D;
     IRobotLogic    *m_logique;
     void          (*m_detruire)(IRobotLogic *);
     CDataManager    m_dm;

@@ -14,6 +14,14 @@
 // a part, sans Simulia ni plugin : voir tools/banc_filtre_lidar.
 // ___________________________________________________________________________
 
+// Le lidar simule tourne a 8 Hz depuis l'etape 2 : attendre le tour de balayage puis le filtre.
+static bool attendreEvitement(Banc &banc)
+{
+    if (banc.attendreDetectionBrute() < 0) return false;
+    banc.passagesModele(4);
+    return banc.entrees()->obstacleDetecte;
+}
+
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
@@ -25,9 +33,9 @@ void scenarios_etape1(Banc &banc)
     banc.titre("Chaine complete : un mat balise traverse balayage, filtre et detection");
     depart(banc);
     banc.obstacle(1, 300, 0);
-    banc.passagesModele(6);
+    const bool detecte = attendreEvitement(banc);
     SM_DatasInterface *d = banc.donnees();
-    banc.verifier(banc.entrees()->obstacleDetecte, "mat balise a 30 cm : evitement declenche");
+    banc.verifier(detecte, "mat balise a 30 cm : evitement declenche");
     printf("     distance rendue par la chaine : %d mm (300 injectes)\n",
            (int)d->distance_premier_obstacle_detecte);
     banc.verifier(abs((int)d->distance_premier_obstacle_detecte - 300) <= 30,
@@ -40,13 +48,12 @@ void scenarios_etape1(Banc &banc)
     // arreter le robot : un objet large et proche est exactement ce devant quoi il faut s'arreter.
     banc.obstacle(1, 300, 12);
     banc.obstacle(2, 300, -12);
-    banc.passagesModele(6);
-    banc.verifier(banc.entrees()->obstacleDetecte,
+    banc.verifier(attendreEvitement(banc),
                   "objet douteux mais proche : evitement declenche quand meme");
 
     banc.titre("Non-regression : l'horizon du filtre ne cree pas d'obstacle fantome");
     depart(banc);
     banc.obstacle(1, 3800, 0);                 // au-dela de m_d_MAX_dist (3,6 m)
-    banc.passagesModele(6);
+    banc.passagesModele(20);
     banc.verifier(!banc.entrees()->obstacleDetecte_non_filtre, "objet a 3,8 m : aucune detection");
 }

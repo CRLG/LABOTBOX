@@ -31,6 +31,7 @@ SOFT_CPU = $$SIMULIA/../Soft_STM32
 
 # Ordre identique au plugin : PluginModules/Simulia AVANT CM7/Includes (CGlobale.h simule)
 INCLUDEPATH += $$SIMULIA \
+               $$SIMULIA/PluginModules \
                $$SIMULIA/BasicModules/DataManager \
                $$SIMULIA/PluginModules/Simulia \
                $$SOFT_CPU/ext/CppRobLib/common-rob/Modelia \
@@ -39,7 +40,7 @@ INCLUDEPATH += $$SIMULIA \
                $$SOFT_CPU/ext/CppRobLib/common-rob \
                $$SOFT_CPU/ext/CppRobLib/Lidar
 
-SOURCES += main.cpp banc.cpp banc_data_manager.cpp scenarios_etape0.cpp scenarios_etape1.cpp \
+SOURCES += main.cpp banc.cpp banc_data_manager.cpp scenarios_etape0.cpp scenarios_etape1.cpp scenarios_etape2.cpp \
            $$SIMULIA/BasicModules/DataManager/CData.cpp
 HEADERS += banc.h banc_data_manager.h scenarios.h \
            $$SIMULIA/BasicModules/DataManager/CData.h

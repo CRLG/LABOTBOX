@@ -35,6 +35,16 @@ void trace_match(Banc &banc, int duree_s)
 static bool g_mode_avant = false;
 void scenarios_mode_avant(bool avant) { g_mode_avant = avant; }
 
+// Depuis l'etape 2, le lidar simule tourne a 8 Hz comme un vrai : un obstacle injecte n'est pas
+// visible au passage suivant, mais au prochain tour de balayage. On attend donc ce tour, puis les
+// passages du filtre de confirmation.
+static bool attendreEvitement(Banc &banc)
+{
+    if (banc.attendreDetectionBrute() < 0) return false;
+    banc.passagesModele(4);
+    return banc.entrees()->obstacleDetecte;
+}
+
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
@@ -51,7 +61,7 @@ void scenarios_etape0(Banc &banc)
     banc.titre("Defaut 3 - un objet DERRIERE le robot ne doit pas compter en marche avant");
     depart(banc);
     banc.obstacle(1, 150, 180);                  // 15 cm derriere, dans le terrain
-    banc.passagesModele(15);
+    banc.passagesModele(20);                     // plus d'un tour de balayage
     in = banc.entrees();
     banc.verifier(!in->obstacleDetecte_non_filtre, "aucune detection brute d'un objet situe derriere");
     banc.verifier(!in->obstacleDetecte, "pas d'entree en evitement pour un objet situe derriere");
@@ -60,9 +70,9 @@ void scenarios_etape0(Banc &banc)
     banc.titre("Defaut 3 - un objet DEVANT le robot compte toujours en marche avant");
     depart(banc);
     banc.obstacle(1, 300, 0);                    // 30 cm droit devant
-    banc.passagesModele(6);
+    const bool detecte = attendreEvitement(banc);
     in = banc.entrees(); d = banc.donnees();
-    banc.verifier(in->obstacleDetecte, "entree en evitement apres le filtre de confirmation");
+    banc.verifier(detecte, "entree en evitement apres le tour de balayage et le filtre");
     banc.verifier(in->obstacle_AVG, "quadrant avant gauche leve (angle 0)");
     if (complet) {
         banc.verifier(d->evit_detection_obstacle_bitfield == 2, "champ de bits = 2 (AVG)");
@@ -73,7 +83,7 @@ void scenarios_etape0(Banc &banc)
     depart(banc);
     banc.obstacle(1, 300, 20);                   // avant gauche
     banc.obstacle(2, 300, -20);                  // avant droit
-    banc.passagesModele(6);
+    attendreEvitement(banc);
     in = banc.entrees(); d = banc.donnees();
     banc.verifier(in->obstacle_AVG && in->obstacle_AVD, "AVG et AVD leves ensemble");
     if (complet) {
@@ -85,12 +95,12 @@ void scenarios_etape0(Banc &banc)
     banc.titre("Defaut 1 - la voie liberee est vue immediatement");
     depart(banc);
     banc.obstacle(1, 300, 0);
-    banc.passagesModele(6);
+    attendreEvitement(banc);
     banc.aucunObstacle();
-    banc.passagesModele(1);
+    banc.attendreFinDetectionBrute();            // le prochain tour de balayage ne le voit plus
     in = banc.entrees(); d = banc.donnees();
     banc.verifier(!in->obstacle_AVG && !in->obstacle_AVD && !in->obstacle_ARG && !in->obstacle_ARD,
-                  "quadrants retombes des le passage suivant");
+                  "quadrants retombes des le tour de balayage suivant");
     if (complet) {
         banc.verifier(d->evit_detection_obstacle_bitfield == 0, "champ de bits retombe a 0");
     }
@@ -99,7 +109,7 @@ void scenarios_etape0(Banc &banc)
         banc.titre("Defaut 1 - l'evitement se termine des que la voie est libre");
         depart(banc);
         banc.obstacle(1, 300, 0);
-        banc.passagesModele(6);
+        attendreEvitement(banc);
         d = banc.donnees();
         banc.verifier(d->evitementEnCours, "evitement engage");
         banc.aucunObstacle();                    // l'adversaire s'en va pendant l'arret
@@ -113,47 +123,48 @@ void scenarios_etape0(Banc &banc)
         banc.titre("Defaut 7 - filtre de disparition (lidar)");
         depart(banc);
         banc.obstacle(1, 300, 0);
-        banc.passagesModele(6);
-        banc.aucunObstacle();                    // un scan manque...
+        attendreEvitement(banc);
+        banc.aucunObstacle();                    // l'obstacle disparait...
+        banc.attendreFinDetectionBrute();        // ...le tour de balayage suivant ne le voit plus
         bool toujours_la = true;
         for (int i = 0; i < 5; i++) { banc.passagesModele(1); toujours_la &= banc.entrees()->obstacleDetecte; }
-        banc.verifier(toujours_la, "obstacleDetecte maintenu pendant une absence de 100 ms");
-        banc.obstacle(1, 300, 0);                // ...puis l'obstacle revient
-        banc.passagesModele(1);
+        banc.verifier(toujours_la, "obstacleDetecte maintenu pendant 100 ms d'absence");
+        banc.obstacle(1, 300, 0);                // ...puis il revient avant la fin du filtre
+        attendreEvitement(banc);
         banc.verifier(banc.entrees()->obstacleDetecte, "pas de retombee sur une absence breve");
         banc.aucunObstacle();
-        banc.passagesModele(12);
-        banc.verifier(!banc.entrees()->obstacleDetecte, "retombee apres 240 ms d'absence (seuil 200 ms)");
+        banc.attendreFinDetectionBrute();
+        banc.passagesModele(11);                 // 220 ms apres la disparition reelle
+        banc.verifier(!banc.entrees()->obstacleDetecte, "retombee apres 220 ms d'absence (seuil 200 ms)");
     }
 
     banc.titre("Non-regression - filtre de confirmation a l'apparition inchange");
     depart(banc);
     banc.obstacle(1, 300, 0);
-    banc.passagesModele(3);                      // 3 passages : le seuil exige strictement plus
-    bool jamais = !banc.entrees()->obstacleDetecte;
-    banc.aucunObstacle();
-    banc.passagesModele(5);
-    jamais &= !banc.entrees()->obstacleDetecte;
-    banc.verifier(jamais, "un obstacle vu 3 passages seulement ne declenche pas l'evitement");
+    banc.attendreDetectionBrute();               // premier passage ou l'obstacle est vu : compteur a 1
+    bool pas_encore = !banc.entrees()->obstacleDetecte;
+    banc.passagesModele(2);                      // compteur a 3 : le seuil exige strictement plus
+    pas_encore &= !banc.entrees()->obstacleDetecte;
+    banc.verifier(pas_encore, "trois passages de detection ne declenchent pas l'evitement");
+    banc.passagesModele(1);                      // compteur a 4
+    banc.verifier(banc.entrees()->obstacleDetecte, "le quatrieme passage le declenche");
 
     // ---------------------------------------------------------------- defaut n°4
     banc.titre("Defaut 4 - seuils du couloir (constantes, valeurs inchangees)");
     depart(banc);
     banc.obstacle(1, 520, 0);                    // 52 cm : au-dela de SEUIL_DETECTION_LIDAR (50)
-    banc.passagesModele(6);
+    banc.passagesModele(20);
     banc.verifier(!banc.entrees()->obstacleDetecte_non_filtre, "52 cm devant : ignore");
     depart(banc);
     banc.obstacle(1, 480, 0);
-    banc.passagesModele(6);
-    banc.verifier(banc.entrees()->obstacleDetecte_non_filtre, "48 cm devant : detecte");
+    banc.verifier(banc.attendreDetectionBrute() > 0, "48 cm devant : detecte");
     depart(banc);
     banc.obstacle(1, 400, 70);                   // ecart lateral 37,6 cm > 35
-    banc.passagesModele(6);
+    banc.passagesModele(20);
     banc.verifier(!banc.entrees()->obstacleDetecte_non_filtre, "40 cm a 70 deg (37,6 cm lateral) : hors couloir");
     depart(banc);
     banc.obstacle(1, 400, 55);                   // ecart lateral 32,8 cm < 35
-    banc.passagesModele(6);
-    banc.verifier(banc.entrees()->obstacleDetecte_non_filtre, "40 cm a 55 deg (32,8 cm lateral) : dans le couloir");
+    banc.verifier(banc.attendreDetectionBrute() > 0, "40 cm a 55 deg (32,8 cm lateral) : dans le couloir");
 
     // ---------------------------------------------------------------- defaut n°6
     if (complet) {
@@ -163,7 +174,7 @@ void scenarios_etape0(Banc &banc)
         // les creneaux se touchent (cf. suite etape 1), ce qui n'est pas ce qu'on teste ici
         banc.obstacle(1, 450, 35);
         banc.obstacle(2, 300, -30);
-        banc.passagesModele(6);
+        attendreEvitement(banc);
         d = banc.donnees();
         // Valeurs a la tolerance pres : depuis l'etape 1 la mesure traverse le filtre (moyenne du
         // creneau du mat, puis compensation d'offset), elle n'est plus la valeur injectee au mm pres.
@@ -179,14 +190,13 @@ void scenarios_etape0(Banc &banc)
     banc.titre("Defaut 5 - le lidar simule alimente la detection");
     depart(banc);
     banc.obstacle(1, 300, 0);
-    banc.passagesModele(6);
-    banc.verifier(banc.entrees()->obstacleDetecte,
+    banc.verifier(attendreEvitement(banc),
                   "detection en simulation (auparavant : jamais, faute de balayage)");
 
     banc.titre("Non-regression - lidar deconnecte : repli sur les capteurs US");
     depart(banc);
     banc.statutLidar(LidarUtils::LIDAR_DISCONNECTED);
     banc.obstacle(1, 300, 0);                    // le lidar « voit » un obstacle, mais il est hors service
-    banc.passagesModele(6);
+    banc.passagesModele(20);
     banc.verifier(!banc.entrees()->obstacleDetecte, "l'obstacle du lidar hors service est ignore");
 }

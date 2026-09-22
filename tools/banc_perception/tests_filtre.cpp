@@ -17,18 +17,9 @@
 #include "Lidar_utils.h"
 #include "lidar_data_filter_tracker.h"
 
+#include "outils_banc.h"
+
 static const double PI = 3.14159265358979;
-static int g_verifications = 0;
-static int g_echecs = 0;
-
-static void titre(const char *texte) { printf("\n== %s\n", texte); }
-
-static void verifier(bool condition, const char *libelle)
-{
-    g_verifications++;
-    if (!condition) g_echecs++;
-    printf("  [%s] %s\n", condition ? " OK " : "ECHEC", libelle);
-}
 
 //! Balayage vide de 360 points, 1 degre par point, origine a 0 degre
 static void balayage_vide(CLidarData &scan, int nombre_points = 360)
@@ -86,7 +77,7 @@ static int trouver_blob(const CLidarBlobs &blobs, double angle_deg, double toler
     return -1;
 }
 
-int main()
+void tests_filtre()
 {
     CLidarDataFilterTracker filtre;
     CLidarData entree, sortie;
@@ -187,6 +178,4 @@ int main()
     filtre.filter(&entree, &sortie);
     verifier(filtre.blobs().m_count == 0 && points_retenus(sortie) == 0, "aucun objet");
 
-    printf("\n%d verification(s), %d echec(s)\n", g_verifications, g_echecs);
-    return g_echecs == 0 ? 0 : 1;
 }
