@@ -56,7 +56,21 @@ public :
     CLidarData m_filtered_data;
     LidarUtils::tLidarObstacles m_obstacles;
 
+    //! Objets decoupes par le filtre sur le balayage synthetise au dernier rafraichissement
+    const CLidarBlobs& blobs() const { return m_filtre.blobs(); }
+
 private :
+    // Balayage synthetise a partir des obstacles connus, puis filtre comme sur le robot : la chaine
+    // complete (balayage -> filtre -> objets -> detection) est ainsi exercee en simulation. Sans lui,
+    // m_filtered_data restait vide et la logique robot ne voyait jamais le balayage.
+    void synthetiserBalayage();
+
+    static const int NBRE_POINTS_BALAYAGE = 360;      // 1 point par degre, comme le T-mini nominal
+    static const double RAYON_MAT_BALISE_MM;          // demi-diagonale du support de balise
+
+    CLidarData m_raw_data;
+    CLidarDataFilterTracker m_filtre;
+
     CApplication *m_application;
 
     int m_status;

@@ -24,7 +24,10 @@ public:
     CData* m_i_seuil_filtrage_angle;     // pour fusionner les doublons trops proches en angle
     const int m_i_MAX_SAMPLES_THRESHOLD=5;
     CData* m_d_seuil_gradient;
-    CData* m_d_seuil_facteur_forme;
+    // Courbes enveloppes du facteur de forme : demi-diagonales [mm] du plus petit et du plus grand
+    // mat balise admis (remplacent la marge unique d_seuil_facteur_forme, qui ne bornait que d'un cote)
+    CData* m_d_R_mini;
+    CData* m_d_R_maxi;
     CData* m_dot_size;
 
     CLidarDataFilterTracker m_filter;

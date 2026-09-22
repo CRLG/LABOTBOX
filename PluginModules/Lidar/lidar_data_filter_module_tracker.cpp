@@ -15,7 +15,8 @@ CLidarDataFilterModuleTracker::CLidarDataFilterModuleTracker()
     m_d_seuil_filtrage_dist = m_data_manager.createData("d_seuil_filtrage_dist", 150.);
     m_i_seuil_filtrage_angle = m_data_manager.createData("i_seuil_filtrage_angle", 3);
     m_d_seuil_gradient = m_data_manager.createData("d_seuil_gradient", 150.);
-    m_d_seuil_facteur_forme = m_data_manager.createData("d_seuil_facteur_forme", 1400.);
+    m_d_R_mini = m_data_manager.createData("d_R_mini", 15.);
+    m_d_R_maxi = m_data_manager.createData("d_R_maxi", 90.);
 }
 
 // _______________________________________________________________
@@ -44,7 +45,8 @@ void CLidarDataFilterModuleTracker::filter(const CLidarData *data_in, CLidarData
     m_filter.m_d_seuil_filtrage_dist = m_d_seuil_filtrage_dist->read().toDouble();
     m_filter.m_i_seuil_filtrage_angle = m_i_seuil_filtrage_angle->read().toInt();
     m_filter.m_d_seuil_gradient = m_d_seuil_gradient->read().toDouble();
-    m_filter.m_d_seuil_facteur_forme = m_d_seuil_facteur_forme->read().toDouble();
+    m_filter.m_d_R_mini = m_d_R_mini->read().toDouble();
+    m_filter.m_d_R_maxi = m_d_R_maxi->read().toDouble();
 
     // Filtrage
     m_filter.filter(data_in, data_out);

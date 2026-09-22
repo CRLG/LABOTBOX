@@ -1,6 +1,10 @@
+#include <math.h>
 #include "CApplication.h"
 #include "CDataManager.h"
 #include "CLidar_simu.h"
+
+// Reglement : support de balise au maximum un carre de 100 mm de cote (demi-diagonale 70,71 mm)
+const double CLidarSimu::RAYON_MAT_BALISE_MM = 70.71;
 
 CLidarSimu::CLidarSimu(QObject *parent)
     : QObject(parent),
@@ -25,7 +29,63 @@ void CLidarSimu::Init()
         m_obstacles[i].distance = LidarUtils::NO_OBSTACLE;
     }
     m_status = LidarUtils::LIDAR_OK;
+    synthetiserBalayage();
     updateDataManager();
+}
+
+// ___________________________________________________
+/*!
+ * \brief Fabrique un balayage a partir des obstacles connus, puis le filtre comme le fait le driver
+ *
+ * Chaque obstacle devient un mat balise vu sous sa largeur angulaire reelle
+ * (theta = 2.atan(R/D)), pose sur un tour de 360 points d'un degre, origine a -180 degres --
+ * la meme convention d'angle signe que la liste d'obstacles. Le filtre "tracker" tourne ensuite
+ * dessus, exactement comme sur le robot : la logique robot voit donc en simulation un balayage
+ * filtre, et non plus rien du tout.
+ *
+ * Limite assumee : seuls les obstacles connus sont representes. Ni bordures de terrain, ni
+ * elements de jeu, ni bruit de mesure -- un lancer de rayons sur la geometrie de SimuBot serait
+ * plus representatif, et reste a faire.
+ */
+void CLidarSimu::synthetiserBalayage()
+{
+    m_raw_data.m_start_angle = -180.;
+    m_raw_data.m_angle_step_resolution = 360. / NBRE_POINTS_BALAYAGE;
+    m_raw_data.m_measures_count = NBRE_POINTS_BALAYAGE;
+    for (int i=0; i<NBRE_POINTS_BALAYAGE; i++) {
+        m_raw_data.m_dist_measures[i] = LidarUtils::NO_OBSTACLE;
+    }
+
+    for (int n=0; n<LidarUtils::NBRE_MAX_OBSTACLES; n++) {
+        const double distance = m_obstacles[n].distance;
+        if (distance == LidarUtils::NO_OBSTACLE) continue;
+        if (distance <= 0.) continue;
+
+        if (distance <= RAYON_MAT_BALISE_MM) continue;
+
+        // Le mat est vu comme un cylindre, et non comme un arc a distance constante : le lidar
+        // mesure sa SURFACE. C'est ce que compense l'offset du filtre (la moyenne des points d'un
+        // cylindre tombe en deca de son centre) ; un arc plat rendrait cet offset faux et
+        // deplacerait tous les obstacles de 4 cm en simulation.
+        const double demi_angle_rad = asin(RAYON_MAT_BALISE_MM / distance);
+        const int demi_largeur = (int)(demi_angle_rad * 180. / M_PI
+                                       / m_raw_data.m_angle_step_resolution);
+        const int centre = (int)((m_obstacles[n].angle - m_raw_data.m_start_angle)
+                                 / m_raw_data.m_angle_step_resolution);
+        for (int i=centre-demi_largeur; i<=centre+demi_largeur; i++) {
+            const double alpha_rad = (i - centre) * m_raw_data.m_angle_step_resolution * M_PI / 180.;
+            const double ecart = distance * sin(alpha_rad);
+            if (fabs(ecart) >= RAYON_MAT_BALISE_MM) continue;      // le rayon passe a cote
+            const double portee = distance * cos(alpha_rad)
+                                  - sqrt(RAYON_MAT_BALISE_MM*RAYON_MAT_BALISE_MM - ecart*ecart);
+            // le tour est cyclique : un objet a +-180 degres deborde d'un bout sur l'autre
+            int index = i % NBRE_POINTS_BALAYAGE;
+            if (index < 0) index += NBRE_POINTS_BALAYAGE;
+            m_raw_data.m_dist_measures[index] = portee;
+        }
+    }
+
+    m_filtre.filter(&m_raw_data, &m_filtered_data);
 }
 
 // ============================================================
@@ -127,6 +187,7 @@ QStringList CLidarSimu::getOrigines()
 void CLidarSimu::setObstacles(LidarUtils::tLidarObstacle *src)
 {
     LidarUtils::copy_tab_obstacles(src, m_obstacles);
+    synthetiserBalayage();
     updateDataManager();
 }
 
@@ -139,6 +200,7 @@ void CLidarSimu::setObstacles(QTableWidget *lidar_table_obstacles)
         m_obstacles[i].angle = (signed int)lidar_table_obstacles->item(i, 0)->text().toShort();
         m_obstacles[i].distance = lidar_table_obstacles->item(i, 1)->text().toInt();
     }
+    synthetiserBalayage();
     updateDataManager();
 }
 
@@ -230,6 +292,8 @@ void CLidarSimu::updateFromDataManager()
     dataname= QString("Lidar.Status");
     data = m_application->m_data_center->getData(dataname);
     if (data) m_status = data->read().toInt();
+
+    synthetiserBalayage();
 
     // met en coherence la table sur l'IHM (meme lorsque l'origine des donnees est DataManager et que l'IHM est grisee)
     refreshGUI(m_lidar_table_obstacles, m_lidar_status_combobox);
