@@ -82,6 +82,15 @@ CSimuBot::CSimuBot(const char *plugin_name)
     // Etape 7 : rose des vents, creee et ajoutee a la scene dans init().
     m_rose_des_vents=nullptr;
     m_cap_init_deg=0.0;
+    //initialisation du cadenceur (utilisé dans lmoteur cinématique de SimuBot)
+    //évite le plantage identifié par Nico en septembre 2026: appel d'une fonction sur un pointeur non initialisé et segfault
+    //une protection existe mais sans initialisation le "!cadenceur" pouvait ressortir "vrai" et rester inopérant
+    cadenceur=nullptr;
+
+    //Robustification avec l'utilisation de Simulia et du nouveau moteur cinématique interne
+    //utile si on change de mode
+    //ne causait pas de plantage
+    m_simulia_Enabled = false;
 }
 
 

@@ -7,12 +7,14 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QElapsedTimer>
 
 #include "CPluginModule.h"
 #include "ui_ihm_MessagerieBot.h"
 #include "CTrameBot.h"
 
 class CRS232;
+class ExchangerClient;
 class CTrameFactory;
 class CData;
 
@@ -63,7 +65,7 @@ private:
 private slots :
     void onRightClicGUI(QPoint pos);
     void onArreterToutesTrames();
-    void onToutesTrames200ms();
+    void onToutesTramesXms();
     void onSendConfigPeriodeTrame();
     void onConfigSelectTrame(QString tramename);
     void onConfigSelectID();
@@ -81,8 +83,14 @@ public :
 
 private :
     CRS232          *m_rs232;
+    ExchangerClient *m_tcp_client;
+
+    bool            m_enable_rs232;
+    bool            m_enable_tcp;
+
     CTrameFactory   *m_trame_factory;
     CData           *m_data_robot_connected;
+
 
 // =======================================================
 //                  TRAMES EN RECEPTION
@@ -117,6 +125,8 @@ private slots :
     void Reconstitution(unsigned char data);
     //! Diagnostic de perte de communication avec le robot
     void TimeoutPerteComm(void);
+    //! Données dispo en réception sur le TCP
+    void TcpReadyRead();
 
 public slots :
     //! Recherche et lance le decodage de la trame arrivee
@@ -156,6 +166,14 @@ private :
 public :
     //! Sérialise une trame
     void SerialiseTrame(tStructTrameBrute *trameBrute);
+
+private :
+    QTimer  m_timer_keep_alive;
+    QElapsedTimer m_boot_time;
+
+private slots :
+    //! Pour l'envoi du message KEEP_ALIVE
+    void TimeoutSendKeepAlive();
 };
 
 #endif // _CPLUGIN_MODULE_MessagerieBot_H_
