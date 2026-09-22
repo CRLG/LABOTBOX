@@ -108,7 +108,10 @@ void CLidarSimu::initGUI(QTableWidget *lidar_table_obstacles, QComboBox *lidar_s
 // ___________________________________________________
 bool CLidarSimu::is_present()
 {
-    return true;
+    // Present = statut simule OK. Avec UTILISATION_LIDAR == LIDAR_INTERNE, la logique robot deduit le
+    // statut du lidar de is_present() : renvoyer toujours true neutralisait la simulation de panne
+    // (statut choisi dans l'IHM Simulia ou case "deconnecter le lidar" de SimuBot).
+    return (m_status == LidarUtils::LIDAR_OK);
 }
 
 // ___________________________________________________
