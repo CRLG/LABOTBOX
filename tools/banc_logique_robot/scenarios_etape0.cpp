@@ -159,21 +159,29 @@ void scenarios_etape0(Banc &banc)
     if (complet) {
         banc.titre("Defaut 6 - telemetrie de l'obstacle le plus proche");
         depart(banc);
-        banc.obstacle(1, 400, 10);
-        banc.obstacle(2, 250, -15);
+        // ecartes de 65 degres : depuis l'etape 1 le filtre fond en un seul objet deux mats dont
+        // les creneaux se touchent (cf. suite etape 1), ce qui n'est pas ce qu'on teste ici
+        banc.obstacle(1, 450, 35);
+        banc.obstacle(2, 300, -30);
         banc.passagesModele(6);
         d = banc.donnees();
-        banc.verifier(d->distance_premier_obstacle_detecte == 250, "distance du plus proche = 250 mm");
-        banc.verifier(d->angle_premier_obstacle_detecte == -15, "angle du plus proche = -15 deg");
+        // Valeurs a la tolerance pres : depuis l'etape 1 la mesure traverse le filtre (moyenne du
+        // creneau du mat, puis compensation d'offset), elle n'est plus la valeur injectee au mm pres.
+        printf("     distance rendue : %d mm (300 attendus) | angle : %d deg (-30 attendus)\n",
+               (int)d->distance_premier_obstacle_detecte, (int)d->angle_premier_obstacle_detecte);
+        banc.verifier(abs((int)d->distance_premier_obstacle_detecte - 300) <= 30,
+                      "l'obstacle retenu est le plus proche (300 mm a 30 mm pres)");
+        banc.verifier(abs((int)d->angle_premier_obstacle_detecte + 30) <= 2,
+                      "angle du plus proche = -30 deg a 2 deg pres");
     }
 
     // ---------------------------------------------------------------- defaut n°5
-    banc.titre("Defaut 5 - le lidar sans balayage (externe, simule) alimente la detection");
+    banc.titre("Defaut 5 - le lidar simule alimente la detection");
     depart(banc);
     banc.obstacle(1, 300, 0);
     banc.passagesModele(6);
     banc.verifier(banc.entrees()->obstacleDetecte,
-                  "detection a partir de la seule liste d'obstacles (auparavant : jamais)");
+                  "detection en simulation (auparavant : jamais, faute de balayage)");
 
     banc.titre("Non-regression - lidar deconnecte : repli sur les capteurs US");
     depart(banc);

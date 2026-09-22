@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
     scenarios_mode_avant(argc >= 3 && strcmp(argv[2], "--avant") == 0);
     scenarios_etape0(banc);
+    scenarios_etape1(banc);
     printf("\n%d verification(s), %d echec(s)\n", banc.verifications(), banc.echecs());
     return banc.echecs() == 0 ? 0 : 1;
 }
