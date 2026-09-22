@@ -56,8 +56,18 @@ public :
     CLidarData m_filtered_data;
     LidarUtils::tLidarObstacles m_obstacles;
 
-    //! Objets decoupes par le filtre sur le balayage synthetise au dernier rafraichissement
+    //! Objets decoupes par le filtre sur le balayage synthetise au dernier tour
     const CLidarBlobs& blobs() const { return m_filtre.blobs(); }
+
+    //! Refabrique un tour de balayage a la cadence d'un vrai lidar (~8 Hz), quelle que soit la
+    //! cadence d'appel. La logique robot voit ainsi en simulation le meme rythme que sur le robot.
+    void periodicTask(unsigned long date_ms);
+
+    //! Meme interface que le driver YdLidar : un tour a-t-il ete produit depuis la derniere
+    //! consommation ? Sans cela le suivi temporel prendrait le meme balayage pour une nouvelle
+    //! mesure a chaque pas de modele, et estimerait des vitesses nulles.
+    bool is_new_scan() const { return m_nouveau_scan; }
+    void consume_scan() { m_nouveau_scan = false; }
 
 private :
     // Balayage synthetise a partir des obstacles connus, puis filtre comme sur le robot : la chaine
@@ -66,10 +76,14 @@ private :
     void synthetiserBalayage();
 
     static const int NBRE_POINTS_BALAYAGE = 360;      // 1 point par degre, comme le T-mini nominal
+    static const unsigned long PERIODE_SCAN_MS = 125; // 8 Hz, cadence nominale du T-mini plus
     static const double RAYON_MAT_BALISE_MM;          // demi-diagonale du support de balise
 
     CLidarData m_raw_data;
     CLidarDataFilterTracker m_filtre;
+    unsigned long m_date_dernier_scan_ms;
+    bool m_premier_scan_fait;
+    bool m_nouveau_scan;
 
     CApplication *m_application;
 

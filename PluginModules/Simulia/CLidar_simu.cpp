@@ -8,6 +8,9 @@ const double CLidarSimu::RAYON_MAT_BALISE_MM = 70.71;
 
 CLidarSimu::CLidarSimu(QObject *parent)
     : QObject(parent),
+      m_date_dernier_scan_ms(0),
+      m_premier_scan_fait(false),
+      m_nouveau_scan(false),
       m_application(nullptr),
       m_lidar_table_obstacles(nullptr),
       m_lidar_status_combobox(nullptr)
@@ -29,8 +32,31 @@ void CLidarSimu::Init()
         m_obstacles[i].distance = LidarUtils::NO_OBSTACLE;
     }
     m_status = LidarUtils::LIDAR_OK;
+    m_date_dernier_scan_ms = 0;
+    m_premier_scan_fait = false;
+    m_nouveau_scan = false;
     synthetiserBalayage();
     updateDataManager();
+}
+
+// ___________________________________________________
+/*!
+ * \brief Refabrique un tour de balayage a la cadence d'un vrai lidar
+ *
+ * Appelee a chaque pas de la logique robot, elle ne produit un tour que toutes les PERIODE_SCAN_MS.
+ * Le balayage n'est donc PAS refait a chaque changement d'obstacle : c'est la cadence du lidar qui
+ * commande, comme sur le robot.
+ */
+void CLidarSimu::periodicTask(unsigned long date_ms)
+{
+    // Le premier tour est produit sans attendre ; ensuite, un tour toutes les PERIODE_SCAN_MS.
+    // (tester "date nulle" ne marcherait pas : la date VAUT zero au demarrage de la simulation)
+    if (!m_premier_scan_fait || (date_ms >= m_date_dernier_scan_ms + PERIODE_SCAN_MS)) {
+        m_premier_scan_fait = true;
+        m_date_dernier_scan_ms = date_ms;
+        synthetiserBalayage();
+        m_nouveau_scan = true;
+    }
 }
 
 // ___________________________________________________
@@ -187,7 +213,6 @@ QStringList CLidarSimu::getOrigines()
 void CLidarSimu::setObstacles(LidarUtils::tLidarObstacle *src)
 {
     LidarUtils::copy_tab_obstacles(src, m_obstacles);
-    synthetiserBalayage();
     updateDataManager();
 }
 
@@ -200,7 +225,6 @@ void CLidarSimu::setObstacles(QTableWidget *lidar_table_obstacles)
         m_obstacles[i].angle = (signed int)lidar_table_obstacles->item(i, 0)->text().toShort();
         m_obstacles[i].distance = lidar_table_obstacles->item(i, 1)->text().toInt();
     }
-    synthetiserBalayage();
     updateDataManager();
 }
 
@@ -292,8 +316,6 @@ void CLidarSimu::updateFromDataManager()
     dataname= QString("Lidar.Status");
     data = m_application->m_data_center->getData(dataname);
     if (data) m_status = data->read().toInt();
-
-    synthetiserBalayage();
 
     // met en coherence la table sur l'IHM (meme lorsque l'origine des donnees est DataManager et que l'IHM est grisee)
     refreshGUI(m_lidar_table_obstacles, m_lidar_status_combobox);

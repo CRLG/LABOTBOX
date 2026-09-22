@@ -114,6 +114,10 @@ void CRobotLogic::step()
 {
     int old_step = m_step;
 
+    // Le lidar simule produit un tour de balayage a sa cadence (8 Hz), independamment de la
+    // cadence d'appel de la logique robot : m_step compte les pas de 20 ms du modele.
+    Application.m_lidar.periodicTask((unsigned long)m_step * 20);
+
     // Met a jour les donnees LIDAR consommees par Modelia
     Application.m_modelia.m_inputs_interface.m_lidar_status = Application.m_lidar.getStatus();
     Application.m_lidar.getObstacles(Application.m_modelia.m_inputs_interface.m_lidar_obstacles);
