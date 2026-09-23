@@ -28,6 +28,8 @@ int main()
     tests_filtre();
     printf("\n\nCOUCHE 2 -- suivi temporel");
     tests_suivi();
+    printf("\n\nCOUCHE 3 -- evaluation tactique");
+    tests_tactique();
     printf("\n%d verification(s), %d echec(s)\n", g_verifications, g_echecs);
     return g_echecs == 0 ? 0 : 1;
 }

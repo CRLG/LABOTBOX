@@ -17,12 +17,14 @@ TEMPLATE = app
 TARGET   = banc_perception
 
 LIDAR = $$_PRO_FILE_PWD_/../../../Soft_STM32/ext/CppRobLib/Lidar
-INCLUDEPATH += $$LIDAR
-SOURCES += main.cpp tests_filtre.cpp tests_suivi.cpp \
+COMMONROB = $$_PRO_FILE_PWD_/../../../Soft_STM32/ext/CppRobLib/common-rob
+INCLUDEPATH += $$LIDAR $$COMMONROB
+SOURCES += main.cpp tests_filtre.cpp tests_suivi.cpp tests_tactique.cpp \
            $$LIDAR/lidar_data.cpp \
            $$LIDAR/Lidar_utils.cpp \
            $$LIDAR/lidar_data_filter_tracker.cpp \
-           $$LIDAR/CObstacleTracker.cpp
+           $$LIDAR/CObstacleTracker.cpp \
+           $$COMMONROB/CTacticalEvaluator.cpp
 HEADERS += outils_banc.h \
            $$LIDAR/lidar_data.h $$LIDAR/lidar_blob.h $$LIDAR/lidar_data_filter_tracker.h \
-           $$LIDAR/CObstacleTracker.h
+           $$LIDAR/CObstacleTracker.h $$COMMONROB/CTacticalEvaluator.h

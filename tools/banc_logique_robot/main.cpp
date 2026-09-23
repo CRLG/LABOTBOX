@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     scenarios_etape0(banc);
     scenarios_etape1(banc);
     scenarios_etape2(banc);
+    scenarios_etape3(banc);
     printf("\n%d verification(s), %d echec(s)\n", banc.verifications(), banc.echecs());
     return banc.echecs() == 0 ? 0 : 1;
 }
