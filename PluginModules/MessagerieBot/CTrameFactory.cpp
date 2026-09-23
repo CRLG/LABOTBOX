@@ -84,6 +84,7 @@ void CTrameFactory::create(void)
  m_liste_trames_rx.append(new CTrame_ELECTROBOT_ETAT_CAPTEURS_1(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ECRAN_ETAT_MATCH(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE(m_messagerie_bot, m_data_manager));
+ m_liste_trames_rx.append(new CTrame_ETAT_EVITEMENT_AE(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_RACK(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_COLOR_SENSOR(m_messagerie_bot, m_data_manager));
  m_liste_trames_rx.append(new CTrame_ETAT_POWER_ELECTROBOT(m_messagerie_bot, m_data_manager));
@@ -2605,6 +2606,101 @@ void CTrame_ECRAN_ETAT_MATCH::Decode(tStructTrameBrute *trameRecue)
    m_data_manager->write("TempsMatch", BRUTE2PHYS_TempsMatch(TempsMatch));
    m_data_manager->write("Score", Score);
    m_data_manager->write("NumStrategie", NumStrategie);
+   // Comptabilise la reception de cette trame
+   m_nombre_recue++;
+}
+
+// ========================================================
+//             TRAME ETAT_EVITEMENT_AE
+// ========================================================
+CTrame_ETAT_EVITEMENT_AE::CTrame_ETAT_EVITEMENT_AE(CMessagerieBot *messagerie_bot, CDataManager *data_manager)
+    : CTrameBot(messagerie_bot, data_manager)
+{
+ m_name = "ETAT_EVITEMENT_AE";
+ m_id = ID_ETAT_EVITEMENT_AE;
+ m_dlc = DLC_ETAT_EVITEMENT_AE;
+
+ m_liste_noms_signaux.append(QString("%1.Menace").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.MarcheAE").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.NombrePistes").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.CoteLibre").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.Distance_cm").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.Angle_rad").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.TTC_s").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.Dmin_cm").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.PisteX_cm").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.PisteY_cm").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.PisteV_cms").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.CapEsquive_rad").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.AgeScan_ms").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.PisteStatique").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.ReculPossible").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.EsquivePossible").arg(prefix_ae));
+ m_liste_noms_signaux.append(QString("%1.EvitementEnCours").arg(prefix_ae));
+
+ // S'assure que les donnees existent dans le DataManager
+ data_manager->write((QString("%1.Menace").arg(prefix_ae)), Menace);
+ data_manager->write((QString("%1.MarcheAE").arg(prefix_ae)), MarcheAE);
+ data_manager->write((QString("%1.NombrePistes").arg(prefix_ae)), NombrePistes);
+ data_manager->write((QString("%1.CoteLibre").arg(prefix_ae)), CoteLibre);
+ data_manager->write((QString("%1.Distance_cm").arg(prefix_ae)), Distance_cm);
+ data_manager->write((QString("%1.Angle_rad").arg(prefix_ae)), Angle_rad);
+ data_manager->write((QString("%1.TTC_s").arg(prefix_ae)), TTC_s);
+ data_manager->write((QString("%1.Dmin_cm").arg(prefix_ae)), Dmin_cm);
+ data_manager->write((QString("%1.PisteX_cm").arg(prefix_ae)), PisteX_cm);
+ data_manager->write((QString("%1.PisteY_cm").arg(prefix_ae)), PisteY_cm);
+ data_manager->write((QString("%1.PisteV_cms").arg(prefix_ae)), PisteV_cms);
+ data_manager->write((QString("%1.CapEsquive_rad").arg(prefix_ae)), CapEsquive_rad);
+ data_manager->write((QString("%1.AgeScan_ms").arg(prefix_ae)), AgeScan_ms);
+ data_manager->write((QString("%1.PisteStatique").arg(prefix_ae)), PisteStatique);
+ data_manager->write((QString("%1.ReculPossible").arg(prefix_ae)), ReculPossible);
+ data_manager->write((QString("%1.EsquivePossible").arg(prefix_ae)), EsquivePossible);
+ data_manager->write((QString("%1.EvitementEnCours").arg(prefix_ae)), EvitementEnCours);
+}
+//___________________________________________________________________________
+/*!
+  \brief Decode les signaux de la trame
+  \param trameRecue la trame brute recue a decoder
+*/
+void CTrame_ETAT_EVITEMENT_AE::Decode(tStructTrameBrute *trameRecue)
+{
+    Menace =           CDataEncoderDecoder::decode_uint8(trameRecue->Data,  0);
+    MarcheAE =         CDataEncoderDecoder::decode_uint8(trameRecue->Data,  1);
+    NombrePistes =     CDataEncoderDecoder::decode_uint8(trameRecue->Data,  2);
+    CoteLibre =        CDataEncoderDecoder::decode_int8(trameRecue->Data,   3);
+    Distance_cm =      (float)CDataEncoderDecoder::decode_uint16(trameRecue->Data, 4) / 10.;
+    Angle_rad =        (float)CDataEncoderDecoder::decode_int16(trameRecue->Data,  6) / 100.;
+    TTC_s =            (float)CDataEncoderDecoder::decode_int16(trameRecue->Data,  8) / 100.;
+    Dmin_cm =          (float)CDataEncoderDecoder::decode_int16(trameRecue->Data, 10) / 10.;
+    PisteX_cm =        CDataEncoderDecoder::decode_int16(trameRecue->Data,  12);
+    PisteY_cm =        CDataEncoderDecoder::decode_int16(trameRecue->Data,  14);
+    PisteV_cms =       (float)CDataEncoderDecoder::decode_int16(trameRecue->Data, 16) / 10.;
+    CapEsquive_rad =   (float)CDataEncoderDecoder::decode_int16(trameRecue->Data, 18) / 100.;
+    AgeScan_ms =       (unsigned short)CDataEncoderDecoder::decode_uint8(trameRecue->Data, 20) * 10;
+    PisteStatique =    CDataEncoderDecoder::decode_bit(trameRecue->Data,   21, 0);
+    ReculPossible =    CDataEncoderDecoder::decode_bit(trameRecue->Data,   21, 1);
+    EsquivePossible =  CDataEncoderDecoder::decode_bit(trameRecue->Data,   21, 2);
+    EvitementEnCours = CDataEncoderDecoder::decode_bit(trameRecue->Data,   21, 3);
+
+   // Envoie les donnees au data manager
+   m_data_manager->write((QString("%1.Menace").arg(prefix_ae)), Menace);
+   m_data_manager->write((QString("%1.MarcheAE").arg(prefix_ae)), MarcheAE);
+   m_data_manager->write((QString("%1.NombrePistes").arg(prefix_ae)), NombrePistes);
+   m_data_manager->write((QString("%1.CoteLibre").arg(prefix_ae)), CoteLibre);
+   m_data_manager->write((QString("%1.Distance_cm").arg(prefix_ae)), Distance_cm);
+   m_data_manager->write((QString("%1.Angle_rad").arg(prefix_ae)), Angle_rad);
+   m_data_manager->write((QString("%1.TTC_s").arg(prefix_ae)), TTC_s);
+   m_data_manager->write((QString("%1.Dmin_cm").arg(prefix_ae)), Dmin_cm);
+   m_data_manager->write((QString("%1.PisteX_cm").arg(prefix_ae)), PisteX_cm);
+   m_data_manager->write((QString("%1.PisteY_cm").arg(prefix_ae)), PisteY_cm);
+   m_data_manager->write((QString("%1.PisteV_cms").arg(prefix_ae)), PisteV_cms);
+   m_data_manager->write((QString("%1.CapEsquive_rad").arg(prefix_ae)), CapEsquive_rad);
+   m_data_manager->write((QString("%1.AgeScan_ms").arg(prefix_ae)), AgeScan_ms);
+   m_data_manager->write((QString("%1.PisteStatique").arg(prefix_ae)), PisteStatique);
+   m_data_manager->write((QString("%1.ReculPossible").arg(prefix_ae)), ReculPossible);
+   m_data_manager->write((QString("%1.EsquivePossible").arg(prefix_ae)), EsquivePossible);
+   m_data_manager->write((QString("%1.EvitementEnCours").arg(prefix_ae)), EvitementEnCours);
+
    // Comptabilise la reception de cette trame
    m_nombre_recue++;
 }

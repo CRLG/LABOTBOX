@@ -1033,6 +1033,44 @@ private slots :
 // ========================================================
 //             TRAME ETAT_DETECTION_EVITEMENT_OBSTACLE
 // ========================================================
+// -----------------------------
+//! Telemetrie de la strategie d'evitement AE (atelier evitement 2027).
+//! Trame NOUVELLE : ETAT_DETECTION_EVITEMENT_OBSTACLE est une interface etablie du club, on ne
+//! l'etend pas. Les grandeurs arrivent en entiers a l'echelle, et sont restituees ici en unites
+//! physiques (cm, rad, s) : c'est sous cette forme qu'on les lit et qu'on les enregistre.
+#define ID_ETAT_EVITEMENT_AE 0x112
+#define DLC_ETAT_EVITEMENT_AE 22
+
+class CTrame_ETAT_EVITEMENT_AE : public CTrameBot
+{
+   Q_OBJECT
+public :
+    CTrame_ETAT_EVITEMENT_AE(CMessagerieBot *messagerie_bot, CDataManager *data_manager);
+    ~CTrame_ETAT_EVITEMENT_AE() { }
+    /*virtual*/ void Decode(tStructTrameBrute *trameRecue);
+
+ private :
+    const QString prefix_ae = "Evitement.AE";
+
+    unsigned char Menace;
+    unsigned char MarcheAE;
+    unsigned char NombrePistes;
+    signed char CoteLibre;
+    float Distance_cm;
+    float Angle_rad;
+    float TTC_s;
+    float Dmin_cm;
+    signed short PisteX_cm;
+    signed short PisteY_cm;
+    float PisteV_cms;
+    float CapEsquive_rad;
+    unsigned short AgeScan_ms;
+    bool PisteStatique;
+    bool ReculPossible;
+    bool EsquivePossible;
+    bool EvitementEnCours;
+};
+
 #define ID_ETAT_DETECTION_EVITEMENT_OBSTACLE 0x42
 #define DLC_ETAT_DETECTION_EVITEMENT_OBSTACLE 20
 class CTrame_ETAT_DETECTION_EVITEMENT_OBSTACLE : public CTrameBot
