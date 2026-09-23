@@ -41,6 +41,7 @@ INCLUDEPATH += $$SIMULIA \
                $$SOFT_CPU/ext/CppRobLib/Lidar
 
 SOURCES += main.cpp banc.cpp banc_data_manager.cpp scenarios_etape0.cpp scenarios_etape1.cpp scenarios_etape2.cpp scenarios_etape3.cpp \
+    scenarios_etape4.cpp \
            $$SIMULIA/BasicModules/DataManager/CData.cpp
 HEADERS += banc.h banc_data_manager.h scenarios.h \
            $$SIMULIA/BasicModules/DataManager/CData.h

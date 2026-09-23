@@ -5,6 +5,7 @@
 #include "CApplication.h"
 #include "Lidar_utils.h"
 #include "RobotGeometrySimu.h"
+#include "ConfigSpecifiqueCoupe.h"
 #include "banc.h"
 
 // Le plugin ne lit de CApplication que le pointeur m_data_center (verifie sur ses sources : aucune
@@ -119,6 +120,18 @@ void Banc::adversaireEnPositionTerrain(float x_cm, float y_cm)
     m_adversaire_x_cm = x_cm;
     m_adversaire_y_cm = y_cm;
     m_adversaire_actif = true;
+    rafraichirAdversaire();
+}
+
+// Place le robot a une pose donnee du terrain. La logique robot ne connait que le repere de
+// l'asservissement : on inverse ici la meme relation que IA (translation en couleur 1), pour que
+// les scenarios puissent raisonner en coordonnees de terrain, comme le fait l'utilisateur.
+void Banc::placerRobotTerrain(float x_cm, float y_cm, float cap_rad)
+{
+    m_logique->setPositionXYTeta(x_cm - X_ROBOT_TERRAIN_INIT_COULEUR_1,
+                                 y_cm - Y_ROBOT_TERRAIN_INIT_COULEUR_1,
+                                 cap_rad);
+    passagesModele(1);              // laisse IA recalculer la pose terrain
     rafraichirAdversaire();
 }
 

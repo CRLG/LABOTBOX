@@ -41,6 +41,7 @@ public:
     //! Place l'adversaire a une position du TERRAIN ; le banc calcule ce que le lidar en verrait
     //! et le maintient a jour a chaque passage, y compris quand notre robot se deplace.
     void adversaireEnPositionTerrain(float x_cm, float y_cm);
+    void placerRobotTerrain(float x_cm, float y_cm, float cap_rad);   // pose du robot en repere terrain
     void retirerAdversaire();
 
     //! Avance le temps de n passages de modele en faisant avancer et tourner le robot : les pas
