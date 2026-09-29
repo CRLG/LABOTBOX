@@ -62,6 +62,7 @@ private:
     Cihm_Lidar m_ihm;
 
     LidarBase *m_lidar;
+    QString m_lidar_autostart_model;    // modele de lidar cree automatiquement au demarrage (vide = aucun)
 
     QTimer m_timer_test;
 
@@ -93,6 +94,12 @@ private:
     QFile *m_logger_file;
     const QString CSV_SEPARATOR = ";";
     void log_data(const CLidarData &data);
+    // Format "brut" : une ligne auto-descriptive par tour (angle de debut, resolution et nombre
+    // de mesures propres au tour, etat de la tirette). Le format historique fige l'en-tete sur
+    // le premier tour, ce qui ne convient pas a un lidar dont le nombre de points varie d'un tour
+    // a l'autre (YdLidar). Le format historique reste le defaut, inchange.
+    void log_data_brut(const CLidarData &data);
+    int lire_tirette();
 
     CLidarDataPlayer m_data_player;
     void player_parse();

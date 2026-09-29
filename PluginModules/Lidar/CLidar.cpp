@@ -30,10 +30,13 @@
 */
 CLidar::CLidar(const char *plugin_name)
     :CPluginModule(plugin_name, VERSION_Lidar, AUTEUR_Lidar, INFO_Lidar),
+      m_lidar(Q_NULLPTR),
       m_lidar_data_filter(Q_NULLPTR),
       m_lidar_filter_params(Q_NULLPTR),
       m_polar_graph(Q_NULLPTR),
       m_angular_axis(Q_NULLPTR),
+      m_logger_active(false),
+      m_first_log(true),
       m_logger_file(Q_NULLPTR)
 {
 }
@@ -112,6 +115,13 @@ void CLidar::init(CApplication *application)
     bool enable_update_datamanager = m_application->m_eeprom->read(getName(), "enable_update_datamanager", 1).toBool();
     m_ihm.ui.enable_datamanager_update->setChecked(enable_update_datamanager);
 
+    // Format d'enregistrement "brut" et donnee du DataManager recopiant la tirette
+    // (ex. "RaspiGPIO_17" sur un Raspberry dont le module RaspiGPIO declare gpio_17 en entree)
+    bool logger_format_brut = m_application->m_eeprom->read(getName(), "logger_format_brut", false).toBool();
+    m_ihm.ui.logger_format_brut->setChecked(logger_format_brut);
+    QString logger_tirette_dataname = m_application->m_eeprom->read(getName(), "logger_tirette_dataname", "").toString();
+    m_ihm.ui.logger_tirette_dataname->setText(logger_tirette_dataname);
+
     bool synchro_match = m_application->m_eeprom->read(getName(), "synchro_match", 1).toBool();
     m_ihm.ui.enable_synchro_match->setChecked(synchro_match);
     active_synchro_match_logger(synchro_match);
@@ -139,6 +149,21 @@ void CLidar::init(CApplication *application)
 
     m_ihm.ui.lidar_models->addItems(LidarFactory::getExisting());
     connect(m_ihm.ui.create_lidar, SIGNAL(clicked(bool)), this, SLOT(create_lidar()));
+
+    // Creation automatique du lidar au demarrage (poste sans operateur, ex. Raspberry d'acquisition
+    // embarque) : la cle EEPROM "lidar_autostart_model" nomme le modele (ex. "YDLIDAR_TminiPlus")
+    // Vide par defaut : le lidar se cree au clic, comme avant
+    m_lidar_autostart_model = m_application->m_eeprom->read(getName(), "lidar_autostart_model", "").toString();
+    if (!m_lidar_autostart_model.isEmpty()) {
+        int index_model = m_ihm.ui.lidar_models->findText(m_lidar_autostart_model);
+        if (index_model >= 0) {
+            m_ihm.ui.lidar_models->setCurrentIndex(index_model);
+            create_lidar();
+        }
+        else {
+            m_application->m_print_view->print_error(this, QString("lidar_autostart_model : modele inconnu %1").arg(m_lidar_autostart_model));
+        }
+    }
 
 }
 
@@ -192,6 +217,9 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "enable_autostart_logger", m_ihm.ui.enable_autostart_logger->isChecked());
     m_application->m_eeprom->write(getName(), "auto_increment_pathfilename", m_ihm.ui.logger_name_auto_increment->isChecked());
     m_application->m_eeprom->write(getName(), "synchro_match", m_ihm.ui.enable_synchro_match->isChecked());
+    m_application->m_eeprom->write(getName(), "logger_format_brut", m_ihm.ui.logger_format_brut->isChecked());
+    m_application->m_eeprom->write(getName(), "logger_tirette_dataname", m_ihm.ui.logger_tirette_dataname->text());
+    m_application->m_eeprom->write(getName(), "lidar_autostart_model", m_lidar_autostart_model);
 
     if (m_lidar) m_lidar->save_settings(m_application->m_eeprom, getName());
 }
@@ -272,7 +300,10 @@ void CLidar::new_data(const CLidarData &data)
         }
     }
 
-    if (m_logger_active) log_data(data);
+    if (m_logger_active) {
+        if (m_ihm.ui.logger_format_brut->isChecked())   log_data_brut(data);
+        else                                            log_data(data);
+    }
 
     // Met en forme la structure obstacles a partir des donnees filtrees
     // la recopie dans la structure obstacle a la capacite de dire qu'il y a un probleme (trop de points detectes par ex)
@@ -560,7 +591,9 @@ void CLidar::logger_start()
 void CLidar::logger_stop()
 {
     m_logger_active = false;
-    if (m_logger_file && (!m_logger_file->isOpen())) {
+    // Le test portait sur !isOpen() : un fichier ouvert n'etait jamais ferme ni libere, et ses
+    // dernieres donnees restaient dans le tampon (perdues a l'arret de LaBotBox)
+    if (m_logger_file) {
         m_logger_file->close();
         delete m_logger_file;
         m_logger_file = Q_NULLPTR;
@@ -618,6 +651,53 @@ void CLidar::log_data(const CLidarData &data)
     out << endl;
 
     qDebug() << "Réception data lidar" << data.m_measures_count;
+}
+
+// _____________________________________________________________________
+// Enregistre un tour au format "brut" : une ligne auto-descriptive par tour
+//      timestamp ; tirette ; angle debut ; resolution ; nombre de mesures ; mesures...
+// Contrairement a log_data(), aucune hypothese sur la constance de la configuration du lidar :
+// chaque ligne porte son angle de debut, son pas et son nombre de points.
+// Chaque ligne est poussee jusqu'au systeme de fichiers : sur un robot, LaBotBox s'arrete le plus
+// souvent par coupure d'alimentation, et un tampon non vide y serait perdu.
+void CLidar::log_data_brut(const CLidarData &data)
+{
+    if (!m_logger_file) return;
+    if (!m_logger_file->isOpen()) return;
+
+    QTextStream out(m_logger_file);
+
+    if (m_first_log) {
+        m_first_log = false;
+        out << LIDAR_LOG_ENTETE_FORMAT_BRUT << endl;
+    }
+
+    out << data.m_timestamp
+        << CSV_SEPARATOR << lire_tirette()
+        << CSV_SEPARATOR << QString::number(data.m_start_angle, 'f', 4)
+        << CSV_SEPARATOR << QString::number(data.m_angle_step_resolution, 'f', 6)
+        << CSV_SEPARATOR << data.m_measures_count;
+    for (int i=0; i<data.m_measures_count; i++) {
+        out << CSV_SEPARATOR << QString::number(data.m_dist_measures[i], 'f', 0);
+    }
+    out << endl;    // endl vide le QTextStream vers le QFile
+    m_logger_file->flush();  // puis le QFile vers le systeme
+}
+
+// _____________________________________________________________________
+// Etat de la recopie de tirette au moment de l'enregistrement du tour
+// -1 : aucune donnee configuree ou donnee absente du DataManager (la colonne reste presente)
+// La donnee est lue telle que publiee (ex. RaspiGPIO la rafraichit toutes les 100 ms) :
+// la polarite (tirette en place = 0 ou 1) depend du cablage et se lit sur l'enregistrement
+int CLidar::lire_tirette()
+{
+    QString dataname = m_ihm.ui.logger_tirette_dataname->text().simplified();
+    if (dataname.isEmpty()) return -1;
+    QVariant val = m_application->m_data_center->read(dataname);
+    if (!val.isValid()) return -1;
+    bool ok;
+    int etat = val.toInt(&ok);
+    return ok ? etat : -1;
 }
 
 // _____________________________________________________________________

@@ -14,6 +14,8 @@ YDLIDAR_TminiPlus::YDLIDAR_TminiPlus(QObject *parent)
     QObject::connect(m_ihm.stop,    &QPushButton::clicked, [&]() { this->stop_measures();});
     QObject::connect(m_ihm.scan_M1, &QPushButton::clicked, [&]() { this->scan_M1();});
     QObject::connect(m_ihm.scan_P1, &QPushButton::clicked, [&]() { this->scan_P1();});
+
+    m_horloge_tours.start();
 }
 
 YDLIDAR_TminiPlus::~YDLIDAR_TminiPlus()
@@ -89,6 +91,11 @@ void YDLIDAR_TminiPlus::new_packet()
     }
 
     if (isLastPacketOfCycle(&m_packet)) {
+        // Date le tour a la reception de son dernier paquet (usec, horloge monotone du driver)
+        // Sans cela m_timestamp restait a 0 : l'enregistreur ecrivait 0 sur chaque ligne et le
+        // rejoueur ne pouvait pas restituer la cadence reelle des tours
+        // Reboucle au bout de ~71 min (unsigned int) : exploiter les ecarts par difference non signee
+        m_current_lidar_data.m_timestamp = (unsigned int)(m_horloge_tours.nsecsElapsed() / 1000);
         m_current_lidar_data.m_angle_step_resolution = 360./m_data_count_in_cycle;
         m_current_lidar_data.m_measures_count = m_data_count_in_cycle;
         if (m_current_lidar_data.m_measures_count <=  m_current_lidar_data.MAX_MEASURES_COUNT ) {

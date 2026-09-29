@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSerialPort>
+#include <QElapsedTimer>
 
 #include "lidar_base.h"
 #include "ydlidar_tminiplus_base.h"
@@ -43,6 +44,11 @@ private :
 
     CLidarData m_current_lidar_data;
     int m_current_index;
+
+    // Horloge monotone datant chaque tour complet (CLidarData::m_timestamp, en usec)
+    // Demarree a la construction du driver : l'origine est arbitraire, seule compte la
+    // difference entre deux tours (cadence, vitesse d'un objet, recalage sur la tirette)
+    QElapsedTimer m_horloge_tours;
 
 
 private slots :

@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QFile>
 #include <math.h>
 #include "lidar_data_player.h"
 #include "lidar_data.h"
@@ -29,6 +30,16 @@ int CLidarDataPlayer::get_step_count()
 bool CLidarDataPlayer::parse(QString pathfilename)
 {
     clear();
+
+    // Aiguillage vers le format "brut" (cf. LIDAR_LOG_ENTETE_FORMAT_BRUT), reconnu a sa 2eme colonne
+    QFile fichier(pathfilename);
+    if (fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QStringList entete = QString(fichier.readLine()).trimmed().split(";");
+        fichier.close();
+        if ((entete.size() > 1) && (entete.at(1).simplified().toLower() == "tirette")) {
+            return parse_format_brut(pathfilename);
+        }
+    }
 
     csvData data;
     csvParser parser;
@@ -124,6 +135,60 @@ bool CLidarDataPlayer::parse(QString pathfilename)
                 .arg(data.m_datas.size());
 
     return true;
+}
+
+// _________________________________________________
+// Lecture du format "brut" : chaque ligne porte son propre angle de debut, son pas et son nombre
+// de mesures (variables d'un tour a l'autre sur un YdLidar)
+// La colonne tirette n'a pas de place dans CLidarData : elle est ignoree au rejeu (elle sert au
+// recalage hors ligne des enregistrements sur le debut du match)
+bool CLidarDataPlayer::parse_format_brut(QString pathfilename)
+{
+    QFile fichier(pathfilename);
+    if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(0, QFileInfo(pathfilename).fileName(), "Impossible d'ouvrir le fichier");
+        return false;
+    }
+    const int NBRE_COLONNES_ENTETE = 5;   // timestamp ; tirette ; angle debut ; resolution ; nombre mesures
+    fichier.readLine();  // en-tete deja reconnu
+    int num_ligne = 1;
+    int lignes_ignorees = 0;
+    while (!fichier.atEnd()) {
+        num_ligne++;
+        QStringList champs = QString(fichier.readLine()).trimmed().split(";");
+        if ((champs.size() == 1) && champs.at(0).isEmpty()) continue;  // ligne vide
+        bool ok_ts, ok_angle, ok_res, ok_nbre;
+        CLidarData lidar_data;
+        lidar_data.m_timestamp = champs.value(0).toUInt(&ok_ts);
+        lidar_data.m_start_angle = champs.value(2).toDouble(&ok_angle);
+        lidar_data.m_angle_step_resolution = champs.value(3).toDouble(&ok_res);
+        int nbre = champs.value(4).toInt(&ok_nbre);
+        // Une ligne incomplete (typiquement la derniere, tronquee par une coupure d'alimentation)
+        // est ignoree plutot que de faire echouer tout le fichier
+        if (!ok_ts || !ok_angle || !ok_res || !ok_nbre
+            || (nbre < 0) || (nbre > CLidarData::MAX_MEASURES_COUNT)
+            || (champs.size() != NBRE_COLONNES_ENTETE + nbre)) {
+            lignes_ignorees++;
+            qDebug() << "Format brut : ligne" << num_ligne << "incomplete ou invalide, ignoree";
+            continue;
+        }
+        lidar_data.m_measures_count = nbre;
+        bool ok_mesures = true;
+        for (int i=0; i<nbre; i++) {
+            bool ok;
+            lidar_data.m_dist_measures[i] = champs.at(NBRE_COLONNES_ENTETE + i).toDouble(&ok);
+            ok_mesures = ok_mesures && ok;
+        }
+        if (!ok_mesures) { lignes_ignorees++; continue; }
+        m_datas.append(lidar_data);
+    }
+    fichier.close();
+
+    if (lignes_ignorees > 0) {
+        QMessageBox::warning(0, QFileInfo(pathfilename).fileName(), QString("%1 ligne(s) incomplete(s) ou invalide(s) ignoree(s)").arg(lignes_ignorees));
+    }
+    qDebug() << QString("Parsing format brut OK : Nombre de tours=%1 / Lignes ignorees=%2").arg(m_datas.size()).arg(lignes_ignorees);
+    return m_datas.size() > 0;
 }
 
 // _________________________________________________
