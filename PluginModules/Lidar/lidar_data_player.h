@@ -8,11 +8,15 @@
 //#include "lidar_data.h"
 class CLidarData;
 
-// En-tete du format d'enregistrement "brut" (une ligne auto-descriptive par tour lidar)
-// Ecrit par CLidar::log_data_brut(), reconnu par CLidarDataPlayer::parse()
-// Colonnes : timestamp ; etat tirette (-1 si non renseigne) ; angle du 1er point ; pas angulaire ;
-//            nombre de mesures N ; puis les N distances
-#define LIDAR_LOG_ENTETE_FORMAT_BRUT  "timestamp [usec];tirette;angle debut [deg];resolution [deg];nombre mesures;mesures [mm]"
+// Format d'enregistrement "brut" (une ligne auto-descriptive par tour lidar)
+// Ecrit par CLidar::log_data_brut(), reconnu par CLidarDataPlayer::parse() a sa 2eme colonne
+// En-tete : les 4 colonnes fixes, puis le nom de chacune des K donnees associees (lues dans le
+//           DataManager a chaque tour : TempsMatch, x_pos...), puis "mesures [mm]"
+// Lignes  : timestamp ; angle du 1er point ; pas angulaire ; nombre de mesures N ;
+//           valeurs des K donnees associees (vide si absente) ; puis les N distances
+#define LIDAR_LOG_BRUT_COLONNES_FIXES     "timestamp [usec];angle debut [deg];resolution [deg];nombre mesures"
+#define LIDAR_LOG_BRUT_NBRE_COLONNES_FIXES  4
+#define LIDAR_LOG_BRUT_COLONNE_MESURES    "mesures [mm]"
 
 class CLidarDataPlayer : public QObject
 {

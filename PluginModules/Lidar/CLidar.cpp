@@ -115,12 +115,19 @@ void CLidar::init(CApplication *application)
     bool enable_update_datamanager = m_application->m_eeprom->read(getName(), "enable_update_datamanager", 1).toBool();
     m_ihm.ui.enable_datamanager_update->setChecked(enable_update_datamanager);
 
-    // Format d'enregistrement "brut" et donnee du DataManager recopiant la tirette
-    // (ex. "RaspiGPIO_17" sur un Raspberry dont le module RaspiGPIO declare gpio_17 en entree)
+    // Format d'enregistrement "brut" et donnees du DataManager enregistrees avec chaque tour,
+    // separees par des virgules (ex. "TempsMatch,x_pos,y_pos,teta_pos" sur l'ecran du robot, qui les
+    // recoit du STM32, ou "RaspiGPIO_17" pour une recopie de tirette sur un GPIO)
+    // Pas de ";" en saisie directe dans EEPROM.ini : QSettings y lit le debut d'un commentaire et
+    // tronque la liste (";" et espaces restent acceptes depuis l'IHM, qui enregistre la valeur entre guillemets)
     bool logger_format_brut = m_application->m_eeprom->read(getName(), "logger_format_brut", false).toBool();
     m_ihm.ui.logger_format_brut->setChecked(logger_format_brut);
-    QString logger_tirette_dataname = m_application->m_eeprom->read(getName(), "logger_tirette_dataname", "").toString();
-    m_ihm.ui.logger_tirette_dataname->setText(logger_tirette_dataname);
+    // Saisie directe "a,b,c" dans EEPROM.ini : QSettings la relit comme une LISTE (toString() rendrait "")
+    QVariant val_datas_associees = m_application->m_eeprom->read(getName(), "logger_datas_associees", "");
+    QString logger_datas_associees = (val_datas_associees.type() == QVariant::StringList)
+                                     ? val_datas_associees.toStringList().join(",")
+                                     : val_datas_associees.toString();
+    m_ihm.ui.logger_datas_associees->setText(logger_datas_associees);
 
     bool synchro_match = m_application->m_eeprom->read(getName(), "synchro_match", 1).toBool();
     m_ihm.ui.enable_synchro_match->setChecked(synchro_match);
@@ -218,7 +225,7 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "auto_increment_pathfilename", m_ihm.ui.logger_name_auto_increment->isChecked());
     m_application->m_eeprom->write(getName(), "synchro_match", m_ihm.ui.enable_synchro_match->isChecked());
     m_application->m_eeprom->write(getName(), "logger_format_brut", m_ihm.ui.logger_format_brut->isChecked());
-    m_application->m_eeprom->write(getName(), "logger_tirette_dataname", m_ihm.ui.logger_tirette_dataname->text());
+    m_application->m_eeprom->write(getName(), "logger_datas_associees", m_ihm.ui.logger_datas_associees->text());
     m_application->m_eeprom->write(getName(), "lidar_autostart_model", m_lidar_autostart_model);
 
     if (m_lidar) m_lidar->save_settings(m_application->m_eeprom, getName());
@@ -655,7 +662,10 @@ void CLidar::log_data(const CLidarData &data)
 
 // _____________________________________________________________________
 // Enregistre un tour au format "brut" : une ligne auto-descriptive par tour
-//      timestamp ; tirette ; angle debut ; resolution ; nombre de mesures ; mesures...
+//      timestamp ; angle debut ; resolution ; nombre de mesures ; donnees associees... ; mesures...
+// Les donnees associees sont lues dans le DataManager au moment ou le tour est complet : c'est leur
+// derniere valeur recue (sur l'ecran, au rythme des trames du STM32), et l'horodatage du tour est celui
+// de ce poste -- une seule horloge pour le lidar et la pose.
 // Contrairement a log_data(), aucune hypothese sur la constance de la configuration du lidar :
 // chaque ligne porte son angle de debut, son pas et son nombre de points.
 // Chaque ligne est poussee jusqu'au systeme de fichiers : sur un robot, LaBotBox s'arrete le plus
@@ -669,35 +679,29 @@ void CLidar::log_data_brut(const CLidarData &data)
 
     if (m_first_log) {
         m_first_log = false;
-        out << LIDAR_LOG_ENTETE_FORMAT_BRUT << endl;
+        // La liste est figee pour tout le fichier : l'en-tete doit decrire toutes ses lignes
+        m_datas_associees_fichier.clear();
+        foreach (QString dataname, m_ihm.ui.logger_datas_associees->text().split(QRegExp("[;,\\s]+"), QString::SkipEmptyParts)) {
+            m_datas_associees_fichier.append(dataname);
+        }
+        out << LIDAR_LOG_BRUT_COLONNES_FIXES;
+        foreach (QString dataname, m_datas_associees_fichier) out << CSV_SEPARATOR << dataname;
+        out << CSV_SEPARATOR << LIDAR_LOG_BRUT_COLONNE_MESURES << endl;
     }
 
     out << data.m_timestamp
-        << CSV_SEPARATOR << lire_tirette()
         << CSV_SEPARATOR << QString::number(data.m_start_angle, 'f', 4)
         << CSV_SEPARATOR << QString::number(data.m_angle_step_resolution, 'f', 6)
         << CSV_SEPARATOR << data.m_measures_count;
+    // Donnee absente du DataManager : cellule vide (CDataManager::read() rend alors "")
+    foreach (QString dataname, m_datas_associees_fichier) {
+        out << CSV_SEPARATOR << m_application->m_data_center->read(dataname).toString();
+    }
     for (int i=0; i<data.m_measures_count; i++) {
         out << CSV_SEPARATOR << QString::number(data.m_dist_measures[i], 'f', 0);
     }
     out << endl;    // endl vide le QTextStream vers le QFile
     m_logger_file->flush();  // puis le QFile vers le systeme
-}
-
-// _____________________________________________________________________
-// Etat de la recopie de tirette au moment de l'enregistrement du tour
-// -1 : aucune donnee configuree ou donnee absente du DataManager (la colonne reste presente)
-// La donnee est lue telle que publiee (ex. RaspiGPIO la rafraichit toutes les 100 ms) :
-// la polarite (tirette en place = 0 ou 1) depend du cablage et se lit sur l'enregistrement
-int CLidar::lire_tirette()
-{
-    QString dataname = m_ihm.ui.logger_tirette_dataname->text().simplified();
-    if (dataname.isEmpty()) return -1;
-    QVariant val = m_application->m_data_center->read(dataname);
-    if (!val.isValid()) return -1;
-    bool ok;
-    int etat = val.toInt(&ok);
-    return ok ? etat : -1;
 }
 
 // _____________________________________________________________________

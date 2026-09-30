@@ -333,27 +333,27 @@
         <item row="6" column="0" colspan="3">
          <widget class="QCheckBox" name="logger_format_brut">
           <property name="toolTip">
-           <string>Une ligne auto-descriptive par tour : timestamp, tirette, angle de début, résolution, nombre de mesures, puis les mesures. Adapté aux lidars dont le nombre de points varie d'un tour à l'autre (YdLidar). Rejouable par l'onglet Replay.</string>
+           <string>Une ligne auto-descriptive par tour : timestamp, angle de début, résolution, nombre de mesures, données associées, puis les mesures. Adapté aux lidars dont le nombre de points varie d'un tour à l'autre (YdLidar). Rejouable par l'onglet Replay.</string>
           </property>
           <property name="text">
-           <string>Format brut (tour complet + tirette)</string>
+           <string>Format brut (tour complet + données associées)</string>
           </property>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QLabel" name="logger_tirette_label">
+         <widget class="QLabel" name="logger_datas_associees_label">
           <property name="text">
-           <string>Tirette</string>
+           <string>Données</string>
           </property>
          </widget>
         </item>
         <item row="7" column="1" colspan="2">
-         <widget class="QLineEdit" name="logger_tirette_dataname">
+         <widget class="QLineEdit" name="logger_datas_associees">
           <property name="toolTip">
-           <string>Nom de la donnée du DataManager recopiant la tirette (ex. RaspiGPIO_17). Vide : colonne tirette à -1.</string>
+           <string>Données du DataManager enregistrées avec chaque tour, séparées par des virgules (ex. TempsMatch,x_pos,y_pos,teta_pos). Liste figée à l'ouverture du fichier. Donnée absente : cellule vide.</string>
           </property>
           <property name="placeholderText">
-           <string>ex. RaspiGPIO_17</string>
+           <string>ex. TempsMatch,x_pos,y_pos,teta_pos</string>
           </property>
          </widget>
         </item>
