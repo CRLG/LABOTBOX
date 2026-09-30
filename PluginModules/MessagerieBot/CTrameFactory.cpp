@@ -2175,6 +2175,12 @@ CTrame_POSITION_ABSOLUE_XY_TETA::CTrame_POSITION_ABSOLUE_XY_TETA(CMessagerieBot 
  m_liste_noms_signaux.append("y_pos");
  m_liste_noms_signaux.append("x_pos");
 
+ // Initialise les données de la messagerie (atelier evitement 2027) : publiées ci-dessous avant la
+ // première trame, elles apparaissaient sinon avec une valeur quelconque dans l'enregistrement du lidar
+ teta_pos = 0;
+ y_pos = 0;
+ x_pos = 0;
+
  // S'assure que les données existent dans le DataManager
  data_manager->write("teta_pos",  teta_pos);
  data_manager->write("y_pos",  y_pos);
@@ -2559,6 +2565,16 @@ CTrame_ECRAN_ETAT_MATCH::CTrame_ECRAN_ETAT_MATCH(CMessagerieBot *messagerie_bot,
  m_liste_noms_signaux.append("TempsMatch");
  m_liste_noms_signaux.append("Score");
 
+ // Initialise les données de la messagerie (atelier evitement 2027) : publiées ci-dessous avant la
+ // première trame, elles apparaissaient sinon avec une valeur quelconque dans l'enregistrement du lidar
+ ObstacleDetecte = 0;
+ OrigineDetectionObstacle = 0;
+ DiagBlocage = 0;
+ ConvergenceAsserv = 0;
+ CouleurEquipe = 0;
+ TempsMatch = 0;
+ Score = 0;
+
  // S'assure que les données existent dans le DataManager
  data_manager->write("ObstacleDetecte",  ObstacleDetecte);
  data_manager->write("OrigineDetectionObstacle",  ObstacleDetecte);
@@ -2637,6 +2653,27 @@ CTrame_ETAT_EVITEMENT_AE::CTrame_ETAT_EVITEMENT_AE(CMessagerieBot *messagerie_bo
  m_liste_noms_signaux.append(QString("%1.ReculPossible").arg(prefix_ae));
  m_liste_noms_signaux.append(QString("%1.EsquivePossible").arg(prefix_ae));
  m_liste_noms_signaux.append(QString("%1.EvitementEnCours").arg(prefix_ae));
+
+ // Initialise les donnees de la messagerie : elles sont publiees ci-dessous avant la reception de la
+ // premiere trame, et un membre non initialise y apparaissait comme une valeur plausible
+ // (ex. une distance de 4148 cm) -- dans l'enregistrement du lidar comme dans la vue des donnees
+ Menace = 0;
+ MarcheAE = 0;
+ NombrePistes = 0;
+ CoteLibre = 0;
+ Distance_cm = 0;
+ Angle_rad = 0;
+ TTC_s = 0;
+ Dmin_cm = 0;
+ PisteX_cm = 0;
+ PisteY_cm = 0;
+ PisteV_cms = 0;
+ CapEsquive_rad = 0;
+ AgeScan_ms = 0;
+ PisteStatique = false;
+ ReculPossible = false;
+ EsquivePossible = false;
+ EvitementEnCours = false;
 
  // S'assure que les donnees existent dans le DataManager
  data_manager->write((QString("%1.Menace").arg(prefix_ae)), Menace);
