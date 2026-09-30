@@ -67,6 +67,7 @@ LIST_TOOLS+= CustomPlot\
              ExternalControlerClient \
              DataHandler \
              CsvParser \
+             Exchanger \
 
 # __________________________________________________
 # Ajouter ici les modules externes CppRobLib
