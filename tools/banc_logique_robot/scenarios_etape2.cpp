@@ -2,6 +2,13 @@
 #include <cstdio>
 #include "banc.h"
 #include "scenarios.h"
+#include "ConfigSpecifiqueCoupe.h"
+
+// Point de depart du robot (couleur 1) : arriere contre la petite bordure, face au centre (cap +X).
+// « Devant a d cm » = (X0 + d ; Y0) ; « a gauche » = +Y.
+#define X0 (X_ROBOT_TERRAIN_INIT_COULEUR_1)
+#define Y0 (Y_ROBOT_TERRAIN_INIT_COULEUR_1)
+
 
 // ___________________________________________________________________________
 // Etape 2 de l'atelier evitement 2027 : le suivi temporel, dans la chaine reelle.
@@ -18,7 +25,7 @@
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(0, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
 }
 
 void scenarios_etape2(Banc &banc)
@@ -35,15 +42,15 @@ void scenarios_etape2(Banc &banc)
 
     banc.titre("Adversaire immobile, robot immobile : une piste statique");
     depart(banc);
-    banc.adversaireEnPositionTerrain(42.f, 71.5f);     // 1 m devant le robot au depart
+    banc.adversaireEnPositionTerrain(X0 + 100.f, Y0); // 1 m devant le robot au depart
     banc.simuler(60);                                  // 1,2 s : une dizaine de tours de balayage
     SM_DatasInterface *d = banc.donnees();
     printf("     pistes=%d  piste proche : X=%.1f Y=%.1f V=%.1f cm/s statique=%d  age scan=%d ms\n",
            d->evit_nb_pistes, d->evit_piste_proche_X_cm, d->evit_piste_proche_Y_cm,
            d->evit_piste_proche_V_cms, d->evit_piste_proche_statique, d->evit_age_scan_ms);
     banc.verifier(d->evit_nb_pistes == 1, "une seule piste suivie");
-    banc.verifier(fabsf(d->evit_piste_proche_X_cm - 42.f) < 6.f
-               && fabsf(d->evit_piste_proche_Y_cm - 71.5f) < 6.f,
+    banc.verifier(fabsf(d->evit_piste_proche_X_cm - (X0 + 100.f)) < 6.f
+               && fabsf(d->evit_piste_proche_Y_cm - Y0) < 6.f,
                   "position de la piste retrouvee dans le repere terrain");
     banc.verifier(d->evit_piste_proche_V_cms < 10.f, "vitesse sous le seuil statique");
     banc.verifier(d->evit_piste_proche_statique, "piste declaree statique");
@@ -51,13 +58,13 @@ void scenarios_etape2(Banc &banc)
 
     banc.titre("Adversaire immobile, NOTRE robot avance vers lui");
     depart(banc);
-    banc.adversaireEnPositionTerrain(42.f, 71.5f);
+    banc.adversaireEnPositionTerrain(X0 + 100.f, Y0);
     banc.simuler(60, 40.f, 0.f);                       // 1,2 s a 40 cm/s : on se rapproche de 48 cm
     d = banc.donnees();
     printf("     piste proche : X=%.1f Y=%.1f V=%.1f cm/s statique=%d\n",
            d->evit_piste_proche_X_cm, d->evit_piste_proche_Y_cm,
            d->evit_piste_proche_V_cms, d->evit_piste_proche_statique);
-    banc.verifier(fabsf(d->evit_piste_proche_Y_cm - 71.5f) < 8.f,
+    banc.verifier(fabsf(d->evit_piste_proche_X_cm - (X0 + 100.f)) < 8.f,
                   "la piste reste a sa place : c'est nous qui avancons");
     banc.verifier(d->evit_piste_proche_V_cms < 10.f,
                   "vitesse sous le seuil statique malgre notre deplacement");
@@ -65,7 +72,7 @@ void scenarios_etape2(Banc &banc)
 
     banc.titre("Adversaire immobile, NOTRE robot tourne sur lui-meme");
     depart(banc);
-    banc.adversaireEnPositionTerrain(42.f, 71.5f);
+    banc.adversaireEnPositionTerrain(X0 + 100.f, Y0);
     banc.simuler(60, 0.f, 1.0f);                       // 1,2 s a 1 rad/s
     d = banc.donnees();
     printf("     piste proche : X=%.1f Y=%.1f V=%.1f cm/s statique=%d\n",
@@ -77,9 +84,9 @@ void scenarios_etape2(Banc &banc)
 
     banc.titre("Adversaire qui traverse a 40 cm/s, notre robot immobile");
     depart(banc);
-    const float y_adv = 71.5f;
+    const float x_adv = X0 + 100.f;
     for (int n = 0; n < 80; n++) {
-        banc.adversaireEnPositionTerrain(42.f + 40.f * n * 0.02f, y_adv);
+        banc.adversaireEnPositionTerrain(x_adv, Y0 + 40.f * n * 0.02f);
         banc.simuler(1);
     }
     d = banc.donnees();
@@ -91,7 +98,7 @@ void scenarios_etape2(Banc &banc)
 
     banc.titre("L'adversaire disparait : la piste survit un instant, puis est perdue");
     depart(banc);
-    banc.adversaireEnPositionTerrain(42.f, 71.5f);
+    banc.adversaireEnPositionTerrain(X0 + 100.f, Y0);
     banc.simuler(60);
     banc.retirerAdversaire();
     banc.simuler(20);                                  // 400 ms : environ 3 tours de balayage

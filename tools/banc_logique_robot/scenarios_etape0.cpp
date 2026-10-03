@@ -1,12 +1,13 @@
 #include <cstdio>
 #include "banc.h"
 #include "scenarios.h"
+#include "ConfigSpecifiqueCoupe.h"
 #include "Lidar_utils.h"
 
 void trace_match(Banc &banc, int duree_s)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(0, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
     for (int t = 0; t < duree_s * 5; t++) {        // une ligne toutes les 200 ms
         banc.passagesModele(10);
         SM_InputsInterface *in = banc.entrees();
@@ -21,7 +22,8 @@ void trace_match(Banc &banc, int duree_s)
 // ___________________________________________________________________________
 // Etape 0 de l'atelier evitement 2027 : assainissement de la chaine de detection existante.
 //
-// Contexte commun : match demarre en couleur 1, strategie par defaut. Le robot est au depart
+// Contexte commun : match demarre en couleur 1, essai E6_PARCOURS_ATTENDRE (evitement historique,
+// le robot part en marche avant). Le robot est au depart
 // (X=42, Y=171,5 en repere terrain, cap asserv -PI/2) avec une consigne vers l'avant : pour la
 // detection il est en marche avant (le plugin seul ne le deplace pas, SimuBot etant absent).
 // Les obstacles sont injectes comme le fait SimuBot : Lidar.ObstacleN.Distance [mm] / Angle [deg].
@@ -48,7 +50,7 @@ static bool attendreEvitement(Banc &banc)
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(0, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
 }
 
 void scenarios_etape0(Banc &banc)

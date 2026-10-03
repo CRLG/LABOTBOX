@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include "banc.h"
 #include "scenarios.h"
+#include "ConfigSpecifiqueCoupe.h"
 #include "Lidar_utils.h"
 
 // ___________________________________________________________________________
@@ -25,7 +26,7 @@ static bool attendreEvitement(Banc &banc)
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(0, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
 }
 
 void scenarios_etape1(Banc &banc)

@@ -2,6 +2,13 @@
 #include <cstdio>
 #include "banc.h"
 #include "scenarios.h"
+#include "ConfigSpecifiqueCoupe.h"
+
+// Point de depart du robot (couleur 1) : arriere contre la petite bordure, face au centre (cap +X).
+// « Devant a d cm » = (X0 + d ; Y0) ; « a gauche » = +Y.
+#define X0 (X_ROBOT_TERRAIN_INIT_COULEUR_1)
+#define Y0 (Y_ROBOT_TERRAIN_INIT_COULEUR_1)
+
 #include "CTacticalEvaluator.h"
 
 // ___________________________________________________________________________
@@ -12,7 +19,7 @@
 // de la chaine complete -- balayage a 8 Hz, filtre, suivi, projection en repere terrain -- pour
 // les situations de reference du document.
 //
-// Le robot part en (42 ; 171,5) cap terrain -PI/2 : il regarde vers les Y decroissants. « Devant
+// Le robot part en (X0 ; Y0), arriere contre la petite bordure, cap terrain 0 : il regarde vers les X croissants. « Devant
 // lui a 70 cm » se lit donc (42 ; 101,5).
 // ___________________________________________________________________________
 
@@ -30,14 +37,14 @@ static const char *nom_niveau(unsigned char n)
 static void depart(Banc &banc)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(0, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
 }
 
 //! Adversaire immobile devant le robot, a la distance voulue ; rend le verdict etabli
 static SM_DatasInterface *adversaire_immobile(Banc &banc, float distance_cm, float decalage_lateral_cm = 0.f)
 {
     depart(banc);
-    banc.adversaireEnPositionTerrain(42.f + decalage_lateral_cm, 171.5f - distance_cm);
+    banc.adversaireEnPositionTerrain(X0 + distance_cm, Y0 + decalage_lateral_cm);
     banc.simuler(70);                              // 1,4 s : une dizaine de tours de balayage
     return banc.donnees();
 }
@@ -70,7 +77,7 @@ void scenarios_etape3(Banc &banc)
     depart(banc);
     for (int n = 0; n < 70; n++) {
         // part a 1,2 m devant et remonte vers nous a 60 cm/s
-        banc.adversaireEnPositionTerrain(42.f, 171.5f - 120.f + 60.f * n * 0.02f);
+        banc.adversaireEnPositionTerrain(X0 + 120.f - 60.f * n * 0.02f, Y0);
         banc.simuler(1);
     }
     d = banc.donnees();
@@ -84,7 +91,7 @@ void scenarios_etape3(Banc &banc)
     depart(banc);
     for (int n = 0; n < 70; n++) {
         // part a 50 cm devant et s'en va a 60 cm/s
-        banc.adversaireEnPositionTerrain(42.f, 171.5f - 50.f - 60.f * n * 0.02f);
+        banc.adversaireEnPositionTerrain(X0 + 50.f + 60.f * n * 0.02f, Y0);
         banc.simuler(1);
     }
     d = banc.donnees();

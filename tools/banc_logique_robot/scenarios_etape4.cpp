@@ -5,6 +5,12 @@
 #include "CTacticalEvaluator.h"
 #include "ConfigSpecifiqueCoupe.h"
 
+// Point de depart du robot (couleur 1) : arriere contre la petite bordure, face au centre (cap +X).
+// « Devant a d cm » = (X0 + d ; Y0) ; « a gauche » = +Y.
+#define X0 (X_ROBOT_TERRAIN_INIT_COULEUR_1)
+#define Y0 (Y_ROBOT_TERRAIN_INIT_COULEUR_1)
+
+
 // ___________________________________________________________________________
 // Etape 4 de l'atelier evitement 2027 : la strategie d'evitement AE, echelle de phases reentrante.
 //
@@ -13,11 +19,11 @@
 // reprend la main entre deux marches, la voie qui se degage remet tout a plat, et les niveaux bas
 // ne declenchent aucune manoeuvre.
 //
-// La strategie AE n'est portee que par les strategies d'HOMOLOGATION (1 et 2) ; la strategie 0
+// La strategie AE est choisie par le script de l'essai (ici E3_A_VIDE) ; E6_PARCOURS_ATTENDRE
 // (PAR_DEFAUT) garde le comportement historique. Les suites des etapes 0 a 3 jouent toutes en
-// strategie 0 : elles verifient donc, par construction, la non-regression de l'existant.
+// (evitement historique) : elles verifient donc, par construction, la non-regression de l'existant.
 //
-// Le robot part en (42 ; 171,5) cap terrain -PI/2 : il regarde vers les Y decroissants.
+// Le robot part en (X0 ; Y0), arriere contre la petite bordure, cap terrain 0 : il regarde vers les X croissants.
 // ___________________________________________________________________________
 
 static const char *nom_marche(unsigned char e)
@@ -38,7 +44,7 @@ static const char *nom_marche(unsigned char e)
 static void depart_ae(Banc &banc)
 {
     banc.reinitialiser();
-    banc.demarrerMatch(STRATEGIE_HOMOLO1, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E3_A_VIDE, SM_DatasInterface::EQUIPE_COULEUR_1);
 }
 
 //! Joue des passages jusqu'a ce que la marche de l'echelle atteigne au moins "marche"
@@ -59,14 +65,14 @@ void scenarios_etape4(Banc &banc)
     // ___________________________________________________________________
     banc.titre("Les niveaux bas ne declenchent aucune manoeuvre");
     depart_ae(banc);
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 70.f);     // 70 cm droit devant : PRUDENCE
+    banc.adversaireEnPositionTerrain(X0 + 70.f, Y0);     // 70 cm droit devant : PRUDENCE
     banc.simuler(70);
     printf("     a 70 cm : marche=%-9s evitement=%d\n", nom_marche(d->evit_ae_state), (int)d->evitementEnCours);
     banc.verifier(d->evit_menace == MENACE_PRUDENCE, "70 cm : menace PRUDENCE");
     banc.verifier(d->evit_ae_state == SM_DatasInterface::ETAT_AE_PRUDENCE, "marche PRUDENCE posee par IA");
     banc.verifier(!d->evitementEnCours, "aucune entree en evitement : la mission continue");
 
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 40.f);     // 40 cm : RALENTI
+    banc.adversaireEnPositionTerrain(X0 + 40.f, Y0);     // 40 cm : RALENTI
     banc.simuler(70);
     banc.verifier(d->evit_menace == MENACE_RALENTI, "40 cm : menace RALENTI");
     banc.verifier(d->evit_ae_state == SM_DatasInterface::ETAT_AE_RALENTI, "marche RALENTI");
@@ -75,7 +81,7 @@ void scenarios_etape4(Banc &banc)
     // ___________________________________________________________________
     banc.titre("L'echelle monte d'une marche par entree dans l'evitement");
     depart_ae(banc);
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 25.f);     // 25 cm droit devant : ARRET
+    banc.adversaireEnPositionTerrain(X0 + 25.f, Y0);     // 25 cm droit devant : ARRET
     int p = attendreMarche(banc, SM_DatasInterface::ETAT_AE_ARRET);
     printf("     arret atteint en %d passages (marche=%s)\n", p, nom_marche(d->evit_ae_state));
     banc.verifier(p >= 0, "l'arret est atteint");
@@ -120,7 +126,7 @@ void scenarios_etape4(Banc &banc)
     banc.verifier(d->evit_ae_chrono_blocage_ms == 0, "temps de blocage oublie");
 
     // Un nouvel adversaire repart donc du bas de l'echelle, et non du blocage precedent
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 25.f);
+    banc.adversaireEnPositionTerrain(X0 + 25.f, Y0);
     p = attendreMarche(banc, SM_DatasInterface::ETAT_AE_ARRET);
     banc.verifier(p >= 0, "le prochain adversaire est negocie depuis le debut");
     banc.verifier(d->evit_ae_state == SM_DatasInterface::ETAT_AE_ARRET, "premiere marche a nouveau : l'arret");
@@ -148,16 +154,16 @@ void scenarios_etape4(Banc &banc)
     banc.verifier(fabsf(ecart_cap) <= (ECART_AE_ESQUIVE_MAX_RAD + 0.01f),
                   "l'esquive reste une esquive, pas un demi-tour");
 
-    // Le robot part adosse a la bordure du fond : y reculer est refuse
+    // Le robot part adosse a sa petite bordure : y reculer est refuse
     depart_ae(banc);
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 30.f);
+    banc.adversaireEnPositionTerrain(X0 + 30.f, Y0);
     banc.simuler(70);
     printf("     en zone de depart : recul=%d\n", (int)d->evit_recul_possible);
     banc.verifier(!d->evit_recul_possible, "zone de depart : le recul vers le fond est refuse");
 
     // Robot adosse a la bordure basse : reculer l'y enfoncerait -> veto
     banc.reinitialiser();
-    banc.demarrerMatch(STRATEGIE_HOMOLO1, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.demarrerMatch(STRATEGIE_E3_A_VIDE, SM_DatasInterface::EQUIPE_COULEUR_1);
     banc.placerRobotTerrain(42.f, 15.f, -(float)M_PI/2.f);   // cap vers Y decroissants, dos au bord
     banc.adversaireEnPositionTerrain(42.f, 15.f - 25.f);
     banc.simuler(70);
@@ -167,7 +173,7 @@ void scenarios_etape4(Banc &banc)
     // ___________________________________________________________________
     banc.titre("L'alea porte sur le temps, et reste borne");
     depart_ae(banc);
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 25.f);
+    banc.adversaireEnPositionTerrain(X0 + 25.f, Y0);
     unsigned long tempo_min = 0xFFFFFFFFUL, tempo_max = 0;
     for (int i = 0; i < 40; i++) {
         banc.passagesModele(1);
@@ -193,8 +199,8 @@ void scenarios_etape4(Banc &banc)
     // ___________________________________________________________________
     banc.titre("Non-regression : la strategie par defaut ignore AE");
     banc.reinitialiser();
-    banc.demarrerMatch(STRATEGIE_PAR_DEFAUT, SM_DatasInterface::EQUIPE_COULEUR_1);
-    banc.adversaireEnPositionTerrain(42.f, 171.5f - 25.f);
+    banc.demarrerMatch(STRATEGIE_E6_PARCOURS_ATTENDRE, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.adversaireEnPositionTerrain(X0 + 25.f, Y0);
     banc.simuler(70);
     printf("     strategie par defaut : choix=%d marche=%s\n",
            (int)d->evit_choix_strategie, nom_marche(d->evit_ae_state));
@@ -202,4 +208,35 @@ void scenarios_etape4(Banc &banc)
                   "la strategie par defaut reste ATTENDRE");
     banc.verifier(d->evit_ae_state == SM_DatasInterface::ETAT_AE_LIBRE,
                   "l'echelle AE n'est pas alimentee");
+
+    // ___________________________________________________________________
+    // Essais sur table : un robot qui sert de cible ou de mobile de reference a son evitement
+    // INHIBE par le script de l'essai. Il doit continuer a percevoir et a evaluer (c'est ce qu'il
+    // enregistre), sans jamais entrer en evitement.
+    banc.titre("Essai sur table : robot cible, evitement inhibe");
+    banc.reinitialiser();
+    banc.demarrerMatch(STRATEGIE_E1_DISTANCE, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.simuler(5);
+    banc.adversaireEnPositionTerrain(X0 + 25.f, Y0);
+    banc.simuler(70);
+    printf("     inhibe=%d menace=%d obstacleDetecte=%d evitement=%d marche=%s\n",
+           (int)d->evit_inhibe_obstacle, (int)d->evit_menace, (int)banc.entrees()->obstacleDetecte,
+           (int)d->evitementEnCours, nom_marche(d->evit_ae_state));
+    banc.verifier(d->evit_inhibe_obstacle, "le script de l'essai inhibe l'evitement");
+    banc.verifier(d->evit_menace == MENACE_ARRET, "la perception continue : l'adversaire a 25 cm est vu");
+    banc.verifier(!banc.entrees()->obstacleDetecte, "aucun declenchement d'evitement");
+    banc.verifier(!d->evitementEnCours, "le robot n'entre pas en evitement");
+
+    banc.titre("Essai sur table : la couleur donne le role");
+    banc.reinitialiser();
+    banc.demarrerMatch(STRATEGIE_E4_FACE_ASYM, SM_DatasInterface::EQUIPE_COULEUR_1);
+    banc.simuler(5);
+    const unsigned char choix_c1 = d->evit_choix_strategie;
+    banc.reinitialiser();
+    banc.demarrerMatch(STRATEGIE_E4_FACE_ASYM, SM_DatasInterface::EQUIPE_COULEUR_2);
+    banc.simuler(5);
+    const unsigned char choix_c2 = d->evit_choix_strategie;
+    printf("     E4_FACE_ASYM : couleur 1 -> %d, couleur 2 -> %d\n", (int)choix_c1, (int)choix_c2);
+    banc.verifier(choix_c1 == SM_DatasInterface::STRATEGIE_EVITEMENT_AE, "couleur 1 : evitement AE");
+    banc.verifier(choix_c2 == SM_DatasInterface::STRATEGIE_EVITEMENT_ATTENDRE, "couleur 2 : evitement historique");
 }
