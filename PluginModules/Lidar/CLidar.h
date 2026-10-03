@@ -101,6 +101,15 @@ private:
     void log_data_brut(const CLidarData &data);
     QStringList m_datas_associees_fichier;  // donnees associees figees a l'ouverture du fichier (en-tete)
 
+    // Atelier evitement 2027 : un fichier par essai, nomme d'apres la strategie choisie a l'ecran
+    // (cles EEPROM logger_nom_par_strategie et logger_prefixe ; cf. nomStrategie_changed())
+    bool m_nom_par_strategie;
+    QString m_prefixe_fichier;          // nom du robot, pour que les fichiers des deux robots ne se confondent pas
+    QString m_strategie_fichier;        // strategie du fichier en cours ("" = aucun)
+    bool m_match_dans_fichier;          // le fichier en cours contient deja un match
+    bool m_rouvrir_fichier;             // nouveau match annonce : fichier a rouvrir au prochain tour
+    void demarrerFichierStrategie(const QString &nom_strategie);
+
     CLidarDataPlayer m_data_player;
     void player_parse();
 
@@ -125,6 +134,8 @@ private slots :
     void filter_params_load();
     void on_filter_params_close();
     void temps_match_changed(QVariant temps_match);
+    void nomStrategie_changed(QVariant nom);
+    void tempsMatch_fichier_strategie(QVariant temps_match);
     void active_synchro_match_logger(bool on_off);
 
 signals :

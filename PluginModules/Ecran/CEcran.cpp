@@ -96,6 +96,7 @@ void CEcran::init(CApplication *application)
   // S'assure que les données existent dans le DataManager
   m_application->m_data_center->write("CouleurEquipe",  -1);
   m_application->m_data_center->write("NumStrategie",  -1);
+  m_application->m_data_center->write("NomStrategie",  QString(""));
   m_application->m_data_center->write("ModeFonctionnement",  -1);
   m_application->m_data_center->write("Telemetre6",  -1);
   m_application->m_data_center->write("Telemetre5",  -1);
@@ -420,39 +421,48 @@ void CEcran::onRPI_Reboot()
 // =======================================================
 //                    STRATEGY
 // =======================================================
+// Atelier evitement 2027 : les strategies sont les ESSAIS SUR TABLE de l'atelier. Ordre et noms
+// ALIGNES sur eATTRIBUTION_STRATEGIES (Soft_STM32/CM7/Includes/ConfigSpecifiqueCoupe.h) et sur la table
+// ESSAIS_ATELIER (Soft_STM32/CM7/Modelia/essais_atelier.cpp) : le rang dans la liste est le numero envoye
+// au STM32. Le nom sert aussi a nommer les enregistrements du lidar (donnee "NomStrategie").
+static const char *NOMS_STRATEGIES_ATELIER[] = {
+    "IMMOBILE",
+    "E1_SEUL",
+    "E1_DECOR",
+    "E1_DISTANCE",
+    "E1_OMBRE",
+    "E2_ROTATION",
+    "E2_APPROCHE",
+    "E2_TRAVERSE",
+    "E3_APPROCHE",
+    "E3_A_VIDE",
+    "E4_FACE_AE",
+    "E4_FACE_ASYM",
+    "E4_CROISEMENT",
+    "E4_POURSUITE",
+    "E4_COIN",
+    "E5_HOMOLO",
+    "E6_PARCOURS_AE",
+    "E6_PARCOURS_ATTENDRE",
+};
+static const unsigned char NOMBRE_STRATEGIES_ATELIER = sizeof(NOMS_STRATEGIES_ATELIER) / sizeof(NOMS_STRATEGIES_ATELIER[0]);
+
 void CEcran::initStrategies()
 {
     QStringList list;
     // Lettre ici tous les numéros de stratégie possible
     // Seuls les numéros déclarés dans la liste ci-dessous seront proposés dans la liste déroulante
-    list << strategyNumToString(0)
-         << strategyNumToString(1)
-         << strategyNumToString(2)
-         << strategyNumToString(3)
-         << strategyNumToString(4)
-         << strategyNumToString(5)
-         << strategyNumToString(6)
-         << strategyNumToString(7)
-         << strategyNumToString(8);
+    for (unsigned char num = 0; num < NOMBRE_STRATEGIES_ATELIER; num++) {
+        list << strategyNumToString(num);
+    }
     m_ihm.ui.combo_ChoixStrategie->addItems(list);
 }
 
 QString CEcran::strategyNumToString(unsigned char num)
 {
     // Correspondance entre un numéro et un nom de stratégie
-    // Possibilité de mettre des noms plus parlants si besoin
-    switch(num) {
-        case 0 : return "Par défaut";
-        case 1 : return "Homolo 1";
-        case 2 : return "Homolo 2";
-        case 3 : return "Strategie 1";
-        case 4 : return "Strategie 2";
-        case 5 : return "Strategie 3";
-        case 6 : return "Strategie 4";
-        case 7 : return "Strategie 5";
-        case 8 : return "Strategie 6";
-        default : return "!! UNKNOWN STRATEGY: " + QString::number(num);
-    }
+    if (num < NOMBRE_STRATEGIES_ATELIER) return NOMS_STRATEGIES_ATELIER[num];
+    return "!! UNKNOWN STRATEGY: " + QString::number(num);
 }
 
 void CEcran::onStrategyChoice_changed(int val)
@@ -495,6 +505,9 @@ void CEcran::onCPU_SwitchToModeLabotbox()
 void CEcran::NumStrategie_changed(QVariant val)
 {
    m_ihm.ui.lbl_RetourStrategie->setText(strategyNumToString(val.toInt()));
+   // Nom de la strategie CONFIRMEE par le STM32 (retour de la trame ETAT_MATCH), publie pour nommer
+   // les enregistrements du lidar (module Lidar). Vide tant qu'aucune strategie n'est connue.
+   m_application->m_data_center->write("NomStrategie", (val.toInt() >= 0) ? strategyNumToString(val.toInt()) : QString(""));
    checkStrategyMatch();
 }
 

@@ -4,6 +4,8 @@
  */
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
 #include "CLidar.h"
 #include "lidar_data_filter_module_factory.h"
 #include "lidar_filter_params.h"
@@ -37,7 +39,10 @@ CLidar::CLidar(const char *plugin_name)
       m_angular_axis(Q_NULLPTR),
       m_logger_active(false),
       m_first_log(true),
-      m_logger_file(Q_NULLPTR)
+      m_logger_file(Q_NULLPTR),
+      m_nom_par_strategie(false),
+      m_match_dans_fichier(false),
+      m_rouvrir_fichier(false)
 {
 }
 
@@ -151,7 +156,21 @@ void CLidar::init(CApplication *application)
     connect(&m_data_player, SIGNAL(new_data(CLidarData)), this, SLOT(new_data(CLidarData)));
     connect(&m_data_player, SIGNAL(played(int)), this, SLOT(on_PlayedStep(int)));
 
-    if (m_ihm.ui.enable_autostart_logger->isChecked())  logger_start();
+    // Atelier evitement 2027 : mode "un fichier par essai". Le fichier s'ouvre quand le STM32 confirme
+    // la strategie choisie a l'ecran (donnee NomStrategie, publiee par le module Ecran) et se nomme
+    // <prefixe>_<STRATEGIE>_NNNNN.csv, dans le repertoire de logger_pathfilename. Ce mode remplace le
+    // demarrage automatique : avant le choix d'un essai, on ne sait pas comment nommer le fichier.
+    m_nom_par_strategie = m_application->m_eeprom->read(getName(), "logger_nom_par_strategie", false).toBool();
+    m_prefixe_fichier = m_application->m_eeprom->read(getName(), "logger_prefixe", "").toString().simplified();
+    if (m_nom_par_strategie) {
+        m_ihm.ui.logger_name_auto_increment->setChecked(true);  // jamais d'ecrasement d'un essai
+        logger_stop();
+        connect(m_application->m_data_center->getData("NomStrategie", true), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(nomStrategie_changed(QVariant)));
+        connect(m_application->m_data_center->getData("TempsMatch", true), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(tempsMatch_fichier_strategie(QVariant)));
+    }
+    else if (m_ihm.ui.enable_autostart_logger->isChecked())  logger_start();
     else                                                logger_stop();
 
     m_ihm.ui.lidar_models->addItems(LidarFactory::getExisting());
@@ -227,6 +246,8 @@ void CLidar::close(void)
     m_application->m_eeprom->write(getName(), "logger_format_brut", m_ihm.ui.logger_format_brut->isChecked());
     m_application->m_eeprom->write(getName(), "logger_datas_associees", m_ihm.ui.logger_datas_associees->text());
     m_application->m_eeprom->write(getName(), "lidar_autostart_model", m_lidar_autostart_model);
+    m_application->m_eeprom->write(getName(), "logger_nom_par_strategie", m_nom_par_strategie);
+    m_application->m_eeprom->write(getName(), "logger_prefixe", m_prefixe_fichier);
 
     if (m_lidar) m_lidar->save_settings(m_application->m_eeprom, getName());
 }
@@ -305,6 +326,12 @@ void CLidar::new_data(const CLidarData &data)
         else {  // affiche les données brutes
             refresh_graph(data);
         }
+    }
+
+    // Nouveau match annonce (cf. tempsMatch_fichier_strategie) : le fichier n'est rouvert qu'ici, au
+    // premier tour qui suit, pour laisser a la strategie le temps de changer dans la meme trame
+    if (m_rouvrir_fichier && !m_strategie_fichier.isEmpty()) {
+        demarrerFichierStrategie(m_strategie_fichier);
     }
 
     if (m_logger_active) {
@@ -524,6 +551,48 @@ void CLidar::temps_match_changed(QVariant temps_match)
         }
         logger_start();
     }
+}
+
+// _____________________________________________________________________
+// Atelier evitement 2027 -- mode "un fichier par essai"
+// Strategie confirmee par le STM32 : nouveau fichier a son nom. IMMOBILE (la strategie de mise sous
+// tension) et une strategie inconnue n'ouvrent rien : ce ne sont pas des essais.
+void CLidar::nomStrategie_changed(QVariant nom)
+{
+    QString strategie = nom.toString().simplified();
+    if (strategie.isEmpty() || (strategie == "IMMOBILE") || strategie.startsWith("!!")) {
+        logger_stop();
+        m_strategie_fichier.clear();
+        m_rouvrir_fichier = false;
+        return;
+    }
+    demarrerFichierStrategie(strategie);
+}
+
+// Un nouveau match dans la meme session de LaBotBox (STM32 relance, ecran reste allume) : TempsMatch
+// retombe a zero ou moins apres un match enregistre -> nouveau fichier, meme strategie. Il n'est ouvert
+// qu'au tour suivant (cf. new_data) : a la relance du STM32, la strategie retombe a IMMOBILE dans la
+// meme trame, et aucun fichier ne doit alors s'ouvrir.
+void CLidar::tempsMatch_fichier_strategie(QVariant temps_match)
+{
+    if (m_strategie_fichier.isEmpty()) return;
+    if (temps_match.toDouble() > 0.) {
+        m_match_dans_fichier = true;
+    }
+    else if (m_match_dans_fichier) {
+        m_rouvrir_fichier = true;
+    }
+}
+
+void CLidar::demarrerFichierStrategie(const QString &nom_strategie)
+{
+    QString repertoire = QFileInfo(m_ihm.ui.logger_pathfilename->text()).absolutePath();
+    QDir().mkpath(repertoire);
+    QString nom = m_prefixe_fichier.isEmpty() ? nom_strategie : (m_prefixe_fichier + "_" + nom_strategie);
+    m_strategie_fichier = nom_strategie;
+    m_match_dans_fichier = false;
+    m_rouvrir_fichier = false;
+    logger_start(repertoire + "/" + nom + ".csv");  // suffixe _NNNNN ajoute par logger_start()
 }
 
 // _____________________________________________________________________
